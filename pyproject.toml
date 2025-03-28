@@ -23,6 +23,7 @@ pydantic = "!=2.10"
 click = "^8.1.7"
 python-dotenv = "^1.0.1"
 eval-type-backport = {python = "<3.10", version = "^0.2.0"}
+banks = "^2.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
