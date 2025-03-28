@@ -39,7 +39,7 @@ SchemaInput = Union[JSONObjectType, Type[BaseModel]]
 
 DEFAULT_EXTRACT_CONFIG = ExtractConfig(
     extraction_target=ExtractTarget.PER_DOC,
-    extraction_mode=ExtractMode.ACCURATE,
+    extraction_mode=ExtractMode.BALANCED,
 )
 
 
@@ -564,6 +564,14 @@ class LlamaExtract(BaseComponent):
         Returns:
             ExtractionAgent: The created extraction agent
         """
+        if config is not None:
+            if config.extraction_mode == ExtractMode.ACCURATE:
+                warnings.warn(
+                    "ACCURATE extraction mode is deprecated. Using BALANCED instead."
+                )
+                config.extraction_mode = ExtractMode.BALANCED
+        else:
+            config = DEFAULT_EXTRACT_CONFIG
 
         if isinstance(data_schema, dict):
             data_schema = data_schema
@@ -581,7 +589,7 @@ class LlamaExtract(BaseComponent):
                 request=ExtractAgentCreate(
                     name=name,
                     data_schema=data_schema,
-                    config=config or DEFAULT_EXTRACT_CONFIG,
+                    config=config,
                 ),
             )
         )
