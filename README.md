@@ -10,7 +10,7 @@ This includes:
 
 - [LlamaParse](./parse.md) - A GenAI-native document parser that can parse complex document data for any downstream LLM use case (Agents, RAG, data processing, etc.).
 - [LlamaReport (beta/invite-only)](./report.md) - A prebuilt agentic report builder that can be used to build reports from a variety of data sources.
-- [LlamaExtract (beta/invite-only)](./extract.md) - A prebuilt agentic data extractor that can be used to transform data into a structured JSON representation.
+- [LlamaExtract](./extract.md) - A prebuilt agentic data extractor that can be used to transform data into a structured JSON representation.
 
 ## Getting Started
 
@@ -36,7 +36,7 @@ See the quickstart guides for each service for more information:
 
 - [LlamaParse](./parse.md)
 - [LlamaReport (beta/invite-only)](./report.md)
-- [LlamaExtract (beta/invite-only)](./extract.md)
+- [LlamaExtract](./extract.md)
 
 ## Switch to EU SaaS 🇪🇺
 

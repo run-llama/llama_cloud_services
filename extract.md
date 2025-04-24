@@ -1,6 +1,6 @@
 # LlamaExtract
 
-LlamaExtract provides a simple API for extracting structured data from unstructured documents like PDFs, text files and images (upcoming).
+LlamaExtract provides a simple API for extracting structured data from unstructured documents like PDFs, text files and images.
 
 ## Quick Start
 
@@ -97,17 +97,35 @@ _LlamaExtract only supports a subset of the JSON Schema specification._ While li
 be sufficient for a wide variety of use-cases.
 
 - All fields are required by default. Nullable fields must be explicitly marked as such,
-  using `"anyOf"` with a `"null"` type. See `"start_date"` field above.
-- Root node must be of type `"object"`.
+  using `anyOf` with a `null` type. See `"start_date"` field above.
+- Root node must be of type `object`.
 - Schema nesting must be limited to within 5 levels.
 - The important fields are key names/titles, type and description. Fields for
-  formatting, default values, etc. are not supported.
+  formatting, default values, etc. are **not supported**. If you need these, you can add the
+  restrictions to your field description and/or use a post-processing step. e.g. default values can be supported by making a field optional and then setting `"null"` values from the extraction result to the default value.
 - There are other restrictions on number of keys, size of the schema, etc. that you may
   hit for complex extraction use cases. In such cases, it is worth thinking how to restructure
   your extraction workflow to fit within these constraints, e.g. by extracting subset of fields
   and later merging them together.
 
 ## Other Extraction APIs
+
+### Extraction over bytes or text
+
+You can use the `SourceText` class to extract from bytes or text directly without using a file. If passing the file bytes,
+you will need to pass the filename to the `SourceText` class.
+
+```python
+with open("resume.pdf", "rb") as f:
+    file_bytes = f.read()
+result = test_agent.extract(SourceText(file=file_bytes, filename="resume.pdf"))
+```
+
+```python
+result = test_agent.extract(
+    SourceText(text_content="Candidate Name: Jane Doe")
+)
+```
 
 ### Batch Processing
 
@@ -159,16 +177,18 @@ pip install llama-extract==0.1.0
 
 ## Tips & Best Practices
 
+At the core of LlamaExtract is the schema, which defines the structure of the data you want to extract from your documents.
+
 1. **Schema Design**:
 
    - Try to limit schema nesting to 3-4 levels.
    - Make fields optional when data might not always be present. Having required fields may force the model
      to hallucinate when these fields are not present in the documents.
-   - When you want to extract a variable number of entities, use an `array` type. Note that you cannot use
+   - When you want to extract a variable number of entities, use an `array` type. However, note that you cannot use
      an `array` type for the root node.
    - Use descriptive field names and detailed descriptions. Use descriptions to pass formatting
      instructions or few-shot examples.
-   - Start simple and iteratively build your schema to incorporate requirements.
+   - Above all, start simple and iteratively build your schema to incorporate requirements.
 
 2. **Running Extractions**:
    - Note that resetting `agent.schema` will not save the schema to the database,
@@ -176,6 +196,15 @@ pip install llama-extract==0.1.0
    - Check job status prior to accessing results. Any extraction error should be available as
      part of `job.error` or `extraction_run.error` fields for debugging.
    - Consider async operations (`queue_extraction`) for large-scale extraction once you have finalized your schema.
+
+### Hitting "The response was too long to be processed" Error
+
+This implies that the extraction response is hitting output token limits of the LLM. In such cases, it is worth rethinking the design of your schema to enable a more efficient/scalable extraction. e.g.
+
+- Instead of one field that extracts a complex object, you can use multiple fields to distribute the extraction logic.
+- You can also use multiple schemas to extract different subsets of fields from the same document and merge them later.
+
+Another option (orthogonal to the above) is to break the document into smaller sections and extract from each section individually, when possible. LlamaExtract will in most cases be able to handle both document and schema chunking automatically, but there are cases where you may need to do this manually.
 
 ## Additional Resources
 

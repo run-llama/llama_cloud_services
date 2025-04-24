@@ -150,10 +150,34 @@ class TestExtractionAgent:
         assert "title" in result.data
         assert "summary" in result.data
 
+    def test_extract_file_from_buffered_io(self, test_agent):
+        result = test_agent.extract(SourceText(file=open(TEST_PDF, "rb")))
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
     def test_extract_file_from_bytes(self, test_agent):
         with open(TEST_PDF, "rb") as f:
             file_bytes = f.read()
         result = test_agent.extract(SourceText(file=file_bytes, filename=TEST_PDF.name))
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_from_text_content(self, test_agent):
+        TEST_TEXT = """
+        # Llamas
+        Llamas are social animals and live with others as a herd. Their wool is soft and
+        contains only a small amount of lanolin.[2] Llamas can learn simple tasks after a
+        few repetitions. When using a pack, they can carry about 25 to 30% of their body
+        weight for 8 to 13 km (5–8 miles).[3] The name llama (also historically spelled
+        "glama") was adopted by European settlers from native Peruvians.
+        """
+        result = test_agent.extract(SourceText(text_content=TEST_TEXT))
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)

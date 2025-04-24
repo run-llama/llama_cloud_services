@@ -62,6 +62,10 @@ async def report(
 
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(
+    condition=lambda: os.getenv("CI"),
+    reason="Backend db issues; needs to be fixed.",
+)
 async def test_create_and_delete_report(
     client: LlamaReport, report: ReportClient
 ) -> None:

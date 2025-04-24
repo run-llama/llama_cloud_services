@@ -1,4 +1,16 @@
+import httpx
+import logging
 from enum import Enum
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception,
+    before_sleep_log,
+)
+from typing import Any
+
+logger = logging.getLogger(__name__)
 
 # Asyncio error messages
 nest_asyncio_err = "cannot be called from a running event loop"
@@ -219,3 +231,68 @@ SUPPORTED_FILE_TYPES = [
     ".wav",
     ".webm",
 ]
+
+
+def should_retry(exception: Exception) -> bool:
+    """Check if the exception should be retried.
+
+    Args:
+        exception: The exception to check.
+    """
+    # Retry on connection errors (network issues)
+    if isinstance(
+        exception,
+        (
+            httpx.ConnectError,
+            httpx.ConnectTimeout,
+            httpx.ReadTimeout,
+            httpx.WriteTimeout,
+            httpx.RemoteProtocolError,
+        ),
+    ):
+        return True
+
+    # Retry on specific HTTP status codes
+    if isinstance(exception, httpx.HTTPStatusError):
+        status_code = exception.response.status_code
+        # Retry on rate limiting or temporary server errors
+        return status_code in (429, 500, 502, 503, 504)
+
+    return False
+
+
+async def make_api_request(
+    client: httpx.AsyncClient,
+    method: str,
+    url: str,
+    timeout: float = 60.0,
+    max_retries: int = 5,
+    **httpx_kwargs: Any,
+) -> httpx.Response:
+    """Make an retrying API request to the LlamaParse API.
+
+    Args:
+        client: The httpx.AsyncClient to use for the request.
+        url: The URL to request.
+        headers: The headers to include in the request.
+        timeout: The timeout for the request.
+        max_retries: The maximum number of retries for the request.
+    """
+
+    @retry(
+        stop=stop_after_attempt(max_retries),
+        wait=wait_exponential(multiplier=1, min=4, max=timeout),
+        retry=retry_if_exception(should_retry),
+        before_sleep=before_sleep_log(logger, logging.WARNING),
+    )
+    async def _make_request(url: str, **httpx_kwargs: Any) -> httpx.Response:
+        if method == "GET":
+            response = await client.get(url, **httpx_kwargs)
+        elif method == "POST":
+            response = await client.post(url, **httpx_kwargs)
+        else:
+            raise ValueError(f"Invalid method: {method}")
+        response.raise_for_status()
+        return response
+
+    return await _make_request(url, **httpx_kwargs)
