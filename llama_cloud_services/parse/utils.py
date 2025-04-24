@@ -42,8 +42,8 @@ class FailedPageMode(str, Enum):
     Enum for representing the different available page error handling modes
     """
 
-    raw_text = ("raw_text",)
-    blank_page = ("blank_page",)
+    raw_text = "raw_text"
+    blank_page = "blank_page"
     error_message = "error_message"
 
 
