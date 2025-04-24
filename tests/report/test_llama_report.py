@@ -7,7 +7,8 @@ from llama_cloud_services.report import LlamaReport, ReportClient
 
 # Skip tests if no API key is set
 pytestmark = pytest.mark.skipif(
-    not os.getenv("LLAMA_CLOUD_API_KEY"), reason="No API key provided"
+    not os.getenv("LLAMA_CLOUD_API_KEY") or os.getenv("CI"),
+    reason="No API key provided",
 )
 
 
