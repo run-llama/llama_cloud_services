@@ -23,6 +23,8 @@ from llama_cloud_services.parse.types import JobResult
 from llama_cloud_services.parse.utils import (
     SUPPORTED_FILE_TYPES,
     ResultType,
+    ParsingMode,
+    FailedPageMode,
     nest_asyncio_err,
     nest_asyncio_msg,
     make_api_request,
@@ -307,7 +309,7 @@ class LlamaParse(BasePydanticReader):
         default=None,
         description="A templated suffix to add to the beginning of each page. If it contain `{page_number}`, it will be replaced by the page number.",
     )
-    parse_mode: Optional[str] = Field(
+    parse_mode: Optional[Union[ParsingMode, str]] = Field(
         default=None,
         description="The parsing mode to use, see ParsingMode enum for possible values ",
     )
@@ -319,7 +321,7 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Preserve grid alignment across page in text mode.",
     )
-    replace_failed_page_mode: Optional[str] = Field(
+    replace_failed_page_mode: Optional[Union[FailedPageMode, str]] = Field(
         default=None,
         description="The mode to use to replace the failed page, see FailedPageMode enum for possible value. If set, the parser will replace the failed page with the specified mode. If not set, the default mode (raw_text) will be used.",
     )

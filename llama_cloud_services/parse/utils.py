@@ -34,9 +34,10 @@ class ParsingMode(str, Enum):
     parse_page_with_lvm = "parse_page_with_lvm"
     parse_page_with_agent = "parse_page_with_agent"
     parse_document_with_llm = "parse_document_with_llm"
+    parse_document_with_agent = "parse_document_with_agent"
 
 
-class FailPageMode(str, Enum):
+class FailedPageMode(str, Enum):
     """
     Enum for representing the different available page error handling modes
     """
