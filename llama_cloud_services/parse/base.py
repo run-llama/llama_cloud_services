@@ -285,6 +285,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will output tables as HTML in the markdown.",
     )
+    page_error_tolerance: Optional[float] = Field(
+        default=None,
+        description="The error tolerance for the number of page with error in a doc (percentage express as 0-1). If the error is greater than this value, the document will be considered as failed.",
+    )
     page_prefix: Optional[str] = Field(
         default=None,
         description="A templated prefix to add to the beginning of each page. If it contain `{page_number}`, it will be replaced by the page number.",
@@ -308,6 +312,18 @@ class LlamaParse(BasePydanticReader):
     preserve_layout_alignment_across_pages: Optional[bool] = Field(
         default=False,
         description="Preserve grid alignment across page in text mode.",
+    )
+    replace_failed_page_mode: Optional[str] = Field(
+        default=None,
+        description="The mode to use to replace the failed page, see FailedPageMode enum for possible value. If set, the parser will replace the failed page with the specified mode. If not set, the default mode (raw_text) will be used.",
+    )
+    replace_failed_page_with_error_message_prefix: Optional[str] = Field(
+        default=None,
+        description="A prefix to add before error message in failed pages. If not set, no prefix will be used.",
+    )
+    replace_failed_page_with_error_message_suffix: Optional[str] = Field(
+        default=None,
+        description="A suffix to add after error message in failed pages. If not set, no suffix will be used.",
     )
     skip_diagonal_text: Optional[bool] = Field(
         default=False,
@@ -717,6 +733,9 @@ class LlamaParse(BasePydanticReader):
         if self.output_tables_as_HTML:
             data["output_tables_as_HTML"] = self.output_tables_as_HTML
 
+        if self.page_error_tolerance is not None:
+            data["page_error_tolerance"] = self.page_error_tolerance
+
         if self.page_prefix is not None:
             data["page_prefix"] = self.page_prefix
 
@@ -744,6 +763,18 @@ class LlamaParse(BasePydanticReader):
             data[
                 "preserve_layout_alignment_across_pages"
             ] = self.preserve_layout_alignment_across_pages
+
+        if self.replace_failed_page_mode is not None:
+            data["replace_failed_page_mode"] = self.replace_failed_page_mode
+        if self.replace_failed_page_with_error_message_prefix is not None:
+            data[
+                "replace_failed_page_with_error_message_prefix"
+            ] = self.replace_failed_page_with_error_message_prefix
+
+        if self.replace_failed_page_with_error_message_suffix is not None:
+            data[
+                "replace_failed_page_with_error_message_suffix"
+            ] = self.replace_failed_page_with_error_message_suffix
 
         if self.skip_diagonal_text:
             data["skip_diagonal_text"] = self.skip_diagonal_text

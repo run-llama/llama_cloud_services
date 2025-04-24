@@ -24,6 +24,16 @@ class ParsingMode(str, Enum):
     parse_document_with_llm = "parse_document_with_llm"
 
 
+class FailPageMode(str, Enum):
+    """
+    Enum for representing the different available page error handling modes
+    """
+
+    raw_text = ("raw_text",)
+    blank_page = ("blank_page",)
+    error_message = "error_message"
+
+
 class Language(str, Enum):
     BAZA = "abq"
     ADYGHE = "ady"
