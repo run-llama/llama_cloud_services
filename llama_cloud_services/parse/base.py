@@ -293,7 +293,7 @@ class LlamaParse(BasePydanticReader):
     )
     page_error_tolerance: Optional[float] = Field(
         default=None,
-        description="The error tolerance for the number of page with error in a doc (percentage express as 0-1). If the error is greater than this value, the document will be considered as failed.",
+        description="The error tolerance for the number of pages with error in a doc (percentage express as 0-1). If we fail to parse a greater percentage of pages than the tolerance value we fail the job.",
     )
     page_prefix: Optional[str] = Field(
         default=None,
