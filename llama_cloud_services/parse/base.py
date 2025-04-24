@@ -321,7 +321,7 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Preserve grid alignment across page in text mode.",
     )
-    replace_failed_page_mode: Optional[Union[FailedPageMode, str]] = Field(
+    replace_failed_page_mode: Optional[FailedPageMode] = Field(
         default=None,
         description="The mode to use to replace the failed page, see FailedPageMode enum for possible value. If set, the parser will replace the failed page with the specified mode. If not set, the default mode (raw_text) will be used.",
     )
@@ -773,7 +773,8 @@ class LlamaParse(BasePydanticReader):
             ] = self.preserve_layout_alignment_across_pages
 
         if self.replace_failed_page_mode is not None:
-            data["replace_failed_page_mode"] = self.replace_failed_page_mode
+            data["replace_failed_page_mode"] = self.replace_failed_page_mode.value
+
         if self.replace_failed_page_with_error_message_prefix is not None:
             data[
                 "replace_failed_page_with_error_message_prefix"
