@@ -32,3 +32,9 @@ def augment_async_errors() -> Generator[None, None, None]:
 
 JSONType = Union[Dict[str, Any], List[Any], str, int, float, bool, None]
 JSONObjectType = Dict[str, JSONType]
+
+
+class ExperimentalWarning(Warning):
+    """Warning for experimental features."""
+
+    pass

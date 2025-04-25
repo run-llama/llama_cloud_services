@@ -10,13 +10,10 @@ import httpx
 from pydantic import BaseModel
 from llama_cloud import (
     ExtractAgent as CloudExtractAgent,
-    ExtractAgentCreate,
     ExtractConfig,
     ExtractJob,
     ExtractJobCreate,
     ExtractRun,
-    ExtractSchemaValidateRequest,
-    ExtractAgentUpdate,
     File,
     ExtractMode,
     StatusEnum,
@@ -26,7 +23,11 @@ from llama_cloud import (
     PaginatedExtractRunsResponse,
 )
 from llama_cloud.client import AsyncLlamaCloud
-from llama_cloud_services.extract.utils import JSONObjectType, augment_async_errors
+from llama_cloud_services.extract.utils import (
+    JSONObjectType,
+    augment_async_errors,
+    ExperimentalWarning,
+)
 from llama_index.core.schema import BaseComponent
 from llama_index.core.async_utils import run_jobs
 from llama_index.core.bridge.pydantic import Field, PrivateAttr
@@ -118,6 +119,25 @@ def run_in_thread(
     return thread_pool.submit(run_coro).result()
 
 
+def _extraction_config_warning(config: ExtractConfig) -> None:
+    if config.extraction_mode == ExtractMode.ACCURATE:
+        warnings.warn("ACCURATE extraction mode is deprecated. Using BALANCED instead.")
+        config.extraction_mode = ExtractMode.BALANCED
+    if config.use_reasoning:
+        warnings.warn(
+            "`use_reasoning` is an experimental feature. Results will be available in "
+            "the `extraction_metadata` field for the extraction run.",
+            ExperimentalWarning,
+        )
+    if config.cite_sources:
+        warnings.warn(
+            "`cite_sources` is an experimental feature. This may greatly increase the "
+            "size of the response, and slow down the extraction. Results will be "
+            "available in the `extraction_metadata` field for the extraction run.",
+            ExperimentalWarning,
+        )
+
+
 class ExtractionAgent:
     """Class representing a single extraction agent with methods for extraction operations."""
 
@@ -178,7 +198,7 @@ class ExtractionAgent:
             )
         validated_schema = self._run_in_thread(
             self._client.llama_extract.validate_extraction_schema(
-                request=ExtractSchemaValidateRequest(data_schema=processed_schema)
+                data_schema=processed_schema
             )
         )
         self._data_schema = validated_schema.data_schema
@@ -189,6 +209,7 @@ class ExtractionAgent:
 
     @config.setter
     def config(self, config: ExtractConfig) -> None:
+        _extraction_config_warning(config)
         self._config = config
 
     def _run_in_thread(self, coro: Coroutine[Any, Any, T]) -> T:
@@ -307,10 +328,8 @@ class ExtractionAgent:
         self._agent = self._run_in_thread(
             self._client.llama_extract.update_extraction_agent(
                 extraction_agent_id=self.id,
-                request=ExtractAgentUpdate(
-                    data_schema=self.data_schema,
-                    config=self.config,
-                ),
+                data_schema=self.data_schema,
+                config=self.config,
             )
         )
 
@@ -602,7 +621,7 @@ class LlamaExtract(BaseComponent):
             httpx_timeout=httpx_timeout,
             verbose=verbose,
         )
-        self._httpx_client = httpx.AsyncClient(verify=verify, timeout=httpx_timeout)
+        self._httpx_client = httpx.AsyncClient(verify=verify, timeout=httpx_timeout)  # type: ignore
         self.verify = verify
         self.httpx_timeout = httpx_timeout
 
@@ -659,11 +678,7 @@ class LlamaExtract(BaseComponent):
             ExtractionAgent: The created extraction agent
         """
         if config is not None:
-            if config.extraction_mode == ExtractMode.ACCURATE:
-                warnings.warn(
-                    "ACCURATE extraction mode is deprecated. Using BALANCED instead."
-                )
-                config.extraction_mode = ExtractMode.BALANCED
+            _extraction_config_warning(config)
         else:
             config = DEFAULT_EXTRACT_CONFIG
 
@@ -680,11 +695,9 @@ class LlamaExtract(BaseComponent):
             self._async_client.llama_extract.create_extraction_agent(
                 project_id=self._project_id,
                 organization_id=self._organization_id,
-                request=ExtractAgentCreate(
-                    name=name,
-                    data_schema=data_schema,
-                    config=config,
-                ),
+                name=name,
+                data_schema=data_schema,
+                config=config,
             )
         )
 
