@@ -60,8 +60,12 @@ class ImageItem(BaseModel):
     width: float = Field(description="The width of the image.")
     x: float = Field(description="The x-coordinate of the image.")
     y: float = Field(description="The y-coordinate of the image.")
-    original_width: int = Field(description="The original width of the image.")
-    original_height: int = Field(description="The original height of the image.")
+    original_width: Optional[int] = Field(
+        default=None, description="The original width of the image."
+    )
+    original_height: Optional[int] = Field(
+        default=None, description="The original height of the image."
+    )
     type: Optional[str] = Field(default=None, description="The type of the image.")
 
 
