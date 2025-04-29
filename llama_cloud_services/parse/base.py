@@ -145,6 +145,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will automatically select the best mode to extract text from documents based on the rules provide. Will use the 'accurate' default mode by default and will upgrade page that match the rule to Premium mode.",
     )
+    auto_mode_configuration_json: Optional[str] = Field(
+        default=None,
+        description="A JSON string containing the configuration for the auto mode. If set, the parser will use the provided configuration for the auto mode.",
+    )
     auto_mode_trigger_on_image_in_page: Optional[bool] = Field(
         default=False,
         description="If auto_mode is set to true, the parser will upgrade the page that contain an image to Premium mode.",
@@ -585,6 +589,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.auto_mode:
             data["auto_mode"] = self.auto_mode
+
+        if self.auto_mode_configuration_json is not None:
+            data["auto_mode_configuration_json"] = self.auto_mode_configuration_json
 
         if self.auto_mode_trigger_on_image_in_page:
             data[
