@@ -93,8 +93,8 @@ class Page(BaseModel):
     """A page of the document."""
 
     page: int = Field(description="The page number.")
-    text: str = Field(description="The text of the page.")
-    md: str = Field(description="The markdown of the page.")
+    text: Optional[str] = Field(default=None, description="The text of the page.")
+    md: Optional[str] = Field(default=None, description="The markdown of the page.")
     images: List[ImageItem] = Field(
         default_factory=list,
         description="The names of the image IDs in the page, including both objects and page screenshots.",
@@ -189,7 +189,9 @@ class JobResult(BaseModel):
                 for page in self.pages
             ]
         else:
-            text = self._page_separator.join([page.text for page in self.pages])
+            text = self._page_separator.join(
+                [page.text if page.text is not None else "" for page in self.pages]
+            )
             return [Document(text=text, metadata={"file_name": self.file_name})]
 
     async def aget_text_documents(self, split_by_page: bool = False) -> List[Document]:
@@ -234,7 +236,9 @@ class JobResult(BaseModel):
         else:
             return [
                 Document(
-                    text=self._page_separator.join([page.md for page in self.pages]),
+                    text=self._page_separator.join(
+                        [page.md if page.md is not None else "" for page in self.pages]
+                    ),
                     metadata={"file_name": self.file_name},
                 )
             ]
