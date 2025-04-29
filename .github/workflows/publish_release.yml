@@ -39,10 +39,18 @@ jobs:
           pypi_token: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
           poetry_install_options: "--without dev"
 
+      - name: Wait for PyPI to update
+        run: |
+          sleep 60
+
+      - name: Update llama-parse lock file
+        run: |
+          cd llama_parse && poetry lock
+
       - name: Build and publish llama-parse
         uses: JRubics/poetry-publish@v2.1
         with:
-          working_directory: "llama_parse"
+          package_directory: "./llama_parse"
           pypi_token: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
           poetry_install_options: "--without dev"
 
