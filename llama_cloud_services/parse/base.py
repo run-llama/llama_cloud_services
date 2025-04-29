@@ -317,6 +317,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Use our best parser mode if set to True.",
     )
+    preset: Optional[str] = Field(
+        default=None,
+        description="The preset to use for the parser. If set, the parser will use the preset configuration. See LlamaParse documentation for available presets. Preset override most other parameters.",
+    )
     preserve_layout_alignment_across_pages: Optional[bool] = Field(
         default=False,
         description="Preserve grid alignment across page in text mode.",
@@ -771,6 +775,9 @@ class LlamaParse(BasePydanticReader):
             data[
                 "preserve_layout_alignment_across_pages"
             ] = self.preserve_layout_alignment_across_pages
+
+        if self.preset is not None:
+            data["preset"] = self.preset
 
         if self.replace_failed_page_mode is not None:
             data["replace_failed_page_mode"] = self.replace_failed_page_mode.value
