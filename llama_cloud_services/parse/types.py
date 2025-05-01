@@ -49,17 +49,25 @@ class PageItem(BaseModel):
     rows: Optional[List[List[str]]] = Field(
         default=None, description="The rows of the item."
     )
-    bBox: BBox = Field(description="The bounding box of the item.")
+    bBox: Optional[BBox] = Field(
+        default=None, description="The bounding box of the item."
+    )
 
 
 class ImageItem(BaseModel):
     """An image in a page."""
 
     name: str = Field(description="The name of the image.")
-    height: float = Field(description="The height of the image.")
-    width: float = Field(description="The width of the image.")
-    x: float = Field(description="The x-coordinate of the image.")
-    y: float = Field(description="The y-coordinate of the image.")
+    height: Optional[float] = Field(
+        default=None, description="The height of the image."
+    )
+    width: Optional[float] = Field(default=None, description="The width of the image.")
+    x: Optional[float] = Field(
+        default=None, description="The x-coordinate of the image."
+    )
+    y: Optional[float] = Field(
+        default=None, description="The y-coordinate of the image."
+    )
     original_width: Optional[int] = Field(
         default=None, description="The original width of the image."
     )
@@ -75,7 +83,9 @@ class LayoutItem(BaseModel):
     image: str = Field(description="The name of the image containing the layout item")
     confidence: float = Field(description="The confidence of the layout item.")
     label: str = Field(description="The label of the layout item.")
-    bbox: BBox = Field(description="The bounding box of the layout item.")
+    bbox: Optional[BBox] = Field(
+        default=None, description="The bounding box of the layout item."
+    )
     isLikelyNoise: bool = Field(description="Whether the layout item is likely noise.")
 
 
@@ -83,10 +93,16 @@ class ChartItem(BaseModel):
     """A chart in a page."""
 
     name: str = Field(description="The name of the chart.")
-    x: float = Field(description="The x-coordinate of the chart.")
-    y: float = Field(description="The y-coordinate of the chart.")
-    width: float = Field(description="The width of the chart.")
-    height: float = Field(description="The height of the chart.")
+    x: Optional[float] = Field(
+        default=None, description="The x-coordinate of the chart."
+    )
+    y: Optional[float] = Field(
+        default=None, description="The y-coordinate of the chart."
+    )
+    width: Optional[float] = Field(default=None, description="The width of the chart.")
+    height: Optional[float] = Field(
+        default=None, description="The height of the chart."
+    )
 
 
 class Page(BaseModel):
@@ -115,8 +131,8 @@ class Page(BaseModel):
     links: List[SerializeAsAny[Any]] = Field(
         default_factory=list, description="The links in the page."
     )
-    width: float = Field(description="The width of the page.")
-    height: float = Field(description="The height of the page.")
+    width: Optional[float] = Field(default=None, description="The width of the page.")
+    height: Optional[float] = Field(default=None, description="The height of the page.")
     triggeredAutoMode: bool = Field(
         description="Whether the page triggered auto mode (thus increasing the cost)."
     )
