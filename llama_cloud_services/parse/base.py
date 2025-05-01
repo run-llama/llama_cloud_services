@@ -115,7 +115,7 @@ class LlamaParse(BasePydanticReader):
     num_workers: int = Field(
         default=4,
         gt=0,
-        lt=10,
+        lt=20,
         description="The number of workers to use sending API requests for parsing.",
     )
     result_type: ResultType = Field(
