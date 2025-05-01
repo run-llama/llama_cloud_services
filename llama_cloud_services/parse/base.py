@@ -7,7 +7,7 @@ from copy import deepcopy
 from enum import Enum
 from io import BufferedIOBase
 from pathlib import Path, PurePath, PurePosixPath
-from typing import Any, AsyncGenerator, Dict, List, Optional, Union
+from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import httpx
@@ -959,6 +959,22 @@ class LlamaParse(BasePydanticReader):
                     )
                 current_interval = self._calculate_backoff(current_interval)
 
+    async def _parse_one(
+        self,
+        file_path: FileInput,
+        extra_info: Optional[dict] = None,
+        fs: Optional[AbstractFileSystem] = None,
+        result_type: Optional[str] = None,
+    ) -> Tuple[str, Dict[str, Any]]:
+        """Create one parse job and wait for the result."""
+        job_id = await self._create_job(file_path, extra_info=extra_info, fs=fs)
+        if self.verbose:
+            print("Started parsing the file under job_id %s" % job_id)
+        result = await self._get_job_result(
+            job_id, result_type or self.result_type.value, verbose=self.verbose
+        )
+        return job_id, result
+
     async def _aload_data(
         self,
         file_path: FileInput,
@@ -968,14 +984,9 @@ class LlamaParse(BasePydanticReader):
     ) -> List[Document]:
         """Load data from the input path."""
         try:
-            job_id = await self._create_job(file_path, extra_info=extra_info, fs=fs)
-            if verbose:
-                print("Started parsing the file under job_id %s" % job_id)
-
-            result = await self._get_job_result(
-                job_id, self.result_type.value, verbose=verbose
+            _job_id, result = await self._parse_one(
+                file_path, extra_info=extra_info, fs=fs
             )
-
             docs = [
                 Document(
                     text=result[self.result_type.value],
@@ -1073,10 +1084,6 @@ class LlamaParse(BasePydanticReader):
         """
 
         if isinstance(file_path, (str, PurePosixPath, Path, bytes, BufferedIOBase)):
-            job_id = await self._create_job(file_path, extra_info=extra_info, fs=fs)
-            if self.verbose:
-                print("Started parsing the file under job_id %s" % job_id)
-
             if isinstance(file_path, (bytes, BufferedIOBase)):
                 if not extra_info or "file_name" not in extra_info:
                     raise ValueError(
@@ -1086,8 +1093,11 @@ class LlamaParse(BasePydanticReader):
             else:
                 file_name = str(file_path)
 
-            job_result = await self._get_job_result(
-                job_id, ResultType.JSON.value, verbose=self.verbose
+            job_id, job_result = await self._parse_one(
+                file_path,
+                extra_info=extra_info,
+                fs=fs,
+                result_type=ResultType.JSON.value,
             )
             return JobResult(
                 job_id=job_id,
@@ -1100,14 +1110,6 @@ class LlamaParse(BasePydanticReader):
             )
 
         elif isinstance(file_path, list):
-            jobs = [
-                self._create_job(
-                    f,
-                    extra_info=extra_info,
-                    fs=fs,
-                )
-                for f in file_path
-            ]
             file_names = []
             for f in file_path:
                 if isinstance(f, (bytes, BufferedIOBase)):
@@ -1120,19 +1122,15 @@ class LlamaParse(BasePydanticReader):
                     file_names.append(str(f))
 
             try:
-                job_ids = await run_jobs(
-                    jobs,
-                    workers=self.num_workers,
-                    desc="Creating parsing jobs",
-                    show_progress=self.show_progress,
-                )
-
                 job_results = await run_jobs(
                     [
-                        self._get_job_result(
-                            job_id, ResultType.JSON.value, verbose=self.verbose
+                        self._parse_one(
+                            f,
+                            extra_info=extra_info,
+                            fs=fs,
+                            result_type=ResultType.JSON.value,
                         )
-                        for job_id in job_ids
+                        for f in file_path
                     ],
                     workers=self.num_workers,
                     desc="Getting job results",
@@ -1140,20 +1138,18 @@ class LlamaParse(BasePydanticReader):
                 )
 
                 # Create JobResults just using the job_ids and job_results
-                job_results = [
+                return [
                     JobResult(
                         job_id=job_id,
                         file_name=file_names[i],
-                        job_result=job_results[i],
+                        job_result=job_result,
                         api_key=self.api_key,
                         base_url=self.base_url,
                         client=self.aclient,
                         page_separator=self.page_separator or _DEFAULT_SEPARATOR,
                     )
-                    for i, job_id in enumerate(job_ids)
+                    for i, (job_id, job_result) in enumerate(job_results)
                 ]
-
-                return job_results
 
             except RuntimeError as e:
                 if nest_asyncio_err in str(e):
@@ -1198,10 +1194,11 @@ class LlamaParse(BasePydanticReader):
     ) -> List[dict]:
         """Load data from the input path."""
         try:
-            job_id = await self._create_job(file_path, extra_info=extra_info)
-            if self.verbose:
-                print("Started parsing the file under job_id %s" % job_id)
-            result = await self._get_job_result(job_id, "json")
+            job_id, result = await self._parse_one(
+                file_path,
+                extra_info=extra_info,
+                result_type=ResultType.JSON.value,
+            )
             result["job_id"] = job_id
 
             if not isinstance(file_path, (bytes, BufferedIOBase)):
