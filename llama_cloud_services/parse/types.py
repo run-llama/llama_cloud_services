@@ -14,9 +14,6 @@ PAGE_REGEX = r"page[-_](\d+)\.jpg$"
 class JobMetadata(BaseModel):
     """Metadata about the job."""
 
-    job_credits_usage: int = Field(
-        default_factory=dict, description="The credits usage for the job."
-    )
     job_pages: int = Field(description="The number of pages in the job.")
     job_auto_mode_triggered_pages: int = Field(
         description="The number of pages that triggered auto mode (thus increasing the cost)."
