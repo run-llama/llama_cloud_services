@@ -711,6 +711,8 @@ class LlamaExtract(BaseComponent):
             num_workers=self.num_workers,
             show_progress=self.show_progress,
             verbose=self.verbose,
+            verify=self.verify,
+            httpx_timeout=self.httpx_timeout,
         )
 
     def get_agent(
