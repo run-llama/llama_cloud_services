@@ -297,6 +297,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will output tables as HTML in the markdown.",
     )
+    outlined_table_extraction: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a dedicated approach to extract tables with outlined cells. This is useful for documents with spreadsheet-like tables where cells are outlined with borders. This could lead to false positives, so use with caution.",
+    )
     page_error_tolerance: Optional[float] = Field(
         default=None,
         description="The error tolerance for the number of pages with error in a doc (percentage express as 0-1). If we fail to parse a greater percentage of pages than the tolerance value we fail the job.",
@@ -751,6 +755,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.output_tables_as_HTML:
             data["output_tables_as_HTML"] = self.output_tables_as_HTML
+
+        if self.outlined_table_extraction:
+            data["outlined_table_extraction"] = self.outlined_table_extraction
 
         if self.page_error_tolerance is not None:
             data["page_error_tolerance"] = self.page_error_tolerance
