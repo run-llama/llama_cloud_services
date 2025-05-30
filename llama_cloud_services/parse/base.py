@@ -414,6 +414,10 @@ class LlamaParse(BasePydanticReader):
         default=None,
         description="The model name for the vendor multimodal API.",
     )
+    model: Optional[str] = Field(
+        default=None,
+        description="The document model name to be used with `parse_with_agent`.",
+    )
     webhook_url: Optional[str] = Field(
         default=None,
         description="A URL that needs to be called at the end of the parsing job.",
@@ -853,6 +857,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.vendor_multimodal_model_name is not None:
             data["vendor_multimodal_model_name"] = self.vendor_multimodal_model_name
+
+        if self.model is not None:
+            data["model"] = self.model
 
         if self.webhook_url is not None:
             data["webhook_url"] = self.webhook_url
