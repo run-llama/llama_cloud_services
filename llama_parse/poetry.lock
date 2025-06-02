@@ -1170,14 +1170,14 @@ test = ["ipykernel", "pre-commit", "pytest (<8)", "pytest-cov", "pytest-timeout"
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.19"
+version = "0.1.23"
 description = ""
 optional = false
 python-versions = "<4,>=3.8"
 groups = ["main"]
 files = [
-    {file = "llama_cloud-0.1.19-py3-none-any.whl", hash = "sha256:d2d551baa4b63f7717f8e04cbb81b0f817e5450a66870c5487dd371f81dab8ec"},
-    {file = "llama_cloud-0.1.19.tar.gz", hash = "sha256:b0a5424ae0099ca27df2a2d7e5aec99066de9ca860ab65987c9f931f1ea7abff"},
+    {file = "llama_cloud-0.1.23-py3-none-any.whl", hash = "sha256:ce95b0705d85c99b3b27b0af0d16a17d9a81b14c96bf13c1063a1bd13d8d0446"},
+    {file = "llama_cloud-0.1.23.tar.gz", hash = "sha256:3d84a24a860f046d39a106c06742ec0ea39a574ac42bbf91706fe025f44e233e"},
 ]
 
 [package.dependencies]
@@ -1187,23 +1187,23 @@ pydantic = ">=1.10"
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.18"
+version = "0.6.25"
 description = "Tailored SDK clients for LlamaCloud services."
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "llama_cloud_services-0.6.18-py3-none-any.whl", hash = "sha256:ba24ef36f4f78619722e5fe2cac8739175ba63f67cb20f0432be16801c78162c"},
-    {file = "llama_cloud_services-0.6.18.tar.gz", hash = "sha256:070a0e1397e2dd6da59e5f6a0437e3fd27e1c156170eea66001c4bcbec2f8783"},
+    {file = "llama_cloud_services-0.6.25-py3-none-any.whl", hash = "sha256:aef0afbbf0d6dc485e6566af2daeeefa8caa7bc7f6511d860036bc0aac15361b"},
+    {file = "llama_cloud_services-0.6.25.tar.gz", hash = "sha256:3608004b0cf984640a3a36657b8b40394d7ce2c48e3eb9dd24fc654df7643595"},
 ]
 
 [package.dependencies]
 click = ">=8.1.7,<9.0.0"
 eval-type-backport = {version = ">=0.2.0,<0.3.0", markers = "python_version < \"3.10\""}
-llama-cloud = "0.1.19"
-llama-index-core = ">=0.11.0"
+llama-cloud = "0.1.23"
+llama-index-core = ">=0.12.0"
 platformdirs = ">=4.3.7,<5.0.0"
-pydantic = "!=2.10"
+pydantic = ">=2.8,<2.10 || >2.10"
 python-dotenv = ">=1.0.1,<2.0.0"
 
 [[package]]
@@ -3084,4 +3084,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "5630c89272551940c2c689fc2c78f5ced7b6dd904ae239ac8987e2e5fb2c0186"
+content-hash = "e1d4c0ee447e80190acbe2d13688efdc7a318313bfe74bf798ca5208d09d95de"
