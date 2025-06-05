@@ -633,21 +633,6 @@ class LlamaExtract(BaseComponent):
         self._thread_pool = ThreadPoolExecutor(
             max_workers=min(10, (os.cpu_count() or 1) + 4)
         )
-        # Fetch default project id if not provided
-        if not project_id:
-            project_id = os.getenv("LLAMA_CLOUD_PROJECT_ID", None)
-            if not project_id:
-                print("No project_id provided, fetching default project.")
-                projects: List[Project] = self._run_in_thread(
-                    self._async_client.projects.list_projects()
-                )
-                default_project = [p for p in projects if p.is_default]
-                if not default_project:
-                    raise ValueError(
-                        "No default project found. Please provide a project_id."
-                    )
-                project_id = default_project[0].id
-
         self._project_id = project_id
         self._organization_id = organization_id
 
