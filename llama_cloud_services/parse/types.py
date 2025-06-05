@@ -124,23 +124,28 @@ class Page(BaseModel):
     items: List[PageItem] = Field(
         default_factory=list, description="The items in the page."
     )
-    status: str = Field(description="The status of the page.")
+    status: Optional[str] = Field(default=None, description="The status of the page.")
     links: List[SerializeAsAny[Any]] = Field(
         default_factory=list, description="The links in the page."
     )
     width: Optional[float] = Field(default=None, description="The width of the page.")
     height: Optional[float] = Field(default=None, description="The height of the page.")
     triggeredAutoMode: bool = Field(
-        description="Whether the page triggered auto mode (thus increasing the cost)."
+        default=False,
+        description="Whether the page triggered auto mode (thus increasing the cost).",
     )
-    parsingMode: str = Field(description="The parsing mode used for the page.")
+    parsingMode: str = Field(
+        default="", description="The parsing mode used for the page."
+    )
     structuredData: Optional[Dict[str, Any]] = Field(
-        description="The structured data of the page."
+        default=None, description="The structured data of the page."
     )
     noStructuredContent: bool = Field(
-        description="Whether the page has no structured data."
+        default=True, description="Whether the page has no structured data."
     )
-    noTextContent: bool = Field(description="Whether the page has no text content.")
+    noTextContent: bool = Field(
+        default=False, description="Whether the page has no text content."
+    )
 
 
 class JobResult(BaseModel):
