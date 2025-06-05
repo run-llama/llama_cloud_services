@@ -632,6 +632,8 @@ class LlamaExtract(BaseComponent):
         self._thread_pool = ThreadPoolExecutor(
             max_workers=min(10, (os.cpu_count() or 1) + 4)
         )
+        if not project_id:
+            project_id = os.getenv("LLAMA_CLOUD_PROJECT_ID", None)
         self._project_id = project_id
         self._organization_id = organization_id
 
