@@ -1187,14 +1187,14 @@ pydantic = ">=1.10"
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.25"
+version = "0.6.30"
 description = "Tailored SDK clients for LlamaCloud services."
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "llama_cloud_services-0.6.25-py3-none-any.whl", hash = "sha256:aef0afbbf0d6dc485e6566af2daeeefa8caa7bc7f6511d860036bc0aac15361b"},
-    {file = "llama_cloud_services-0.6.25.tar.gz", hash = "sha256:3608004b0cf984640a3a36657b8b40394d7ce2c48e3eb9dd24fc654df7643595"},
+    {file = "llama_cloud_services-0.6.30-py3-none-any.whl", hash = "sha256:4d5817a9841fc3ba3409865c52d082090f4ef827931f0e5e4a89f5818c0d4e36"},
+    {file = "llama_cloud_services-0.6.30.tar.gz", hash = "sha256:2cb5004d13127aac52888ae9b3d70f899d598633520b2a2542bb62682d08d776"},
 ]
 
 [package.dependencies]
@@ -3084,4 +3084,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "e1d4c0ee447e80190acbe2d13688efdc7a318313bfe74bf798ca5208d09d95de"
+content-hash = "79d62bf621332f3149dc2b4be68defde077013a7e9499729a6ded978f1ba15f8"
