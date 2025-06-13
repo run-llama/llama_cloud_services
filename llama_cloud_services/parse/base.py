@@ -1,4 +1,5 @@
 import asyncio
+import difflib
 import mimetypes
 import os
 import time
@@ -9,6 +10,7 @@ from io import BufferedIOBase
 from pathlib import Path, PurePath, PurePosixPath
 from typing import Any, AsyncGenerator, Dict, List, Optional, Tuple, Union
 from urllib.parse import urlparse
+import warnings
 
 import httpx
 from fsspec import AbstractFileSystem
@@ -918,6 +920,37 @@ class LlamaParse(BasePydanticReader):
 
         if self.gpt4o_api_key is not None:
             data["gpt4o_api_key"] = self.gpt4o_api_key
+
+        # check if one of the parameters is unused, and warn the user
+        unused_params = [
+            param
+            for param in self.model_fields.keys()
+            if param not in data and getattr(self, param) is not None
+        ]
+
+        if unused_params:
+            # for each unused parameter, check if it is similar to a valid parameter and suggest a typo correction, else suggest to check the documentation / update the package
+            suggestions = []
+            for param in unused_params:
+                similar_params = difflib.get_close_matches(
+                    param, self.model_fields.keys(), n=1, cutoff=0.8
+                )
+                if similar_params:
+                    suggestions.append(
+                        f"'{param}' is not a valid parameter. Did you mean '{similar_params[0]}' instead of '{param}'?"
+                    )
+                else:
+                    suggestions.append(
+                        f"'{param}' is not a valid parameter. Please check the documentation or update the package."
+                    )
+
+            warnings.warn(
+                "The following parameters are unused: "
+                + ", ".join(unused_params)
+                + ".\n"
+                + "\n - ".join(suggestions),
+                UserWarning,
+            )
 
         try:
             url = build_url(JOB_UPLOAD_ROUTE, self.organization_id, self.project_id)
