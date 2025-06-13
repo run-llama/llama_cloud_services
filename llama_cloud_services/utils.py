@@ -10,9 +10,9 @@ def check_extra_params(
     model_attributes = set(model_cls.model_fields.keys())
     extra_params = [param for param in data.keys() if param not in model_attributes]
 
+    suggestions: List[str] = []
     if extra_params:
         # for each unused parameter, check if it is similar to a valid parameter and suggest a typo correction, else suggest to check the documentation / update the package
-        suggestions = []
         for param in extra_params:
             similar_params = difflib.get_close_matches(
                 param, model_attributes, n=1, cutoff=0.8
