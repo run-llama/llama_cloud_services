@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from llama_cloud_services.utils import check_extra_params
 
 
-class TestModel(BaseModel):
+class MyModel(BaseModel):
     name: str
     age: int
     email: str
@@ -13,7 +13,7 @@ def test_check_extra_params_no_extra():
     """Test when all parameters are valid - should return empty lists."""
     data = {"name": "John", "age": 25, "email": "john@example.com", "is_active": True}
 
-    extra_params, suggestions = check_extra_params(TestModel, data)
+    extra_params, suggestions = check_extra_params(MyModel, data)
 
     assert extra_params == []
     assert suggestions == []
@@ -29,7 +29,7 @@ def test_check_extra_params_with_typos():
         "address": "123 Main St",  # completely different parameter
     }
 
-    extra_params, suggestions = check_extra_params(TestModel, data)
+    extra_params, suggestions = check_extra_params(MyModel, data)
 
     assert len(extra_params) == 3
     assert "emial" in extra_params
@@ -52,7 +52,7 @@ def test_check_extra_params_completely_invalid():
         "completely_different": True,
     }
 
-    extra_params, suggestions = check_extra_params(TestModel, data)
+    extra_params, suggestions = check_extra_params(MyModel, data)
 
     assert len(extra_params) == 3
     assert "xyz" in extra_params
