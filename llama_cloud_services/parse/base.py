@@ -273,6 +273,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Whether to guess the sheet names of the xlsx file.",
     )
+    high_res_ocr: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use high resolution OCR to extract text from images. This will increase the accuracy of the parsing job, but reduce the speed.",
+    )
     html_make_all_elements_visible: Optional[bool] = Field(
         default=False,
         description="If set to true, when parsing HTML the parser will consider all elements display not element as display block.",
@@ -757,6 +761,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.html_make_all_elements_visible:
             data["html_make_all_elements_visible"] = self.html_make_all_elements_visible
+
+        if self.high_res_ocr:
+            data["high_res_ocr"] = self.high_res_ocr
 
         if self.html_remove_fixed_elements:
             data["html_remove_fixed_elements"] = self.html_remove_fixed_elements
