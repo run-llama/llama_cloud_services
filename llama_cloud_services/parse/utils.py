@@ -335,7 +335,7 @@ def partition_pages(
             for _k, g in itertools.groupby(enumerate(segment), lambda x: x[0] - x[1]):
                 group = [item[1] for item in g]
                 if len(group) > 1:
-                    start, end = group
+                    start, end = group[0], group[-1]
                     group_size = end - start + 1
                     if max_pages is not None and total + group_size > max_pages:
                         end -= total + group_size - max_pages
