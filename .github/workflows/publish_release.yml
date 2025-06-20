@@ -41,7 +41,7 @@ jobs:
 
       - name: Wait for PyPI to update
         run: |
-          sleep 60
+          sleep 120
 
       - name: Update llama-parse lock file
         run: |
