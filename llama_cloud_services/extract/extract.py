@@ -322,7 +322,7 @@ class ExtractionAgent:
         async for attempt in AsyncRetrying(
             retry=retry_if_exception(_is_retryable_error),
             stop=stop_after_attempt(3),
-            wait=wait_exponential_jitter(initial=1, max=10, jitter=5),
+            wait=wait_exponential_jitter(initial=1, max=20, jitter=3),
             reraise=True,
         ):
             with attempt:
