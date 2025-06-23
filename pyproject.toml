@@ -24,6 +24,7 @@ click = "^8.1.7"
 python-dotenv = "^1.0.1"
 eval-type-backport = {python = "<3.10", version = "^0.2.0"}
 platformdirs = "^4.3.7"
+tenacity = "^9.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
