@@ -104,11 +104,11 @@ async def test_link_parse_result(file_path: str):
     os.environ.get("LLAMA_CLOUD_API_KEY", "") == "",
     reason="LLAMA_CLOUD_API_KEY not set",
 )
-@pytest.mark.skip(reason="TODO: Needs to be fixed in prod. Raising 500 error.")
 async def test_parse_structured_output(file_path: str):
     parser = LlamaParse(
         structured_output=True,
         structured_output_json_schema_name="imFeelingLucky",
+        invalidate_cache=True,
     )
     result = await parser.aparse(file_path)
     assert isinstance(result, JobResult)
