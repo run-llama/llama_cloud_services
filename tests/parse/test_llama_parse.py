@@ -106,6 +106,7 @@ async def test_simple_page_progress_workers() -> None:
     os.environ.get("LLAMA_CLOUD_API_KEY", "") == "",
     reason="LLAMA_CLOUD_API_KEY not set",
 )
+@pytest.mark.skip(reason="TODO: Needs to be fixed in prod. Raising 500 error.")
 @pytest.mark.asyncio
 async def test_custom_client() -> None:
     custom_client = AsyncClient(verify=False, timeout=10)
