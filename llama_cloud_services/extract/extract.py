@@ -249,9 +249,8 @@ class ExtractionAgent:
             ValueError: If filename is not provided for bytes input or for file-like objects
                        without a name attribute.
         """
+        file_contents: Optional[Union[BufferedIOBase, BytesIO]] = None
         try:
-            file_contents: Union[BufferedIOBase, BytesIO]
-
             if file_input.text_content is not None:
                 # Handle direct text content
                 file_contents = BytesIO(file_input.text_content.encode("utf-8"))
@@ -278,7 +277,7 @@ class ExtractionAgent:
                 project_id=self._project_id, upload_file=file_contents
             )
         finally:
-            if isinstance(file_contents, BufferedReader):
+            if file_contents is not None and isinstance(file_contents, BufferedReader):
                 file_contents.close()
 
     async def _upload_file(self, file_input: FileInput) -> File:
