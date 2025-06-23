@@ -27,7 +27,7 @@ class TestSchema(BaseModel):
 
 # Test data paths
 TEST_DIR = Path(__file__).parent / "data"
-TEST_PDF = TEST_DIR / "slide" / "saas_slide.pdf"
+TEST_PDF = TEST_DIR / "api_test" / "saas_slide.pdf"
 
 
 @pytest.fixture
