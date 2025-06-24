@@ -1,6 +1,7 @@
 import os
 import pytest
 from pathlib import Path
+from typing import List
 from pydantic import BaseModel
 
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent, SourceText
@@ -56,9 +57,34 @@ def test_schema_dict():
     }
 
 
+# Global storage for agents to cleanup
+_TEST_AGENTS_TO_CLEANUP: List[str] = []
+
+
+def pytest_sessionfinish(session, exitstatus):
+    """Hook that runs after all tests complete - cleanup agents here"""
+    if _TEST_AGENTS_TO_CLEANUP:
+        # Create a fresh client just for cleanup
+        cleanup_client = LlamaExtract(
+            api_key=LLAMA_CLOUD_API_KEY,
+            base_url=LLAMA_CLOUD_BASE_URL,
+            project_id=LLAMA_CLOUD_PROJECT_ID,
+            verbose=True,
+        )
+
+        for agent_id in _TEST_AGENTS_TO_CLEANUP:
+            try:
+                cleanup_client.delete_agent(agent_id)
+                print(f"Cleaned up agent {agent_id}")
+            except Exception as e:
+                print(f"Warning: Failed to delete agent {agent_id}: {e}")
+
+        _TEST_AGENTS_TO_CLEANUP.clear()
+
+
 @pytest.fixture
 def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
-    """Creates a test agent and cleans it up after the test"""
+    """Creates a test agent and collects it for cleanup at the end of all tests"""
     test_id = request.node.nodeid
     test_hash = hex(hash(test_id))[-8:]
     base_name = test_agent_name
@@ -86,13 +112,11 @@ def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
         print(f"Warning: Failed to cleanup existing agent: {e}")
 
     agent = llama_extract.create_agent(name=name, data_schema=schema)
-    yield agent
 
-    # Cleanup after test
-    try:
-        llama_extract.delete_agent(agent.id)
-    except Exception as e:
-        print(f"Warning: Failed to delete agent {agent.id}: {e}")
+    # Add agent to global cleanup list (survives pytest fixture scoping)
+    _TEST_AGENTS_TO_CLEANUP.append(agent.id)
+
+    yield agent
 
 
 class TestLlamaExtract:
