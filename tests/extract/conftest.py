@@ -1,14 +1,18 @@
 import os
+from typing import List
 from llama_cloud_services.extract import LlamaExtract
+
+# Global storage for agents to cleanup
+_TEST_AGENTS_TO_CLEANUP: List[str] = []
 
 
 def pytest_sessionfinish(session, exitstatus):
     """Hook that runs after all tests complete - cleanup agents here"""
-    # Get agents to cleanup from pytest config
-    agents_to_cleanup = getattr(session.config, "_test_agents_cleanup", [])
-    print(f"pytest_sessionfinish hook called! Agents to cleanup: {agents_to_cleanup}")
+    print(
+        f"pytest_sessionfinish hook called! Agents to cleanup: {_TEST_AGENTS_TO_CLEANUP}"
+    )
 
-    if agents_to_cleanup:
+    if _TEST_AGENTS_TO_CLEANUP:
         print("Creating cleanup client...")
         # Create a fresh client just for cleanup
         cleanup_client = LlamaExtract(
@@ -18,7 +22,7 @@ def pytest_sessionfinish(session, exitstatus):
             verbose=True,
         )
 
-        for agent_id in agents_to_cleanup:
+        for agent_id in _TEST_AGENTS_TO_CLEANUP:
             try:
                 print(f"Deleting agent {agent_id}...")
                 cleanup_client.delete_agent(agent_id)
@@ -26,8 +30,12 @@ def pytest_sessionfinish(session, exitstatus):
             except Exception as e:
                 print(f"Warning: Failed to delete agent {agent_id}: {e}")
 
-        # Clear the list
-        session.config._test_agents_cleanup.clear()
+        _TEST_AGENTS_TO_CLEANUP.clear()
         print("Agent cleanup completed")
     else:
         print("No agents to cleanup")
+
+
+def register_agent_for_cleanup(agent_id: str):
+    """Register an agent ID for cleanup at the end of the test session"""
+    _TEST_AGENTS_TO_CLEANUP.append(agent_id)
