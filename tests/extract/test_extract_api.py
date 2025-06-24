@@ -1,11 +1,11 @@
 import os
 import pytest
 from pathlib import Path
-from typing import List
 from pydantic import BaseModel
 
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent, SourceText
 from tests.extract.util import load_test_dotenv
+from .conftest import register_agent_for_cleanup
 
 load_test_dotenv()
 
@@ -57,31 +57,6 @@ def test_schema_dict():
     }
 
 
-# Global storage for agents to cleanup
-_TEST_AGENTS_TO_CLEANUP: List[str] = []
-
-
-def pytest_sessionfinish(session, exitstatus):
-    """Hook that runs after all tests complete - cleanup agents here"""
-    if _TEST_AGENTS_TO_CLEANUP:
-        # Create a fresh client just for cleanup
-        cleanup_client = LlamaExtract(
-            api_key=LLAMA_CLOUD_API_KEY,
-            base_url=LLAMA_CLOUD_BASE_URL,
-            project_id=LLAMA_CLOUD_PROJECT_ID,
-            verbose=True,
-        )
-
-        for agent_id in _TEST_AGENTS_TO_CLEANUP:
-            try:
-                cleanup_client.delete_agent(agent_id)
-                print(f"Cleaned up agent {agent_id}")
-            except Exception as e:
-                print(f"Warning: Failed to delete agent {agent_id}: {e}")
-
-        _TEST_AGENTS_TO_CLEANUP.clear()
-
-
 @pytest.fixture
 def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
     """Creates a test agent and collects it for cleanup at the end of all tests"""
@@ -113,8 +88,8 @@ def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
 
     agent = llama_extract.create_agent(name=name, data_schema=schema)
 
-    # Add agent to global cleanup list (survives pytest fixture scoping)
-    _TEST_AGENTS_TO_CLEANUP.append(agent.id)
+    # Add agent to cleanup list via conftest helper
+    register_agent_for_cleanup(agent.id)
 
     yield agent
 
