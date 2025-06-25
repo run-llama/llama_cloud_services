@@ -8,7 +8,7 @@ python_version = "3.10"
 
 [tool.poetry]
 name = "llama-cloud-services"
-version = "0.6.36"
+version = "0.6.37"
 description = "Tailored SDK clients for LlamaCloud services."
 authors = ["Logan Markewich <logan@runllama.ai>"]
 license = "MIT"
@@ -18,13 +18,13 @@ packages = [{include = "llama_cloud_services"}]
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
 llama-index-core = ">=0.12.0"
-llama-cloud = "==0.1.28"
+llama-cloud = "==0.1.29"
 pydantic = ">=2.8,!=2.10"
 click = "^8.1.7"
 python-dotenv = "^1.0.1"
 eval-type-backport = {python = "<3.10", version = "^0.2.0"}
 platformdirs = "^4.3.7"
-tenacity = "^9.0.0"
+tenacity = ">=8.5.0, <10.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
