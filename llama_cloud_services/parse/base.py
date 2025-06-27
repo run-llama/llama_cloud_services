@@ -1020,6 +1020,7 @@ class LlamaParse(BasePydanticReader):
                 httpx.ReadTimeout,
                 httpx.WriteTimeout,
                 httpx.HTTPStatusError,
+                httpx.RemoteProtocolError,
             ) as err:
                 error_count += 1
                 end = time.time()
