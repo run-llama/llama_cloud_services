@@ -465,6 +465,34 @@ class LlamaParse(BasePydanticReader):
         default=None,
         description="A URL that needs to be called at the end of the parsing job.",
     )
+    partition_pages: Optional[int] = Field(
+        default=None,
+        description="If set, documents will automatically be partitioned into segments containing the specified number of pages at most. Parsing will be split into separate jobs for each partition segment. Can be used in combination with targetPages and maxPages.",
+    )
+    hide_headers: Optional[bool] = Field(
+        default=False,
+        description="Whether to hide page header in output markdown.",
+    )
+    hide_footers: Optional[bool] = Field(
+        default=False,
+        description="Whether to hide page footers in output markdown.",
+    )
+    page_header_suffix: Optional[str] = Field(
+        default=None,
+        description="A suffix to add to the page header in the output markdown.",
+    )
+    page_header_prefix: Optional[str] = Field(
+        default=None,
+        description="A prefix to add to the page header in the output markdown.",
+    )
+    page_footer_suffix: Optional[str] = Field(
+        default=None,
+        description="A suffix to add to the page footer in the output markdown.",
+    )
+    page_footer_prefix: Optional[str] = Field(
+        default=None,
+        description="A prefix to add to the page footer in the output markdown.",
+    )
 
     # Deprecated
     bounding_box: Optional[str] = Field(
@@ -502,11 +530,6 @@ class LlamaParse(BasePydanticReader):
     use_vendor_multimodal_model: Optional[bool] = Field(
         default=False,
         description="Whether to use the vendor multimodal API.",
-    )
-
-    partition_pages: Optional[int] = Field(
-        default=None,
-        description="If set, documents will automatically be partitioned into segments containing the specified number of pages at most. Parsing will be split into separate jobs for each partition segment. Can be used in combination with targetPages and maxPages.",
     )
 
     @model_validator(mode="before")
@@ -835,6 +858,24 @@ class LlamaParse(BasePydanticReader):
 
         if self.page_prefix is not None:
             data["page_prefix"] = self.page_prefix
+
+        if self.hide_headers:
+            data["hide_headers"] = self.hide_headers
+
+        if self.hide_footers:
+            data["hide_footers"] = self.hide_footers
+
+        if self.page_header_suffix is not None:
+            data["page_header_suffix"] = self.page_header_suffix
+
+        if self.page_header_prefix is not None:
+            data["page_header_prefix"] = self.page_header_prefix
+
+        if self.page_footer_suffix is not None:
+            data["page_footer_suffix"] = self.page_footer_suffix
+
+        if self.page_footer_prefix is not None:
+            data["page_footer_prefix"] = self.page_footer_prefix
 
         # only send page separator to server if it is not None
         # as if a null, "" string is sent the server will then ignore the page separator instead of using the default

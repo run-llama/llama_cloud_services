@@ -15,7 +15,7 @@ class JobMetadata(BaseModel):
     """Metadata about the job."""
 
     job_pages: int = Field(description="The number of pages in the job.")
-    job_auto_mode_triggered_pages: int = Field(
+    job_auto_mode_triggered_pages: Optional[int] = Field(
         description="The number of pages that triggered auto mode (thus increasing the cost)."
     )
     job_is_cache_hit: bool = Field(description="Whether the job was a cache hit.")
@@ -130,7 +130,7 @@ class Page(BaseModel):
     )
     width: Optional[float] = Field(default=None, description="The width of the page.")
     height: Optional[float] = Field(default=None, description="The height of the page.")
-    triggeredAutoMode: bool = Field(
+    triggeredAutoMode: Optional[bool] = Field(
         default=False,
         description="Whether the page triggered auto mode (thus increasing the cost).",
     )
