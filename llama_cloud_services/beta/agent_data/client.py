@@ -1,0 +1,267 @@
+import os
+from typing import Dict, Generic, List, Optional, Type
+
+from llama_cloud import FilterOperation
+from llama_cloud.client import AsyncLlamaCloud
+from tenacity import (
+    WrappedFn,
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
+import httpx
+
+from .schema import (
+    AgentDataT,
+    TypedAgentData,
+    TypedAgentDataItems,
+    TypedAggregateGroup,
+    TypedAggregateGroupItems,
+)
+
+
+def agent_data_retry(func: WrappedFn) -> WrappedFn:
+    """
+    Decorator that adds automatic retry logic to agent data API calls.
+
+    Applies exponential backoff retry strategy for common network-related exceptions:
+    - Up to 3 retry attempts
+    - Exponential wait time between 0.5s and 10s
+    - Retries on timeout, connection, and HTTP status errors
+
+    This ensures resilient API communication in distributed environments where
+    temporary network issues or service unavailability may occur.
+    """
+    return retry(
+        stop=stop_after_attempt(3),
+        wait=wait_exponential(min=0.5, max=10),
+        retry=retry_if_exception_type(
+            (httpx.TimeoutException, httpx.ConnectError, httpx.HTTPStatusError)
+        ),
+    )(func)
+
+
+def get_default_agent_id() -> Optional[str]:
+    """
+    Retrieve the default agent ID from environment variables.
+
+    Returns:
+        The value of LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable,
+        or None if not set
+
+    Note:
+        This provides a convenient way to configure agent ID globally
+        via environment variables instead of passing it explicitly
+        to each client instance.
+    """
+    return os.getenv("LLAMA_DEPLOY_DEPLOYMENT_NAME")
+
+
+class AsyncAgentDataClient(Generic[AgentDataT]):
+    """
+    Async client for managing agent-generated structured data with type safety.
+
+    This client provides a high-level interface for CRUD operations, searching, and
+    aggregation of structured data created by agents. It enforces type safety by
+    validating all data against a specified Pydantic model type.
+
+    The client is generic over AgentDataT, which must be a Pydantic BaseModel that
+    defines the structure of your agent's data output.
+
+    Example:
+        ```python
+        from pydantic import BaseModel
+        from llama_cloud.client import AsyncLlamaCloud
+        from llama_cloud_services.beta.agent_data import AsyncAgentDataClient
+
+        class ExtractedPerson(BaseModel):
+            name: str
+            age: int
+            email: str
+
+        # Initialize client
+        llama_client = AsyncLlamaCloud(token="your-api-key")
+        agent_client = AsyncAgentDataClient(
+            client=llama_client,
+            type=ExtractedPerson,
+            collection_name="extracted_people",
+            agent_url_id="person-extraction-agent"
+        )
+
+        # Create data
+        person = ExtractedPerson(name="John Doe", age=30, email="john@example.com")
+        result = await agent_client.create_agent_data(person)
+
+        # Search data
+        results = await agent_client.search_agent_data(
+            filter={"age": FilterOperation(gt=25)},
+            order_by="data.name",
+            page_size=20
+        )
+        ```
+
+    Type Parameters:
+        AgentDataT: Pydantic BaseModel type that defines the structure of agent data
+    """
+
+    def __init__(
+        self,
+        client: AsyncLlamaCloud,
+        type: Type[AgentDataT],
+        collection_name: str = "default",
+        agent_url_id: Optional[str] = None,
+    ):
+        """
+        Initialize the AsyncAgentDataClient.
+
+        Args:
+            client: AsyncLlamaCloud client instance for API communication
+            type: Pydantic BaseModel class that defines the data structure.
+                All agent data will be validated against this type.
+            collection_name: Named collection within the agent for organizing data.
+                Defaults to "default". Collections allow logical separation of
+                different data types or workflows within the same agent.
+            agent_url_id: Unique identifier for the agent. This normally appears in the
+                url of an agent within the llama cloud platform. If not provided,
+                will attempt to use the LLAMA_DEPLOY_DEPLOYMENT_NAME environment
+                variable. Data can only be added to an already existing agent in the
+                platform.
+
+        Raises:
+            ValueError: If agent_url_id is not provided and the
+                LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable is not set
+
+        Note:
+            The client automatically applies retry logic to all API calls with
+            exponential backoff for timeout, connection, and HTTP status errors.
+        """
+
+        self.agent_url_id = agent_url_id or get_default_agent_id()
+        if not self.agent_url_id:
+            raise ValueError(
+                "Agent ID is required, or set the LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable"
+            )
+
+        self.collection_name = collection_name
+        self.client = client
+        self.type = type
+
+    @agent_data_retry
+    async def get_agent_data(self, item_id: str) -> TypedAgentData[AgentDataT]:
+        raw_data = await self.client.beta.get_agent_data(
+            item_id=item_id,
+        )
+        return TypedAgentData.from_raw(raw_data, validator=self.type)
+
+    @agent_data_retry
+    async def create_agent_data(self, data: AgentDataT) -> TypedAgentData[AgentDataT]:
+        raw_data = await self.client.beta.create_agent_data(
+            agent_slug=self.agent_url_id,
+            collection=self.collection_name,
+            data=data.model_dump(),
+        )
+        return TypedAgentData.from_raw(raw_data, validator=self.type)
+
+    @agent_data_retry
+    async def update_agent_data(
+        self, item_id: str, data: AgentDataT
+    ) -> TypedAgentData[AgentDataT]:
+        raw_data = await self.client.beta.update_agent_data(
+            item_id=item_id,
+            data=data.model_dump(),
+        )
+        return TypedAgentData.from_raw(raw_data, validator=self.type)
+
+    @agent_data_retry
+    async def delete_agent_data(self, item_id: str) -> None:
+        await self.client.beta.delete_agent_data(item_id=item_id)
+
+    @agent_data_retry
+    async def search_agent_data(
+        self,
+        filter: Optional[Dict[str, Optional[FilterOperation]]] = None,
+        order_by: Optional[str] = None,
+        offset: Optional[int] = None,
+        page_size: Optional[int] = None,
+        include_total: bool = False,
+    ) -> TypedAgentDataItems[AgentDataT]:
+        """
+        Search agent data with filtering, sorting, and pagination.
+        Args:
+            filter: Filter conditions to apply to the search. Dict mapping field names to FilterOperation objects. Filters only by data fields
+                Examples:
+                - {"age": FilterOperation(gt=18)} - age greater than 18
+                - {"status": FilterOperation(eq="active")} - status equals "active"
+                - {"tags": FilterOperation(includes=["python", "ml"])} - tags include "python" or "ml"
+                - {"created_at": FilterOperation(gte="2024-01-01")} - created after date
+                - {"score": FilterOperation(lt=100, gte=50)} - score between 50 and 100
+            order_by: Comma delimited list of fields to sort results by. Can order by standard agent fields like created_at, or by data fields. Data fields must be prefixed with "data.". If ordering desceding, use a " desc" suffix.
+                Examples:
+                - "data.name desc, created_at" - sort by name in descending order, and then by creation date
+            page_size: Maximum number of items to return per page. Defaults to 10.
+            offset: Number of items to skip from the beginning. Defaults to 0.
+            include_total: Whether to include the total count in the response. Defaults to False to improve performance. It's recommended to only request on the first page.
+        """
+        raw = await self.client.beta.search_agent_data_api_v_1_beta_agent_data_search_post(
+            agent_slug=self.agent_url_id,
+            collection=self.collection_name,
+            filter=filter,
+            order_by=order_by,
+            offset=offset,
+            page_size=page_size,
+            include_total=include_total,
+        )
+        return TypedAgentDataItems(
+            items=[
+                TypedAgentData.from_raw(item, validator=self.type) for item in raw.items
+            ],
+            has_more=raw.next_page_token is not None,
+            total=raw.total_size,
+        )
+
+    @agent_data_retry
+    async def aggregate_agent_data(
+        self,
+        filter: Optional[Dict[str, Optional[FilterOperation]]] = None,
+        group_by: Optional[List[str]] = None,
+        count: Optional[bool] = None,
+        first: Optional[bool] = None,
+        order_by: Optional[str] = None,
+        offset: Optional[int] = None,
+        page_size: Optional[int] = None,
+    ) -> TypedAggregateGroupItems[AgentDataT]:
+        """
+        Aggregate agent data into groups according to the group_by fields.
+        Args:
+            filter: Filter conditions to apply to the search. Dict mapping field names to FilterOperation objects. Filters only by data fields
+                See search_agent_data for more details on filtering.
+            group_by: List of fields to group by. Groups strictly by equality. Can only group by data fields.
+                Examples:
+                - ["name"] - group by name
+                - ["name", "age"] - group by name and age
+            count: Whether to include the count of items in each group.
+            first: Whether to include the first item in each group.
+            order_by: Comma delimited list of fields to sort results by. See search_agent_data for more details on ordering.
+            offset: Number of groups to skip from the beginning. Defaults to 0.
+            page_size: Maximum number of groups to return per page.
+        """
+        raw = await self.client.beta.aggregate_agent_data_api_v_1_beta_agent_data_aggregate_post(
+            agent_slug=self.agent_url_id,
+            collection=self.collection_name,
+            page_size=page_size,
+            filter=filter,
+            order_by=order_by,
+            group_by=group_by,
+            count=count,
+            first=first,
+            offset=offset,
+        )
+        return TypedAggregateGroupItems(
+            items=[
+                TypedAggregateGroup.from_raw(item, validator=self.type)
+                for item in raw.items
+            ],
+            has_more=raw.next_page_token is not None,
+            total=raw.total_size,
+        )
