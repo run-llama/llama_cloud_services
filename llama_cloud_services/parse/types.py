@@ -14,11 +14,14 @@ PAGE_REGEX = r"page[-_](\d+)\.jpg$"
 class JobMetadata(BaseModel):
     """Metadata about the job."""
 
-    job_pages: int = Field(description="The number of pages in the job.")
+    job_pages: int = Field(default=0, description="The number of pages in the job.")
     job_auto_mode_triggered_pages: Optional[int] = Field(
-        description="The number of pages that triggered auto mode (thus increasing the cost)."
+        default=None,
+        description="The number of pages that triggered auto mode (thus increasing the cost).",
     )
-    job_is_cache_hit: bool = Field(description="Whether the job was a cache hit.")
+    job_is_cache_hit: bool = Field(
+        default=False, description="Whether the job was a cache hit."
+    )
 
 
 class BBox(BaseModel):
@@ -151,10 +154,16 @@ class Page(BaseModel):
 class JobResult(BaseModel):
     """The raw JSON result from the LlamaParse API."""
 
-    pages: List[Page] = Field(description="The pages of the document.")
-    job_metadata: JobMetadata = Field(description="The metadata of the job.")
-    file_name: str = Field(description="The path to the file that was parsed.")
-    job_id: str = Field(description="The ID of the job.")
+    pages: List[Page] = Field(
+        default_factory=list, description="The pages of the document."
+    )
+    job_metadata: JobMetadata = Field(
+        default_factory=JobMetadata, description="The metadata of the job."
+    )
+    file_name: str = Field(
+        default="", description="The path to the file that was parsed."
+    )
+    job_id: str = Field(default="", description="The ID of the job.")
     is_done: bool = Field(default=False, description="Whether the job is done.")
     error: Optional[str] = Field(
         default=None, description="The error message if the job failed."
