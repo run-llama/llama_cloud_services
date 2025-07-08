@@ -137,9 +137,6 @@ def run_in_thread(
 
 
 def _extraction_config_warning(config: ExtractConfig) -> None:
-    if config.extraction_mode == ExtractMode.ACCURATE:
-        warnings.warn("ACCURATE extraction mode is deprecated. Using BALANCED instead.")
-        config.extraction_mode = ExtractMode.BALANCED
     if config.use_reasoning:
         warnings.warn(
             "`use_reasoning` is an experimental feature. Results will be available in "
