@@ -324,6 +324,10 @@ class LlamaParse(BasePydanticReader):
         default=None,
         description="The maximum number of pages to extract text from documents. If set to 0 or not set, all pages will be that should be extracted will be extracted (can work in combination with targetPages).",
     )
+    merge_tables_across_pages_in_markdown: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will merge tables across pages in the markdown output. This is useful for documents with tables that span across multiple pages.",
+    )
     output_pdf_of_document: Optional[bool] = Field(
         default=False,
         description="If set to true, the parser will also output a PDF of the document. (except for spreadsheets)",
@@ -858,6 +862,11 @@ class LlamaParse(BasePydanticReader):
 
         if self.page_prefix is not None:
             data["page_prefix"] = self.page_prefix
+
+        if self.merge_tables_across_pages_in_markdown:
+            data[
+                "merge_tables_across_pages_in_markdown"
+            ] = self.merge_tables_across_pages_in_markdown
 
         if self.hide_headers:
             data["hide_headers"] = self.hide_headers
