@@ -60,7 +60,11 @@ AgentDataT = TypeVar("AgentDataT", bound=BaseModel)
 ExtractedT = TypeVar("ExtractedT", bound=Union[BaseModel, dict])
 
 # Status types for extracted data workflow
-StatusType = Union[Literal["error", "accepted", "rejected", "in_review"], str]
+StatusType = Union[Literal["error", "accepted", "rejected", "pending_review"], str]
+
+ComparisonOperator = Dict[
+    str, Dict[Literal["gt", "gte", "lt", "lte", "eq", "includes"], Any]
+]
 
 
 class TypedAgentData(BaseModel, Generic[AgentDataT]):
@@ -142,7 +146,7 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
     Example:
         ```python
         # Search with pagination
-        results = await client.search_agent_data(
+        results = await client.search(
             page_size=10,
             include_total=True
         )
@@ -152,7 +156,7 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
 
         if results.has_more:
             # Load next page
-            next_page = await client.search_agent_data(
+            next_page = await client.search(
                 page_size=10,
                 offset=10
             )
@@ -183,9 +187,12 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         data: The current state of the data (may differ from original after edits)
         status: Current workflow status (in_review, accepted, rejected, error)
         confidence: Confidence scores for individual fields (if available)
+        file_id: The llamacloud file ID of the file that was used to extract the data
+        file_name: The name of the file that was used to extract the data
+        file_hash: A content hash of the file that was used to extract the data, for de-duplication
 
     Status Workflow:
-        - "in_review": Initial state, awaiting human review
+        - "pending_review": Initial state, awaiting human review
         - "accepted": Data approved and ready for use
         - "rejected": Data rejected, needs re-extraction or manual fix
         - "error": Processing error occurred
@@ -194,8 +201,8 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         ```python
         # Create extracted data for review
         extracted = ExtractedData.create(
-            extracted_data=person_data,
-            status="in_review",
+            data=person_data,
+            status="pending_review",
             confidence={"name": 0.95, "age": 0.87}
         )
 
@@ -212,20 +219,35 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
     data: ExtractedT = Field(
         description="The latest state of the data. Will differ if data has been updated"
     )
-    status: Union[Literal["error", "accepted", "rejected", "in_review"], str] = Field(
-        description="The status of the extracted data"
-    )
-    confidence: Dict[str, Union[float, Dict]] = Field(
+    status: StatusType = Field(description="The status of the extracted data")
+    confidence: Dict[str, Any] = Field(
         default_factory=dict,
         description="Confidence scores, if any, for each primitive field in the original_data data",
+    )
+    file_id: Optional[str] = Field(
+        None, description="The ID of the file that was used to extract the data"
+    )
+    file_name: Optional[str] = Field(
+        None, description="The name of the file that was used to extract the data"
+    )
+    file_hash: Optional[str] = Field(
+        None, description="The hash of the file that was used to extract the data"
+    )
+    metadata: Optional[Dict[str, Any]] = Field(
+        default_factory=dict,
+        description="Additional metadata about the extracted data, such as errors, tokens, etc.",
     )
 
     @classmethod
     def create(
         cls,
-        extracted_data: ExtractedT,
-        status: StatusType = "in_review",
-        confidence: Optional[Dict[str, Union[float, Dict]]] = None,
+        data: ExtractedT,
+        status: StatusType = "pending_review",
+        confidence: Optional[Dict[str, Any]] = None,
+        file_id: Optional[str] = None,
+        file_name: Optional[str] = None,
+        file_hash: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
     ) -> "ExtractedData[ExtractedT]":
         """
         Create a new ExtractedData instance with sensible defaults.
@@ -234,15 +256,22 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
             extracted_data: The extracted data payload
             status: Initial workflow status
             confidence: Optional confidence scores for fields
+            file_id: The llamacloud file ID of the file that was used to extract the data
+            file_name: The name of the file that was used to extract the data
+            file_hash: A content hash of the file that was used to extract the data, for de-duplication
 
         Returns:
             New ExtractedData instance ready for storage
         """
         return cls(
-            original_data=extracted_data,
-            data=extracted_data,
+            original_data=data,
+            data=data,
             status=status,
             confidence=confidence or {},
+            file_id=file_id,
+            file_name=file_name,
+            file_hash=file_hash,
+            metadata=metadata or {},
         )
 
 

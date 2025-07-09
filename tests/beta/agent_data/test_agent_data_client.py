@@ -67,7 +67,7 @@ async def test_agent_data_crud_operations():
     agent_data_client = AsyncAgentDataClient(
         client=client,
         type=TestData,
-        collection_name=f"test-collection-{test_id[:8]}",
+        collection=f"test-collection-{test_id[:8]}",
         agent_url_id=LLAMA_DEPLOY_DEPLOYMENT_NAME,
     )
 
@@ -77,21 +77,21 @@ async def test_agent_data_crud_operations():
     created_item = None
     try:
         # Test CREATE
-        created_item = await agent_data_client.create_agent_data(test_data)
+        created_item = await agent_data_client.create_item(test_data)
         assert created_item.data.name == "test-item"
         assert created_item.data.test_id == test_id
         assert created_item.data.value == 42
         assert created_item.id is not None
 
         # Test READ
-        retrieved_item = await agent_data_client.get_agent_data(created_item.id)
+        retrieved_item = await agent_data_client.get_item(created_item.id)
         assert retrieved_item.id == created_item.id
         assert retrieved_item.data.name == "test-item"
         assert retrieved_item.data.test_id == test_id
         assert retrieved_item.data.value == 42
 
         # Test SEARCH
-        search_results = await agent_data_client.search_agent_data(
+        search_results = await agent_data_client.search(
             filter={"test_id": {"eq": test_id}}, page_size=10, include_total=True
         )
         assert len(search_results.items) == 1
@@ -99,7 +99,7 @@ async def test_agent_data_crud_operations():
         assert search_results.total == 1
 
         # Test AGGREGATE
-        aggregate_results = await agent_data_client.aggregate_agent_data(
+        aggregate_results = await agent_data_client.aggregate(
             group_by=["test_id"], count=True
         )
         assert len(aggregate_results.items) == 1
@@ -108,7 +108,7 @@ async def test_agent_data_crud_operations():
 
         # Test UPDATE
         updated_data = TestData(name="updated-item", test_id=test_id, value=84)
-        updated_item = await agent_data_client.update_agent_data(
+        updated_item = await agent_data_client.update_item(
             created_item.id, updated_data
         )
         assert updated_item.data.name == "updated-item"
@@ -116,7 +116,7 @@ async def test_agent_data_crud_operations():
         assert updated_item.id == created_item.id
 
         # Verify update persisted
-        verified_item = await agent_data_client.get_agent_data(created_item.id)
+        verified_item = await agent_data_client.get_item(created_item.id)
         assert verified_item.data.name == "updated-item"
         assert verified_item.data.value == 84
 
@@ -124,6 +124,6 @@ async def test_agent_data_crud_operations():
         # Clean up test data
         if created_item is not None:
             try:
-                await agent_data_client.delete_agent_data(created_item.id)
+                await agent_data_client.delete_item(created_item.id)
             except Exception as e:
                 print(f"Warning: Failed to cleanup test data {created_item.id}: {e}")

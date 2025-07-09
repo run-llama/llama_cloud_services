@@ -70,7 +70,7 @@ def test_extracted_data_create_method():
     extracted = ExtractedData.create(person)
     assert extracted.original_data == person
     assert extracted.data == person
-    assert extracted.status == "in_review"
+    assert extracted.status == "pending_review"
     assert extracted.confidence == {}
 
     # Test with custom values

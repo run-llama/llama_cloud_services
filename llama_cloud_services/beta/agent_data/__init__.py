@@ -5,6 +5,7 @@ from .schema import (
     StatusType,
     ExtractedT,
     AgentDataT,
+    ComparisonOperator,
 )
 from .client import AsyncAgentDataClient
 
@@ -16,4 +17,5 @@ __all__ = [
     "StatusType",
     "ExtractedT",
     "AgentDataT",
+    "ComparisonOperator",
 ]

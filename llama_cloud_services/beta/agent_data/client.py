@@ -1,7 +1,6 @@
 import os
-from typing import Dict, Generic, List, Optional, Type
+from typing import Any, Dict, Generic, List, Optional, Type
 
-from llama_cloud import FilterOperation
 from llama_cloud.client import AsyncLlamaCloud
 from tenacity import (
     WrappedFn,
@@ -14,6 +13,7 @@ import httpx
 
 from .schema import (
     AgentDataT,
+    ComparisonOperator,
     TypedAgentData,
     TypedAgentDataItems,
     TypedAggregateGroup,
@@ -85,7 +85,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         agent_client = AsyncAgentDataClient(
             client=llama_client,
             type=ExtractedPerson,
-            collection_name="extracted_people",
+            collection="extracted_people",
             agent_url_id="person-extraction-agent"
         )
 
@@ -94,8 +94,8 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         result = await agent_client.create_agent_data(person)
 
         # Search data
-        results = await agent_client.search_agent_data(
-            filter={"age": FilterOperation(gt=25)},
+        results = await agent_client.search(
+            filter={"age": {"gt": 25}},
             order_by="data.name",
             page_size=20
         )
@@ -107,19 +107,20 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
 
     def __init__(
         self,
-        client: AsyncLlamaCloud,
         type: Type[AgentDataT],
-        collection_name: str = "default",
+        collection: str = "default",
         agent_url_id: Optional[str] = None,
+        client: Optional[AsyncLlamaCloud] = None,
+        token: Optional[str] = None,
+        base_url: Optional[str] = None,
     ):
         """
         Initialize the AsyncAgentDataClient.
 
         Args:
-            client: AsyncLlamaCloud client instance for API communication
             type: Pydantic BaseModel class that defines the data structure.
                 All agent data will be validated against this type.
-            collection_name: Named collection within the agent for organizing data.
+            collection: Named collection within the agent for organizing data.
                 Defaults to "default". Collections allow logical separation of
                 different data types or workflows within the same agent.
             agent_url_id: Unique identifier for the agent. This normally appears in the
@@ -127,6 +128,11 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
                 will attempt to use the LLAMA_DEPLOY_DEPLOYMENT_NAME environment
                 variable. Data can only be added to an already existing agent in the
                 platform.
+            client: AsyncLlamaCloud client instance for API communication. If not provided, will
+                construct one from the provided api token and base url
+            token: Llama Cloud API token. Reads from LLAMA_CLOUD_API_KEY if not provided
+            base_url: Llama Cloud API token. Reads from LLAMA_CLOUD_BASE_URL if not provided, and
+                defaults to https://api.cloud.llamaindex.ai
 
         Raises:
             ValueError: If agent_url_id is not provided and the
@@ -143,28 +149,33 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
                 "Agent ID is required, or set the LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable"
             )
 
-        self.collection_name = collection_name
+        self.collection = collection
+        if not client:
+            client = AsyncLlamaCloud(
+                token=token or os.getenv("LLAMA_CLOUD_API_KEY"),
+                base_url=base_url or os.getenv("LLAMA_CLOUD_BASE_URL"),
+            )
         self.client = client
         self.type = type
 
     @agent_data_retry
-    async def get_agent_data(self, item_id: str) -> TypedAgentData[AgentDataT]:
+    async def get_item(self, item_id: str) -> TypedAgentData[AgentDataT]:
         raw_data = await self.client.beta.get_agent_data(
             item_id=item_id,
         )
         return TypedAgentData.from_raw(raw_data, validator=self.type)
 
     @agent_data_retry
-    async def create_agent_data(self, data: AgentDataT) -> TypedAgentData[AgentDataT]:
+    async def create_item(self, data: AgentDataT) -> TypedAgentData[AgentDataT]:
         raw_data = await self.client.beta.create_agent_data(
             agent_slug=self.agent_url_id,
-            collection=self.collection_name,
+            collection=self.collection,
             data=data.model_dump(),
         )
         return TypedAgentData.from_raw(raw_data, validator=self.type)
 
     @agent_data_retry
-    async def update_agent_data(
+    async def update_item(
         self, item_id: str, data: AgentDataT
     ) -> TypedAgentData[AgentDataT]:
         raw_data = await self.client.beta.update_agent_data(
@@ -174,13 +185,13 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         return TypedAgentData.from_raw(raw_data, validator=self.type)
 
     @agent_data_retry
-    async def delete_agent_data(self, item_id: str) -> None:
+    async def delete_item(self, item_id: str) -> None:
         await self.client.beta.delete_agent_data(item_id=item_id)
 
     @agent_data_retry
-    async def search_agent_data(
+    async def search(
         self,
-        filter: Optional[Dict[str, Optional[FilterOperation]]] = None,
+        filter: Optional[Dict[str, Dict[ComparisonOperator, Any]]] = None,
         order_by: Optional[str] = None,
         offset: Optional[int] = None,
         page_size: Optional[int] = None,
@@ -191,11 +202,11 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         Args:
             filter: Filter conditions to apply to the search. Dict mapping field names to FilterOperation objects. Filters only by data fields
                 Examples:
-                - {"age": FilterOperation(gt=18)} - age greater than 18
-                - {"status": FilterOperation(eq="active")} - status equals "active"
-                - {"tags": FilterOperation(includes=["python", "ml"])} - tags include "python" or "ml"
-                - {"created_at": FilterOperation(gte="2024-01-01")} - created after date
-                - {"score": FilterOperation(lt=100, gte=50)} - score between 50 and 100
+                - {"age": {"gt": 18}} - age greater than 18
+                - {"status": {"eq": "active"}} - status equals "active"
+                - {"tags": {"includes": ["python", "ml"]}} - tags include "python" or "ml"
+                - {"created_at": {"gte": "2024-01-01"}} - created after date
+                - {"score": {"lt": 100, "gte": 50}} - score between 50 and 100
             order_by: Comma delimited list of fields to sort results by. Can order by standard agent fields like created_at, or by data fields. Data fields must be prefixed with "data.". If ordering desceding, use a " desc" suffix.
                 Examples:
                 - "data.name desc, created_at" - sort by name in descending order, and then by creation date
@@ -205,7 +216,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         """
         raw = await self.client.beta.search_agent_data_api_v_1_beta_agent_data_search_post(
             agent_slug=self.agent_url_id,
-            collection=self.collection_name,
+            collection=self.collection,
             filter=filter,
             order_by=order_by,
             offset=offset,
@@ -221,9 +232,9 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         )
 
     @agent_data_retry
-    async def aggregate_agent_data(
+    async def aggregate(
         self,
-        filter: Optional[Dict[str, Optional[FilterOperation]]] = None,
+        filter: Optional[Dict[str, Dict[ComparisonOperator, Any]]] = None,
         group_by: Optional[List[str]] = None,
         count: Optional[bool] = None,
         first: Optional[bool] = None,
@@ -235,20 +246,20 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         Aggregate agent data into groups according to the group_by fields.
         Args:
             filter: Filter conditions to apply to the search. Dict mapping field names to FilterOperation objects. Filters only by data fields
-                See search_agent_data for more details on filtering.
+                See search for more details on filtering.
             group_by: List of fields to group by. Groups strictly by equality. Can only group by data fields.
                 Examples:
                 - ["name"] - group by name
                 - ["name", "age"] - group by name and age
             count: Whether to include the count of items in each group.
             first: Whether to include the first item in each group.
-            order_by: Comma delimited list of fields to sort results by. See search_agent_data for more details on ordering.
+            order_by: Comma delimited list of fields to sort results by. See search for more details on ordering.
             offset: Number of groups to skip from the beginning. Defaults to 0.
             page_size: Maximum number of groups to return per page.
         """
         raw = await self.client.beta.aggregate_agent_data_api_v_1_beta_agent_data_aggregate_post(
             agent_slug=self.agent_url_id,
-            collection=self.collection_name,
+            collection=self.collection,
             page_size=page_size,
             filter=filter,
             order_by=order_by,
