@@ -1,5 +1,8 @@
 # LlamaParse
 
+> [!CAUTION]
+> This project has been deprecated. Please use [llama-cloud-services](https://pypi.org/project/llama-cloud-services/) instead 
+
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/llama-parse)](https://pypi.org/project/llama-parse/)
 [![GitHub contributors](https://img.shields.io/github/contributors/run-llama/llama_parse)](https://github.com/run-llama/llama_parse/graphs/contributors)
 [![Discord](https://img.shields.io/discord/1059199217496772688)](https://discord.gg/dGcwcsnxhU)
