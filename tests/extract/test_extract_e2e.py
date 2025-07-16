@@ -8,6 +8,7 @@ import uuid
 from llama_cloud.types import ExtractConfig, ExtractMode
 from deepdiff import DeepDiff
 from tests.extract.util import json_subset_match_score, load_test_dotenv
+from .conftest import register_agent_for_cleanup
 
 load_test_dotenv()
 
@@ -115,13 +116,11 @@ def extraction_agent(test_case: TestCase, extractor: LlamaExtract):
 
     # Create new agent
     agent = extractor.create_agent(agent_name, schema, config=test_case.config)
-    yield agent
 
-    # Cleanup after test
-    try:
-        extractor.delete_agent(agent.id)
-    except Exception as e:
-        print(f"Warning: Failed to delete agent {agent.id}: {str(e)}")
+    # Register agent for cleanup at the end of the test session
+    register_agent_for_cleanup(agent.id)
+
+    yield agent
 
 
 @pytest.mark.skipif(
@@ -130,7 +129,7 @@ def extraction_agent(test_case: TestCase, extractor: LlamaExtract):
 )
 @pytest.mark.parametrize("test_case", get_test_cases(), ids=lambda x: x.name)
 def test_extraction(test_case: TestCase, extraction_agent: ExtractionAgent) -> None:
-    result = extraction_agent.extract(test_case.input_file).data
+    result = extraction_agent.extract(test_case.input_file).data  # type: ignore
     with open(test_case.expected_output, "r") as f:
         expected = json.load(f)
     # TODO: fix the saas_slide test
