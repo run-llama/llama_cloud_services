@@ -137,15 +137,9 @@ def run_in_thread(
 
 
 def _extraction_config_warning(config: ExtractConfig) -> None:
-    if config.use_reasoning:
+    if config.cite_sources or config.confidence_scores:
         warnings.warn(
-            "`use_reasoning` is an experimental feature. Results will be available in "
-            "the `extraction_metadata` field for the extraction run.",
-            ExperimentalWarning,
-        )
-    if config.cite_sources:
-        warnings.warn(
-            "`cite_sources` is an experimental feature. This may greatly increase the "
+            "`cite_sources`/`confidence_scores` could greatly increase the "
             "size of the response, and slow down the extraction. Results will be "
             "available in the `extraction_metadata` field for the extraction run.",
             ExperimentalWarning,
