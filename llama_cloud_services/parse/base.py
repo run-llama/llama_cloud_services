@@ -3,7 +3,6 @@ import mimetypes
 import os
 import time
 import warnings
-import datetime
 from contextlib import asynccontextmanager
 from copy import deepcopy
 from enum import Enum
@@ -38,8 +37,7 @@ from llama_cloud_services.parse.utils import (
     nest_asyncio_msg,
     make_api_request,
     partition_pages,
-    MarkdownTextAnalyzer,
-    md_table_to_pd_dataframe,
+    extract_tables_from_json_results,
 )
 
 # can put in a path to the file or the file bytes itself
@@ -1626,30 +1624,7 @@ class LlamaParse(BasePydanticReader):
     def get_tables(self, json_results: List[dict], download_path: str) -> List[str]:
         if not os.path.exists(download_path):
             os.makedirs(download_path)
-        tables = []
-        for json_result in json_results:
-            pages = json_result["pages"]
-            md_content: List[str] = []
-            for page in pages:
-                md_content.append(page["md"])
-            md_text = "\n\n---\n\n".join(md_content)
-            analyzer = MarkdownTextAnalyzer(text=md_text)
-            tables_dict = analyzer.identify_tables()
-            md_tables = tables_dict.get("Table", None)
-            if md_tables is None:
-                continue
-            else:
-                for md_table in md_tables:
-                    table = md_table_to_pd_dataframe(md_table=md_table)
-                    if table is not None:
-                        os.makedirs("data/extracted_tables/", exist_ok=True)
-                        save_path = f"{download_path}/table_{datetime.datetime.now().strftime('%Y_%d_%m_%H_%M_%S_%f')[:-3]}.csv"
-                        table.to_csv(
-                            save_path,
-                            index=False,
-                        )
-                        tables.append(save_path)
-        return tables
+        return extract_tables_from_json_results(json_results, download_path)
 
     async def aget_tables(
         self, json_result: List[dict], download_path: str

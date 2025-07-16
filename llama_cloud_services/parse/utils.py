@@ -1,8 +1,10 @@
 import httpx
 import itertools
 import logging
-import pandas as pd
+import os
 from enum import Enum
+from pathlib import Path
+from datetime import datetime
 from tenacity import (
     retry,
     stop_after_attempt,
@@ -10,45 +12,13 @@ from tenacity import (
     retry_if_exception,
     before_sleep_log,
 )
-from typing import Any, Iterable, Iterator, Optional, Dict
-from typing_extensions import override
-from mrkdwn_analysis.markdown_analyzer import (
-    InlineParser,
-    MarkdownAnalyzer,
-    MarkdownParser,
-)
+from typing import Any, Iterable, Iterator, Optional, List, cast
 
 logger = logging.getLogger(__name__)
 
 # Asyncio error messages
 nest_asyncio_err = "cannot be called from a running event loop"
 nest_asyncio_msg = "The event loop is already running. Add `import nest_asyncio; nest_asyncio.apply()` to your code to fix this issue."
-
-
-class MarkdownTextAnalyzer(MarkdownAnalyzer):
-    @override
-    def __init__(self, text: str):
-        self.text = text
-        parser = MarkdownParser(self.text)
-        self.tokens = parser.parse()
-        self.references = parser.references
-        self.footnotes = parser.footnotes
-        self.inline_parser = InlineParser(
-            references=self.references, footnotes=self.footnotes
-        )
-        self._parse_inline_tokens()
-
-
-def md_table_to_pd_dataframe(md_table: Dict[str, list]) -> Optional[pd.DataFrame]:
-    try:
-        df = pd.DataFrame()
-        for i in range(len(md_table["header"])):
-            ls = [row[i] for row in md_table["rows"]]
-            df[md_table["header"][i]] = ls
-        return df
-    except Exception as e:
-        logger.error(f"Skipping table as an error occurred: {e}")
-        return None
 
 
 class ResultType(str, Enum):
@@ -384,3 +354,30 @@ def partition_pages(
             yield ",".join(targets)
         else:
             return
+
+
+def extract_tables_from_json_results(
+    json_results: List[dict], download_path: str
+) -> List[str]:
+    tables = []
+    for json_result in json_results:
+        pages = json_result["pages"]
+        for page in pages:
+            page = cast(dict, page)
+            items = page.get("items", [])
+            if items:
+                for i, item in enumerate(items):
+                    item = cast(dict, item)
+                    if item.get("type", "") == "table" and item.get("csv", ""):
+                        savepath = os.path.join(
+                            download_path,
+                            f"table_{datetime.now().strftime('%Y_%d_%m_%H_%M_%S_%f')[:-3]}.csv",
+                        )
+                        if Path(savepath).exists():
+                            savepath = (
+                                savepath.replace(".csv", "_")[0] + str(i) + ".csv"
+                            )
+                        with open(savepath, "w") as f:
+                            f.write(item["csv"])
+                        tables.append(savepath)
+    return tables
