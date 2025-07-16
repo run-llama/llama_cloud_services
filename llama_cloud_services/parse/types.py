@@ -295,12 +295,35 @@ class JobResult(BaseModel):
     async def aget_markdown_nodes(self, split_by_page: bool = False) -> List[TextNode]:
         """
         Get the markdown nodes from the job.
-
         Args:
             split_by_page: Whether to split the pages into separate documents
         """
         documents = await self.aget_markdown_documents(split_by_page)
         return [TextNode(text=doc.text, metadata=doc.metadata) for doc in documents]
+
+    def get_markdown(self) -> str:
+        """
+        Get the parsed markdown from the job, distinct from the markdown documents.
+        This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
+        """
+        return asyncio_run(self.aget_markdown())
+
+    async def aget_markdown(self) -> str:
+        """
+        Get the parsed markdown from the job, distinct from the markdown documents.
+        This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
+        """
+        from llama_cloud.client import AsyncLlamaCloud
+
+        client = AsyncLlamaCloud(
+            base_url=self._base_url,
+            token=self._api_key,
+            httpx_client=self._client,
+        )
+        result = await client.parsing.get_job_result(
+            job_id=self.job_id,
+        )
+        return result.markdown
 
     async def _get_image_document_with_bytes(
         self, image: ImageItem, page: Page

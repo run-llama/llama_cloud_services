@@ -1170,14 +1170,14 @@ test = ["ipykernel", "pre-commit", "pytest (<8)", "pytest-cov", "pytest-timeout"
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.33"
+version = "0.1.34"
 description = ""
 optional = false
 python-versions = "<4,>=3.8"
 groups = ["main"]
 files = [
-    {file = "llama_cloud-0.1.33-py3-none-any.whl", hash = "sha256:35b7d4a30b013f0a343f7e09126b531c697d65bffd4eb4d2d79bf7d65f256178"},
-    {file = "llama_cloud-0.1.33.tar.gz", hash = "sha256:a0bb900d5a6e86f8c767b48686c5253679ad7ca1b57612dc39b0767e57ad3d78"},
+    {file = "llama_cloud-0.1.34-py3-none-any.whl", hash = "sha256:9b06fb109b1d9f652095a11732ae3dbe84e48cc00c580b2eeb19e71e901267be"},
+    {file = "llama_cloud-0.1.34.tar.gz", hash = "sha256:6866e4bab47d2c1840bdf169c13c06176931c1d30697ac1fa71bab7942a041e9"},
 ]
 
 [package.dependencies]
@@ -1187,20 +1187,20 @@ pydantic = ">=1.10"
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.46"
+version = "0.6.48"
 description = "Tailored SDK clients for LlamaCloud services."
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
-    {file = "llama_cloud_services-0.6.46-py3-none-any.whl", hash = "sha256:2cdf4de19cfb5548e9d0155f1bc203affca4e26ac0201f8d09d18315b1350479"},
-    {file = "llama_cloud_services-0.6.46.tar.gz", hash = "sha256:cf50c5cfd481982fd548f600adfcc666f3939b6f04718775d853a4e4efebb750"},
+    {file = "llama_cloud_services-0.6.48-py3-none-any.whl", hash = "sha256:5faadcfa270f3be516dd7d3568cbb54b3014b2c8878c5bd7d3252ab1bd635869"},
+    {file = "llama_cloud_services-0.6.48.tar.gz", hash = "sha256:64fe8d8ce7434d6a481646c35be55973ae10765d20b6be0067a262e6be61f2df"},
 ]
 
 [package.dependencies]
 click = ">=8.1.7,<9.0.0"
 eval-type-backport = {version = ">=0.2.0,<0.3.0", markers = "python_version < \"3.10\""}
-llama-cloud = "0.1.33"
+llama-cloud = "0.1.34"
 llama-index-core = ">=0.12.0"
 platformdirs = ">=4.3.7,<5.0.0"
 pydantic = ">=2.8,<2.10 || >2.10"
@@ -3086,4 +3086,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "b18a0bb31a806df8e673634c4916d5001fd80e3e328e26f632ff6a55c6a1a196"
+content-hash = "0b5ab34c44ce7802b02e01b6535b9bb0e08f99f26a43a76be88534dd8a417666"
