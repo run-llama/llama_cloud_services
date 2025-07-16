@@ -3,6 +3,7 @@ import mimetypes
 import os
 import time
 import warnings
+import datetime
 from contextlib import asynccontextmanager
 from copy import deepcopy
 from enum import Enum
@@ -37,6 +38,8 @@ from llama_cloud_services.parse.utils import (
     nest_asyncio_msg,
     make_api_request,
     partition_pages,
+    MarkdownTextAnalyzer,
+    md_table_to_pd_dataframe,
 )
 
 # can put in a path to the file or the file bytes itself
@@ -1619,6 +1622,36 @@ class LlamaParse(BasePydanticReader):
                 raise RuntimeError(nest_asyncio_msg)
             else:
                 raise e
+
+    def get_tables(self, json_results: List[dict], download_path: str) -> List[str]:
+        if not os.path.exists(download_path):
+            os.makedirs(download_path)
+        tables = []
+        for json_result in json_results:
+            pages = json_result["pages"]
+            md_content: List[str] = []
+            for page in pages:
+                md_content.append(page["md"])
+            md_text = "\n\n---\n\n".join(md_content)
+            analyzer = MarkdownTextAnalyzer(text=md_text)
+            md_tables = analyzer.identify_tables()["Table"]
+
+            for md_table in md_tables:
+                table = md_table_to_pd_dataframe(md_table=md_table)
+                if table is not None:
+                    os.makedirs("data/extracted_tables/", exist_ok=True)
+                    save_path = f"{download_path}/table_{datetime.datetime.now().strftime('%Y_%d_%m_%H_%M_%S_%f')[:-3]}.csv"
+                    table.to_csv(
+                        save_path,
+                        index=False,
+                    )
+                    tables.append(save_path)
+        return tables
+
+    async def aget_tables(
+        self, json_result: List[dict], download_path: str
+    ) -> List[str]:
+        return await asyncio.to_thread(self.get_tables, json_result, download_path)
 
     async def aget_xlsx(
         self, json_result: List[dict], download_path: str
