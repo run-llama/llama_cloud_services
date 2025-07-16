@@ -1634,18 +1634,21 @@ class LlamaParse(BasePydanticReader):
                 md_content.append(page["md"])
             md_text = "\n\n---\n\n".join(md_content)
             analyzer = MarkdownTextAnalyzer(text=md_text)
-            md_tables = analyzer.identify_tables()["Table"]
-
-            for md_table in md_tables:
-                table = md_table_to_pd_dataframe(md_table=md_table)
-                if table is not None:
-                    os.makedirs("data/extracted_tables/", exist_ok=True)
-                    save_path = f"{download_path}/table_{datetime.datetime.now().strftime('%Y_%d_%m_%H_%M_%S_%f')[:-3]}.csv"
-                    table.to_csv(
-                        save_path,
-                        index=False,
-                    )
-                    tables.append(save_path)
+            tables_dict = analyzer.identify_tables()
+            md_tables = tables_dict.get("Table", None)
+            if md_tables is None:
+                continue
+            else:
+                for md_table in md_tables:
+                    table = md_table_to_pd_dataframe(md_table=md_table)
+                    if table is not None:
+                        os.makedirs("data/extracted_tables/", exist_ok=True)
+                        save_path = f"{download_path}/table_{datetime.datetime.now().strftime('%Y_%d_%m_%H_%M_%S_%f')[:-3]}.csv"
+                        table.to_csv(
+                            save_path,
+                            index=False,
+                        )
+                        tables.append(save_path)
         return tables
 
     async def aget_tables(
