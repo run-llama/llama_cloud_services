@@ -301,16 +301,16 @@ class JobResult(BaseModel):
         documents = await self.aget_markdown_documents(split_by_page)
         return [TextNode(text=doc.text, metadata=doc.metadata) for doc in documents]
 
-    def get_markdown(self) -> str:
+    def get_result(self) -> str:
         """
-        Get the parsed markdown from the job, distinct from the markdown documents.
+        Get the parsed result from the job, distinct from the result documents. Top-level json object.
         This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
         """
-        return asyncio_run(self.aget_markdown())
+        return asyncio_run(self.aget_result())
 
-    async def aget_markdown(self) -> str:
+    async def aget_result(self) -> str:
         """
-        Get the parsed markdown from the job, distinct from the markdown documents.
+        Get the parsed result from the job, distinct from the result documents.
         This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
         """
         from llama_cloud.client import AsyncLlamaCloud
@@ -323,7 +323,7 @@ class JobResult(BaseModel):
         result = await client.parsing.get_job_result(
             job_id=self.job_id,
         )
-        return result.markdown
+        return result
 
     async def _get_image_document_with_bytes(
         self, image: ImageItem, page: Page
