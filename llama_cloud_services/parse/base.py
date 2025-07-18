@@ -1697,3 +1697,79 @@ class LlamaParse(BasePydanticReader):
                 sub_docs.append(sub_doc)
 
         return sub_docs
+
+    async def aget_result(
+        self, job_id: Union[str, List[str]]
+    ) -> Union[JobResult, List[JobResult]]:
+        """
+        Return JobResult object for previously parsed job(s).
+
+        If the job is still pending, the result will not be returned until it is completed.
+
+        Args:
+            job_id: Job ID or list of multiple Job IDs to be retrieved.
+
+        Returns:
+            JobResult object or list of JobResult objects if multiple job IDs were provided.
+        """
+        if isinstance(job_id, str):
+            result = await self._get_job_result(
+                job_id, ResultType.JSON.value, verbose=self.verbose
+            )
+            return JobResult(
+                job_id=job_id,
+                file_name="",
+                job_result=result,
+                api_key=self.api_key,
+                base_url=self.base_url,
+                client=self.aclient,
+                page_separator=self.page_separator or _DEFAULT_SEPARATOR,
+            )
+        elif isinstance(job_id, list):
+            results = []
+            jobs = [
+                self._get_job_result(id_, ResultType.JSON.value, verbose=self.verbose)
+                for id_ in job_id
+            ]
+            results = await run_jobs(
+                jobs,
+                workers=self.num_workers,
+                desc="Getting job results",
+                show_progress=self.show_progress,
+            )
+            return [
+                JobResult(
+                    job_id=job_id[i],
+                    file_name="",
+                    job_result=result,
+                    api_key=self.api_key,
+                    base_url=self.base_url,
+                    client=self.aclient,
+                    page_separator=self.page_separator or _DEFAULT_SEPARATOR,
+                )
+                for i, result in enumerate(results)
+            ]
+        else:
+            raise ValueError("The input job_id must be a string or a list of strings.")
+
+    def get_result(
+        self, job_id: Union[str, List[str]]
+    ) -> Union[JobResult, List[JobResult]]:
+        """
+        Return JobResult object for previously parsed job(s).
+
+        If the job is still pending, the result will not be returned until it is completed.
+
+        Args:
+            job_id: Job ID or list of multiple Job IDs to be retrieved.
+
+        Returns:
+            JobResult object or list of JobResult objects if multiple job IDs were provided.
+        """
+        try:
+            return asyncio_run(self.aget_result(job_id))
+        except RuntimeError as e:
+            if nest_asyncio_err in str(e):
+                raise RuntimeError(nest_asyncio_msg)
+            else:
+                raise e
