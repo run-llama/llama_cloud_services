@@ -303,27 +303,55 @@ class JobResult(BaseModel):
 
     def get_markdown(self) -> str:
         """
-        Get the parsed markdown from the job, distinct from the markdown documents.
+        Get the raw parsed markdown from the job, distinct from the markdown documents.
         This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
         """
         return asyncio_run(self.aget_markdown())
 
     async def aget_markdown(self) -> str:
         """
-        Get the parsed markdown from the job, distinct from the markdown documents.
+        Get the raw parsed markdown from the job, distinct from the markdown documents.
         This does not include page separators, e.g. if merge_tables_across_pages_in_markdown is True
         """
-        from llama_cloud.client import AsyncLlamaCloud
+        url = f"{self._base_url}/api/v1/parsing/job/{self.job_id}/result/raw/markdown"
+        response = await make_api_request(self._client, "GET", url)
+        return response.content.decode("utf-8")
 
-        client = AsyncLlamaCloud(
-            base_url=self._base_url,
-            token=self._api_key,
-            httpx_client=self._client,
-        )
-        result = await client.parsing.get_job_result(
-            job_id=self.job_id,
-        )
-        return result.markdown
+    def get_text(self) -> str:
+        """
+        Get the raw parsed text from the job.
+        """
+        return asyncio_run(self.aget_text())
+
+    async def aget_text(self) -> str:
+        """
+        Get the raw parsed text from the job.
+        """
+        url = f"{self._base_url}/api/v1/parsing/job/{self.job_id}/result/raw/text"
+        response = await make_api_request(self._client, "GET", url)
+        return response.content.decode("utf-8")
+
+    def get_json(self) -> Dict[str, Any]:
+        """
+        Get the full parsed JSON result from the job.
+
+        Note:
+            This is not the same as JobResult.json(), which is a
+            JSON serialized version of the JobResult Page Documents.
+        """
+        return asyncio_run(self.aget_json())
+
+    async def aget_json(self) -> Dict[str, Any]:
+        """
+        Get the full parsed JSON result from the job.
+
+        Note:
+            This is not the same as JobResult.json(), which is a
+            JSON serialized version of the JobResult Page Documents.
+        """
+        url = f"{self._base_url}/api/v1/parsing/job/{self.job_id}/result/json"
+        response = await make_api_request(self._client, "GET", url)
+        return response.json()
 
     async def _get_image_document_with_bytes(
         self, image: ImageItem, page: Page
