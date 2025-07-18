@@ -193,3 +193,12 @@ async def test_multiple_page_markdown(
     result = await markdown_parser.aload_data(filepath)
     assert len(result) == expected
     assert all(len(doc.text) > 0 for doc in result)
+
+
+@pytest.mark.asyncio
+async def test_get_result(markdown_parser: LlamaParse) -> None:
+    filepath = "tests/test_files/attention_is_all_you_need.pdf"
+    expected = await markdown_parser.aparse(filepath)
+    result = await markdown_parser.aget_result(expected.job_id)
+    assert result.job_id == expected.job_id
+    assert len(result.pages) == len(expected.pages)

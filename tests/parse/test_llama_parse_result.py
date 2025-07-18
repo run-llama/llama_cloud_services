@@ -83,6 +83,12 @@ async def test_basic_parse_result(file_path: str, partition_pages: Optional[int]
     assert image_documents[0].image is not None
     assert len(image_documents[0].resolve_image().getvalue()) > 0
 
+    assert len(await result.aget_text()) > 0
+    assert len(await result.aget_markdown()) > 0
+    json = await result.aget_json()
+    assert json.get("job_metadata")
+    assert len(json.get("pages", [])) == len(result.pages)
+
 
 @pytest.mark.asyncio
 @pytest.mark.skip(
