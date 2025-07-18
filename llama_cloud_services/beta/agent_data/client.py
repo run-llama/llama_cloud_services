@@ -42,7 +42,7 @@ def agent_data_retry(func: WrappedFn) -> WrappedFn:
     )(func)
 
 
-def get_default_agent_id() -> Optional[str]:
+def get_default_agent_id() -> str:
     """
     Retrieve the default agent ID from environment variables.
 
@@ -55,7 +55,7 @@ def get_default_agent_id() -> Optional[str]:
         via environment variables instead of passing it explicitly
         to each client instance.
     """
-    return os.getenv("LLAMA_DEPLOY_DEPLOYMENT_NAME")
+    return os.getenv("LLAMA_DEPLOY_DEPLOYMENT_NAME") or "_public"
 
 
 class AsyncAgentDataClient(Generic[AgentDataT]):
@@ -144,10 +144,6 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         """
 
         self.agent_url_id = agent_url_id or get_default_agent_id()
-        if not self.agent_url_id:
-            raise ValueError(
-                "Agent ID is required, or set the LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable"
-            )
 
         self.collection = collection
         if not client:

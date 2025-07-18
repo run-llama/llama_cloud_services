@@ -48,8 +48,8 @@ class TestData(BaseModel):
 # Skip all tests if API key is not set
 @pytest.mark.asyncio
 @pytest.mark.skipif(
-    not LLAMA_CLOUD_API_KEY or not LLAMA_DEPLOY_DEPLOYMENT_NAME,
-    reason="LLAMA_CLOUD_API_KEY or LLAMA_DEPLOY_DEPLOYMENT_NAME not set",
+    not LLAMA_CLOUD_API_KEY,
+    reason="LLAMA_CLOUD_API_KEY not set",
 )
 async def test_agent_data_crud_operations():
     """Test basic CRUD operations for agent data with automatic cleanup"""
