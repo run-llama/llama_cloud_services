@@ -381,6 +381,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Preserve grid alignment across page in text mode.",
     )
+    preserve_very_small_text: Optional[bool] = Field(
+        default=False,
+        description="If set, the parser will try to preserve very small text lines. This can be useful for documents containing vector graphics with very small text lines that may not be recognized by OCR or a vision model (such as in CAD drawings).",
+    )
     replace_failed_page_mode: Optional[FailedPageMode] = Field(
         default=None,
         description="The mode to use to replace the failed page, see FailedPageMode enum for possible value. If set, the parser will replace the failed page with the specified mode. If not set, the default mode (raw_text) will be used.",
@@ -911,6 +915,9 @@ class LlamaParse(BasePydanticReader):
             data[
                 "preserve_layout_alignment_across_pages"
             ] = self.preserve_layout_alignment_across_pages
+
+        if self.preserve_very_small_text:
+            data["preserve_very_small_text"] = self.preserve_very_small_text
 
         if self.preset is not None:
             data["preset"] = self.preset
