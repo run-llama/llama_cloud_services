@@ -13,7 +13,7 @@ packages = [{include = "llama_parse"}]
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-llama-cloud-services = ">=0.6.49"
+llama-cloud-services = ">=0.6.51"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0.0"
