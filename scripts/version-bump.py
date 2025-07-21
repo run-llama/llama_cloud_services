@@ -10,7 +10,7 @@ import tomlkit
 from pathlib import Path
 
 
-def get_current_versions():
+def get_current_versions() -> tuple[str, str, str]:
     """Get current versions from both pyproject.toml files."""
     # Read main pyproject.toml
     main_content = Path("pyproject.toml").read_text()
@@ -28,7 +28,9 @@ def get_current_versions():
     return str(main_version), str(llama_parse_version), str(dependency_version)
 
 
-def validate_versions(main_version, llama_parse_version, dependency_version):
+def validate_versions(
+    main_version: str, llama_parse_version: str, dependency_version: str
+) -> list[str]:
     """Validate that versions are consistent and return warnings."""
     warnings = []
 
@@ -48,7 +50,7 @@ def validate_versions(main_version, llama_parse_version, dependency_version):
     return warnings
 
 
-def set_version(version):
+def set_version(version: str) -> None:
     """Set version across all pyproject.toml files using tomlkit to preserve formatting."""
     # Update main pyproject.toml
     main_content = Path("pyproject.toml").read_text()
@@ -60,15 +62,15 @@ def set_version(version):
     llama_parse_content = Path("llama_parse/pyproject.toml").read_text()
     llama_parse_doc = tomlkit.parse(llama_parse_content)
     llama_parse_doc["tool"]["poetry"]["version"] = version
-    llama_parse_doc["tool"]["poetry"]["dependencies"]["llama-cloud-services"] = (
-        f">={version}"
-    )
+    llama_parse_doc["tool"]["poetry"]["dependencies"][
+        "llama-cloud-services"
+    ] = f">={version}"
     Path("llama_parse/pyproject.toml").write_text(tomlkit.dumps(llama_parse_doc))
 
     click.echo(f"Updated all versions to {version}")
 
 
-def get_current_branch():
+def get_current_branch() -> str:
     """Get the current git branch."""
     result = subprocess.run(
         ["git", "branch", "--show-current"], capture_output=True, text=True, check=True
@@ -76,7 +78,7 @@ def get_current_branch():
     return result.stdout.strip()
 
 
-def create_and_push_tag(version):
+def create_and_push_tag(version: str) -> None:
     """Create a git tag and push it."""
     current_branch = get_current_branch()
     if current_branch != "main":
@@ -97,13 +99,13 @@ def create_and_push_tag(version):
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """Version management for llama-cloud-services."""
     pass
 
 
 @cli.command()
-def get():
+def get() -> None:
     """Get current versions and show validation warnings."""
     main_version, llama_parse_version, dependency_version = get_current_versions()
 
@@ -123,7 +125,7 @@ def get():
 
 @cli.command()
 @click.argument("version")
-def set(version):
+def set(version: str) -> None:
     """Set version across all pyproject.toml files."""
     set_version(version)
 
@@ -132,7 +134,7 @@ def set(version):
 @click.option(
     "--version", help="Version to tag (uses current version if not specified)"
 )
-def tag(version):
+def tag(version: str | None = None) -> None:
     """Create and push a git tag for the current version."""
     if not version:
         main_version, _, _ = get_current_versions()
