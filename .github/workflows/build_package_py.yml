@@ -44,5 +44,5 @@ jobs:
           uv pip install dist/*.whl
 
       - name: Test import
-        working-directory: ${{ vars.RUNNER_TEMP }}
+        working-directory: py
         run: uv run -- python -c "import llama_cloud_services"
