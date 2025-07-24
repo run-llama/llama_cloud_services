@@ -21,19 +21,19 @@ repos:
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
-        exclude: ".*poetry.lock"
+        exclude: ".*uv.lock"
   - repo: https://github.com/psf/black-pre-commit-mirror
     rev: 23.10.1
     hooks:
       - id: black-jupyter
         name: black-src
         alias: black
-        exclude: ".*poetry.lock"
+        exclude: ".*uv.lock"
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.1
     hooks:
       - id: mypy
-        exclude: ^tests/
+        exclude: ^py/tests/
         additional_dependencies:
           [
             "types-requests",
@@ -63,13 +63,13 @@ repos:
     rev: v3.0.3
     hooks:
       - id: prettier
-        exclude: poetry.lock
+        exclude: uv.lock
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
-        exclude: ^(poetry.lock|examples)
+        exclude: ^(uv.lock|docs|ts)
         args:
           [
             "--ignore-words-list",
@@ -84,6 +84,6 @@ repos:
     rev: v0.23.1
     hooks:
       - id: toml-sort-fix
-        exclude: ".*poetry.lock"
+        exclude: ".*uv.lock"
 
 exclude: .github/ISSUE_TEMPLATE

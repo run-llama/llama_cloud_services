@@ -5,3 +5,7 @@ __pycache__/
 .idea
 .env*
 .ipynb_checkpoints*
+*_cache/
+node_modules/
+.turbo/
+dist/

@@ -1,0 +1,97 @@
+{
+  "name": "@llamaindex/llama-cloud-services",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "generate": "./node_modules/.bin/openapi-ts",
+    "build": "pnpm run generate && bunchee",
+    "dev": "bunchee --watch"
+  },
+  "files": [
+    "openapi.json",
+    "./api",
+    "./reader",
+    "./parse",
+    "./beta/agent"
+  ],
+  "exports": {
+    "./openapi.json": "./openapi.json",
+    "./beta/agent": {
+      "require": {
+        "types": "./beta/agent/dist/index.d.cts",
+        "default": "./beta/agent/dist/index.cjs"
+      },
+      "import": {
+        "types": "./beta/agent/dist/index.d.ts",
+        "default": "./beta/agent/dist/index.js"
+      },
+      "default": "./beta/agent/dist/index.js"
+    },
+    "./api": {
+      "require": {
+        "types": "./api/dist/index.d.cts",
+        "default": "./api/dist/index.cjs"
+      },
+      "import": {
+        "types": "./api/dist/index.d.ts",
+        "default": "./api/dist/index.js"
+      },
+      "default": "./api/dist/index.js"
+    },
+    "./reader": {
+      "require": {
+        "types": "./reader/dist/index.d.cts",
+        "default": "./reader/dist/index.cjs"
+      },
+      "import": {
+        "types": "./reader/dist/index.d.ts",
+        "default": "./reader/dist/index.js"
+      },
+      "default": "./reader/dist/index.js"
+    },
+    "./parse": {
+      "require": {
+        "types": "./parse/dist/index.d.cts",
+        "default": "./parse/dist/index.cjs"
+      },
+      "import": {
+        "types": "./parse/dist/index.d.ts",
+        "default": "./parse/dist/index.js"
+      },
+      "default": "./parse/dist/index.js"
+    },
+    ".": {
+      "require": {
+        "types": "./reader/dist/index.d.cts",
+        "default": "./reader/dist/index.cjs"
+      },
+      "import": {
+        "types": "./reader/dist/index.d.ts",
+        "default": "./reader/dist/index.js"
+      },
+      "default": "./reader/dist/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/run-llama/LlamaIndexTS.git",
+    "directory": "packages/cloud"
+  },
+  "devDependencies": {
+    "@hey-api/client-fetch": "^0.10.1",
+    "@hey-api/openapi-ts": "^0.67.5",
+    "@llama-flow/core": "^0.4.1",
+    "@llamaindex/core": "workspace:*",
+    "@llamaindex/env": "workspace:*"
+  },
+  "peerDependencies": {
+    "@llama-flow/core": "^0.4.1",
+    "@llamaindex/core": "workspace:*",
+    "@llamaindex/env": "workspace:*"
+  },
+  "dependencies": {
+    "p-retry": "^6.2.1",
+    "zod": "^3.25.76"
+  }
+}

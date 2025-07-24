@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist/type",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "emitDeclarationOnly": true,
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "strict": true,
+    "types": []
+  },
+  "include": ["./src"],
+  "exclude": ["node_modules"],
+  "references": [
+    {
+      "path": "../core/tsconfig.json"
+    },
+    {
+      "path": "../env/tsconfig.json"
+    }
+  ]
+}
