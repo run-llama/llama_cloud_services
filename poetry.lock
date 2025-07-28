@@ -1925,14 +1925,14 @@ rapidfuzz = ">=3.9.0,<4.0.0"
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.34"
+version = "0.1.35"
 description = ""
 optional = false
 python-versions = "<4,>=3.8"
 groups = ["main"]
 files = [
-    {file = "llama_cloud-0.1.34-py3-none-any.whl", hash = "sha256:9b06fb109b1d9f652095a11732ae3dbe84e48cc00c580b2eeb19e71e901267be"},
-    {file = "llama_cloud-0.1.34.tar.gz", hash = "sha256:6866e4bab47d2c1840bdf169c13c06176931c1d30697ac1fa71bab7942a041e9"},
+    {file = "llama_cloud-0.1.35-py3-none-any.whl", hash = "sha256:b7abab4423118e6f638d2f326749e7a07c6426543bea6da99b623c715b22af71"},
+    {file = "llama_cloud-0.1.35.tar.gz", hash = "sha256:200349d5d57424d7461f304cdb1355a58eea3e6ca1e6b0d75c66b2e937216983"},
 ]
 
 [package.dependencies]
@@ -4623,4 +4623,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.9,<4.0"
-content-hash = "62bbed6ef774d11a0e775524ea3fc86e840fc35823c199dbbe1980ce9c81d2a1"
+content-hash = "025b27407a221b35c3d970294ba1fd734d77a7742d41a317d6b62e08022376ae"
