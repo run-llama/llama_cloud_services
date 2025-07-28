@@ -1,6 +1,6 @@
 {
-  "name": "@llamaindex/llama-cloud-services",
-  "version": "1.0.0",
+  "name": "llama_cloud_services",
+  "version": "0.1.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -75,8 +75,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/run-llama/LlamaIndexTS.git",
-    "directory": "packages/cloud"
+    "url": "git+https://github.com/run-llama/llama_cloud_services.git",
+    "directory": "ts/llama_cloud_services"
   },
   "devDependencies": {
     "@hey-api/client-fetch": "^0.10.1",

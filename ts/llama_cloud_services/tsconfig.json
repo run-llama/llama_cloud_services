@@ -11,13 +11,5 @@
     "types": []
   },
   "include": ["./src"],
-  "exclude": ["node_modules"],
-  "references": [
-    {
-      "path": "../core/tsconfig.json"
-    },
-    {
-      "path": "../env/tsconfig.json"
-    }
-  ]
+  "exclude": ["node_modules"]
 }
