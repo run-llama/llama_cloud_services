@@ -1,11 +1,6 @@
 name: Pre-Release - TypeScript
 on: [pull_request]
 
-env:
-  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
-  TURBO_REMOTE_ONLY: true
-
 jobs:
   pre_release:
     name: Pre Release
@@ -31,6 +26,3 @@ jobs:
       - name: Build
         working-directory: ts/llama_cloud_services/
         run: pnpm run build
-
-      - name: Pre Release
-        run: pnpx pkg-pr-new publish --pnpm ./ts/llama_cloud_services/
