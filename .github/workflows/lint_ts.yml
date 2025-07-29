@@ -27,7 +27,7 @@ jobs:
           node-version-file: "ts/llama_cloud_services/.nvmrc"
       - name: Install dependencies
         working-directory: ts/llama_cloud_services/
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
       - name: Run lint
         working-directory: ts/llama_cloud_services/
         run: pnpm run lint
