@@ -178,7 +178,7 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
 
 class ExtractedFieldMetadata(BaseModel):
     """
-    A citation for an extracted data field.
+    Metadata for an extracted data field, such as confidence, and citation information.
     """
 
     confidence: Optional[float] = Field(
@@ -369,7 +369,9 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         file_name = file_name or result.file.name
 
         try:
-            field_metadata = parse_extracted_field_metadata(result.extraction_metadata)
+            field_metadata = parse_extracted_field_metadata(
+                result.extraction_metadata.get("field_metadata", {})
+            )
             data = schema.model_validate(result.data)  # type: ignore
             return cls.create(
                 data=data,
