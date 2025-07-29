@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import pytest
 from llama_cloud import ExtractRun, File

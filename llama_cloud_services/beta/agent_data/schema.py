@@ -38,7 +38,7 @@ Example Usage:
 
 from datetime import datetime
 import numbers
-from llama_cloud import ExtractRun, File
+from llama_cloud import ExtractRun
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
 from pydantic import BaseModel, Field, ValidationError
@@ -176,18 +176,6 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
     )
 
 
-class ExtractedCitations(BaseModel):
-    """
-    A collection of citations for an extracted data field.
-    """
-
-    page_number: int = Field(description="The page number that the field occurred on")
-    matching_text: Optional[str] = Field(
-        None,
-        description="The text that was matched to the field",
-    )
-
-
 class ExtractedFieldMetadata(BaseModel):
     """
     A citation for an extracted data field.
@@ -221,7 +209,7 @@ def parse_extracted_field_metadata(
     """
     Parse the extracted field metadata into a dictionary of field names to field metadata.
     """
-    result = {}
+    result: ExtractedFieldMetaDataDict = {}
     for field_name, field_value in field_metadata.items():
         if isinstance(field_value, ExtractedFieldMetadata):
             # support running this multiple times
@@ -237,7 +225,7 @@ def parse_extracted_field_metadata(
                         if "page_number" in first_citation and isinstance(
                             first_citation["page_number"], numbers.Number
                         ):
-                            validated.page_number = int(first_citation["page_number"])
+                            validated.page_number = int(first_citation["page_number"])  # type: ignore
                         if "matching_text" in first_citation and isinstance(
                             first_citation["matching_text"], str
                         ):
@@ -382,7 +370,7 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
 
         try:
             field_metadata = parse_extracted_field_metadata(result.extraction_metadata)
-            data = schema.model_validate(result.data)
+            data = schema.model_validate(result.data)  # type: ignore
             return cls.create(
                 data=data,
                 status=status,
@@ -439,8 +427,8 @@ def _calculate_overall_confidence_recursive(
         else:
             return 0, 0
     if isinstance(confidence, dict):
-        numerator = 0
-        denominator = 0
+        numerator: float = 0
+        denominator: int = 0
         for value in confidence.values():
             num, den = _calculate_overall_confidence_recursive(value)
             numerator += num
