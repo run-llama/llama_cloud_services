@@ -1,0 +1,38 @@
+name: Publish to GitHub Releases
+
+on:
+  push:
+    tags:
+      - "llama-cloud-services@*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        working-directory: ts/llama_cloud_services
+        run: pnpm install
+
+      - name: Build tarball
+        run: |
+          pnpm pack
+        working-directory: ts/llama_cloud_services
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "ts/llama_cloud_services/llama-cloud-services*.tgz"
+          name: Release ${{ github.ref }} - LlamaCloud Services TS
+          bodyFile: "ts/llama_cloud_services/CHANGELOG.md"
+          token: ${{ secrets.GITHUB_TOKEN }}

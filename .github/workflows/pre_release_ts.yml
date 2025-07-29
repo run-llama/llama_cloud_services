@@ -1,0 +1,35 @@
+name: Publish Preview
+on: [pull_request]
+
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ vars.TURBO_TEAM }}
+  TURBO_REMOTE_ONLY: true
+
+jobs:
+  pre_release:
+    name: Pre Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        working-directory: ts/llama_cloud_services/
+        run: pnpm install
+
+      - name: Build
+        working-directory: ts/llama_cloud_services/
+        run: pnpm run build
+
+      - name: Pre Release
+        run: pnpx pkg-pr-new publish --pnpm ./ts/llama_cloud_services/
