@@ -372,6 +372,10 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
             field_metadata = parse_extracted_field_metadata(
                 result.extraction_metadata.get("field_metadata", {})
             )
+        except ValidationError:
+            field_metadata = {}
+
+        try:
             data = schema.model_validate(result.data)  # type: ignore
             return cls.create(
                 data=data,

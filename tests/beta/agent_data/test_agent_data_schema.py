@@ -305,7 +305,9 @@ def create_extract_run(
         {
             "id": id,
             "data": data,
-            "extraction_metadata": extraction_metadata,
+            "extraction_metadata": {
+                "field_metadata": extraction_metadata,
+            },
             "data_schema": data_schema,
             "file": file,
             "extraction_agent_id": "extraction-agent-123",
