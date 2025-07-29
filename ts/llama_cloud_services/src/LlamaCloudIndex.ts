@@ -2,7 +2,7 @@ import type { BaseNodePostprocessor } from "@llamaindex/core/postprocessor";
 import type { BaseQueryEngine } from "@llamaindex/core/query-engine";
 import type { BaseSynthesizer } from "@llamaindex/core/response-synthesizers";
 import type { Document } from "@llamaindex/core/schema";
-import { RetrieverQueryEngine } from "../engines/query/RetrieverQueryEngine.js";
+import { RetrieverQueryEngine } from "llamaindex/engines";
 import type { CloudRetrieveParams } from "./LlamaCloudRetriever.js";
 import { LlamaCloudRetriever } from "./LlamaCloudRetriever.js";
 import type { CloudConstructorParams } from "./type.js";
@@ -22,12 +22,12 @@ import {
   searchPipelinesApiV1PipelinesGet,
   upsertBatchPipelineDocumentsApiV1PipelinesPipelineIdDocumentsPut,
   upsertPipelineApiV1PipelinesPut,
-} from "@llamaindex/cloud/api";
+} from "./api";
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
-import type { QueryToolParams } from "../indices/BaseIndex.js";
-import { Settings } from "../Settings.js";
-import { QueryEngineTool } from "../tools/QueryEngineTool.js";
+import type { QueryToolParams } from "llamaindex/indices";
+import { Settings } from "llamaindex";
+import { QueryEngineTool } from "llamaindex/tools";
 
 export class LlamaCloudIndex {
   params: CloudConstructorParams;

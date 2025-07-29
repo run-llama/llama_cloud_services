@@ -1,5 +1,5 @@
 {
-  "name": "llama_cloud_services",
+  "name": "llama-cloud-services",
   "version": "0.1.0",
   "type": "module",
   "license": "MIT",
@@ -82,16 +82,20 @@
     "@hey-api/client-fetch": "^0.10.1",
     "@hey-api/openapi-ts": "^0.67.5",
     "@llama-flow/core": "^0.4.1",
-    "@llamaindex/core": "workspace:*",
-    "@llamaindex/env": "workspace:*"
+    "@llamaindex/core": "^0.6.18",
+    "@llamaindex/env": "^0.1.30",
+    "turbo": "^2.5.5",
+    "typescript": "^5.8.3"
   },
   "peerDependencies": {
     "@llama-flow/core": "^0.4.1",
-    "@llamaindex/core": "workspace:*",
-    "@llamaindex/env": "workspace:*"
+    "@llamaindex/core": "^0.6.18",
+    "@llamaindex/env": "^0.1.30",
+    "llamaindex": "^0.11.23"
   },
   "dependencies": {
     "p-retry": "^6.2.1",
     "zod": "^3.25.76"
-  }
+  },
+  "packageManager": "pnpm@10.8.1"
 }
