@@ -411,7 +411,7 @@ def test_extracted_data_from_extraction_result_invalid_data():
     # Check error metadata was added
     assert "extraction_error" in invalid_data.metadata
     assert "test" in invalid_data.metadata  # Original metadata preserved
-    assert "ValidationError" in invalid_data.metadata["extraction_error"]
+    assert "2 validation errors" in invalid_data.metadata["extraction_error"]
 
     # Verify field metadata was still parsed (before validation failed)
     assert isinstance(invalid_data.field_metadata["name"], ExtractedFieldMetadata)

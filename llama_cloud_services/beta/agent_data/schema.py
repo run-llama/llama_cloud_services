@@ -365,6 +365,7 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
 
     @classmethod
     def from_extraction_result(
+        cls,
         result: ExtractRun,
         schema: Type[ExtractedT],
         file_hash: Optional[str] = None,
@@ -376,26 +377,23 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         """
         Create an ExtractedData instance from an extraction result.
         """
-
-        print("extraction result", result)
         file_id = file_id or result.file.id
         file_name = file_name or result.file.name
 
         try:
             field_metadata = parse_extracted_field_metadata(result.extraction_metadata)
             data = schema.model_validate(result.data)
-            return ExtractedData.create(
+            return cls.create(
                 data=data,
                 status=status,
                 field_metadata=field_metadata,
-                overall_confidence=calculate_overall_confidence(field_metadata),
                 file_id=file_id,
                 file_name=file_name,
                 file_hash=file_hash,
                 metadata=metadata or {},
             )
         except ValidationError as e:
-            invalid_item = ExtractedData.create(
+            invalid_item = ExtractedData[Dict[str, Any]].create(
                 data=result.data or {},
                 status="error",
                 field_metadata=field_metadata,
@@ -414,7 +412,7 @@ class InvalidExtractionData(Exception):
 
     def __init__(self, invalid_item: ExtractedData[Dict[str, Any]]):
         self.invalid_item = invalid_item
-        super().__init__(f"Not able to parse the extracted data: {invalid_item.data}")
+        super().__init__("Not able to parse the extracted data, parsed invalid format")
 
 
 def calculate_overall_confidence(
