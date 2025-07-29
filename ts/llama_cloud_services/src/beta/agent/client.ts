@@ -261,6 +261,7 @@ export class AgentClient<T = unknown> {
   }
 }
 
+// eslint-disable-next-line  @typescript-eslint/no-unused-vars
 export interface AgentDataClientOptions<T = unknown> {
   /** API key for the client */
   apiKey?: string;

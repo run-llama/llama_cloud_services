@@ -6,7 +6,8 @@
   "scripts": {
     "generate": "./node_modules/.bin/openapi-ts",
     "build": "pnpm run generate && bunchee",
-    "dev": "bunchee --watch"
+    "dev": "bunchee --watch",
+    "lint": "eslint src/ --ignore-pattern client/*.ts --no-warn-ignored"
   },
   "files": [
     "openapi.json",
@@ -80,13 +81,20 @@
     "directory": "ts/llama_cloud_services"
   },
   "devDependencies": {
+    "@eslint/js": "^9.32.0",
     "@hey-api/client-fetch": "^0.10.1",
     "@hey-api/openapi-ts": "^0.67.5",
     "@llama-flow/core": "^0.4.1",
     "@llamaindex/core": "^0.6.18",
     "@llamaindex/env": "^0.1.30",
+    "@typescript-eslint/eslint-plugin": "^8.38.0",
+    "@typescript-eslint/parser": "^8.38.0",
+    "bunchee": "^6.5.4",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
     "turbo": "^2.5.5",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.38.0"
   },
   "peerDependencies": {
     "@llama-flow/core": "^0.4.1",
