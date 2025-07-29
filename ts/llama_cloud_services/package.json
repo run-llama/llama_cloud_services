@@ -10,6 +10,7 @@
   },
   "files": [
     "openapi.json",
+    "./dist",
     "./api",
     "./reader",
     "./parse",
@@ -63,14 +64,14 @@
     },
     ".": {
       "require": {
-        "types": "./reader/dist/index.d.cts",
-        "default": "./reader/dist/index.cjs"
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
       },
       "import": {
-        "types": "./reader/dist/index.d.ts",
-        "default": "./reader/dist/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
-      "default": "./reader/dist/index.js"
+      "default": "./dist/index.js"
     }
   },
   "repository": {
