@@ -1,4 +1,4 @@
-name: Pre-Release - TypeScript
+name: Build Package - TypeScript
 on: [pull_request]
 
 jobs:

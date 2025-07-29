@@ -1,24 +1,29 @@
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.poetry]
+[dependency-groups]
+dev = [
+  "pytest>=8.0.0,<9",
+  "pytest-asyncio",
+  "ipykernel>=6.29.0,<7"
+]
+
+[project]
 name = "llama-parse"
 version = "0.6.52"
 description = "Parse files into RAG-Optimized formats."
-authors = ["Logan Markewich <logan@llamaindex.ai>"]
-license = "MIT"
+authors = [{name = "Logan Markewich", email = "logan@llamaindex.ai"}]
+requires-python = ">=3.9,<4.0"
 readme = "README.md"
-packages = [{include = "llama_parse"}]
+license = "MIT"
+dependencies = ["llama-cloud-services>=0.6.52"]
 
-[tool.poetry.dependencies]
-python = ">=3.9,<4.0"
-llama-cloud-services = ">=0.6.52"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "*"
-ipykernel = "^6.29.0"
-
-[tool.poetry.scripts]
+[project.scripts]
 llama-parse = "llama_parse.cli.main:parse"
+
+[tool.hatch.build.targets.sdist]
+include = ["llama_parse"]
+
+[tool.hatch.build.targets.wheel]
+include = ["llama_parse"]
