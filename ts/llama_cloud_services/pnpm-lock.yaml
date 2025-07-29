@@ -47,6 +47,9 @@ importers:
       globals:
         specifier: ^16.3.0
         version: 16.3.0
+      prettier:
+        specifier: ^3.6.2
+        version: 3.6.2
       turbo:
         specifier: ^2.5.5
         version: 2.5.5
@@ -1789,6 +1792,14 @@ packages:
       }
     engines: { node: ">= 0.8.0" }
 
+  prettier@3.6.2:
+    resolution:
+      {
+        integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==,
+      }
+    engines: { node: ">=14" }
+    hasBin: true
+
   pretty-bytes@5.6.0:
     resolution:
       {
@@ -3200,6 +3211,8 @@ snapshots:
       pathe: 2.0.3
 
   prelude-ls@1.2.1: {}
+
+  prettier@3.6.2: {}
 
   pretty-bytes@5.6.0: {}
 
