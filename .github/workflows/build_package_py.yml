@@ -1,4 +1,4 @@
-name: Build Package
+name: Build Package - Python
 
 # Build package on its own without additional pip install
 

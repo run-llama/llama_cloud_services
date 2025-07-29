@@ -1,4 +1,4 @@
-name: Publish llama-parse to PyPI / GitHub
+name: Publish Release - Python
 
 on:
   push:

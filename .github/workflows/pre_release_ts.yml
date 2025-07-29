@@ -1,4 +1,4 @@
-name: Publish Preview
+name: Pre-Release - TypeScript
 on: [pull_request]
 
 env:
@@ -16,6 +16,8 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

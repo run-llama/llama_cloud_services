@@ -1,4 +1,4 @@
-name: Lint on push or pull request
+name: Lint - TypeScript
 
 on:
   push:
@@ -19,6 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
+        with:
+          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
