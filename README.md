@@ -11,6 +11,7 @@ This includes:
 - [LlamaParse](./parse.md) - A GenAI-native document parser that can parse complex document data for any downstream LLM use case (Agents, RAG, data processing, etc.).
 - [LlamaReport (beta/invite-only)](./report.md) - A prebuilt agentic report builder that can be used to build reports from a variety of data sources.
 - [LlamaExtract](./extract.md) - A prebuilt agentic data extractor that can be used to transform data into a structured JSON representation.
+- [LlamaCloud Index](./index.md) - A widely customizable and fully automated document ingestion pipeline that also serves retrieval purposes.
 
 ## Getting Started
 
@@ -25,11 +26,19 @@ Then, get your API key from [LlamaCloud](https://cloud.llamaindex.ai/).
 Then, you can use the services in your code:
 
 ```python
-from llama_cloud_services import LlamaParse, LlamaReport, LlamaExtract
+from llama_cloud_services import (
+    LlamaParse,
+    LlamaReport,
+    LlamaExtract,
+    LlamaCloudIndex,
+)
 
 parser = LlamaParse(api_key="YOUR_API_KEY")
 report = LlamaReport(api_key="YOUR_API_KEY")
 extract = LlamaExtract(api_key="YOUR_API_KEY")
+index = LlamaCloudIndex(
+    "my_first_index", project_name="default", api_key="YOUR_API_KEY"
+)
 ```
 
 See the quickstart guides for each service for more information:
@@ -37,6 +46,7 @@ See the quickstart guides for each service for more information:
 - [LlamaParse](./parse.md)
 - [LlamaReport (beta/invite-only)](./report.md)
 - [LlamaExtract](./extract.md)
+- [LlamaCloud Index](./index.md)
 
 ## Switch to EU SaaS 🇪🇺
 
@@ -55,6 +65,12 @@ from llama_cloud_services import (
 parser = LlamaParse(api_key="YOUR_API_KEY", base_url=EU_BASE_URL)
 report = LlamaReport(api_key="YOUR_API_KEY", base_url=EU_BASE_URL)
 extract = LlamaExtract(api_key="YOUR_API_KEY", base_url=EU_BASE_URL)
+index = LlamaCloudIndex(
+    "my_first_index",
+    project_name="default",
+    api_key="YOUR_API_KEY",
+    base_url=EU_BASE_URL,
+)
 ```
 
 ## Documentation
