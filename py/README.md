@@ -32,6 +32,7 @@ from llama_cloud_services import (
     LlamaExtract,
     LlamaCloudIndex,
 )
+from llama_cloud_services import LlamaParse, LlamaReport, LlamaExtract
 
 parser = LlamaParse(api_key="YOUR_API_KEY")
 report = LlamaReport(api_key="YOUR_API_KEY")
