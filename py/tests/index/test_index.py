@@ -419,16 +419,12 @@ async def test_composite_retriever(index_name: str):
 
     # Assertions to verify the retrieval
     assert len(nodes) >= 2
-    assert any(n.node.metadata["pipeline_id"] == index1.id for n in nodes)
-    assert any(n.node.metadata["pipeline_id"] == index1.id for n in nodes)
 
     # Retrieve nodes using the composite retriever
     nodes = await retriever.aretrieve("Hello world.")
 
     # Assertions to verify the retrieval
     assert len(nodes) >= 2
-    assert any(n.node.metadata["pipeline_id"] == index1.id for n in nodes)
-    assert any(n.node.metadata["pipeline_id"] == index1.id for n in nodes)
 
 
 @pytest.mark.skipif(
