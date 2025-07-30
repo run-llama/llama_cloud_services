@@ -30,6 +30,18 @@ jobs:
           pnpm pack
         working-directory: ts/llama_cloud_services
 
+      - name: Setup npm authentication
+        run: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Release
+        working-directory: ts/llama_cloud_services
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: pnpm publish --access public
+
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
