@@ -8,10 +8,10 @@ This repository contains the code for hand-written SDKs and clients for interact
 
 This includes:
 
-- [LlamaParse](./parse.md) - A GenAI-native document parser that can parse complex document data for any downstream LLM use case (Agents, RAG, data processing, etc.).
-- [LlamaReport (beta/invite-only)](./report.md) - A prebuilt agentic report builder that can be used to build reports from a variety of data sources.
-- [LlamaExtract](./extract.md) - A prebuilt agentic data extractor that can be used to transform data into a structured JSON representation.
-- [LlamaCloud Index](./index.md) - A widely customizable and fully automated document ingestion pipeline that also serves retrieval purposes.
+- [LlamaParse](../parse.md) - A GenAI-native document parser that can parse complex document data for any downstream LLM use case (Agents, RAG, data processing, etc.).
+- [LlamaReport (beta/invite-only)](../report.md) - A prebuilt agentic report builder that can be used to build reports from a variety of data sources.
+- [LlamaExtract](../extract.md) - A prebuilt agentic data extractor that can be used to transform data into a structured JSON representation.
+- [LlamaCloud Index](../index.md) - A widely customizable and fully automated document ingestion pipeline that also serves retrieval purposes.
 
 ## Getting Started
 
@@ -44,10 +44,10 @@ index = LlamaCloudIndex(
 
 See the quickstart guides for each service for more information:
 
-- [LlamaParse](./parse.md)
-- [LlamaReport (beta/invite-only)](./report.md)
-- [LlamaExtract](./extract.md)
-- [LlamaCloud Index](./index.md)
+- [LlamaParse](../parse.md)
+- [LlamaReport (beta/invite-only)](../report.md)
+- [LlamaExtract](../extract.md)
+- [LlamaCloud Index](../index.md)
 
 ## Switch to EU SaaS 🇪🇺
 
@@ -80,7 +80,7 @@ You can see complete SDK and API documentation for each service on [our official
 
 ## Terms of Service
 
-See the [Terms of Service Here](./TOS.pdf).
+See the [Terms of Service Here](../TOS.pdf).
 
 ## Get in Touch (LlamaCloud)
 
