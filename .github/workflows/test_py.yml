@@ -7,7 +7,7 @@ on:
   pull_request:
 
 env:
-  POETRY_VERSION: "1.6.1"
+  UV_VERSION: "0.7.20"
   LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
@@ -24,13 +24,15 @@ jobs:
           fetch-depth: 0
       - name: Install uv
         uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
 
       - name: Set up Python
         run: uv python install ${{ matrix.python-version }} && uv python pin ${{ matrix.python-version }}
 
       - name: Run Tests
         working-directory: py
-        run: uv run -- pytest tests/test_*.py
+        run: uv run -- pytest tests/**/test_*.py
 
       - name: Remove virtual environment
         working-directory: py
