@@ -37,9 +37,11 @@ Example Usage:
 """
 
 from datetime import datetime
+import numbers
+from llama_cloud import ExtractRun
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from typing import (
     Generic,
     List,
@@ -174,6 +176,74 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
     )
 
 
+class ExtractedFieldMetadata(BaseModel):
+    """
+    Metadata for an extracted data field, such as confidence, and citation information.
+    """
+
+    confidence: Optional[float] = Field(
+        None,
+        description="The confidence score for the field, combined with parsing confidence if applicable",
+    )
+    extracted_confidence: Optional[float] = Field(
+        None,
+        description="The confidence score for the field based on the extracted text only",
+    )
+    page_number: Optional[int] = Field(
+        None, description="The page number that the field occurred on"
+    )
+    matching_text: Optional[str] = Field(
+        None,
+        description="The original text this field's value was derived from",
+    )
+
+
+ExtractedFieldMetaDataDict = Dict[
+    str, Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]
+]
+
+
+def parse_extracted_field_metadata(
+    field_metadata: dict[str, Any],
+) -> ExtractedFieldMetaDataDict:
+    """
+    Parse the extracted field metadata into a dictionary of field names to field metadata.
+    """
+    result: ExtractedFieldMetaDataDict = {}
+    for field_name, field_value in field_metadata.items():
+        if isinstance(field_value, ExtractedFieldMetadata):
+            # support running this multiple times
+            result[field_name] = field_value
+        elif isinstance(field_value, dict):
+            if "confidence" in field_value or "citations" in field_value:
+                try:
+                    validated = ExtractedFieldMetadata.model_validate(field_value)
+
+                    # grab the citation from the array. This is just an array for backwards compatibility.
+                    if "citations" in field_value and len(field_value["citations"]) > 0:
+                        first_citation = field_value["citations"][0]
+                        if "page_number" in first_citation and isinstance(
+                            first_citation["page_number"], numbers.Number
+                        ):
+                            validated.page_number = int(first_citation["page_number"])  # type: ignore
+                        if "matching_text" in first_citation and isinstance(
+                            first_citation["matching_text"], str
+                        ):
+                            validated.matching_text = first_citation["matching_text"]
+                    result[field_name] = validated
+                    continue
+                except ValidationError:
+                    pass
+            result[field_name] = parse_extracted_field_metadata(field_value)
+        elif isinstance(field_value, list):
+            result[field_name] = [
+                parse_extracted_field_metadata(item) for item in field_value
+            ]
+        else:
+            result[field_name] = field_value
+    return result
+
+
 class ExtractedData(BaseModel, Generic[ExtractedT]):
     """
     Wrapper for extracted data with workflow status tracking.
@@ -220,9 +290,13 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         description="The latest state of the data. Will differ if data has been updated"
     )
     status: StatusType = Field(description="The status of the extracted data")
-    confidence: Dict[str, Any] = Field(
+    overall_confidence: Optional[float] = Field(
+        None,
+        description="The overall confidence score for the extracted data",
+    )
+    field_metadata: ExtractedFieldMetaDataDict = Field(
         default_factory=dict,
-        description="Confidence scores, if any, for each primitive field in the original_data data",
+        description="Page links, and perhaps eventually bounding boxes, for individual fields in the extracted data. Structure is expected to have a ",
     )
     file_id: Optional[str] = Field(
         None, description="The ID of the file that was used to extract the data"
@@ -243,7 +317,7 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         cls,
         data: ExtractedT,
         status: StatusType = "pending_review",
-        confidence: Optional[Dict[str, Any]] = None,
+        field_metadata: ExtractedFieldMetaDataDict = {},
         file_id: Optional[str] = None,
         file_name: Optional[str] = None,
         file_hash: Optional[str] = None,
@@ -255,24 +329,127 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         Args:
             extracted_data: The extracted data payload
             status: Initial workflow status
-            confidence: Optional confidence scores for fields
+            field_metadata: Optional confidence scores, citations, and other metadata for fields
             file_id: The llamacloud file ID of the file that was used to extract the data
             file_name: The name of the file that was used to extract the data
             file_hash: A content hash of the file that was used to extract the data, for de-duplication
+            metadata: Arbitrary additional application-specific data about the extracted data
 
         Returns:
             New ExtractedData instance ready for storage
         """
+        normalized_field_metadata = parse_extracted_field_metadata(field_metadata)
         return cls(
             original_data=data,
             data=data,
             status=status,
-            confidence=confidence or {},
+            field_metadata=normalized_field_metadata,
+            overall_confidence=calculate_overall_confidence(normalized_field_metadata),
             file_id=file_id,
             file_name=file_name,
             file_hash=file_hash,
             metadata=metadata or {},
         )
+
+    @classmethod
+    def from_extraction_result(
+        cls,
+        result: ExtractRun,
+        schema: Type[ExtractedT],
+        file_hash: Optional[str] = None,
+        file_name: Optional[str] = None,
+        file_id: Optional[str] = None,
+        status: StatusType = "pending_review",
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> "ExtractedData[ExtractedT]":
+        """
+        Create an ExtractedData instance from an extraction result.
+        """
+        file_id = file_id or result.file.id
+        file_name = file_name or result.file.name
+
+        try:
+            field_metadata = parse_extracted_field_metadata(
+                result.extraction_metadata.get("field_metadata", {})
+            )
+        except ValidationError:
+            field_metadata = {}
+
+        try:
+            data = schema.model_validate(result.data)  # type: ignore
+            return cls.create(
+                data=data,
+                status=status,
+                field_metadata=field_metadata,
+                file_id=file_id,
+                file_name=file_name,
+                file_hash=file_hash,
+                metadata=metadata or {},
+            )
+        except ValidationError as e:
+            invalid_item = ExtractedData[Dict[str, Any]].create(
+                data=result.data or {},
+                status="error",
+                field_metadata=field_metadata,
+                metadata={"extraction_error": str(e), **(metadata or {})},
+                file_id=file_id,
+                file_name=file_name,
+                file_hash=file_hash,
+            )
+            raise InvalidExtractionData(invalid_item) from e
+
+
+class InvalidExtractionData(Exception):
+    """
+    Exception raised when the extracted data does not conform to the schema.
+    """
+
+    def __init__(self, invalid_item: ExtractedData[Dict[str, Any]]):
+        self.invalid_item = invalid_item
+        super().__init__("Not able to parse the extracted data, parsed invalid format")
+
+
+def calculate_overall_confidence(
+    metadata: ExtractedFieldMetaDataDict,
+) -> Optional[float]:
+    """
+    Calculate the overall confidence score for the extracted data.
+    """
+    numerator, denominator = _calculate_overall_confidence_recursive(metadata)
+    if denominator == 0:
+        return None
+    return numerator / denominator
+
+
+def _calculate_overall_confidence_recursive(
+    confidence: Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]],
+) -> tuple[float, int]:
+    """
+    Calculate the overall confidence score for the extracted data.
+    """
+    if isinstance(confidence, ExtractedFieldMetadata):
+        if confidence.confidence is not None:
+            return confidence.confidence, 1
+        else:
+            return 0, 0
+    if isinstance(confidence, dict):
+        numerator: float = 0
+        denominator: int = 0
+        for value in confidence.values():
+            num, den = _calculate_overall_confidence_recursive(value)
+            numerator += num
+            denominator += den
+        return numerator, denominator
+    elif isinstance(confidence, list):
+        numerator = 0
+        denominator = 0
+        for value in confidence:
+            num, den = _calculate_overall_confidence_recursive(value)
+            numerator += num
+            denominator += den
+        return numerator, denominator
+    else:
+        return 0, 0
 
 
 class TypedAggregateGroup(BaseModel, Generic[AgentDataT]):
