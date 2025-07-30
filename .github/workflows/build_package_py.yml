@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  POETRY_VERSION: "1.6.1"
+  UV_VERSION: "0.7.20"
 
 jobs:
   build:
@@ -25,6 +25,8 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
 
       - name: Set up Python
         run: uv python install
