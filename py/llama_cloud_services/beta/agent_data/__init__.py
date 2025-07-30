@@ -6,6 +6,11 @@ from .schema import (
     ExtractedT,
     AgentDataT,
     ComparisonOperator,
+    parse_extracted_field_metadata,
+    calculate_overall_confidence,
+    InvalidExtractionData,
+    ExtractedFieldMetadata,
+    ExtractedFieldMetaDataDict,
 )
 from .client import AsyncAgentDataClient
 
@@ -18,4 +23,9 @@ __all__ = [
     "ExtractedT",
     "AgentDataT",
     "ComparisonOperator",
+    "parse_extracted_field_metadata",
+    "calculate_overall_confidence",
+    "InvalidExtractionData",
+    "ExtractedFieldMetadata",
+    "ExtractedFieldMetaDataDict",
 ]
