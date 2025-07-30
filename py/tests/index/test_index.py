@@ -50,14 +50,12 @@ def index_name() -> Generator[str, None, None]:
 
 @pytest.fixture()
 def local_file() -> str:
-    file_name = "tests/test_files/index/Simple PDF Slides.pdf"
-    return os.path.join(os.path.dirname(__file__), "data", file_name)
+    return "tests/test_files/index/Simple PDF Slides.pdf"
 
 
 @pytest.fixture()
 def local_figures_file() -> str:
-    file_name = "test/test_files/index/image_figure_slides.pdf"
-    return os.path.join(os.path.dirname(__file__), "data", file_name)
+    return "tests/test_files/index/image_figure_slides.pdf"
 
 
 def _setup_index_with_file(
