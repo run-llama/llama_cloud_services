@@ -1,6 +1,6 @@
 {
   "name": "llama-cloud-services",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -92,9 +92,9 @@
     "@llama-flow/core": "^0.4.1",
     "@llamaindex/core": "^0.6.18",
     "@llamaindex/env": "^0.1.30",
+    "@types/node": "^20.19.9",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
-    "@types/node": "^20.0.0",
     "@vitest/coverage-v8": "^2.0.0",
     "@vitest/ui": "^2.0.0",
     "bunchee": "^6.5.4",
@@ -112,6 +112,7 @@
     "@llamaindex/env": "^0.1.30"
   },
   "dependencies": {
+    "ajv": "^8.17.1",
     "p-retry": "^6.2.1",
     "zod": "^3.25.76"
   },

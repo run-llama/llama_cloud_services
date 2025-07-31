@@ -25,8 +25,7 @@ import {
 } from "./api";
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
-import type { QueryToolParams } from "llamaindex/indices";
-import { QueryEngineTool } from "llamaindex/tools";
+import { QueryEngineTool, type QueryToolParams } from "./llamaindexUtils.js";
 
 export class LlamaCloudIndex {
   params: CloudConstructorParams;
