@@ -1,0 +1,10 @@
+# Financial Modeling Assumptions
+Discount Rate: 8%
+Terminal Growth Rate: 2%
+Tax Rate: 25%
+Revenue Growth (Years 1-5): 10% per annum
+Revenue Growth (Years 6-10): 5% per annum
+Capital Expenditures as % of Revenue: 7%
+Working Capital Assumption: 3% of Revenue
+Depreciation Rate: 10% per annum
+Cost of Capital Assumption: 8%
