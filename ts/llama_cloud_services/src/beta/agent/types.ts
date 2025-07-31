@@ -29,17 +29,42 @@ export type ComparisonOperator =
 export type FilterOperation = RawFilterOperation;
 
 /**
+ * Metadata for an extracted field, including confidence and citation information
+ */
+export interface ExtractedFieldMetadata {
+  /** The confidence score for the field, combined with parsing confidence if applicable */
+  confidence?: number;
+  /** The confidence score for the field based on the extracted text only */
+  extracted_confidence?: number;
+  /** The page number that the field occurred on */
+  page_number?: number;
+  /** The original text this field's value was derived from */
+  matching_text?: string;
+}
+
+/**
+ * Dictionary mapping field names to their metadata
+ * Values can be ExtractedFieldMetadata objects, nested dictionaries, or arrays
+ */
+export type ExtractedFieldMetadataDict = Record<
+  string,
+  ExtractedFieldMetadata | Record<string, unknown> | unknown[]
+>;
+
+/**
  * Base extracted data interface
  */
 export interface ExtractedData<T = unknown> {
   /** The original data that was extracted from the document. For tracking changes. Should not be updated. */
   original_data: T;
   /** The latest state of the data. Will differ if data has been updated. */
-  data?: T;
+  data: T;
   /** The status of the extracted data. Prefer to use the StatusType values, but any string is allowed. */
   status: StatusType | string;
-  /** Confidence scores, if any, for each primitive field in the original_data data. */
-  confidence?: Record<string, unknown>;
+  /** The overall confidence score for the extracted data. */
+  overall_confidence?: number;
+  /** Page links, and perhaps eventually bounding boxes, for individual fields in the extracted data. */
+  field_metadata?: ExtractedFieldMetadataDict;
   /** The ID of the file that was used to extract the data. */
   file_id?: string;
   /** The name of the file that was used to extract the data. */
