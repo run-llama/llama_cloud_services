@@ -9,7 +9,7 @@
     "dev": "bunchee --watch",
     "lint": "eslint src/ --ignore-pattern client/*.ts --no-warn-ignored",
     "format": "prettier --write ./src/",
-    "test": "vitest",
+    "test": "vitest run --testTimeout=60000",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage"
@@ -89,8 +89,8 @@
     "@eslint/js": "^9.32.0",
     "@hey-api/client-fetch": "^0.10.1",
     "@hey-api/openapi-ts": "^0.67.5",
-    "@llama-flow/core": "^0.4.1",
-    "@llamaindex/core": "^0.6.18",
+    "@llamaindex/workflow-core": "^0.4.1",
+    "@llamaindex/core": "^0.6.19",
     "@llamaindex/env": "^0.1.30",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
@@ -107,10 +107,10 @@
     "vitest": "^2.0.0"
   },
   "peerDependencies": {
-    "@llama-flow/core": "^0.4.1",
-    "@llamaindex/core": "^0.6.18",
+    "@llamaindex/workflow-core": "^0.4.1",
+    "@llamaindex/core": "^0.6.19",
     "@llamaindex/env": "^0.1.30",
-    "llamaindex": "^0.11.23"
+    "llamaindex": "^0.11.25"
   },
   "dependencies": {
     "p-retry": "^6.2.1",

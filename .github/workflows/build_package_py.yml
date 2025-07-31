@@ -6,8 +6,11 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "py/**"
   pull_request:
-
+    paths:
+      - "py/**"
 env:
   UV_VERSION: "0.7.20"
 
