@@ -1,5 +1,5 @@
-import { workflowEvent } from "@llama-flow/core";
-import { zodEvent } from "@llama-flow/core/util/zod";
+import { workflowEvent } from "@llamaindex/workflow-core";
+import { zodEvent } from "@llamaindex/workflow-core/util/zod";
 import { z } from "zod";
 import { parseFormSchema } from "./schema";
 

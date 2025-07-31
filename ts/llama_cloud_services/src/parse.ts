@@ -1,8 +1,11 @@
 import { createClient, createConfig } from "@hey-api/client-fetch";
-import { createWorkflow, type InferWorkflowEventData } from "@llama-flow/core";
-import { createStatefulMiddleware } from "@llama-flow/core/middleware/state";
-import { withTraceEvents } from "@llama-flow/core/middleware/trace-events";
-import { pRetryHandler } from "@llama-flow/core/util/p-retry";
+import {
+  createWorkflow,
+  type InferWorkflowEventData,
+} from "@llamaindex/workflow-core";
+import { createStatefulMiddleware } from "@llamaindex/workflow-core/middleware/state";
+import { withTraceEvents } from "@llamaindex/workflow-core/middleware/trace-events";
+import { pRetryHandler } from "@llamaindex/workflow-core/util/p-retry";
 import { fs, getEnv, path } from "@llamaindex/env";
 import {
   type BodyUploadFileApiV1ParsingUploadPost,

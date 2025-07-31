@@ -63,7 +63,7 @@ repos:
     rev: v3.0.3
     hooks:
       - id: prettier
-        exclude: uv.lock
+        exclude: ^(uv.lock|ts/llama_cloud_services/pnpm-lock.yaml)
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:

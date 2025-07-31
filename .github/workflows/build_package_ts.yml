@@ -4,10 +4,10 @@ on:
     branches:
       - main
     paths:
-      - 'ts/**'
+      - "ts/**"
   pull_request:
     paths:
-      - 'ts/**'
+      - "ts/**"
 
 jobs:
   pre_release:

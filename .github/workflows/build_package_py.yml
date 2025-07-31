@@ -7,10 +7,10 @@ on:
     branches:
       - main
     paths:
-      - 'py/**'
+      - "py/**"
   pull_request:
     paths:
-      - 'py/**'
+      - "py/**"
 env:
   UV_VERSION: "0.7.20"
 

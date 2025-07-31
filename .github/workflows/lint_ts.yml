@@ -5,10 +5,10 @@ on:
     branches:
       - main
     paths:
-      - 'ts/**'
+      - "ts/**"
   pull_request:
     paths:
-      - 'ts/**'
+      - "ts/**"
 
 env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
