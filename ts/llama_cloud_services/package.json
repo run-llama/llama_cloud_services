@@ -109,8 +109,7 @@
   "peerDependencies": {
     "@llamaindex/workflow-core": "^0.4.1",
     "@llamaindex/core": "^0.6.19",
-    "@llamaindex/env": "^0.1.30",
-    "llamaindex": "^0.11.25"
+    "@llamaindex/env": "^0.1.30"
   },
   "dependencies": {
     "p-retry": "^6.2.1",
