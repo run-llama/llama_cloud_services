@@ -1,0 +1,18 @@
+{
+  "name": "@llama_cloud_services/llama-cloud-services-py",
+  "version": "0.6.54",
+  "private": true,
+  "description": "Python package for llama-cloud-services. This file is mainly for versioning and release purposes.",
+  "type": "module",
+  "scripts": {
+    "new-version": "bash scripts/new_version.sh",
+    "release": "bash scripts/release.sh"
+  },
+  "keywords": [],
+  "author": "LlamaIndex",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5"
+  }
+}

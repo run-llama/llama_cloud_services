@@ -35,16 +35,16 @@ jobs:
         run: python --version
 
       - name: Build
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: uv build
 
       - name: Test installing built package
         shell: bash
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: |
           uv venv
           uv pip install dist/*.whl
 
       - name: Test import
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: uv run -- python -c "import llama_cloud_services"

@@ -31,9 +31,9 @@ jobs:
         run: uv python install ${{ matrix.python-version }} && uv python pin ${{ matrix.python-version }}
 
       - name: Run Tests
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: uv run -- pytest tests/**/test_*.py
 
       - name: Remove virtual environment
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: rm -rf .venv/

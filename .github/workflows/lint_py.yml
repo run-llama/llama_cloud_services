@@ -31,5 +31,5 @@ jobs:
 
       - name: Run linter
         shell: bash
-        working-directory: py
+        working-directory: py/llama-cloud-services-py
         run: uv run -- pre-commit run -a

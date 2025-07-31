@@ -24,33 +24,20 @@ jobs:
         with:
           version: ${{ env.UV_VERSION }}
 
-      - name: Set up Python
-        run: uv python install
+      - name: Install pnpm
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
-      - name: Display Python version
-        run: python --version
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "ts/llama_cloud_services/.nvmrc"
 
-      - name: Build
-        working-directory: py
-        run: uv build
-
-      - name: Test installing built package
-        shell: bash
-        working-directory: py
-        run: |
-          uv venv
-          uv pip install dist/*.whl
-
-      - name: Publish package
-        shell: bash
-        working-directory: py
-        run: uv publish --token ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
-
-      - name: Build and publish llama-parse
-        working-directory: py/llama_parse/
-        run: |
-          uv build
-          uv publish --token ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
+      - name: Publish llama-cloud-services and llama-parse
+        run: pnpm release-py
+        env:
+          LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
 
       - name: Create GitHub Release
         id: create_release

@@ -1,0 +1,36 @@
+{
+  "name": "llama_cloud_services",
+  "version": "1.0.0",
+  "description": "Monorepo for llama-cloud-services, mainly needed for versioning and release purposes",
+  "main": "index.js",
+  "scripts": {
+    "pre-commit": "pnpm --filter llama-cloud-services pre-commit",
+    "pre-commit-version": "pnpm changeset",
+    "new-version-py": "pnpm --filter @llama_cloud_services/llama-cloud-services-py new-version",
+    "new-version-ts": "pnpm --filter llama-cloud-services build && pnpm changeset version",
+    "new-version": "pnpm new-version-ts && pnpm new-version-py",
+    "release-py": "pnpm --filter @llama_cloud_services/llama-cloud-services-py release",
+    "release-ts": "pnpm --filter llama-cloud-services release",
+    "release": "pnpm release-ts && pnpm release-py"
+  },
+  "keywords": [
+    "ai",
+    "llms",
+    "cloud",
+    "intelligent-document-processing",
+    "knowledge-management",
+    "parsing",
+    "structured-data-extraction",
+    "rag"
+  ],
+  "author": "LlamaIndex",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.4",
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5"
+  },
+  "workspaces": [
+    "ts/*",
+    "py/*"
+  ]
+}

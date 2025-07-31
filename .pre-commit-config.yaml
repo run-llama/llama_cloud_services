@@ -33,7 +33,7 @@ repos:
     rev: v1.0.1
     hooks:
       - id: mypy
-        exclude: ^py/tests/
+        exclude: ^py/llama-cloud-services-py/tests/
         additional_dependencies:
           [
             "types-requests",

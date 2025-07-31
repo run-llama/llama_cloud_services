@@ -1,33 +1,155 @@
-# Python
+# Contribute to `llama-cloud-services`
 
-## Installation
+## Common Patterns
 
-This project uses uv. Create a virtual environment, and run `uv sync`
+### Issues
 
-## Versioning (Maintainers only)
+One of the forms of contribution can be issues.
 
-Before merging your changes, make sure to bump the versions.
+Issues should be used when there are bugs or feature request you would like to bring to the attention of the maintainers.
 
-Make a version bump to `pyproject.toml`. If the underlying dependency on the llamacloud platform OpenAPI
-sdk needs bumping, make sure to bring that in as well. If updating dependencies, run `uv lock`.
+When opening an issue:
 
-The legacy `llama_parse` package re-exports some of `llama_cloud_services` in the old namespace. The
-versions need to be kept consistent to sidecar it with `llama_cloud_services`. Bump it's version in `llama_parse/pyproject.toml`, and also bump it's dependency version of `llama-cloud-services` to match.
+- preferably, use the provided templates
+- check for other issues (closed and open) to avoid duplicates
+- try to be detailed and specific, reporting all the pieces the maintainer would need to have in order to reproduce your issue.
 
-**Note**: Don't worry about updating the `llama_parse/poetry.lock` file when bumping versions. The GitHub action will automatically run `poetry lock` for the llama_parse package during the build process (though it doesn't commit the updated lockfile back to the repo).
+### Pull requests
 
-You can also do this with `./scripts/version-bump.py set 0.x.x` if you have `uv` installed.
+In order to open a valid pull request:
 
-Once the change is merged, push a tag `git tag -a v0.x.x -m 0.x.x` and `git push origin 0.x.x`.
+- Fork the repository
+- Checkout a secondary branch (common prefixes for secondary branches include: `fix`, `feat`, `chore`, `docs`). We tend to prefer the naming convention that uses `/`, such as: `fix/your-awesome-bug-fix`.
+- Add and commit the changes to the secondary branch, following language-specific logic (see below)
+- When the changes are pushed to your branch, open a pull request
 
-This tagging step can be done with `./scripts/version-bump tag`.
+## Python
 
-# Typescript
+### Set Up
 
-## Installation
+The two python packages, which can be found under `py/llama-cloud-services-py/`, are:
 
-...
+- `llama-cloud-services`
+- `llama-parse`
 
-## Versioning
+> [!NOTE]
+>
+> `llama-parse` mostly re-exports from `llama-cloud-services`, so you should not modify that directly.
 
-...
+These packages are managed through [uv](https://docs.astral.sh/uv/), so make sure to have uv [installed](https://docs.astral.sh/uv/getting-started/installation/).
+
+### Tests
+
+It is important to make sure all tests pass after your changes, and cover new features with suitable unit tests.
+
+Tests are found in `py/llama-cloud-services-py/tests/` and you can execute them with:
+
+```bash
+pytest tests/**/test_*.py
+```
+
+### Pre-Commit Versioning
+
+Once you made your changes and tested them, **prior to committing** you should run (from the root folder) two commands to automatically bump the version of python packages:
+
+1. `pnpm pre-commit-version`: this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `@llama_cloud_services/llama-cloud-services-py` for python and choose the version bump according to the type of changing you made.
+2. `pnpm new-version-py`: this will bump the version in the `pyproject.toml` for all the python packages
+
+### Pre-commit checks
+
+Before you commit, your files should pass the linting and formatting requirements. In order to do that, you should have `pre-commit` installed and set-up in your repository:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Once you have that set up, the files will be automatically linted and formatted according to the requirements.
+
+## TypeScript
+
+### Set Up
+
+The TypeScript package, which can be found under `ts/llama_cloud_services/`, is managed through [`pnpm`](https://pnpm.io), so make sure to have it [installed](https://pnpm.io/installation).
+
+In order to be able to run and test the package, make sure to install all the dependencies:
+
+```bash
+pnpm install
+```
+
+### Activate Test Mode
+
+In order to activate test mode (to dynamically test your changes while you are performing them) you can use:
+
+```bash
+pnpm turbo run dev
+```
+
+### Test
+
+It is important to make sure all tests pass after your changes, and cover new features with suitable unit tests.
+
+Tests are found in `ts/llama_cloud_services/tests/` and you can execute them with:
+
+```bash
+pnpm test
+```
+
+### Pre-Commit Versioning
+
+Once you made your changes and tested them, **prior to committing** you should run (from the root folder) two commands to automatically bump the version of python packages:
+
+1. `pnpm pre-commit-version`: this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `llama-cloud-services` for TypeScript and choose the version bump according to the type of changing you made.
+2. `pnpm new-version-ts`: this will build the package and bump the version in `package.json`.
+
+### Pre-commit checks
+
+Before you commit, your files should pass the linting and formatting requirements. In order to do that, run (from the root folder):
+
+```bash
+pnpm pre-commit
+```
+
+The files will be then automatically linted and formatted according to the requirements.
+
+## TypeScript _and_ Python
+
+If you change **both PY and TS**, for versioning run:
+
+```bash
+pnpm pre-commit-version # choose both packages
+pnpm new-version # bumps the version for both packages
+```
+
+## Release (maintainers only)
+
+### Python
+
+To release `llama-cloud-services` and `llama-parse` in Python, run:
+
+```bash
+git checkout main
+git pull
+git tag <your-version> # e.g. v0.7.0
+git push <your-version>
+```
+
+> [!NOTE]
+>
+> The tag must start with `v`
+
+This will trigger the release workflow automatically.
+
+### TypeScript
+
+To release `llama-cloud-services` in TypeScript, run:
+
+```bash
+git checkout main
+git pull
+git tag llama-cloud-services@<your-version> # e.g. llama-cloud-services@0.3.0
+git push origin llama-cloud-services@<your-version>
+```
+
+This will trigger the release workflow automatically.
