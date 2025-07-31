@@ -26,7 +26,6 @@ import {
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
 import type { QueryToolParams } from "llamaindex/indices";
-import { Settings } from "llamaindex";
 import { QueryEngineTool } from "llamaindex/tools";
 
 export class LlamaCloudIndex {
@@ -38,7 +37,7 @@ export class LlamaCloudIndex {
   }
 
   private async waitForPipelineIngestion(
-    verbose = Settings.debug,
+    verbose = false,
     raiseOnError = false,
   ): Promise<void> {
     const pipelineId = await this.getPipelineId();
@@ -83,7 +82,7 @@ export class LlamaCloudIndex {
 
   private async waitForDocumentIngestion(
     docIds: string[],
-    verbose = Settings.debug,
+    verbose = false,
     raiseOnError = false,
   ): Promise<void> {
     const pipelineId = await this.getPipelineId();
