@@ -22,7 +22,7 @@ A TypeScript demo application showcasing the power of **LlamaCloud Index** - a f
 
 ## Features
 
-- 🤖 **RAG**: Simple-yet-effective Retrieval Augmented Generation pipeline built on top of LlamaCloud Index adn OpenAI
+- 🤖 **RAG**: Simple-yet-effective Retrieval Augmented Generation pipeline built on top of LlamaCloud Index and OpenAI
 - 🎨 **Beautiful CLI**: Styled console interface with colors and ASCII art
 - ⚡ **Fast Development**: Hot reload support with watch mode
 - 🛠️ **TypeScript**: Full TypeScript support with strict type checking
