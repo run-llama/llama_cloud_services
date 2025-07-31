@@ -50,10 +50,13 @@ pytest tests/**/test_*.py
 
 ### Pre-Commit Versioning
 
-Once you made your changes and tested them, **prior to committing** you should run (from the root folder) two commands to automatically bump the version of python packages:
+Once you made your changes and tested them, **prior to committing** you should run (from the root folder) this command to automatically bump the version of python packages:
 
-1. `pnpm pre-commit-version`: this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `@llama_cloud_services/llama-cloud-services-py` for python and choose the version bump according to the type of changing you made.
-2. `pnpm new-version-py`: this will bump the version in the `pyproject.toml` for all the python packages
+```bash
+pnpm pre-commit-version
+```
+
+this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `@llama_cloud_services/llama-cloud-services-py` for python and choose the version bump according to the type of changing you made.
 
 ### Pre-commit checks
 
@@ -100,8 +103,11 @@ pnpm test
 
 Once you made your changes and tested them, **prior to committing** you should run (from the root folder) two commands to automatically bump the version of python packages:
 
-1. `pnpm pre-commit-version`: this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `llama-cloud-services` for TypeScript and choose the version bump according to the type of changing you made.
-2. `pnpm new-version-ts`: this will build the package and bump the version in `package.json`.
+```bash
+pnpm pre-commit-version
+```
+
+This will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `llama-cloud-services` for TypeScript and choose the version bump according to the type of changing you made.
 
 ### Pre-commit checks
 
@@ -123,6 +129,12 @@ pnpm new-version # bumps the version for both packages
 ```
 
 ## Release (maintainers only)
+
+Every push to main might trigger a release.
+
+Whether a release is pushed out or not depends on the presence of versioning files in `.changesets`: if you want a release to be packaged, then, you need to always run `pnpm pre-commit-version` prior to merging a pull request into main.
+
+You can, nevertheless, manually set up language-specific releases, using the logic reported below.
 
 ### Python
 

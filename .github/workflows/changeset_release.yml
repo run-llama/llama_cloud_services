@@ -1,0 +1,67 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Add auth token to .npmrc file
+        run: |
+          cat << EOF >> ".npmrc"
+            //registry.npmjs.org/:_authToken=$NPM_TOKEN
+          EOF
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Get changeset status
+        id: get-changeset-status
+        run: |
+          pnpm changeset status --output .changeset/status.json
+          new_version=$(jq -r '.releases[0].newVersion' < .changeset/status.json)
+          rm -v .changeset/status.json
+          echo "new-version=${new_version}" >> "$GITHUB_OUTPUT"
+
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          commit: Release ${{ steps.get-changeset-status.outputs.new-version }}
+          title: Release ${{ steps.get-changeset-status.outputs.new-version }}
+          # bump versions
+          version: pnpm new-version
+          # build package and call changeset publish
+          publish: pnpm release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
