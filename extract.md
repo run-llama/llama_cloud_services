@@ -208,5 +208,5 @@ Another option (orthogonal to the above) is to break the document into smaller s
 
 ## Additional Resources
 
-- [Example Notebook](docs/examples-py/extract/resume_screening.ipynb) - Detailed walkthrough of resume parsing
+- [Example Notebook](examples/extract/resume_screening.ipynb) - Detailed walkthrough of resume parsing
 - [Discord Community](https://discord.com/invite/eN6D2HQ4aX) - Get help and share feedback
