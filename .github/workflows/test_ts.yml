@@ -15,7 +15,8 @@ env:
   LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
-  lint:
+  test:
+    name: Test - TypeScript
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
