@@ -14,10 +14,9 @@
     "rootDir": "./src",
     "outDir": "./dist/type",
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
-    "emitDeclarationOnly": true,
     "incremental": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable", "DOM.AsyncIterable"],
-    "types": []
+    "types": ["node"]
   },
   "include": ["./src"],
   "exclude": ["node_modules"]
