@@ -1,4 +1,4 @@
-# LlamaParse Demo
+# LlamaCloud Index Demo
 
 A TypeScript demo application showcasing the power of **LlamaCloud Index** - a fully automated document ingestion and retrieval serviced offered within [LlamaCloud](https://cloud.llamaindex.ai). This demo allows you to ask questions, retrieve relevant contextual information and generate AI-powered responses using OpenAI's GPT models.
 
