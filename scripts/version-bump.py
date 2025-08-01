@@ -25,7 +25,13 @@ def get_current_versions() -> tuple[str, str, str]:
     dependency_version = None
     for dep in llama_parse_doc["project"]["dependencies"]:
         if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
-            dependency_version = dep.split("==")[1] if "==" in dep else dep.split(">=")[1] if ">=" in dep else None
+            dependency_version = (
+                dep.split("==")[1]
+                if "==" in dep
+                else dep.split(">=")[1]
+                if ">=" in dep
+                else None
+            )
             break
 
     return str(main_version), str(llama_parse_version), str(dependency_version)
@@ -59,15 +65,17 @@ def set_version(version: str) -> None:
     main_content = Path("py/pyproject.toml").read_text()
     main_doc = tomlkit.parse(main_content)
     main_doc["project"]["version"] = version
-    Path("pyproject.toml").write_text(tomlkit.dumps(main_doc))
+    Path("py/pyproject.toml").write_text(tomlkit.dumps(main_doc))
 
     # Update llama_parse/pyproject.toml
     llama_parse_content = Path("py/llama_parse/pyproject.toml").read_text()
     llama_parse_doc = tomlkit.parse(llama_parse_content)
     llama_parse_doc["project"]["version"] = version
-    for dep in llama_parse_doc["project"]["dependencies"]:
+    for dep_index, dep in enumerate(llama_parse_doc["project"]["dependencies"]):
         if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
-            llama_parse_doc["project"]["dependencies"][dep] = f">={version}"
+            llama_parse_doc["project"]["dependencies"][
+                dep_index
+            ] = f"llama-cloud-services>={version}"
             break
     Path("py/llama_parse/pyproject.toml").write_text(tomlkit.dumps(llama_parse_doc))
 

@@ -211,7 +211,7 @@ def parse_extracted_field_metadata(
     field_metadata: dict[str, Any],
 ) -> ExtractedFieldMetaDataDict:
     return {
-        k: parse_extracted_field_metadata_recursive(v)
+        k: _parse_extracted_field_metadata_recursive(v)
         for k, v in field_metadata.items()
         if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
     }
@@ -220,10 +220,10 @@ def parse_extracted_field_metadata(
 _METADATA_FIELDS_SIBLING_TO_LEAF = {"reasoning"}
 
 
-def parse_extracted_field_metadata_recursive(
+def _parse_extracted_field_metadata_recursive(
     field_value: Any,
     additional_fields: dict[str, Any] = {},
-) -> ExtractedFieldMetaDataDict:
+) -> Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]:
     """
     Parse the extracted field metadata into a dictionary of field names to field metadata.
     """
@@ -260,12 +260,12 @@ def parse_extracted_field_metadata_recursive(
             if k in _METADATA_FIELDS_SIBLING_TO_LEAF
         }
         return {
-            k: parse_extracted_field_metadata_recursive(v, additional_fields)
+            k: _parse_extracted_field_metadata_recursive(v, additional_fields)
             for k, v in field_value.items()
             if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
         }
     elif isinstance(field_value, list):
-        return [parse_extracted_field_metadata_recursive(item) for item in field_value]
+        return [_parse_extracted_field_metadata_recursive(item) for item in field_value]
     else:
         raise ValueError(
             f"Invalid field value: {field_value}. Expected ExtractedFieldMetadata, dict, or list"
