@@ -25,7 +25,14 @@ import {
 } from "./api";
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
-import { QueryEngineTool, type QueryToolParams } from "./llamaindexUtils.js";
+import { createQueryEngineTool, type QueryToolParams } from "./query-tool.js";
+import type { BaseTool, ToolMetadata } from "@llamaindex/core/llms";
+
+type QueryEngineParams = {
+  responseSynthesizer?: BaseSynthesizer;
+  preFilters?: unknown;
+  nodePostprocessors?: BaseNodePostprocessor[];
+} & CloudRetrieveParams;
 
 export class LlamaCloudIndex {
   params: CloudConstructorParams;
@@ -255,11 +262,7 @@ export class LlamaCloudIndex {
   }
 
   asQueryEngine(
-    params?: {
-      responseSynthesizer?: BaseSynthesizer;
-      preFilters?: unknown;
-      nodePostprocessors?: BaseNodePostprocessor[];
-    } & CloudRetrieveParams,
+    params?: QueryEngineParams,
   ): BaseQueryEngine {
     const retriever = new LlamaCloudRetriever({
       ...this.params,
@@ -272,19 +275,15 @@ export class LlamaCloudIndex {
     );
   }
 
-  asQueryTool(params: QueryToolParams): QueryEngineTool {
-    if (params.options) {
-      params.retriever = this.asRetriever(params.options);
-    }
-
-    return new QueryEngineTool({
+  asQueryTool(params: QueryEngineParams & QueryToolParams): BaseTool {
+    return createQueryEngineTool({
       queryEngine: this.asQueryEngine(params),
       metadata: params?.metadata,
       includeSourceNodes: params?.includeSourceNodes ?? false,
     });
   }
 
-  queryTool(params: QueryToolParams): QueryEngineTool {
+  queryTool(params: QueryEngineParams & QueryToolParams) {
     return this.asQueryTool(params);
   }
 
