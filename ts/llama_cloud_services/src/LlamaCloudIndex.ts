@@ -1,5 +1,5 @@
 import type { BaseNodePostprocessor } from "@llamaindex/core/postprocessor";
-import type { BaseQueryEngine } from "@llamaindex/core/query-engine";
+import { RetrieverQueryEngine, type BaseQueryEngine } from "@llamaindex/core/query-engine";
 import type { BaseSynthesizer } from "@llamaindex/core/response-synthesizers";
 import type { Document } from "@llamaindex/core/schema";
 import type { CloudRetrieveParams } from "./LlamaCloudRetriever.js";
