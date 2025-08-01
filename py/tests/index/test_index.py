@@ -364,9 +364,6 @@ async def test_page_figure_retrieval(index_name: str, local_figures_file: str):
     not base_url or not api_key, reason="No platform base url or api key set"
 )
 @pytest.mark.asyncio
-@pytest.mark.skip(
-    reason="Consistently failing with 'Server disconnected without sending a response'"
-)
 async def test_composite_retriever(index_name: str):
     """Test the LlamaCloudCompositeRetriever with multiple indices."""
     # Create first index with documents
