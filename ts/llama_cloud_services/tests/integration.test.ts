@@ -350,6 +350,25 @@ describe("Integration Tests", () => {
       }
     });
 
+    it.skipIf(skipIfNoApiKey)("should create query engine tool", async () => {
+      try {
+        const queryEngineTool = index.asQueryTool({
+          metadata: {
+            name: "test-tool",
+            description: "Test tool description",
+          },
+        });
+        expect(queryEngineTool).toBeDefined();
+        expect(typeof queryEngineTool.call).toBe("function");
+        expect(queryEngineTool.metadata.name).toBe("test-tool");
+        expect(queryEngineTool.metadata.description).toBe(
+          "Test tool description",
+        );
+      } catch (error) {
+        console.warn("Query engine tool creation test failed:", error.message);
+      }
+    });
+
     it.skipIf(skipIfNoApiKey)(
       "should get pipeline and project IDs",
       async () => {

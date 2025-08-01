@@ -2,7 +2,6 @@ import type { BaseNodePostprocessor } from "@llamaindex/core/postprocessor";
 import type { BaseQueryEngine } from "@llamaindex/core/query-engine";
 import type { BaseSynthesizer } from "@llamaindex/core/response-synthesizers";
 import type { Document } from "@llamaindex/core/schema";
-import { RetrieverQueryEngine } from "llamaindex/engines";
 import type { CloudRetrieveParams } from "./LlamaCloudRetriever.js";
 import { LlamaCloudRetriever } from "./LlamaCloudRetriever.js";
 import type { CloudConstructorParams } from "./type.js";
@@ -26,7 +25,7 @@ import {
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
 import { createQueryEngineTool, type QueryToolParams } from "./query-tool.js";
-import type { BaseTool, ToolMetadata } from "@llamaindex/core/llms";
+import type { BaseTool } from "@llamaindex/core/llms";
 
 type QueryEngineParams = {
   responseSynthesizer?: BaseSynthesizer;
