@@ -12,7 +12,8 @@ dev = [
   "deepdiff>=8.1.1,<9",
   "ipython>=8.12.3,<9",
   "jupyter>=1.1.1,<2",
-  "mypy>=1.14.1,<2"
+  "mypy>=1.14.1,<2",
+  "pydantic-settings>=2.10.1",
 ]
 
 [project]
@@ -25,7 +26,7 @@ readme = "README.md"
 license = "MIT"
 dependencies = [
   "llama-index-core>=0.12.0",
-  "llama-cloud==0.1.35",
+  "llama-cloud==0.1.36",
   "pydantic>=2.8,!=2.10",
   "click>=8.1.7,<9",
   "python-dotenv>=1.0.1,<2",
