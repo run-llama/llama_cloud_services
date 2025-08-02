@@ -1,4 +1,5 @@
 import difflib
+from llama_cloud.types import StatusEnum
 from pydantic import BaseModel
 from typing import Any, Dict, List, Tuple, Type
 
@@ -27,3 +28,16 @@ def check_extra_params(
                 )
 
     return extra_params, suggestions
+
+def is_terminal_status(status: StatusEnum) -> bool:
+    """
+    Check if a status is terminal, i.e. the job is done and no more updates are expected.
+    Note: this must be updated if the status enum is updated.
+
+    Args:
+        status: The status to check
+
+    Returns:
+        True if the status is terminal, False otherwise
+    """
+    return status in {StatusEnum.SUCCESS, StatusEnum.ERROR, StatusEnum.CANCELLED, StatusEnum.PARTIAL_SUCCESS}
