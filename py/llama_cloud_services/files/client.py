@@ -5,6 +5,7 @@ from llama_cloud.client import AsyncLlamaCloud
 from llama_cloud.types import File
 from typing import Optional
 
+
 class FileClient:
     """
     Higher-level client for interacting with the LlamaCloud Files API.
@@ -16,6 +17,7 @@ class FileClient:
         organization_id: The organization ID to use.
         use_presigned_url: Whether to use presigned URLs for uploads (set to False when uploading to BYOC deployments).
     """
+
     def __init__(
         self,
         client: AsyncLlamaCloud,
@@ -30,12 +32,12 @@ class FileClient:
 
     async def get_file(self, file_id: str) -> File:
         return await self.client.files.get_file(
-            file_id,
-            project_id=self.project_id,
-            organization_id=self.organization_id
+            file_id, project_id=self.project_id, organization_id=self.organization_id
         )
 
-    async def upload_file(self, file_path: str, external_file_id: Optional[str] = None) -> File:
+    async def upload_file(
+        self, file_path: str, external_file_id: Optional[str] = None
+    ) -> File:
         external_file_id = external_file_id or file_path
         file_size = os.path.getsize(file_path)
         with open(file_path, "rb") as file:
@@ -63,12 +65,12 @@ class FileClient:
             return await self.client.files.get_file(
                 presigned_url.file_id,
                 project_id=self.project_id,
-                organization_id=self.organization_id
+                organization_id=self.organization_id,
             )
         else:
             return await self.client.files.upload_file(
                 upload_file=buffer,
                 external_file_id=external_file_id,
                 project_id=self.project_id,
-                organization_id=self.organization_id
+                organization_id=self.organization_id,
             )
