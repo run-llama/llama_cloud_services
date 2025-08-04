@@ -1,6 +1,6 @@
 {
   "name": "llama-cloud-services",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -20,7 +20,8 @@
     "./api",
     "./reader",
     "./parse",
-    "./beta/agent"
+    "./beta/agent",
+    "./extract"
   ],
   "exports": {
     "./openapi.json": "./openapi.json",
@@ -67,6 +68,17 @@
         "default": "./parse/dist/index.js"
       },
       "default": "./parse/dist/index.js"
+    },
+    "./extract": {
+      "require": {
+        "types": "./extract/dist/index.d.cts",
+        "default": "./extract/dist/index.cjs"
+      },
+      "import": {
+        "types": "./extract/dist/index.d.ts",
+        "default": "./extract/dist/index.js"
+      },
+      "default": "./extract/dist/index.js"
     },
     ".": {
       "require": {

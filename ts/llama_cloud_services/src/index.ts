@@ -6,3 +6,4 @@ export {
 } from "./LlamaCloudRetriever.js";
 export type { CloudConstructorParams } from "./type.js";
 export { LlamaParseReader } from "./reader.js";
+export { LlamaExtract, LlamaExtractAgent } from "./LlamaExtract.js";

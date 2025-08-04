@@ -26,7 +26,6 @@ import {
 } from "./api";
 import type { Client } from "@hey-api/client-fetch";
 import { sleep } from "./utils";
-import { ExtractAgentCreateSchema } from "./client/schemas.gen";
 
 type BodyUploadFileApiV1FilesPost = {
   upload_file: Blob | File;
@@ -344,3 +343,5 @@ export async function extract(
     )) as ExtractResult;
   }
 }
+
+export { type ExtractAgent, type ExtractConfig };
