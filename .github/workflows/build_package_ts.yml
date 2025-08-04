@@ -1,5 +1,13 @@
 name: Build Package - TypeScript
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "ts/**"
+  pull_request:
+    paths:
+      - "ts/**"
 
 jobs:
   pre_release:
