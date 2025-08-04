@@ -89,9 +89,9 @@
     "@eslint/js": "^9.32.0",
     "@hey-api/client-fetch": "^0.10.1",
     "@hey-api/openapi-ts": "^0.67.5",
-    "@llamaindex/workflow-core": "^0.4.1",
     "@llamaindex/core": "^0.6.19",
     "@llamaindex/env": "^0.1.30",
+    "@llamaindex/workflow-core": "^0.4.1",
     "@types/node": "^20.19.9",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
@@ -107,10 +107,9 @@
     "vitest": "^2.0.0"
   },
   "peerDependencies": {
-    "@llamaindex/workflow-core": "^0.4.1",
     "@llamaindex/core": "^0.6.19",
     "@llamaindex/env": "^0.1.30",
-    "llamaindex": "^0.11.25"
+    "@llamaindex/workflow-core": "^0.4.1"
   },
   "dependencies": {
     "ajv": "^8.17.1",

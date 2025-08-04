@@ -1,8 +1,10 @@
 import type { BaseNodePostprocessor } from "@llamaindex/core/postprocessor";
-import type { BaseQueryEngine } from "@llamaindex/core/query-engine";
+import {
+  RetrieverQueryEngine,
+  type BaseQueryEngine,
+} from "@llamaindex/core/query-engine";
 import type { BaseSynthesizer } from "@llamaindex/core/response-synthesizers";
 import type { Document } from "@llamaindex/core/schema";
-import { RetrieverQueryEngine } from "llamaindex/engines";
 import type { CloudRetrieveParams } from "./LlamaCloudRetriever.js";
 import { LlamaCloudRetriever } from "./LlamaCloudRetriever.js";
 import type { CloudConstructorParams } from "./type.js";
@@ -25,7 +27,14 @@ import {
 } from "./api";
 import type { BaseRetriever } from "@llamaindex/core/retriever";
 import { getEnv } from "@llamaindex/env";
-import { QueryEngineTool, type QueryToolParams } from "./llamaindexUtils.js";
+import { createQueryEngineTool, type QueryToolParams } from "./query-tool.js";
+import type { BaseTool } from "@llamaindex/core/llms";
+
+type QueryEngineParams = {
+  responseSynthesizer?: BaseSynthesizer;
+  preFilters?: unknown;
+  nodePostprocessors?: BaseNodePostprocessor[];
+} & CloudRetrieveParams;
 
 export class LlamaCloudIndex {
   params: CloudConstructorParams;
@@ -254,13 +263,7 @@ export class LlamaCloudIndex {
     return new LlamaCloudRetriever({ ...this.params, ...params });
   }
 
-  asQueryEngine(
-    params?: {
-      responseSynthesizer?: BaseSynthesizer;
-      preFilters?: unknown;
-      nodePostprocessors?: BaseNodePostprocessor[];
-    } & CloudRetrieveParams,
-  ): BaseQueryEngine {
+  asQueryEngine(params?: QueryEngineParams): BaseQueryEngine {
     const retriever = new LlamaCloudRetriever({
       ...this.params,
       ...params,
@@ -272,19 +275,15 @@ export class LlamaCloudIndex {
     );
   }
 
-  asQueryTool(params: QueryToolParams): QueryEngineTool {
-    if (params.options) {
-      params.retriever = this.asRetriever(params.options);
-    }
-
-    return new QueryEngineTool({
+  asQueryTool(params: QueryEngineParams & QueryToolParams): BaseTool {
+    return createQueryEngineTool({
       queryEngine: this.asQueryEngine(params),
       metadata: params?.metadata,
       includeSourceNodes: params?.includeSourceNodes ?? false,
     });
   }
 
-  queryTool(params: QueryToolParams): QueryEngineTool {
+  queryTool(params: QueryEngineParams & QueryToolParams) {
     return this.asQueryTool(params);
   }
 
