@@ -23,8 +23,9 @@ LLAMA_CLOUD_API_KEY = os.getenv("LLAMA_CLOUD_API_KEY")
 LLAMA_CLOUD_BASE_URL = os.getenv("LLAMA_CLOUD_BASE_URL")
 LLAMA_CLOUD_PROJECT_ID = os.getenv("LLAMA_CLOUD_PROJECT_ID")
 
-TestCase = namedtuple(
-    "TestCase", ["name", "schema_path", "config", "input_file", "expected_output"]
+BenchmarkTestCase = namedtuple(
+    "BenchmarkTestCase",
+    ["name", "schema_path", "config", "input_file", "expected_output"],
 )
 
 
@@ -32,7 +33,7 @@ def get_test_cases():
     """Get all test cases from TEST_DIR.
 
     Returns:
-        List[TestCase]: List of test cases
+        List[BenchmarkTestCase]: List of test cases
     """
     test_cases = []
 
@@ -73,7 +74,7 @@ def get_test_cases():
             test_name = f"{data_type}/{os.path.basename(input_file)}"
             for setting in settings:
                 test_cases.append(
-                    TestCase(
+                    BenchmarkTestCase(
                         name=test_name,
                         schema_path=schema_path,
                         input_file=input_file,
@@ -100,7 +101,7 @@ def extractor():
 
 
 @pytest.fixture
-def extraction_agent(test_case: TestCase, extractor: LlamaExtract):
+def extraction_agent(test_case: BenchmarkTestCase, extractor: LlamaExtract):
     """Fixture to create and cleanup extraction agent for each test."""
     # Create unique name with random UUID (important for CI to avoid conflicts)
     unique_id = uuid.uuid4().hex[:8]
@@ -130,7 +131,7 @@ def extraction_agent(test_case: TestCase, extractor: LlamaExtract):
 @pytest.mark.parametrize("test_case", get_test_cases(), ids=lambda x: x.name)
 @pytest.mark.asyncio(loop_scope="session")
 async def test_extraction(
-    test_case: TestCase, extraction_agent: ExtractionAgent
+    test_case: BenchmarkTestCase, extraction_agent: ExtractionAgent
 ) -> None:
     start = perf_counter()
     result = await extraction_agent._run_extraction_test(

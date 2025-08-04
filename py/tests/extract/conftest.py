@@ -6,6 +6,12 @@ from llama_cloud_services.extract import LlamaExtract
 _TEST_AGENTS_TO_CLEANUP: List[str] = []
 
 
+def pytest_configure(config):
+    """Register custom markers for extract tests."""
+    config.addinivalue_line("markers", "agent_name: custom agent name for test")
+    config.addinivalue_line("markers", "agent_schema: custom agent schema for test")
+
+
 def pytest_sessionfinish(session, exitstatus):
     """Hook that runs after all tests complete - cleanup agents here"""
     print(
