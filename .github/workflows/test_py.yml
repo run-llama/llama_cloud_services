@@ -14,7 +14,7 @@ env:
   UV_VERSION: "0.7.20"
 
 jobs:
-  test_e2e:
+  test:
     runs-on: ubuntu-latest
     strategy:
       # You can use PyPy versions in python-version.

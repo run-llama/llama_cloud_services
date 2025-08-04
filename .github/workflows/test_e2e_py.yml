@@ -1,4 +1,4 @@
-name: Test - Python
+name: Test end-to-end - Python
 
 on:
   push:
@@ -15,7 +15,7 @@ env:
   LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
-  test:
+  test_e2e:
     runs-on: ubuntu-latest
     strategy:
       # You can use PyPy versions in python-version.
