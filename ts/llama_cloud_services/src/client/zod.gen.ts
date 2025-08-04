@@ -3219,7 +3219,7 @@ export const zPromptConf = z.object({
   reasoning_prompt: z.string().optional().default(`
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `),
   cite_sources_prompt: z
