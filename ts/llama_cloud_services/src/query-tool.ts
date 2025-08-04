@@ -4,16 +4,18 @@ import type { BaseQueryEngine } from "@llamaindex/core/query-engine";
 import { tool } from "@llamaindex/core/tools";
 import { z } from "zod";
 
-const DEFAULT_NAME = "query_engine_tool";
+const DEFAULT_NAME = "llama_cloud_index_tool";
 const DEFAULT_DESCRIPTION =
-  "Useful for running a natural language query against a knowledge base and get back a natural language response.";
+  "Useful for retrieving relevant information from document stored in a LlamaCloud Index";
 
 export type QueryToolParams = {
   metadata?: Omit<ToolMetadata, "parameters"> | undefined;
   includeSourceNodes?: boolean;
 };
 
-export function createQueryEngineTool(options: { queryEngine: BaseQueryEngine } & QueryToolParams) {
+export function createQueryEngineTool(
+  options: { queryEngine: BaseQueryEngine } & QueryToolParams,
+) {
   const { queryEngine, metadata, includeSourceNodes } = options;
   return tool({
     name: metadata?.name ?? DEFAULT_NAME,
