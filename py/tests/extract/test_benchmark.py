@@ -124,8 +124,8 @@ def extraction_agent(test_case: TestCase, extractor: LlamaExtract):
 
 
 @pytest.mark.skipif(
-    "CI" in os.environ,
-    reason="CI environment is not suitable for benchmarking",
+    "CI" in os.environ or not LLAMA_CLOUD_API_KEY,
+    reason="LLAMA_CLOUD_API_KEY not set or CI environment not suitable for benchmarking",
 )
 @pytest.mark.parametrize("test_case", get_test_cases(), ids=lambda x: x.name)
 @pytest.mark.asyncio(loop_scope="session")
