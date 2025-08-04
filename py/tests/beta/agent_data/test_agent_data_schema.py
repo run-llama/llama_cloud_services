@@ -230,20 +230,20 @@ def test_parse_extracted_field_metadata():
     raw_metadata = {
         "name": {
             "confidence": 0.95,
-            "citations": [{"page_number": 1, "matching_text": "John Smith"}],
+            "citation": [{"page": 1, "matching_text": "John Smith"}],
         },
         "age": {
             "confidence": 0.87,
-            "citations": [
+            "citation": [
                 {
-                    "page_number": 2.0,  # Float page number
+                    "page": 2.0,  # Float page number
                     "matching_text": "25 years old",
                 }
             ],
         },
         "email": {
             "confidence": 0.92,
-            "citations": [],  # Empty citations
+            "citation": [],  # Empty citations
         },
     }
 
@@ -268,6 +268,110 @@ def test_parse_extracted_field_metadata():
     assert result["email"].confidence == 0.92
 
 
+def test_parse_extracted_field_metadata_complex():
+    """Test parse_extracted_field_metadata with new citation format and reasoning field."""
+    raw_metadata = {
+        "title": {
+            "reasoning": "Combined key parametrics and construction from the datasheet for a structured title.",
+            "citation": [
+                {
+                    "page": 1,
+                    "matching_text": "PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+                }
+            ],
+            "extraction_confidence": 0.9470628580889779,
+            "confidence": 0.9470628580889779,
+        },
+        "manufacturer": {
+            "reasoning": "VERBATIM EXTRACTION",
+            "citation": [{"page": 1, "matching_text": "YAGEO KEMET"}],
+            "extraction_confidence": 0.9997446550976602,
+            "confidence": 0.9997446550976602,
+        },
+        "features": [
+            {
+                "reasoning": "VERBATIM EXTRACTION",
+                "citation": [
+                    {"page": 1, "matching_text": "Features</td><td>EMI Safety"}
+                ],
+                "extraction_confidence": 0.9999308195540074,
+                "confidence": 0.9999308195540074,
+            },
+            {
+                "reasoning": "VERBATIM EXTRACTION",
+                "citation": [
+                    {"page": 1, "matching_text": "THB Performance</td><td>Yes"}
+                ],
+                "extraction_confidence": 0.8642493886452225,
+                "confidence": 0.8642493886452225,
+            },
+        ],
+        "dimensions": {
+            "length": {
+                "citation": [{"page": 1, "matching_text": "L</td><td>41mm MAX"}],
+                "extraction_confidence": 0.8986941382802304,
+                "confidence": 0.8986941382802304,
+            },
+            "width": {
+                "citation": [{"page": 1, "matching_text": "T</td><td>13mm MAX"}],
+                "extraction_confidence": 0.9999377974447091,
+                "confidence": 0.9999377974447091,
+            },
+            "reasoning": "VERBATIM EXTRACTION",
+        },
+    }
+
+    result = parse_extracted_field_metadata(raw_metadata)
+    assert result == {
+        "title": ExtractedFieldMetadata(
+            reasoning="Combined key parametrics and construction from the datasheet for a structured title.",
+            confidence=0.9470628580889779,
+            extraction_confidence=0.9470628580889779,
+            page_number=1,
+            matching_text="PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+        ),
+        "manufacturer": ExtractedFieldMetadata(
+            reasoning="VERBATIM EXTRACTION",
+            confidence=0.9997446550976602,
+            extraction_confidence=0.9997446550976602,
+            page_number=1,
+            matching_text="YAGEO KEMET",
+        ),
+        "features": [
+            ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999308195540074,
+                extraction_confidence=0.9999308195540074,
+                page_number=1,
+                matching_text="Features</td><td>EMI Safety",
+            ),
+            ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.8642493886452225,
+                extraction_confidence=0.8642493886452225,
+                page_number=1,
+                matching_text="THB Performance</td><td>Yes",
+            ),
+        ],
+        "dimensions": {
+            "length": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.8986941382802304,
+                extraction_confidence=0.8986941382802304,
+                page_number=1,
+                matching_text="L</td><td>41mm MAX",
+            ),
+            "width": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999377974447091,
+                extraction_confidence=0.9999377974447091,
+                page_number=1,
+                matching_text="T</td><td>13mm MAX",
+            ),
+        },
+    }
+
+
 def create_file(
     id: str = "file-456",
     name: str = "resume.pdf",
@@ -290,12 +394,12 @@ def create_extract_run(
     extraction_metadata: Dict[str, Any] = {
         "name": {
             "confidence": 0.95,
-            "citations": [{"page_number": 1, "matching_text": "John Doe"}],
+            "citation": [{"page": 1, "matching_text": "John Doe"}],
         },
         "age": {"confidence": 0.87},
         "email": {
             "confidence": 0.92,
-            "citations": [{"page_number": 1, "matching_text": "john@example.com"}],
+            "citation": [{"page": 1, "matching_text": "john@example.com"}],
         },
     },
     data_schema: Dict[str, Any] = {},

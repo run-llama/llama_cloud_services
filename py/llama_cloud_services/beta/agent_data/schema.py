@@ -181,11 +181,15 @@ class ExtractedFieldMetadata(BaseModel):
     Metadata for an extracted data field, such as confidence, and citation information.
     """
 
+    reasoning: Optional[str] = Field(
+        None,
+        description="symbol for how the citation/confidence was derived: 'INFERRED FROM TEXT', 'VERBATIM EXTRACTION'",
+    )
     confidence: Optional[float] = Field(
         None,
         description="The confidence score for the field, combined with parsing confidence if applicable",
     )
-    extracted_confidence: Optional[float] = Field(
+    extraction_confidence: Optional[float] = Field(
         None,
         description="The confidence score for the field based on the extracted text only",
     )
@@ -206,42 +210,66 @@ ExtractedFieldMetaDataDict = Dict[
 def parse_extracted_field_metadata(
     field_metadata: dict[str, Any],
 ) -> ExtractedFieldMetaDataDict:
+    return {
+        k: _parse_extracted_field_metadata_recursive(v)
+        for k, v in field_metadata.items()
+        if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
+    }
+
+
+_METADATA_FIELDS_SIBLING_TO_LEAF = {"reasoning"}
+
+
+def _parse_extracted_field_metadata_recursive(
+    field_value: Any,
+    additional_fields: dict[str, Any] = {},
+) -> Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]:
     """
     Parse the extracted field metadata into a dictionary of field names to field metadata.
     """
-    result: ExtractedFieldMetaDataDict = {}
-    for field_name, field_value in field_metadata.items():
-        if isinstance(field_value, ExtractedFieldMetadata):
-            # support running this multiple times
-            result[field_name] = field_value
-        elif isinstance(field_value, dict):
-            if "confidence" in field_value or "citations" in field_value:
-                try:
-                    validated = ExtractedFieldMetadata.model_validate(field_value)
 
-                    # grab the citation from the array. This is just an array for backwards compatibility.
-                    if "citations" in field_value and len(field_value["citations"]) > 0:
-                        first_citation = field_value["citations"][0]
-                        if "page_number" in first_citation and isinstance(
-                            first_citation["page_number"], numbers.Number
-                        ):
-                            validated.page_number = int(first_citation["page_number"])  # type: ignore
-                        if "matching_text" in first_citation and isinstance(
-                            first_citation["matching_text"], str
-                        ):
-                            validated.matching_text = first_citation["matching_text"]
-                    result[field_name] = validated
-                    continue
-                except ValidationError:
-                    pass
-            result[field_name] = parse_extracted_field_metadata(field_value)
-        elif isinstance(field_value, list):
-            result[field_name] = [
-                parse_extracted_field_metadata(item) for item in field_value
-            ]
-        else:
-            result[field_name] = field_value
-    return result
+    if isinstance(field_value, ExtractedFieldMetadata):
+        # support running this multiple times
+        return field_value
+    elif isinstance(field_value, dict):
+        # reasoning explicitly excluded, as it is included next to subfields, for example
+        # "dimensions.width" is a leaf, but there will still potentially be a "dimensions.reasoning"
+        indicator_fields = {"confidence", "extraction_confidence", "citation"}
+        if len(indicator_fields.intersection(field_value.keys())) > 0:
+            try:
+                merged = {**field_value, **additional_fields}
+                validated = ExtractedFieldMetadata.model_validate(merged)
+
+                # grab the citation from the array. This is just an array for backwards compatibility.
+                if "citation" in field_value and len(field_value["citation"]) > 0:
+                    first_citation = field_value["citation"][0]
+                    if "page" in first_citation and isinstance(
+                        first_citation["page"], numbers.Number
+                    ):
+                        validated.page_number = int(first_citation["page"])  # type: ignore
+                    if "matching_text" in first_citation and isinstance(
+                        first_citation["matching_text"], str
+                    ):
+                        validated.matching_text = first_citation["matching_text"]
+                return validated
+            except ValidationError:
+                pass
+        additional_fields = {
+            k: v
+            for k, v in field_value.items()
+            if k in _METADATA_FIELDS_SIBLING_TO_LEAF
+        }
+        return {
+            k: _parse_extracted_field_metadata_recursive(v, additional_fields)
+            for k, v in field_value.items()
+            if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
+        }
+    elif isinstance(field_value, list):
+        return [_parse_extracted_field_metadata_recursive(item) for item in field_value]
+    else:
+        raise ValueError(
+            f"Invalid field value: {field_value}. Expected ExtractedFieldMetadata, dict, or list"
+        )
 
 
 class ExtractedData(BaseModel, Generic[ExtractedT]):

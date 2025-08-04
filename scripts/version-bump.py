@@ -13,17 +13,26 @@ from pathlib import Path
 def get_current_versions() -> tuple[str, str, str]:
     """Get current versions from both pyproject.toml files."""
     # Read main pyproject.toml
-    main_content = Path("pyproject.toml").read_text()
+    main_content = Path("py/pyproject.toml").read_text()
     main_doc = tomlkit.parse(main_content)
-    main_version = main_doc["tool"]["poetry"]["version"]
+    main_version = main_doc["project"]["version"]
 
     # Read llama_parse/pyproject.toml
-    llama_parse_content = Path("llama_parse/pyproject.toml").read_text()
+    llama_parse_content = Path("py/llama_parse/pyproject.toml").read_text()
     llama_parse_doc = tomlkit.parse(llama_parse_content)
-    llama_parse_version = llama_parse_doc["tool"]["poetry"]["version"]
-    dependency_version = llama_parse_doc["tool"]["poetry"]["dependencies"][
-        "llama-cloud-services"
-    ]
+    llama_parse_version = llama_parse_doc["project"]["version"]
+    # Find llama-cloud-services dependency in the dependencies list
+    dependency_version = None
+    for dep in llama_parse_doc["project"]["dependencies"]:
+        if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
+            dependency_version = (
+                dep.split("==")[1]
+                if "==" in dep
+                else dep.split(">=")[1]
+                if ">=" in dep
+                else None
+            )
+            break
 
     return str(main_version), str(llama_parse_version), str(dependency_version)
 
@@ -53,19 +62,22 @@ def validate_versions(
 def set_version(version: str) -> None:
     """Set version across all pyproject.toml files using tomlkit to preserve formatting."""
     # Update main pyproject.toml
-    main_content = Path("pyproject.toml").read_text()
+    main_content = Path("py/pyproject.toml").read_text()
     main_doc = tomlkit.parse(main_content)
-    main_doc["tool"]["poetry"]["version"] = version
-    Path("pyproject.toml").write_text(tomlkit.dumps(main_doc))
+    main_doc["project"]["version"] = version
+    Path("py/pyproject.toml").write_text(tomlkit.dumps(main_doc))
 
     # Update llama_parse/pyproject.toml
-    llama_parse_content = Path("llama_parse/pyproject.toml").read_text()
+    llama_parse_content = Path("py/llama_parse/pyproject.toml").read_text()
     llama_parse_doc = tomlkit.parse(llama_parse_content)
-    llama_parse_doc["tool"]["poetry"]["version"] = version
-    llama_parse_doc["tool"]["poetry"]["dependencies"][
-        "llama-cloud-services"
-    ] = f">={version}"
-    Path("llama_parse/pyproject.toml").write_text(tomlkit.dumps(llama_parse_doc))
+    llama_parse_doc["project"]["version"] = version
+    for dep_index, dep in enumerate(llama_parse_doc["project"]["dependencies"]):
+        if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
+            llama_parse_doc["project"]["dependencies"][
+                dep_index
+            ] = f"llama-cloud-services>={version}"
+            break
+    Path("py/llama_parse/pyproject.toml").write_text(tomlkit.dumps(llama_parse_doc))
 
     click.echo(f"Updated all versions to {version}")
 
@@ -78,7 +90,7 @@ def get_current_branch() -> str:
     return result.stdout.strip()
 
 
-def create_and_push_tag(version: str) -> None:
+def create_if_not_exists(version: str) -> None:
     """Create a git tag and push it."""
     current_branch = get_current_branch()
     if current_branch != "main":
@@ -88,12 +100,26 @@ def create_and_push_tag(version: str) -> None:
         sys.exit(1)
 
     tag_name = f"v{version}"
+    if not tag_exists(version):
+        # Create tag
+        subprocess.run(["git", "tag", tag_name], check=True)
+        click.echo(f"Created tag {tag_name}")
+    else:
+        click.echo(f"Tag {tag_name} already exists")
 
-    # Create tag
-    subprocess.run(["git", "tag", tag_name], check=True)
-    click.echo(f"Created tag {tag_name}")
 
-    # Push tag
+def tag_exists(version: str) -> bool:
+    """Check if a git tag exists."""
+    tag_name = f"v{version}"
+    result = subprocess.run(
+        ["git", "tag", "-l", tag_name], capture_output=True, text=True, check=True
+    )
+    return tag_name in result.stdout.strip()
+
+
+def push_tag(version: str) -> None:
+    """Push a git tag."""
+    tag_name = f"v{version}"
     subprocess.run(["git", "push", "origin", tag_name], check=True)
     click.echo(f"Pushed tag {tag_name}")
 
@@ -134,13 +160,20 @@ def set(version: str) -> None:
 @click.option(
     "--version", help="Version to tag (uses current version if not specified)"
 )
-def tag(version: str | None = None) -> None:
+@click.option(
+    "--push",
+    is_flag=True,
+    help="Push the tag to the remote repository",
+)
+def tag(version: str | None = None, push: bool = False) -> None:
     """Create and push a git tag for the current version."""
     if not version:
         main_version, _, _ = get_current_versions()
         version = main_version
 
-    create_and_push_tag(version)
+    create_if_not_exists(version)
+    if push:
+        push_tag(version)
 
 
 if __name__ == "__main__":
