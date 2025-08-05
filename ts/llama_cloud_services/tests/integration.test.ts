@@ -4,6 +4,7 @@ import { LlamaCloudIndex } from "../src/LlamaCloudIndex.js";
 import { LlamaExtract, LlamaExtractAgent } from "../src/LlamaExtract.js";
 import { Document } from "@llamaindex/core/schema";
 import { fs } from "@llamaindex/env";
+import { ExtractConfig } from "../src/api.js";
 
 // Integration tests that require actual API keys and files
 describe("Integration Tests", () => {
@@ -495,7 +496,7 @@ describe("Integration Tests", () => {
         );
         const result = await extractClient.extractStateless(
           dataSchema,
-          undefined,
+          {} as ExtractConfig,
           "test-extract.md",
         );
         expect("data" in result!).toBeTruthy();

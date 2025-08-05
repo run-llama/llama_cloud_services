@@ -437,7 +437,7 @@ export async function extractStateless(
           | null;
       }
     | string,
-  config: ExtractConfig | undefined = undefined,
+  config: ExtractConfig = {} as ExtractConfig,
   filePath: string,
   project_id: string | null = null,
   organization_id: string | null = null,
