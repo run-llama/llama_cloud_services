@@ -18644,6 +18644,66 @@ export const WebhookConfigurationSchema = {
     "Allows the user to configure webhook options for notifications and callbacks.",
 } as const;
 
+export const StatelessExtractionRequestSchema = {
+  type: "object",
+  required: ["data_schema"],
+  properties: {
+    data_schema: {
+      anyOf: [
+        {
+          additionalProperties: {
+            anyOf: [
+              {
+                additionalProperties: true,
+                type: "object",
+              },
+              {
+                items: {},
+                type: "array",
+              },
+              {
+                type: "string",
+              },
+              {
+                type: "integer",
+              },
+              {
+                type: "number",
+              },
+              {
+                type: "boolean",
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          type: "object",
+        },
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    config: {
+      $ref: "#/components/schemas/ExtractConfig",
+      description: "The configuration parameters for the extraction agent.",
+    },
+    file_id: {
+      type: "string",
+      format: "uuid",
+      title: "File Id",
+      description: "ID of an uploaded file to extract from",
+    },
+  },
+  title: "StatelessExtractionRequest",
+  description:
+    "Request body for stateless extraction. Must include either file_id, text, or base64.",
+} as const;
+
 export const llama_index__core__base__llms__types__ChatMessageSchema = {
   properties: {
     role: {

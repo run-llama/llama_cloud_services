@@ -32,13 +32,15 @@ export class LlamaExtractAgent {
     this.client = client;
   }
 
-  async Extract(
+  async extract(
     filePath: string,
     project_id: string | undefined = undefined,
     organization_id: string | undefined = undefined,
     fromUi: boolean | undefined = undefined,
     pollingInterval: number = 1000,
     maxPollingIterations: number = 600,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 500,
   ): Promise<ExtractResult | undefined> {
     return await extract.extract(
       this.agent.id,
@@ -49,6 +51,8 @@ export class LlamaExtractAgent {
       fromUi,
       pollingInterval,
       maxPollingIterations,
+      maxRetriesOnError,
+      retryInterval,
     );
   }
 }
@@ -78,7 +82,7 @@ export class LlamaExtract {
     );
   }
 
-  async CreateAgent(
+  async createAgent(
     name: string,
     dataSchema:
       | {
@@ -109,7 +113,7 @@ export class LlamaExtract {
     }
   }
 
-  async GetAgent(
+  async getAgent(
     name: string | undefined = undefined,
     id: string | undefined = undefined,
     project_id: string | undefined = undefined,
@@ -125,5 +129,41 @@ export class LlamaExtract {
     if (typeof agent != "undefined") {
       return new LlamaExtractAgent(agent, this.client);
     }
+  }
+
+  async extractStateless(
+    dataSchema:
+      | {
+          [key: string]:
+            | { [key: string]: unknown }
+            | Array<unknown>
+            | string
+            | number
+            | number
+            | boolean
+            | null;
+        }
+      | string,
+    config: ExtractConfig | undefined = undefined,
+    filePath: string,
+    project_id: string | undefined = undefined,
+    organization_id: string | undefined = undefined,
+    pollingInterval: number = 1000,
+    maxPollingIterations: number = 600,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 500,
+  ): Promise<ExtractResult | undefined> {
+    return await extract.extractStateless(
+      dataSchema,
+      config,
+      filePath,
+      project_id,
+      organization_id,
+      this.client,
+      pollingInterval,
+      maxPollingIterations,
+      maxRetriesOnError,
+      retryInterval,
+    );
   }
 }
