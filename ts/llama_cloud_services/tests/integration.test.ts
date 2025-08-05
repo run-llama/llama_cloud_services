@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { LlamaParseReader } from "../src/reader.js";
 import { LlamaCloudIndex } from "../src/LlamaCloudIndex.js";
+import { LlamaExtract, LlamaExtractAgent } from "../src/LlamaExtract.js";
 import { Document } from "@llamaindex/core/schema";
 import { fs } from "@llamaindex/env";
 
@@ -411,6 +412,96 @@ describe("Integration Tests", () => {
           expect(reader.backoffPattern).toBe(pattern);
         }
       },
+    );
+  });
+
+  describe("LlamaExtract Integration", () => {
+    it.skipIf(skipIfNoApiKey)(
+      "should create agents correctly",
+      async () => {
+        const dataSchema = {
+          properties: {
+            text: {
+              description: "Text from the file",
+              type: "string",
+            },
+          },
+          required: ["text"],
+          type: "object",
+        };
+        const extractClient = new LlamaExtract(
+          process.env.LLAMA_CLOUD_API_KEY!,
+          "https://api.cloud.llamaindex.ai",
+        );
+        const agent = await extractClient.createAgent("TestAgent", dataSchema);
+        expect(agent).instanceOf(LlamaExtractAgent);
+      },
+      60000,
+    );
+    it.skipIf(skipIfNoApiKey)(
+      "should fetch agents correctly",
+      async () => {
+        const extractClient = new LlamaExtract(
+          process.env.LLAMA_CLOUD_API_KEY!,
+          "https://api.cloud.llamaindex.ai",
+        );
+        const agent = await extractClient.getAgent("TestAgent");
+        expect(agent).instanceOf(LlamaExtractAgent);
+      },
+      60000,
+    );
+    it.skipIf(skipIfNoApiKey)(
+      "should fetch agents correctly",
+      async () => {
+        const extractClient = new LlamaExtract(
+          process.env.LLAMA_CLOUD_API_KEY!,
+          "https://api.cloud.llamaindex.ai",
+        );
+        const agent = await extractClient.getAgent("TestAgent");
+        const testContent =
+          "**Text to extract**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+        const testFilePath = "test-extract-agent.md";
+
+        await fs.writeFile(testFilePath, new TextEncoder().encode(testContent));
+        const result = await agent!.extract("test-extract-agent.md");
+        expect("data" in result!).toBeTruthy();
+        expect("extractionMetadata" in result!).toBeTruthy();
+      },
+      60000,
+    );
+    it.skipIf(skipIfNoApiKey)(
+      "should extract statelessly",
+      async () => {
+        const dataSchema = {
+          properties: {
+            text: {
+              description: "Text from the file",
+              type: "string",
+            },
+          },
+          required: ["text"],
+          type: "object",
+        };
+
+        const testContent =
+          "**Text to extract**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
+        const testFilePath = "test-extract.md";
+
+        await fs.writeFile(testFilePath, new TextEncoder().encode(testContent));
+
+        const extractClient = new LlamaExtract(
+          process.env.LLAMA_CLOUD_API_KEY!,
+          "https://api.cloud.llamaindex.ai",
+        );
+        const result = await extractClient.extractStateless(
+          dataSchema,
+          undefined,
+          "test-extract.md",
+        );
+        expect("data" in result!).toBeTruthy();
+        expect("extractionMetadata" in result!).toBeTruthy();
+      },
+      60000,
     );
   });
 

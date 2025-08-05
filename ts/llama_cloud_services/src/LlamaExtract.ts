@@ -34,8 +34,8 @@ export class LlamaExtractAgent {
 
   async extract(
     filePath: string,
-    project_id: string | undefined = undefined,
-    organization_id: string | undefined = undefined,
+    project_id: string | null = null,
+    organization_id: string | null = null,
     fromUi: boolean | undefined = undefined,
     pollingInterval: number = 1000,
     maxPollingIterations: number = 600,
@@ -97,8 +97,8 @@ export class LlamaExtract {
         }
       | string,
     config: ExtractConfig | undefined = undefined,
-    project_id: string | undefined = undefined,
-    organization_id: string | undefined = undefined,
+    project_id: string | null = null,
+    organization_id: string | null = null,
   ): Promise<LlamaExtractAgent | undefined> {
     const agent = await extract.createAgent(
       name,
@@ -116,8 +116,8 @@ export class LlamaExtract {
   async getAgent(
     name: string | undefined = undefined,
     id: string | undefined = undefined,
-    project_id: string | undefined = undefined,
-    organization_id: string | undefined = undefined,
+    project_id: string | null = null,
+    organization_id: string | null = null,
   ): Promise<LlamaExtractAgent | undefined> {
     const agent = await extract.getAgent(
       id,
@@ -146,8 +146,8 @@ export class LlamaExtract {
       | string,
     config: ExtractConfig | undefined = undefined,
     filePath: string,
-    project_id: string | undefined = undefined,
-    organization_id: string | undefined = undefined,
+    project_id: string | null = null,
+    organization_id: string | null = null,
     pollingInterval: number = 1000,
     maxPollingIterations: number = 600,
     maxRetriesOnError: number = 10,

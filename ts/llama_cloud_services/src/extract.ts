@@ -1,13 +1,17 @@
 import { emitWarning } from "process";
 import fs from "fs/promises";
 import { Blob } from "buffer";
+import * as path from "path";
+import { fileTypeFromBuffer } from "file-type";
 import type { ExtractResult } from "./type";
+import { File } from "buffer";
 import {
   type Options,
   type ExtractAgentCreate,
   type ExtractConfig,
   type ExtractJobCreate,
   type ExtractAgent,
+  type ExtractJob,
   type CreateExtractionAgentApiV1ExtractionExtractionAgentsPostData,
   type GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetData,
   type GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData,
@@ -18,9 +22,6 @@ import {
   type UploadFileApiV1FilesPostData,
   type StatelessExtractionRequest,
   type ExtractStatelessApiV1ExtractionRunPostData,
-  type ExtractStatelessApiV1ExtractionRunPostError,
-  type RunJobApiV1ExtractionJobsPostResponse,
-  type RunJobApiV1ExtractionJobsPostError,
   createExtractionAgentApiV1ExtractionExtractionAgentsPost,
   getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet,
   getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet,
@@ -51,9 +52,9 @@ export async function createAgent(
           | null;
       }
     | string,
-  config: ExtractConfig | undefined = undefined,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  config: ExtractConfig = {} as ExtractConfig,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   client: Client | undefined = undefined,
 ): Promise<ExtractAgent | undefined> {
   const agentData = {
@@ -72,26 +73,24 @@ export async function createAgent(
   }
   const response =
     await createExtractionAgentApiV1ExtractionExtractionAgentsPost(options);
-  if ("detail" in response) {
-    throw new Error(
-      `An error occurred while creating the extraction agent.\nDetails:\n\n${response.detail}\n\n`,
-    );
-  } else if (
-    "id" in response &&
-    "project_id" in response &&
-    "config" in response &&
-    "data_schema" in response &&
-    "name" in response
-  ) {
-    return response as ExtractAgent;
+  if (!response.response.ok) {
+    if ("error" in response) {
+      throw new Error(
+        `An error occurred while creating the extraction agent.\nDetails:\n\n${JSON.stringify(
+          response.error,
+        )}\n\n`,
+      );
+    }
+  } else {
+    return response.data as ExtractAgent;
   }
 }
 
 export async function getAgent(
   id: string | undefined = undefined,
   name: string | undefined = undefined,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   client: Client | undefined = undefined,
 ): Promise<ExtractAgent | undefined> {
   if (typeof id === "undefined" && typeof name === "undefined") {
@@ -110,20 +109,18 @@ export async function getAgent(
       await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
         options,
       );
-    if ("detail" in response) {
-      throw new Error(
-        `An error occurred while creating the extraction agent.\nDetails:\n\n${response.detail}\n\n`,
-      );
-    } else if (
-      "id" in response &&
-      "project_id" in response &&
-      "config" in response &&
-      "data_schema" in response &&
-      "name" in response
-    ) {
-      return response as ExtractAgent;
+    if (!response.response.ok) {
+      if ("error" in response) {
+        throw new Error(
+          `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
+            response.error,
+          )}\n\n`,
+        );
+      }
+    } else {
+      return response.data as ExtractAgent;
     }
-  } else if (typeof name != "undefined" && typeof "id" === "undefined") {
+  } else if (typeof name != "undefined" && typeof id === "undefined") {
     const data = {
       path: { name: name },
       query: { organization_id: organization_id, project_id: project_id },
@@ -137,18 +134,16 @@ export async function getAgent(
       await getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet(
         options,
       );
-    if ("detail" in response) {
-      throw new Error(
-        `An error occurred while creating the extraction agent.\nDetails:\n\n${response.detail}\n\n`,
-      );
-    } else if (
-      "id" in response &&
-      "project_id" in response &&
-      "config" in response &&
-      "data_schema" in response &&
-      "name" in response
-    ) {
-      return response as ExtractAgent;
+    if (!response.response.ok) {
+      if ("error" in response) {
+        throw new Error(
+          `An error occurred while getting the extraction agent by name.\nDetails:\n\n${JSON.stringify(
+            response.error,
+          )}\n\n`,
+        );
+      }
+    } else {
+      return response.data as ExtractAgent;
     }
   } else {
     const data = {
@@ -156,36 +151,41 @@ export async function getAgent(
     } as GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData;
     const options =
       data as Options<GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData>;
+    if (typeof client != "undefined") {
+      options.client = client;
+    }
     const response =
       await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
         options,
       );
-    if ("detail" in response) {
-      throw new Error(
-        `An error occurred while creating the extraction agent.\nDetails:\n\n${response.detail}\n\n`,
-      );
-    } else if (
-      "id" in response &&
-      "project_id" in response &&
-      "config" in response &&
-      "data_schema" in response &&
-      "name" in response
-    ) {
-      return response as ExtractAgent;
+    if (!response.response.ok) {
+      if ("error" in response) {
+        throw new Error(
+          `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
+            response.error,
+          )}\n\n`,
+        );
+      }
+    } else {
+      return response.data as ExtractAgent;
     }
   }
 }
 
 async function uploadFile(
   filePath: string,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   client: Client | undefined = undefined,
   maxRetriesOnError: number = 10,
   retryInterval: number = 500,
 ): Promise<string | undefined> {
   const buffer = await fs.readFile(filePath);
-  const fileBlob = new Blob([buffer]);
+  const fileType = await fileTypeFromBuffer(buffer);
+  const mimeType = fileType?.mime ?? "application/pdf";
+  const fileName = path.basename(filePath);
+  const uint8Array = new Uint8Array(buffer);
+  const fileBlob = new File([uint8Array], fileName, { type: mimeType });
   const fileToUpload = {
     upload_file: fileBlob,
   } as BodyUploadFileApiV1FilesPost;
@@ -206,12 +206,12 @@ async function uploadFile(
     }
     const uploadResponse = await uploadFileApiV1FilesPost(uploadOptions);
     let fileId: string | undefined = undefined;
-    if ("detail" in uploadResponse) {
+    if (!uploadResponse.response.ok) {
       retries++;
       await sleep(retryInterval);
     }
-    if ("id" in uploadResponse) {
-      fileId = uploadResponse.id as string;
+    if (typeof uploadResponse.data != "undefined") {
+      fileId = uploadResponse.data.id as string;
       return fileId;
     }
   }
@@ -233,34 +233,42 @@ async function createExtractJob(
       );
     }
     let response:
-      | ExtractStatelessApiV1ExtractionRunPostData
-      | ExtractStatelessApiV1ExtractionRunPostError
-      | RunJobApiV1ExtractionJobsPostResponse
-      | RunJobApiV1ExtractionJobsPostError
+      | {
+          data: ExtractJob | undefined;
+          request: Request;
+          response: Response;
+        }
       | undefined = undefined;
     if (!stateless) {
       response = (await runJobApiV1ExtractionJobsPost(
         options as Options<RunJobApiV1ExtractionJobsPostData>,
-      )) as
-        | RunJobApiV1ExtractionJobsPostResponse
-        | RunJobApiV1ExtractionJobsPostError;
+      )) as {
+        data: ExtractJob | undefined;
+        request: Request;
+        response: Response;
+      };
     } else {
       response = (await extractStatelessApiV1ExtractionRunPost(
         options as Options<ExtractStatelessApiV1ExtractionRunPostData>,
-      )) as
-        | ExtractStatelessApiV1ExtractionRunPostData
-        | ExtractStatelessApiV1ExtractionRunPostError;
+      )) as {
+        data: ExtractJob | undefined;
+        request: Request;
+        response: Response;
+      };
     }
-    if ("detail" in response) {
+    if (!response.response.ok) {
+      if ("error" in response) {
+        console.log(
+          "An error occurred: ",
+          JSON.stringify(response.error),
+          "\nRetrying...",
+        );
+      }
       retries++;
       await sleep(retryInterval);
     }
-    if (
-      "extraction_agent" in response &&
-      "status" in response &&
-      "id" in response
-    ) {
-      const jobStatus = response.status as StatusEnum;
+    if (typeof response.data != "undefined") {
+      const jobStatus = response.data.status as StatusEnum;
       if (jobStatus == "CANCELLED") {
         retries++;
         await sleep(retryInterval);
@@ -268,7 +276,7 @@ async function createExtractJob(
         retries++;
         await sleep(retryInterval);
       } else {
-        return response.id as string;
+        return response.data.id as string;
       }
     }
   }
@@ -294,11 +302,11 @@ async function pollForJobCompletion(
       return false;
     }
     const response = await getJobApiV1ExtractionJobsJobIdGet(jobOptions);
-    if ("detail" in response) {
+    if (!response.response.ok) {
       numIterations++;
     }
-    if ("id" in response && "status" in response) {
-      status = response.status as StatusEnum;
+    if (typeof response.data != "undefined") {
+      status = response.data.status as StatusEnum;
       if (status == StatusEnum.CANCELLED || status == StatusEnum.ERROR) {
         throw new Error("There was an error extracting data from your file.");
       } else if (status == StatusEnum.SUCCESS) {
@@ -314,8 +322,8 @@ async function pollForJobCompletion(
 async function getJobResult(
   jobId: string,
   client: Client | undefined = undefined,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   maxRetriesOnError: number = 10,
   retryInterval: number = 500,
 ): Promise<ExtractResult | undefined> {
@@ -337,14 +345,21 @@ async function getJobResult(
     }
     const response =
       await getJobResultApiV1ExtractionJobsJobIdResultGet(jobOptions);
-    if ("detail" in response) {
+    if (!response.response.ok) {
+      if ("error" in response) {
+        console.log(
+          "An error occurred: ",
+          JSON.stringify(response.error),
+          "\nRetrying...",
+        );
+      }
       retries++;
       await sleep(retryInterval);
     }
-    if ("data" in response && "extraction_metadata" in response) {
+    if (typeof response.data != "undefined") {
       return {
-        data: response.data,
-        extractionMetadata: response.extraction_metadata,
+        data: response.data.data,
+        extractionMetadata: response.data.extraction_metadata,
       } as ExtractResult;
     }
   }
@@ -353,8 +368,8 @@ async function getJobResult(
 export async function extract(
   agentId: string,
   filePath: string,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   client: Client | undefined = undefined,
   fromUi: boolean | undefined = undefined,
   pollingInterval: number = 1000,
@@ -424,8 +439,8 @@ export async function extractStateless(
     | string,
   config: ExtractConfig | undefined = undefined,
   filePath: string,
-  project_id: string | undefined = undefined,
-  organization_id: string | undefined = undefined,
+  project_id: string | null = null,
+  organization_id: string | null = null,
   client: Client | undefined = undefined,
   pollingInterval: number = 1000,
   maxPollingIterations: number = 600,
