@@ -229,6 +229,9 @@ class TestExtractionAgent:
         assert runs.total == 0
 
 
+@pytest.mark.skipif(
+    "CI" in os.environ, reason="Test locally; functionality is mostly duplicated."
+)
 class TestStatelessExtraction:
     """Tests for stateless extraction methods that don't require creating an agent."""
 
