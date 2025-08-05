@@ -63,13 +63,13 @@ repos:
     rev: v3.0.3
     hooks:
       - id: prettier
-        exclude: ^(uv.lock|ts/llama_cloud_services/pnpm-lock.yaml)
+        exclude: ^(uv.lock|ts/llama_cloud_services/pnpm-lock.yaml|ts/e2e-tests)
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.6
     hooks:
       - id: codespell
         additional_dependencies: [tomli]
-        exclude: ^(uv.lock|docs|ts|examples)
+        exclude: ^(uv.lock|docs|ts|examples|pnpm-lock.yaml)
         args:
           [
             "--ignore-words-list",
@@ -86,4 +86,4 @@ repos:
       - id: toml-sort-fix
         exclude: ".*uv.lock"
 
-exclude: .github/ISSUE_TEMPLATE
+exclude: ^(.github/ISSUE_TEMPLATE|ts/llama_cloud_services/src/client|pnpm-lock.yaml)
