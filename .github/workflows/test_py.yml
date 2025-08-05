@@ -35,7 +35,7 @@ jobs:
 
       - name: Run Tests
         working-directory: py
-        run: uv run -- pytest integration_tests/**/**/test_*.py
+        run: uv run -- pytest integration_tests/test_*.py integration_tests/*/test_*.py integration_tests/*/*/test_*.py -v
 
       - name: Remove virtual environment
         working-directory: py
