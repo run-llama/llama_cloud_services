@@ -280,7 +280,7 @@ def _extraction_config_warning(config: ExtractConfig) -> None:
             "available in the `extraction_metadata` field for the extraction run.",
             ExperimentalWarning,
         )
-    if config.reasoning:
+    if config.use_reasoning:
         if config.extraction_mode == ExtractMode.FAST:
             raise ValueError(
                 "`reasoning` is only supported with BALANCED, MULTIMODAL, or PREMIUM extraction modes."
@@ -1071,6 +1071,7 @@ class LlamaExtract(BaseComponent):
         Returns:
             ExtractJob or list of ExtractJobs
         """
+        _extraction_config_warning(config)
         processed_schema = await _validate_schema(self._async_client, data_schema)
 
         if not isinstance(files, list):
