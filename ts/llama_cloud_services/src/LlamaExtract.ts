@@ -26,10 +26,26 @@ function getUrl(baseUrl: string | undefined, region: string | undefined) {
 export class LlamaExtractAgent {
   private agent: ExtractAgent;
   private client: Client;
+  id: string;
+  name: string;
+  dataSchema: {
+    [key: string]:
+      | string
+      | number
+      | boolean
+      | {
+          [key: string]: unknown;
+        }
+      | unknown[]
+      | null;
+  };
 
   constructor(agent: ExtractAgent, client: Client) {
     this.agent = agent;
     this.client = client;
+    this.id = agent.id;
+    this.name = agent.name;
+    this.dataSchema = agent.data_schema;
   }
 
   async extract(
@@ -129,6 +145,19 @@ export class LlamaExtract {
     if (typeof agent != "undefined") {
       return new LlamaExtractAgent(agent, this.client);
     }
+  }
+
+  async deleteAgent(
+    id: string,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 500,
+  ): Promise<boolean | undefined> {
+    return await extract.deleteAgent(
+      id,
+      this.client,
+      maxRetriesOnError,
+      retryInterval,
+    );
   }
 
   async extractStateless(

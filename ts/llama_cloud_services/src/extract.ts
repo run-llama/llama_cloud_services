@@ -22,6 +22,7 @@ import {
   type UploadFileApiV1FilesPostData,
   type StatelessExtractionRequest,
   type ExtractStatelessApiV1ExtractionRunPostData,
+  type DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData,
   createExtractionAgentApiV1ExtractionExtractionAgentsPost,
   getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet,
   getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet,
@@ -30,6 +31,7 @@ import {
   getJobResultApiV1ExtractionJobsJobIdResultGet,
   uploadFileApiV1FilesPost,
   extractStatelessApiV1ExtractionRunPost,
+  deleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDelete,
 } from "./api";
 import type { Client } from "@hey-api/client-fetch";
 import { sleep } from "./utils";
@@ -491,6 +493,49 @@ export async function extractStateless(
       maxRetriesOnError,
       retryInterval,
     )) as ExtractResult;
+  }
+}
+
+export async function deleteAgent(
+  id: string,
+  client: Client | undefined = undefined,
+  maxRetriesOnError: number = 10,
+  retryInterval: number = 500,
+): Promise<boolean | undefined> {
+  const deleteData = {
+    path: { extraction_agent_id: id },
+  } as DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData;
+  const deleteOptions =
+    deleteData as Options<DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData>;
+  if (typeof client != "undefined") {
+    deleteOptions.client = client;
+  }
+  let retries: number = 0;
+  while (true) {
+    if (retries > maxRetriesOnError) {
+      throw new Error(
+        "Maximum number of attempts for deleting agent " +
+          id +
+          " reached, but the API continues to return errors.",
+      );
+    }
+    const response =
+      await deleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDelete(
+        deleteOptions,
+      );
+    if (!response.response.ok) {
+      if ("error" in response) {
+        console.log(
+          `An error occurred while deleting the agent: ${JSON.stringify(
+            response.error,
+          )}\nRetrying...`,
+        );
+      }
+      retries++;
+      await sleep(retryInterval);
+    } else {
+      return true;
+    }
   }
 }
 

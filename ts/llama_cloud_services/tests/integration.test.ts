@@ -434,7 +434,10 @@ describe("Integration Tests", () => {
           process.env.LLAMA_CLOUD_API_KEY!,
           "https://api.cloud.llamaindex.ai",
         );
-        const agent = await extractClient.createAgent("TestAgent", dataSchema);
+        const agent = await extractClient.createAgent(
+          "AgentForTest",
+          dataSchema,
+        );
         expect(agent).instanceOf(LlamaExtractAgent);
       },
       60000,
@@ -446,19 +449,19 @@ describe("Integration Tests", () => {
           process.env.LLAMA_CLOUD_API_KEY!,
           "https://api.cloud.llamaindex.ai",
         );
-        const agent = await extractClient.getAgent("TestAgent");
+        const agent = await extractClient.getAgent("AgentForTest");
         expect(agent).instanceOf(LlamaExtractAgent);
       },
       60000,
     );
     it.skipIf(skipIfNoApiKey)(
-      "should fetch agents correctly",
+      "should extract data correctly with an agent and delete that agent",
       async () => {
         const extractClient = new LlamaExtract(
           process.env.LLAMA_CLOUD_API_KEY!,
           "https://api.cloud.llamaindex.ai",
         );
-        const agent = await extractClient.getAgent("TestAgent");
+        const agent = await extractClient.getAgent("AgentForTest");
         const testContent =
           "**Text to extract**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
         const testFilePath = "test-extract-agent.md";
@@ -467,6 +470,9 @@ describe("Integration Tests", () => {
         const result = await agent!.extract("test-extract-agent.md");
         expect("data" in result!).toBeTruthy();
         expect("extractionMetadata" in result!).toBeTruthy();
+
+        const success = await extractClient.deleteAgent(agent!.id);
+        expect(success).toBeTruthy();
       },
       60000,
     );
