@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Tests
         working-directory: py
-        run: uv run -- pytest tests/**/test_*.py
+        run: uv run -- pytest tests/**/**/test_*.py
 
       - name: Remove virtual environment
         working-directory: py
