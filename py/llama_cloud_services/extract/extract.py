@@ -800,7 +800,7 @@ class LlamaExtract(BaseComponent):
             config = DEFAULT_EXTRACT_CONFIG
 
         if isinstance(data_schema, dict):
-            data_schema = data_schema
+            pass
         elif issubclass(data_schema, BaseModel):
             data_schema = data_schema.model_json_schema()
         else:
