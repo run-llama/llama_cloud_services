@@ -136,66 +136,58 @@ async def _wait_for_job_result(
     verbose: bool = False,
     project_id: Optional[str] = None,
     organization_id: Optional[str] = None,
-    job_retry_attempts: int = 3,
-    job_max_wait: float = 4,
+    job_retry_attempts: int = 5,
+    job_max_wait: float = 60,
     job_jitter: float = 5,
     run_retry_attempts: int = 3,
-    run_max_wait: float = 4,
+    run_max_wait: float = 20,
     run_jitter: float = 3,
 ) -> Optional[ExtractRun]:
     """Wait for and return the results of an extraction job."""
     start = time.perf_counter()
-    tries = 0
+    poll_count = 0
 
     while True:
         await asyncio.sleep(check_interval)
-        tries += 1
+        poll_count += 1
+        job = await _get_job_with_retry(
+            client,
+            job_id,
+            max_attempts=job_retry_attempts,
+            max_wait=job_max_wait,
+            jitter=job_jitter,
+        )
 
-        try:
-            job = await _get_job_with_retry(
+        if job.status == StatusEnum.SUCCESS:
+            return await _get_run_with_retry(
                 client,
                 job_id,
-                max_attempts=job_retry_attempts,
-                max_wait=job_max_wait,
-                jitter=job_jitter,
+                project_id,
+                organization_id,
+                max_attempts=run_retry_attempts,
+                max_wait=run_max_wait,
+                jitter=run_jitter,
             )
-
-            if job.status == StatusEnum.SUCCESS:
-                return await _get_run_with_retry(
-                    client,
-                    job_id,
-                    project_id,
-                    organization_id,
-                    max_attempts=run_retry_attempts,
-                    max_wait=run_max_wait,
-                    jitter=run_jitter,
-                )
-            elif job.status == StatusEnum.PENDING:
-                end = time.perf_counter()
-                if end - start > max_timeout:
-                    raise Exception(f"Timeout while extracting the file: {job_id}")
-                if verbose and tries % 10 == 0:
-                    print(".", end="", flush=True)
-                continue
-            else:
-                warnings.warn(
-                    f"Failure in job: {job_id}, status: {job.status}, error: {job.error}"
-                )
-                return await _get_run_with_retry(
-                    client,
-                    job_id,
-                    project_id,
-                    organization_id,
-                    max_attempts=run_retry_attempts,
-                    max_wait=run_max_wait,
-                    jitter=run_jitter,
-                )
-
-        except Exception as e:
-            # If we get a non-retryable error or all retries are exhausted, re-raise
-            if verbose:
-                print(f"\nError in job polling for {job_id}: {e}")
-            raise e
+        elif job.status == StatusEnum.PENDING:
+            end = time.perf_counter()
+            if end - start > max_timeout:
+                raise Exception(f"Timeout while extracting the file: {job_id}")
+            if verbose and poll_count % 10 == 0:
+                print(".", end="", flush=True)
+            continue
+        else:
+            warnings.warn(
+                f"Failure in job: {job_id}, status: {job.status}, error: {job.error}"
+            )
+            return await _get_run_with_retry(
+                client,
+                job_id,
+                project_id,
+                organization_id,
+                max_attempts=run_retry_attempts,
+                max_wait=run_max_wait,
+                jitter=run_jitter,
+            )
 
 
 class SourceText:
@@ -407,7 +399,9 @@ class ExtractionAgent:
                 project_id=self._project_id, upload_file=file_contents
             )
         finally:
-            if file_contents is not None and isinstance(file_contents, BufferedReader):
+            if file_contents is not None and isinstance(
+                file_contents, (BufferedReader, BytesIO)
+            ):
                 file_contents.close()
 
     async def _upload_file(self, file_input: FileInput) -> File:
@@ -747,6 +741,15 @@ class LlamaExtract(BaseComponent):
         super().__init__(
             api_key=api_key,  # type: ignore
             base_url=base_url,  # type: ignore
+            check_interval=check_interval,
+            max_timeout=max_timeout,
+            num_workers=num_workers,
+            show_progress=show_progress,
+            project_id=project_id,
+            organization_id=organization_id,
+            verify=verify,
+            httpx_timeout=httpx_timeout,
+            verbose=verbose,
         )
         self._httpx_client = httpx.AsyncClient(verify=verify, timeout=httpx_timeout)  # type: ignore
         self.verify = verify
