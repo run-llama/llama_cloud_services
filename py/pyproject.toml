@@ -31,7 +31,8 @@ dependencies = [
   "python-dotenv>=1.0.1,<2",
   "eval-type-backport>=0.2.0,<0.3 ; python_version < '3.10'",
   "platformdirs>=4.3.7,<5",
-  "tenacity>=8.5.0, <10.0"
+  "tenacity>=8.5.0, <10.0",
+  "packaging>=25.0"
 ]
 
 [project.scripts]

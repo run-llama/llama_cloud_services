@@ -25,7 +25,7 @@ from llama_index.core.readers.base import BasePydanticReader
 from llama_index.core.readers.file.base import get_default_fs
 from llama_index.core.schema import Document
 
-from llama_cloud_services.utils import check_extra_params
+from llama_cloud_services.utils import check_extra_params, check_for_updates
 from llama_cloud_services.parse.types import JobResult
 from llama_cloud_services.parse.utils import (
     SUPPORTED_FILE_TYPES,
@@ -541,6 +541,11 @@ class LlamaParse(BasePydanticReader):
         description="Whether to use the vendor multimodal API.",
     )
 
+    check_for_updates: Optional[bool] = Field(
+        default=False,
+        description="Automatically check for Python SDK updates.",
+    )
+
     @model_validator(mode="before")
     @classmethod
     def warn_extra_params(cls, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -596,6 +601,16 @@ class LlamaParse(BasePydanticReader):
 
         return self._aclient
 
+    _update_checked = False
+
+    async def _check_for_updates(self) -> None:
+        if self.check_for_updates and not self._update_checked:
+            try:
+                await check_for_updates(self.aclient, quiet=False)
+                self._update_checked = True
+            except (ValueError, httpx.HTTPStatusError):
+                pass
+
     @asynccontextmanager
     async def client_context(self) -> AsyncGenerator[httpx.AsyncClient, None]:
         """Create a context for the HTTPX client."""
@@ -645,6 +660,7 @@ class LlamaParse(BasePydanticReader):
         fs: Optional[AbstractFileSystem] = None,
         partition_target_pages: Optional[str] = None,
     ) -> str:
+        await self._check_for_updates()
         files = None
         file_handle = None
         input_url = file_input if self._is_input_url(file_input) else None
@@ -1534,6 +1550,7 @@ class LlamaParse(BasePydanticReader):
         self, json_result: List[dict], download_path: str, asset_key: str
     ) -> List[dict]:
         """Download assets (images or charts) from the parsed result."""
+        await self._check_for_updates()
         # Make the download path
         if not os.path.exists(download_path):
             os.makedirs(download_path)
@@ -1642,6 +1659,7 @@ class LlamaParse(BasePydanticReader):
         self, json_result: List[dict], download_path: str
     ) -> List[dict]:
         """Download xlsx from the parsed result."""
+        await self._check_for_updates()
         # make the download path
         if not os.path.exists(download_path):
             os.makedirs(download_path)

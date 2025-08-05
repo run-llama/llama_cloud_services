@@ -1,5 +1,9 @@
+from unittest.mock import Mock
+
+import httpx
+import pytest
 from pydantic import BaseModel
-from llama_cloud_services.utils import check_extra_params
+from llama_cloud_services.utils import check_extra_params, check_for_updates
 
 
 class MyModel(BaseModel):
@@ -64,3 +68,30 @@ def test_check_extra_params_completely_invalid():
     for suggestion in suggestions:
         assert "check the documentation or update the package" in suggestion
         assert "Did you mean" not in suggestion
+
+
+@pytest.mark.asyncio
+async def test_check_for_updates(capsys: pytest.CaptureFixture):
+    """Test update checker."""
+
+    mock_response = Mock()
+    mock_client = Mock(spec=httpx.AsyncClient)
+    mock_client.get.return_value = mock_response
+
+    mock_response.json.return_value = {"info": {"version": "0.0.0"}}
+    assert not await check_for_updates(mock_client)
+    out, err = capsys.readouterr()
+    assert not out and not err
+
+    assert not await check_for_updates(mock_client, quiet=False)
+    out, _ = capsys.readouterr()
+    assert "up to date" in out
+
+    mock_response.json.return_value = {"info": {"version": "999.0.0"}}
+    assert await check_for_updates(mock_client)
+    out, err = capsys.readouterr()
+    assert not out and not err
+
+    assert await check_for_updates(mock_client, quiet=False)
+    out, _ = capsys.readouterr()
+    assert "out of date" in out
