@@ -114,12 +114,21 @@ def publish(tag: bool):
     """Publish all packages."""
     # move to the root
     os.chdir(Path(__file__).parent.parent)
+
+    if not os.getenv("LLAMA_PARSE_PYPI_TOKEN"):
+        click.echo("LLAMA_PARSE_PYPI_TOKEN is not set, skipping publish", err=True)
+        raise click.Abort("No token set")
+    if not os.getenv("LLAMA_CLOUD_SERVICES_NPM_TOKEN"):
+        click.echo("LLAMA_CLOUD_SERVICES_NPM_TOKEN is not set, skipping publish", err=True)
+        raise click.Abort("No token set")
+
     # not general script. Just checks each of the 2 packages to see if they need to be published.
     maybe_publish_ts_package()
     maybe_publish_py_packages()
 
     if tag:
         _run_command(["npx", "@changesets/cli", "tag"], check=True, capture=True)
+        _run_command(["git", "push", "--tags"], check=True, capture=True)
 
 
 def maybe_publish_ts_package() -> None:
