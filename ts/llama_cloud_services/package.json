@@ -13,7 +13,8 @@
     "test": "vitest run --testTimeout=60000",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "release": "pnpm run build && pnpm publish"
   },
   "files": [
     "openapi.json",

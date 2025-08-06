@@ -5,9 +5,16 @@
   "private": true,
   "keywords": [],
   "author": "",
+  "scripts": {
+    "pre-commit-version": "pnpm changeset",
+    "version": "./scripts/changeset-version.py version",
+    "publish": "./scripts/changeset-version.py publish"
+  },
   "devDependencies": {
     "prettier": "^3.6.2",
-    "lint-staged": "^15.4.2"
+    "lint-staged": "^15.4.2",
+    "@changesets/cli": "^2.29.5",
+    "changesets": "^1.0.2"
   },
   "lint-staged": {
     "ts/llama_cloud_services/src/**/*.{ts,tsx,js,jsx}": [
