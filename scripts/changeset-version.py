@@ -156,7 +156,7 @@ def maybe_publish_ts_package() -> None:
         )
         return
     click.echo(f"Publishing llama-cloud-services@{version}")
-    output = _run_command(["pnpm", "publish", "--access", "public", "--no-git-checks"], check=True, capture=True, cwd=target_dir)
+    output = _run_command(["pnpm", "run" "publish"], check=True, capture=True, cwd=target_dir)
     click.echo(output.stdout)
 
 
