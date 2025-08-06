@@ -35,7 +35,7 @@ import {
 } from "./api";
 import type { Client } from "@hey-api/client-fetch";
 import { sleep } from "./utils";
-import { fileTypeFromBlob, fileTypeFromBuffer } from "file-type";
+import { fileTypeFromBuffer } from "file-type";
 
 type BodyUploadFileApiV1FilesPost = {
   upload_file: Blob | File;
