@@ -1,11 +1,8 @@
 {
-  "name": "@llama_cloud_services/py",
+  "name": "llama-cloud-services-py",
   "version": "0.6.55",
   "private": "true",
   "license": "MIT",
   "scripts": {
-    "build": "uv build && cd llama_parse && uv build",
-    "prepublishOnly": "npm run build",
-    "publish": "bash -c 'TOKEN=${LLAMA_PARSE_PYPI_TOKEN:-$UV_PUBLISH_TOKEN}; uv publish --token $TOKEN && cd llama_parse && uv publish --token $TOKEN'"
   }
 }

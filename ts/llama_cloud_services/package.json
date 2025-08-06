@@ -13,8 +13,7 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "version": "echo 'Version managed by root changeset script'",
-    "release": "pnpm run build && cd .. && pnpm changeset publish"
+    "release": "pnpm run build && pnpm publish"
   },
   "files": [
     "openapi.json",

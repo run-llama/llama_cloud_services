@@ -15,6 +15,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
 
+  py: {}
+
   ts/e2e-tests:
     devDependencies:
       '@types/node':
@@ -96,14 +98,6 @@ importers:
       vitest:
         specifier: ^2.0.0
         version: 2.1.9(@types/node@20.19.9)(@vitest/ui@2.1.9)
-
-  ts/llama_cloud_services/api: {}
-
-  ts/llama_cloud_services/beta/agent: {}
-
-  ts/llama_cloud_services/parse: {}
-
-  ts/llama_cloud_services/reader: {}
 
 packages:
 

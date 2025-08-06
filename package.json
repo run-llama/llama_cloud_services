@@ -1,15 +1,12 @@
 {
-  "name": "llama_cloud_services",
+  "name": "workspace",
   "version": "1.0.0",
   "private": "true",
   "license": "MIT",
   "scripts": {
     "pre-commit-version": "pnpm changeset",
-    "version": "./scripts/changeset-version.py apply",
-    "build": "pnpm run --filter llama-cloud-services build",
-    "release": "pnpm run build && pnpm changeset publish",
-    "changeset-status": "./scripts/changeset-version.py status",
-    "set-version": "./scripts/changeset-version.py set-version"
+    "version": "./scripts/changeset-version.py version",
+    "publish": "./scripts/changeset-version.py publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.29.5",

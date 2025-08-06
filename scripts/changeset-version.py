@@ -3,140 +3,81 @@
 # dependencies = ["click", "tomlkit", "packaging"]
 # ///
 
+"""
+This is a script called by the changeset bot. Normally changeset can do the following things, but this is a mixed ts and python repo, so we need to do some extra things.
+
+There's 2 things this does:
+- Versioning: Makes changes that may be commited with the newest version.
+- Releasing/Tagging: After versions are changed, we check each package to see if its released, and if not, we release it and tag it.
+
+"""
+
 import json
 import os
 import subprocess
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import List
+import urllib.request
+import urllib.error
 
 import click
 import tomlkit
 from packaging.version import Version
 
 
-def run_command(cmd: List[str], check: bool = True, capture: bool = True) -> subprocess.CompletedProcess:
+def _run_command(
+    cmd: List[str], check: bool = True, capture: bool = True, cwd: Path | None = None
+) -> subprocess.CompletedProcess:
     """Run a command and return the result."""
     return subprocess.run(
-        cmd,
-        check=check,
-        capture_output=capture,
-        text=True,
-        cwd=Path.cwd()
+        cmd, check=check, capture_output=capture, text=True, cwd=cwd or Path.cwd()
     )
 
 
-def get_changeset_status() -> Optional[Dict]:
-    """Get the current changeset status."""
-    try:
-        result = run_command(["pnpm", "changeset", "status", "--output", ".changeset/status.json"])
-        if result.returncode != 0:
-            return None
-        
-        status_file = Path(".changeset/status.json")
-        if not status_file.exists():
-            return None
-            
-        with open(status_file) as f:
-            status = json.load(f)
-        
-        # Clean up the status file
-        status_file.unlink()
-        return status
-    except (subprocess.CalledProcessError, json.JSONDecodeError, FileNotFoundError):
-        return None
-
-
 def update_python_versions(version: str) -> None:
-    """Update Python package versions using tomlkit to preserve formatting."""
+    """llama-cloud-services and llama-parse share a version. llama-parse is just a silly sidecar that proxies to llama-cloud-services
+    for compatibility.
+
+    This function updates the version in both pyproject.toml files.
+    """
     # Update main pyproject.toml
     main_path = Path("py/pyproject.toml")
     main_content = main_path.read_text()
     main_doc = tomlkit.parse(main_content)
-    main_doc["project"]["version"] = version
+    if main_doc["project"]["version"] != version:
+        click.echo(f"Updating llama-cloud-services version to {version}")
+        main_doc["project"]["version"] = version
     main_path.write_text(tomlkit.dumps(main_doc))
-    
+
     # Update llama_parse/pyproject.toml
     parse_path = Path("py/llama_parse/pyproject.toml")
     parse_content = parse_path.read_text()
     parse_doc = tomlkit.parse(parse_content)
-    parse_doc["project"]["version"] = version
-    
+    if parse_doc["project"]["version"] != version:
+        click.echo(f"Updating llama-parse version to {version}")
+        parse_doc["project"]["version"] = version
+        parse_path.write_text(tomlkit.dumps(parse_doc))
+
     # Update the dependency reference
     dependencies = parse_doc["project"]["dependencies"]
     for i, dep in enumerate(dependencies):
         if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
             dependencies[i] = f"llama-cloud-services>={version}"
             break
-    
+
     parse_path.write_text(tomlkit.dumps(parse_doc))
-    
+
     click.echo(f"Updated Python packages to version {version}")
-
-
-# update_python_package_json removed - changesets handles py/package.json directly
 
 
 def lock_python_dependencies() -> None:
     """Lock Python dependencies."""
     try:
-        run_command(["uv", "lock"], capture=False)
+        _run_command(["uv", "lock"], capture=False)
         click.echo("Locked Python dependencies")
     except subprocess.CalledProcessError as e:
         click.echo(f"Warning: Failed to lock Python dependencies: {e}", err=True)
-
-
-# Tag functionality removed for now - will be handled by GitHub Actions
-
-
-def validate_python_versions() -> bool:
-    """Validate that Python versions are consistent."""
-    try:
-        # Read main pyproject.toml
-        main_path = Path("py/pyproject.toml")
-        main_content = main_path.read_text()
-        main_doc = tomlkit.parse(main_content)
-        main_version = str(main_doc["project"]["version"])
-        
-        # Read llama_parse pyproject.toml
-        parse_path = Path("py/llama_parse/pyproject.toml")
-        parse_content = parse_path.read_text()
-        parse_doc = tomlkit.parse(parse_content)
-        parse_version = str(parse_doc["project"]["version"])
-        
-        # Check dependency version
-        dependencies = parse_doc["project"]["dependencies"]
-        dep_version = None
-        for dep in dependencies:
-            if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
-                if ">=" in dep:
-                    dep_version = dep.split(">=")[1]
-                break
-        
-        # Read package.json if it exists
-        py_package_path = Path("py/package.json")
-        package_version = None
-        if py_package_path.exists():
-            with open(py_package_path) as f:
-                data = json.load(f)
-            package_version = data.get("version")
-        
-        # Validate consistency
-        versions_match = (
-            main_version == parse_version and
-            (dep_version is None or dep_version == main_version) and
-            (package_version is None or package_version == main_version)
-        )
-        
-        if not versions_match:
-            click.echo(f"Version mismatch: main={main_version}, parse={parse_version}, "
-                      f"dep={dep_version}, package={package_version}", err=True)
-        
-        return versions_match
-        
-    except Exception as e:
-        click.echo(f"Error validating versions: {e}", err=True)
-        return False
 
 
 @click.group()
@@ -146,105 +87,100 @@ def cli():
 
 
 @cli.command()
-def apply():
-    """Apply changeset version changes to Python packages."""
+def version():
+    """Apply changeset versions, and propagate them to Python packages."""
     # First, run changeset version to update all package.json files (including py/package.json)
-    try:
-        result = run_command(["pnpm", "changeset", "version"], capture=False)
-        if result.returncode != 0:
-            click.echo("Failed to apply changeset versions", err=True)
-            sys.exit(1)
-    except subprocess.CalledProcessError:
-        click.echo("Failed to apply changeset versions", err=True)
-        sys.exit(1)
-    
+    _run_command(["pnpm", "changeset", "version"], capture=True, check=True)
+
     # Get the updated Python package version from py/package.json (updated by changesets)
     py_package_path = Path("py/package.json")
     if not py_package_path.exists():
         click.echo("Python package.json not found", err=True)
         sys.exit(1)
-    
+
     with open(py_package_path) as f:
         py_package = json.load(f)
-    
+
     new_version = py_package["version"]
-    click.echo(f"Propagating version {new_version} from py/package.json to pyproject.toml files")
-    
     # Update Python pyproject.toml files based on the package.json version
     update_python_versions(new_version)
-    
-    # Lock dependencies
-    lock_python_dependencies()
-    
-    # Validate
-    if not validate_python_versions():
-        click.echo("Version validation failed", err=True)
-        sys.exit(1)
-    
+
     click.echo(f"Successfully propagated version {new_version} to all Python packages")
 
 
 @cli.command()
-def status():
-    """Show current changeset status and version consistency."""
-    changeset_status = get_changeset_status()
-    
-    if changeset_status and changeset_status.get("changesets"):
-        click.echo("Pending changesets found:")
-        for changeset in changeset_status["changesets"]:
-            click.echo(f"  - {changeset.get('summary', 'No summary')}")
-            for release in changeset.get("releases", []):
-                click.echo(f"    {release['name']}: {release['type']}")
-    else:
-        click.echo("No pending changesets")
-    
-    # Check version consistency
-    if validate_python_versions():
-        click.echo("✅ All versions are consistent")
-    else:
-        click.echo("❌ Version inconsistencies detected")
+@click.option("--tag", is_flag=True, help="Tag the packages after publishing")
+def publish(tag: bool):
+    """Publish all packages."""
+    # move to the root
+    os.chdir(Path(__file__).parent.parent)
+    # not general script. Just checks each of the 2 packages to see if they need to be published.
+    maybe_publish_ts_package()
+    maybe_publish_py_packages()
+
+    if tag:
+        _run_command(["npx", "@changesets/cli", "tag"], check=True, capture=True)
 
 
-@cli.command()
-@click.argument("version")
-def set_version(version: str):
-    """Manually set version across all packages."""
+def maybe_publish_ts_package() -> None:
+    """Publish the ts package if it needs to be published."""
+    target_dir = Path("ts/llama_cloud_services")
+    ts_path_package = target_dir / "package.json"
+    package_json = json.loads(ts_path_package.read_text())
+    version = package_json["version"]
+
+    # Check if this version is already published on npm
+    result = _run_command(
+        ["npm", "view", "llama-cloud-services", "versions", "--json"],
+        check=True,
+        capture=True,
+        cwd=target_dir,
+    )
+
+    published_versions = json.loads(result.stdout)
+    if version in published_versions:
+        click.echo(
+            f"Version llama-cloud-services@{version} already published, skipping"
+        )
+        return
+    click.echo(f"Publishing llama-cloud-services@{version}")
+    _run_command(["pnpm", "publish"], check=True, capture=True, cwd=target_dir)
+
+
+def maybe_publish_py_packages() -> None:
+    """Publish the py packages if they need to be published."""
+    for pyproject in Path("py").glob("**/pyproject.toml"):
+        name, version = current_version(pyproject)
+        if is_published(name, version):
+            click.echo(f"{name}@{version} already published, skipping")
+            continue
+        click.echo(f"Publishing {name}@{version}")
+        _run_command(["uv", "publish"], check=True, capture=True, cwd=pyproject.parent)
+
+
+def current_version(pyproject: Path) -> tuple[str, str]:
+    """Return (package_name, version_str) taken from the given pyproject.toml."""
+    doc = tomlkit.parse(pyproject.read_text())
+    name = doc["project"]["name"]
+    version = str(Version(doc["project"]["version"]))  # normalise
+    return name, version
+
+
+def is_published(
+    name: str, version: str, index_url: str = "https://pypi.org/pypi"
+) -> bool:
+    """
+    True  → `<name>==<version>` exists on the given index
+    False → package missing *or* version missing
+    """
+    url = f"{index_url.rstrip('/')}/{name}/json"
     try:
-        # Validate version format
-        Version(version)
-    except Exception:
-        click.echo(f"Invalid version format: {version}", err=True)
-        sys.exit(1)
-    
-    # Update TypeScript package
-    ts_package_path = Path("ts/llama_cloud_services/package.json")
-    if ts_package_path.exists():
-        with open(ts_package_path) as f:
-            ts_package = json.load(f)
-        ts_package["version"] = version
-        with open(ts_package_path, "w") as f:
-            json.dump(ts_package, f, indent=2)
-        click.echo(f"Updated TypeScript package to version {version}")
-    
-    # Update Python packages
-    update_python_versions(version)
-# Python package.json will be updated by changesets
-    
-    # Lock dependencies
-    lock_python_dependencies()
-    
-    # Validate
-    if not validate_python_versions():
-        click.echo("Version validation failed", err=True)
-        sys.exit(1)
-    
-    click.echo(f"Successfully set all packages to version {version}")
-
-
-# Tag command removed - tagging will be handled by GitHub Actions
-
-
-# Publish commands removed - now handled by package.json scripts and changesets
+        data = json.load(urllib.request.urlopen(url))
+    except urllib.error.HTTPError as e:  # 404 → package not published at all
+        if e.code == 404:
+            return False
+        raise  # any other error should surface
+    return version in data["releases"]  # keys are version strings
 
 
 if __name__ == "__main__":
