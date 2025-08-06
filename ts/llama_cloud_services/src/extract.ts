@@ -2,8 +2,8 @@ import { emitWarning } from "process";
 import fs from "fs/promises";
 import { Blob } from "buffer";
 import * as path from "path";
-import { fileTypeFromBuffer } from "file-type";
 import type { ExtractResult } from "./type";
+import { randomUUID } from "@llamaindex/env";
 import { File } from "buffer";
 import {
   type Options,
@@ -174,22 +174,61 @@ export async function getAgent(
   }
 }
 
+function textToFile(text: string, fileName: string | null = null) {
+  return new File(
+    [text],
+    fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+  );
+}
+
 async function uploadFile(
-  filePath: string,
+  filePath: string | undefined = undefined,
+  fileContent:
+    | Buffer<ArrayBufferLike>
+    | File
+    | Uint8Array<ArrayBuffer>
+    | string
+    | undefined = undefined,
+  fileName: string | undefined = undefined,
   project_id: string | null = null,
   organization_id: string | null = null,
   client: Client | undefined = undefined,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<string | undefined> {
-  const buffer = await fs.readFile(filePath);
-  const fileType = await fileTypeFromBuffer(buffer);
-  const mimeType = fileType?.mime ?? "application/pdf";
-  const fileName = path.basename(filePath);
-  const uint8Array = new Uint8Array(buffer);
-  const fileBlob = new File([uint8Array], fileName, { type: mimeType });
+  let file: File | undefined = undefined;
+  if (typeof filePath === "undefined" && typeof fileContent === "undefined") {
+    throw new Error(
+      "One between filePath and fileContent needs to be provided",
+    );
+  } else if (typeof filePath != "undefined") {
+    const buffer = await fs.readFile(filePath);
+    const actualFileName = fileName ?? path.basename(filePath);
+    const uint8Array = new Uint8Array(buffer);
+    file = new File([uint8Array], actualFileName);
+  } else if (typeof fileContent != "undefined") {
+    if (fileContent instanceof File) {
+      file = fileContent;
+    } else if (fileContent instanceof Buffer) {
+      const uint8Array = new Uint8Array(fileContent);
+      file = new File(
+        [uint8Array],
+        fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+      );
+    } else if (fileContent instanceof Uint8Array) {
+      file = new File(
+        [fileContent],
+        fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+      );
+    } else if (typeof fileContent === "string") {
+      file = textToFile(fileContent, fileName);
+    } else {
+      throw new Error("Unsupported fileContent type");
+    }
+  }
+
   const fileToUpload = {
-    upload_file: fileBlob,
+    upload_file: file,
   } as BodyUploadFileApiV1FilesPost;
   const uploadData = {
     body: fileToUpload,
@@ -210,7 +249,7 @@ async function uploadFile(
     let fileId: string | undefined = undefined;
     if (!uploadResponse.response.ok) {
       retries++;
-      await sleep(retryInterval);
+      await sleep(retryInterval * 1000);
     }
     if (typeof uploadResponse.data != "undefined") {
       fileId = uploadResponse.data.id as string;
@@ -225,7 +264,7 @@ async function createExtractJob(
     | Options<ExtractStatelessApiV1ExtractionRunPostData>,
   stateless: boolean = false,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<string | undefined> {
   let retries: number = 0;
   while (true) {
@@ -267,16 +306,16 @@ async function createExtractJob(
         );
       }
       retries++;
-      await sleep(retryInterval);
+      await sleep(retryInterval * 1000);
     }
     if (typeof response.data != "undefined") {
       const jobStatus = response.data.status as StatusEnum;
       if (jobStatus == "CANCELLED") {
         retries++;
-        await sleep(retryInterval);
+        await sleep(retryInterval * 1000);
       } else if (jobStatus == "ERROR") {
         retries++;
-        await sleep(retryInterval);
+        await sleep(retryInterval * 1000);
       } else {
         return response.data.id as string;
       }
@@ -286,8 +325,8 @@ async function createExtractJob(
 
 async function pollForJobCompletion(
   jobId: string,
-  interval: number = 1000,
-  maxIterations: number = 600,
+  interval: number = 1,
+  maxIterations: number = 1800,
   client: Client | undefined = undefined,
 ): Promise<boolean> {
   let status: StatusEnum | undefined = undefined;
@@ -315,7 +354,7 @@ async function pollForJobCompletion(
         return true;
       } else {
         numIterations++;
-        await sleep(interval);
+        await sleep(interval * 1000);
       }
     }
   }
@@ -327,7 +366,7 @@ async function getJobResult(
   project_id: string | null = null,
   organization_id: string | null = null,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<ExtractResult | undefined> {
   const jobData = {
     path: { job_id: jobId },
@@ -356,7 +395,7 @@ async function getJobResult(
         );
       }
       retries++;
-      await sleep(retryInterval);
+      await sleep(retryInterval * 1000);
     }
     if (typeof response.data != "undefined") {
       return {
@@ -369,18 +408,27 @@ async function getJobResult(
 
 export async function extract(
   agentId: string,
-  filePath: string,
+  filePath: string | undefined = undefined,
+  fileContent:
+    | Buffer<ArrayBufferLike>
+    | File
+    | Uint8Array<ArrayBuffer>
+    | string
+    | undefined = undefined,
+  fileName: string | undefined = undefined,
   project_id: string | null = null,
   organization_id: string | null = null,
   client: Client | undefined = undefined,
   fromUi: boolean | undefined = undefined,
-  pollingInterval: number = 1000,
-  maxPollingIterations: number = 600,
+  pollingInterval: number = 1,
+  maxPollingIterations: number = 1800,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<ExtractResult | undefined> {
   const fileId = (await uploadFile(
     filePath,
+    fileContent,
+    fileName,
     project_id,
     organization_id,
     client,
@@ -440,17 +488,26 @@ export async function extractStateless(
       }
     | string,
   config: ExtractConfig = {} as ExtractConfig,
-  filePath: string,
+  filePath: string | undefined = undefined,
+  fileContent:
+    | Buffer<ArrayBufferLike>
+    | File
+    | Uint8Array<ArrayBuffer>
+    | string
+    | undefined = undefined,
+  fileName: string | undefined = undefined,
   project_id: string | null = null,
   organization_id: string | null = null,
   client: Client | undefined = undefined,
-  pollingInterval: number = 1000,
-  maxPollingIterations: number = 600,
+  pollingInterval: number = 1,
+  maxPollingIterations: number = 1800,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<ExtractResult | undefined> {
   const fileId = (await uploadFile(
     filePath,
+    fileContent,
+    fileName,
     project_id,
     organization_id,
     client,
@@ -500,7 +557,7 @@ export async function deleteAgent(
   id: string,
   client: Client | undefined = undefined,
   maxRetriesOnError: number = 10,
-  retryInterval: number = 500,
+  retryInterval: number = 0.5,
 ): Promise<boolean | undefined> {
   const deleteData = {
     path: { extraction_agent_id: id },
@@ -532,7 +589,7 @@ export async function deleteAgent(
         );
       }
       retries++;
-      await sleep(retryInterval);
+      await sleep(retryInterval * 1000);
     } else {
       return true;
     }

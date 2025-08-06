@@ -1,4 +1,5 @@
 import { createClient, createConfig, type Client } from "@hey-api/client-fetch";
+import { File } from "buffer";
 import * as extract from "./extract";
 import type { ExtractAgent, ExtractConfig } from "./extract";
 import { getEnv } from "@llamaindex/env";
@@ -49,18 +50,27 @@ export class LlamaExtractAgent {
   }
 
   async extract(
-    filePath: string,
+    filePath: string | undefined = undefined,
+    fileContent:
+      | Buffer<ArrayBufferLike>
+      | Uint8Array<ArrayBuffer>
+      | string
+      | File
+      | undefined = undefined,
+    fileName: string | undefined = undefined,
     project_id: string | null = null,
     organization_id: string | null = null,
     fromUi: boolean | undefined = undefined,
-    pollingInterval: number = 1000,
-    maxPollingIterations: number = 600,
+    pollingInterval: number = 1,
+    maxPollingIterations: number = 1800,
     maxRetriesOnError: number = 10,
-    retryInterval: number = 500,
+    retryInterval: number = 0.5,
   ): Promise<ExtractResult | undefined> {
     return await extract.extract(
       this.agent.id,
       filePath,
+      fileContent,
+      fileName,
       project_id,
       organization_id,
       this.client,
@@ -160,7 +170,7 @@ export class LlamaExtract {
     );
   }
 
-  async extractStateless(
+  async extract(
     dataSchema:
       | {
           [key: string]:
@@ -174,18 +184,27 @@ export class LlamaExtract {
         }
       | string,
     config: ExtractConfig | undefined = undefined,
-    filePath: string,
+    filePath: string | undefined = undefined,
+    fileContent:
+      | Buffer<ArrayBufferLike>
+      | Uint8Array<ArrayBuffer>
+      | string
+      | File
+      | undefined = undefined,
+    fileName: string | undefined = undefined,
     project_id: string | null = null,
     organization_id: string | null = null,
-    pollingInterval: number = 1000,
-    maxPollingIterations: number = 600,
+    pollingInterval: number = 1,
+    maxPollingIterations: number = 1800,
     maxRetriesOnError: number = 10,
-    retryInterval: number = 500,
+    retryInterval: number = 0.5,
   ): Promise<ExtractResult | undefined> {
     return await extract.extractStateless(
       dataSchema,
       config,
       filePath,
+      fileContent,
+      fileName,
       project_id,
       organization_id,
       this.client,

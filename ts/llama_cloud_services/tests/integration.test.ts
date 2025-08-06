@@ -455,7 +455,7 @@ describe("Integration Tests", () => {
       60000,
     );
     it.skipIf(skipIfNoApiKey)(
-      "should extract data correctly with an agent and delete that agent",
+      "should extract data correctly (file paths and file contents) with an agent and delete that agent",
       async () => {
         const extractClient = new LlamaExtract(
           process.env.LLAMA_CLOUD_API_KEY!,
@@ -471,13 +471,22 @@ describe("Integration Tests", () => {
         expect("data" in result!).toBeTruthy();
         expect("extractionMetadata" in result!).toBeTruthy();
 
+        const buffer = await fs.readFile("test-extract-agent.md");
+        const resultBuffer = await agent!.extract(
+          undefined,
+          buffer,
+          "test-extract-agent",
+        );
+        expect("data" in resultBuffer!).toBeTruthy();
+        expect("extractionMetadata" in resultBuffer!).toBeTruthy();
+
         const success = await extractClient.deleteAgent(agent!.id);
         expect(success).toBeTruthy();
       },
       60000,
     );
     it.skipIf(skipIfNoApiKey)(
-      "should extract statelessly",
+      "should extract statelessly file paths and file contents",
       async () => {
         const dataSchema = {
           properties: {
@@ -500,13 +509,23 @@ describe("Integration Tests", () => {
           process.env.LLAMA_CLOUD_API_KEY!,
           "https://api.cloud.llamaindex.ai",
         );
-        const result = await extractClient.extractStateless(
+        const result = await extractClient.extract(
           dataSchema,
           {} as ExtractConfig,
           "test-extract.md",
         );
         expect("data" in result!).toBeTruthy();
         expect("extractionMetadata" in result!).toBeTruthy();
+
+        const buffer = await fs.readFile("test-extract.md");
+        const resultBuffer = await extractClient.extract(
+          dataSchema,
+          {} as ExtractConfig,
+          undefined,
+          buffer,
+        ); // testing without passing a file name
+        expect("data" in resultBuffer!).toBeTruthy();
+        expect("extractionMetadata" in resultBuffer!).toBeTruthy();
       },
       60000,
     );
