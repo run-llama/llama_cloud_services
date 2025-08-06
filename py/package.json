@@ -4,11 +4,8 @@
   "private": "true",
   "license": "MIT",
   "scripts": {
-    "version": "cd .. && pnpm changeset version && bash py/scripts/new_version.sh",
-    "release": "bash scripts/release.sh"
-  },
-  "devDependencies": {
-    "@changesets/cli": "^2.29.5",
-    "changesets": "^1.0.2"
+    "build": "uv build && cd llama_parse && uv build",
+    "prepublishOnly": "npm run build",
+    "publish": "bash -c 'TOKEN=${LLAMA_PARSE_PYPI_TOKEN:-$UV_PUBLISH_TOKEN}; uv publish --token $TOKEN && cd llama_parse && uv publish --token $TOKEN'"
   }
 }

@@ -50,13 +50,13 @@ pytest tests/ unit_tests/
 
 ### Pre-Commit Versioning
 
-Once you made your changes and tested them, **prior to committing** you should run (from the root folder) this command to automatically bump the version of python packages:
+Once you made your changes and tested them, **prior to committing** you should create a changeset to document your changes:
 
 ```bash
 pnpm pre-commit-version
 ```
 
-this will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `@llama_cloud_services/py` for python and choose the version bump according to the type of changing you made.
+This will prompt you to describe your changes and select the appropriate version bump type. The changeset system will automatically handle version bumps for both TypeScript and Python packages when your PR is merged.
 
 ### Pre-commit checks
 
@@ -101,13 +101,13 @@ pnpm test
 
 ### Pre-Commit Versioning
 
-Once you made your changes and tested them, **prior to committing** you should run (from the root folder) two commands to automatically bump the version of python packages:
+Once you made your changes and tested them, **prior to committing** you should create a changeset:
 
 ```bash
 pnpm pre-commit-version
 ```
 
-This will prompt you to choose what package's version you want to bump and what kind of bump you want to perform. Choose `llama-cloud-services` for TypeScript and choose the version bump according to the type of changing you made.
+This will prompt you to describe your changes and select the appropriate version bump type. The changeset system will automatically handle version bumps for both TypeScript and Python packages when your PR is merged.
 
 ### Pre-commit checks
 
@@ -121,46 +121,46 @@ The files will be then automatically linted and formatted according to the requi
 
 ## TypeScript _and_ Python
 
-If you change **both PY and TS**, for versioning run:
+If you change **both PY and TS**, create a changeset as normal:
 
 ```bash
-pnpm pre-commit-version # choose both packages
+pnpm pre-commit-version
 ```
+
+The changeset system will automatically detect that both packages should be updated.
 
 ## Release (maintainers only)
 
-Every push to main might trigger a release.
+The release process is now automated using changesets:
 
-Whether a release is pushed out or not depends on the presence of versioning files in `.changesets`: if you want a release to be packaged, then, you need to always run `pnpm pre-commit-version` prior to merging a pull request into main. See [version_bump_and_release](./.github/workflows/version_bump_and_release.yml) action to better understand the process.
+1. **Version Bump PRs**: When changesets are present on main, a version bump PR is automatically created
+2. **Release**: When the version bump PR is merged, tags are created and packages are published automatically
 
-You can, nevertheless, manually set up language-specific releases, using the logic reported below.
+### Manual Release
 
-### Python
-
-To release `llama-cloud-services` and `llama-parse` in Python, run:
-
-```bash
-git checkout main
-git pull
-git tag <your-version> # e.g. v0.7.0
-git push <your-version>
-```
-
-> [!NOTE]
->
-> The tag must start with `v`
-
-This will trigger the release workflow automatically.
-
-### TypeScript
-
-To release `llama-cloud-services` in TypeScript, run:
+For manual releases, create tags manually:
 
 ```bash
-git checkout main
-git pull
-git tag llama-cloud-services@<your-version> # e.g. llama-cloud-services@0.3.0
-git push origin llama-cloud-services@<your-version>
+# Create and push tags to trigger release workflows
+git tag v0.7.0
+git tag llama-cloud-services@0.7.0
+git push origin v0.7.0 llama-cloud-services@0.7.0
 ```
 
-This will trigger the release workflow automatically.
+### Manual Version Management
+
+For testing or manual version management:
+
+```bash
+# Check version status
+./scripts/changeset-version.py status
+
+# Set a specific version across all packages
+./scripts/changeset-version.py set-version 0.7.0
+
+# Apply pending changesets (propagates to Python packages)
+./scripts/changeset-version.py apply
+
+# Build and publish all packages (uses changesets)
+pnpm release
+```

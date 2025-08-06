@@ -13,7 +13,7 @@
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "version": "cd .. && pnpm changeset version",
+    "version": "echo 'Version managed by root changeset script'",
     "release": "pnpm run build && cd .. && pnpm changeset publish"
   },
   "files": [
