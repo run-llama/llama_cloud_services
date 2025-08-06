@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version-file: "ts/.nvmrc"
-          cache: 'pnpm'
+          cache: "pnpm"
 
       - name: Setup Python
         uses: actions/setup-python@v5

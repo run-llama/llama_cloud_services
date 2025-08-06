@@ -7,7 +7,7 @@
 This is a script called by the changeset bot. Normally changeset can do the following things, but this is a mixed ts and python repo, so we need to do some extra things.
 
 There's 2 things this does:
-- Versioning: Makes changes that may be commited with the newest version.
+- Versioning: Makes changes that may be committed with the newest version.
 - Releasing/Tagging: After versions are changed, we check each package to see if its released, and if not, we release it and tag it.
 
 """
@@ -81,13 +81,13 @@ def lock_python_dependencies() -> None:
 
 
 @click.group()
-def cli():
+def cli() -> None:
     """Changeset-based version management for llama-cloud-services."""
     pass
 
 
 @cli.command()
-def version():
+def version() -> None:
     """Apply changeset versions, and propagate them to Python packages."""
     # First, run changeset version to update all package.json files (including py/package.json)
     _run_command(["pnpm", "changeset", "version"], capture=True, check=True)
@@ -110,7 +110,7 @@ def version():
 
 @cli.command()
 @click.option("--tag", is_flag=True, help="Tag the packages after publishing")
-def publish(tag: bool):
+def publish(tag: bool) -> None:
     """Publish all packages."""
     # move to the root
     os.chdir(Path(__file__).parent.parent)
@@ -157,7 +157,9 @@ def maybe_publish_ts_package() -> None:
         return
     click.echo(f"Publishing llama-cloud-services@{version}")
     # defer to the package.json publish script
-    output = _run_command(["pnpm", "run" "publish"], check=True, capture=True, cwd=target_dir)
+    output = _run_command(
+        ["pnpm", "run" "publish"], check=True, capture=True, cwd=target_dir
+    )
     click.echo(output.stdout)
 
 
@@ -169,23 +171,23 @@ def maybe_publish_py_packages() -> None:
             click.echo(f"{name}@{version} already published, skipping")
             continue
         click.echo(f"Publishing {name}@{version}")
-        
+
         # Use different tokens for different packages
         env = os.environ.copy()
         if name == "llama-parse":
             # llama-parse uses its own token
-            env["UV_PUBLISH_TOKEN"] = os.getenv("LLAMA_PARSE_PYPI_TOKEN")
+            env["UV_PUBLISH_TOKEN"] = os.environ["LLAMA_PARSE_PYPI_TOKEN"]
         else:
             # llama-cloud-services uses the main PyPI token
-            env["UV_PUBLISH_TOKEN"] = os.getenv("UV_PUBLISH_TOKEN")
-        
+            env["UV_PUBLISH_TOKEN"] = os.environ["UV_PUBLISH_TOKEN"]
+
         result = subprocess.run(
-            ["uv", "publish"], 
-            check=True, 
-            capture_output=True, 
-            text=True, 
+            ["uv", "publish"],
+            check=True,
+            capture_output=True,
+            text=True,
             cwd=pyproject.parent,
-            env=env
+            env=env,
         )
         click.echo(result.stdout)
 

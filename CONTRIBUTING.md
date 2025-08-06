@@ -43,6 +43,7 @@ This will prompt you to describe your changes and select the appropriate version
 Ensure your code meets linting and formatting requirements:
 
 **For Python changes:**
+
 ```bash
 # Install pre-commit (one-time setup)
 pip install pre-commit
@@ -52,6 +53,7 @@ pre-commit install
 ```
 
 **For TypeScript changes:**
+
 ```bash
 # Run from the root folder
 pnpm pre-commit
@@ -85,8 +87,6 @@ Tests are found in `py/tests/` (end to end) and `py/unit_tests/` (unit tests, no
 pytest tests/ unit_tests/
 ```
 
-
-
 ## TypeScript
 
 ### Set Up
@@ -117,13 +117,9 @@ Tests are found in `ts/llama_cloud_services/tests/` and you can execute them wit
 pnpm test
 ```
 
-
-
-
 ## Release (maintainers only)
 
 The release process is now automated using changesets:
 
 1. **Version Bump PRs**: When changesets are present on main, a version bump PR is automatically created
 2. **Release**: When the version bump PR is merged, tags are created and packages are published automatically
-
