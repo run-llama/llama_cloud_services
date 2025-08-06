@@ -23,6 +23,43 @@ In order to open a valid pull request:
 - Add and commit the changes to the secondary branch, following language-specific logic (see below)
 - When the changes are pushed to your branch, open a pull request
 
+## Pre-commit Requirements
+
+Before committing your changes, you need to complete two important steps:
+
+### 1. Create a Changeset
+
+Document your changes by creating a changeset:
+
+```bash
+npx @changesets/cli add
+# or `pnpm pre-commit-version`
+```
+
+This will prompt you to describe your changes and select the appropriate version bump type. The changeset system will automatically handle version bumps for both TypeScript and Python packages when your PR is merged.
+
+### 2. Run Pre-commit Checks
+
+Ensure your code meets linting and formatting requirements:
+
+**For Python changes:**
+```bash
+# Install pre-commit (one-time setup)
+pip install pre-commit
+pre-commit install
+
+# Files will be automatically linted/formatted on commit
+```
+
+**For TypeScript changes:**
+```bash
+# Run from the root folder
+pnpm pre-commit
+```
+
+**For mixed Python and TypeScript changes:**
+Run both the pre-commit tool (for Python) and `pnpm pre-commit` (for TypeScript).
+
 ## Python
 
 ### Set Up
@@ -48,26 +85,7 @@ Tests are found in `py/tests/` (end to end) and `py/unit_tests/` (unit tests, no
 pytest tests/ unit_tests/
 ```
 
-### Pre-Commit Versioning
 
-Once you made your changes and tested them, **prior to committing** you should create a changeset to document your changes:
-
-```bash
-pnpm pre-commit-version
-```
-
-This will prompt you to describe your changes and select the appropriate version bump type. The changeset system will automatically handle version bumps for both TypeScript and Python packages when your PR is merged.
-
-### Pre-commit checks
-
-Before you commit, your files should pass the linting and formatting requirements. In order to do that, you should have `pre-commit` installed and set-up in your repository:
-
-```bash
-pip install pre-commit
-pre-commit install
-```
-
-Once you have that set up, the files will be automatically linted and formatted according to the requirements.
 
 ## TypeScript
 
@@ -99,35 +117,8 @@ Tests are found in `ts/llama_cloud_services/tests/` and you can execute them wit
 pnpm test
 ```
 
-### Pre-Commit Versioning
 
-Once you made your changes and tested them, **prior to committing** you should create a changeset:
 
-```bash
-pnpm pre-commit-version
-```
-
-This will prompt you to describe your changes and select the appropriate version bump type. The changeset system will automatically handle version bumps for both TypeScript and Python packages when your PR is merged.
-
-### Pre-commit checks
-
-Before you commit, your files should pass the linting and formatting requirements. In order to do that, run (from the root folder):
-
-```bash
-pnpm pre-commit
-```
-
-The files will be then automatically linted and formatted according to the requirements.
-
-## TypeScript _and_ Python
-
-If you change **both PY and TS**, create a changeset as normal:
-
-```bash
-pnpm pre-commit-version
-```
-
-The changeset system will automatically detect that both packages should be updated.
 
 ## Release (maintainers only)
 
@@ -136,31 +127,3 @@ The release process is now automated using changesets:
 1. **Version Bump PRs**: When changesets are present on main, a version bump PR is automatically created
 2. **Release**: When the version bump PR is merged, tags are created and packages are published automatically
 
-### Manual Release
-
-For manual releases, create tags manually:
-
-```bash
-# Create and push tags to trigger release workflows
-git tag v0.7.0
-git tag llama-cloud-services@0.7.0
-git push origin v0.7.0 llama-cloud-services@0.7.0
-```
-
-### Manual Version Management
-
-For testing or manual version management:
-
-```bash
-# Check version status
-./scripts/changeset-version.py status
-
-# Set a specific version across all packages
-./scripts/changeset-version.py set-version 0.7.0
-
-# Apply pending changesets (propagates to Python packages)
-./scripts/changeset-version.py apply
-
-# Build and publish all packages (uses changesets)
-pnpm release
-```
