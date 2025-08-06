@@ -1,0 +1,19 @@
+{
+  "name": "llama_cloud_services",
+  "version": "1.0.0",
+  "private": "true",
+  "license": "MIT",
+  "scripts": {
+    "pre-commit-version": "pnpm changeset",
+    "version": "pnpm version-ts && pnpm version-py",
+    "release": "pnpm release-ts && pnpm release-py",
+    "release-ts": "pnpm run --filter llama-cloud-services release",
+    "release-py": "pnpm run --filter @llama_cloud_services/py release",
+    "version-ts": "pnpm run --filter llama-cloud-services version",
+    "version-py": "pnpm run --filter @llama_cloud_services/py version"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5",
+    "changesets": "^1.0.2"
+  }
+}

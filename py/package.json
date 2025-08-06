@@ -1,0 +1,14 @@
+{
+  "name": "@llama_cloud_services/py",
+  "version": "0.6.55",
+  "private": "true",
+  "license": "MIT",
+  "scripts": {
+    "version": "cd .. && pnpm changeset version && bash py/scripts/new_version.sh",
+    "release": "bash scripts/release.sh"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.5",
+    "changesets": "^1.0.2"
+  }
+}
