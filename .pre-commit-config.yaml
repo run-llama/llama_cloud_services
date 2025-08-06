@@ -15,6 +15,7 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: trailing-whitespace
+        exclude: ^ts/llama_cloud_services/src/client/
   - repo: https://github.com/charliermarsh/ruff-pre-commit
     rev: v0.1.5
 
@@ -33,7 +34,7 @@ repos:
     rev: v1.0.1
     hooks:
       - id: mypy
-        exclude: ^py/tests/
+        exclude: ^py/tests|^py/unit_tests
         additional_dependencies:
           [
             "types-requests",

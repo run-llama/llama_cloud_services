@@ -4,8 +4,11 @@ LlamaExtract provides a simple API for extracting structured data from unstructu
 
 ## Quick Start
 
+The simplest way to get started is to use the stateless API with the extraction configuration and the file/text to extract from:
+
 ```python
 from llama_cloud_services import LlamaExtract
+from llama_cloud import ExtractConfig, ExtractMode
 from pydantic import BaseModel, Field
 
 # Initialize client
@@ -19,29 +22,87 @@ class Resume(BaseModel):
     skills: list[str] = Field(description="Technical skills and technologies")
 
 
-# Create extraction agent
-agent = extractor.create_agent(name="resume-parser", data_schema=Resume)
+# Configure extraction settings
+config = ExtractConfig(extraction_mode=ExtractMode.FAST)
 
-# Extract data from document
-result = agent.extract("resume.pdf")
+# Extract data directly from document - no agent needed!
+result = extractor.extract(Resume, config, "resume.pdf")
 print(result.data)
+```
+
+### Supported File Types
+
+LlamaExtract supports the following file formats:
+
+- **Documents**: PDF (.pdf), Word (.docx)
+- **Text files**: Plain text (.txt), CSV (.csv), JSON (.json), HTML (.html, .htm), Markdown (.md)
+- **Images**: PNG (.png), JPEG (.jpg, .jpeg)
+
+### Different Input Types
+
+```python
+# From file path (string or Path)
+result = extractor.extract(Resume, config, "resume.pdf")
+
+# From file handle
+with open("resume.pdf", "rb") as f:
+    result = extractor.extract(Resume, config, f)
+
+# From bytes with filename
+with open("resume.pdf", "rb") as f:
+    file_bytes = f.read()
+from llama_cloud_services.extract import SourceText
+
+result = extractor.extract(
+    Resume, config, SourceText(file=file_bytes, filename="resume.pdf")
+)
+
+# From text content
+text = "Name: John Doe\nEmail: john@example.com\nSkills: Python, AI"
+result = extractor.extract(Resume, config, SourceText(text_content=text))
+```
+
+### Async Extraction
+
+For better performance with multiple files or when integrating with async applications:
+
+```python
+import asyncio
+
+
+async def extract_resumes():
+    # Async extraction
+    result = await extractor.aextract(Resume, config, "resume.pdf")
+    print(result.data)
+
+    # Queue extraction jobs (returns immediately)
+    jobs = await extractor.queue_extraction(
+        Resume, config, ["resume1.pdf", "resume2.pdf"]
+    )
+    print(f"Queued {len(jobs)} extraction jobs")
+
+
+# Run async function
+asyncio.run(extract_resumes())
 ```
 
 ## Core Concepts
 
-- **Extraction Agents**: Reusable extractors configured with a specific schema and extraction settings.
 - **Data Schema**: Structure definition for the data you want to extract in the form of a JSON schema or a Pydantic model.
+- **Extraction Config**: Settings that control how extraction is performed (e.g., speed vs accuracy trade-offs).
 - **Extraction Jobs**: Asynchronous extraction tasks that can be monitored.
+- **Extraction Agents** (Advanced): Reusable extractors configured with a specific schema and extraction settings.
 
 ## Defining Schemas
 
-Schemas can be defined using either Pydantic models or JSON Schema:
+Schemas define the structure of data you want to extract. You can use either Pydantic models or JSON Schema:
 
 ### Using Pydantic (Recommended)
 
 ```python
 from pydantic import BaseModel, Field
 from typing import List, Optional
+from llama_cloud import ExtractConfig, ExtractMode
 
 
 class Experience(BaseModel):
@@ -54,6 +115,11 @@ class Experience(BaseModel):
 class Resume(BaseModel):
     name: str = Field(description="Candidate name")
     experience: List[Experience] = Field(description="Work history")
+
+
+# Use the schema for extraction
+config = ExtractConfig(extraction_mode=ExtractMode.FAST)
+result = extractor.extract(Resume, config, "resume.pdf")
 ```
 
 ### Using JSON Schema
@@ -88,7 +154,27 @@ schema = {
     },
 }
 
-agent = extractor.create_agent(name="resume-parser", data_schema=schema)
+# Use the schema for extraction
+config = ExtractConfig(extraction_mode=ExtractMode.FAST)
+result = extractor.extract(schema, config, "resume.pdf")
+```
+
+## Extraction Configuration
+
+Configure how extraction is performed using `ExtractConfig`:
+
+```python
+from llama_cloud import ExtractConfig, ExtractMode
+
+# Fast extraction (lower accuracy, faster processing)
+fast_config = ExtractConfig(extraction_mode=ExtractMode.FAST)
+
+# Balanced extraction (good balance of speed and accuracy)
+balanced_config = ExtractConfig(extraction_mode=ExtractMode.BALANCED)
+
+# Use different configs for different needs
+result = extractor.extract(schema, fast_config, "simple_document.pdf")
+result = extractor.extract(schema, balanced_config, "complex_document.pdf")
 ```
 
 ### Important restrictions on JSON/Pydantic Schema
@@ -108,28 +194,44 @@ be sufficient for a wide variety of use-cases.
   your extraction workflow to fit within these constraints, e.g. by extracting subset of fields
   and later merging them together.
 
-## Other Extraction APIs
+## Extraction Agents (Advanced)
 
-### Extraction over bytes or text
+For reusable extraction workflows, you can create extraction agents that encapsulate both schema and configuration:
 
-You can use the `SourceText` class to extract from bytes or text directly without using a file. If passing the file bytes,
-you will need to pass the filename to the `SourceText` class.
-
-```python
-with open("resume.pdf", "rb") as f:
-    file_bytes = f.read()
-result = test_agent.extract(SourceText(file=file_bytes, filename="resume.pdf"))
-```
+### Creating Agents
 
 ```python
-result = test_agent.extract(
-    SourceText(text_content="Candidate Name: Jane Doe")
+from llama_cloud_services import LlamaExtract
+from llama_cloud import ExtractConfig, ExtractMode
+from pydantic import BaseModel, Field
+
+# Initialize client
+extractor = LlamaExtract()
+
+
+# Define schema
+class Resume(BaseModel):
+    name: str = Field(description="Full name of candidate")
+    email: str = Field(description="Email address")
+    skills: list[str] = Field(description="Technical skills and technologies")
+
+
+# Configure extraction settings
+config = ExtractConfig(extraction_mode=ExtractMode.FAST)
+
+# Create extraction agent
+agent = extractor.create_agent(
+    name="resume-parser", data_schema=Resume, config=config
 )
+
+# Use the agent
+result = agent.extract("resume.pdf")
+print(result.data)
 ```
 
-### Batch Processing
+### Agent Batch Processing
 
-Process multiple files asynchronously:
+Process multiple files with an agent:
 
 ```python
 # Queue multiple files for extraction
@@ -144,7 +246,7 @@ for job in jobs:
 results = [agent.get_extraction_run_for_job(job.id) for job in jobs]
 ```
 
-### Updating Schemas
+### Updating Agent Schemas
 
 Schemas can be modified and updated after creation:
 
@@ -169,10 +271,26 @@ agent = extractor.get_agent(name="resume-parser")
 extractor.delete_agent(agent.id)
 ```
 
+### When to Use Agents vs Direct Extraction
+
+**Use Direct Extraction When:**
+
+- One-off extractions
+- Different schemas for different documents
+- Simple workflows
+- Getting started quickly
+
+**Use Extraction Agents When:**
+
+- Repeated extractions with the same schema
+- Team collaboration (shared, named extractors)
+- Complex workflows requiring state management
+- Production systems with consistent extraction patterns
+
 ## Installation
 
 ```bash
-pip install llama-extract==0.1.0
+pip install llama-cloud-services
 ```
 
 ## Tips & Best Practices
@@ -193,9 +311,9 @@ At the core of LlamaExtract is the schema, which defines the structure of the da
 2. **Running Extractions**:
    - Note that resetting `agent.schema` will not save the schema to the database,
      until you call `agent.save`, but it will be used for running extractions.
-   - Check job status prior to accessing results. Any extraction error should be available as
-     part of `job.error` or `extraction_run.error` fields for debugging.
-   - Consider async operations (`queue_extraction`) for large-scale extraction once you have finalized your schema.
+   - Check extraction results for any errors. Error information is available in the `result.error` field for debugging.
+   - Consider async operations (`aextract` or `queue_extraction`) for large-scale extraction or when processing multiple files.
+   - For repeated extractions with the same schema, consider creating an extraction agent to avoid redefining the schema each time.
 
 ### Hitting "The response was too long to be processed" Error
 

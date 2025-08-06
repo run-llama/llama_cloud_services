@@ -16,7 +16,6 @@ from llama_cloud import (
 from llama_cloud.client import LlamaCloud
 from llama_index.core.bridge.pydantic import BaseModel
 from llama_index.core.constants import DEFAULT_BASE_URL
-from llama_index.core.indices.managed.base import BaseManagedIndex
 from llama_index.core.schema import Document, ImageNode
 from llama_cloud_services.index import (
     LlamaCloudIndex,
@@ -91,16 +90,6 @@ def _setup_index_with_file(
     )
 
     return pipeline
-
-
-def test_class():
-    names_of_base_classes = [b.__name__ for b in LlamaCloudIndex.__mro__]
-    assert BaseManagedIndex.__name__ in names_of_base_classes
-
-
-def test_conflicting_index_identifiers():
-    with pytest.raises(ValueError):
-        LlamaCloudIndex(name="test", pipeline_id="test", index_id="test")
 
 
 @pytest.mark.skipif(

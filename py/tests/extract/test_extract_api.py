@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic import BaseModel
 
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent, SourceText
+from llama_cloud.types import ExtractConfig, ExtractMode, ExtractRun
 from tests.extract.util import load_test_dotenv
 from .conftest import register_agent_for_cleanup
 
@@ -21,7 +22,7 @@ pytestmark = pytest.mark.skipif(
 
 
 # Test data
-class TestSchema(BaseModel):
+class ExampleSchema(BaseModel):
     title: str
     summary: str
 
@@ -107,7 +108,7 @@ class TestLlamaExtract:
         assert isinstance(test_agent, ExtractionAgent)
 
     @pytest.mark.agent_name("test-pydantic-schema-agent")
-    @pytest.mark.agent_schema((TestSchema,))
+    @pytest.mark.agent_schema((ExampleSchema,))
     def test_create_agent_with_pydantic_schema(self, test_agent):
         assert isinstance(test_agent, ExtractionAgent)
 
@@ -222,7 +223,189 @@ class TestExtractionAgent:
 
     def test_delete_extraction_run(self, test_agent: ExtractionAgent):
         assert test_agent.list_extraction_runs().total == 0
-        run = test_agent.extract(TEST_PDF)
+        run: ExtractRun = test_agent.extract(TEST_PDF)
         test_agent.delete_extraction_run(run.id)
         runs = test_agent.list_extraction_runs()
         assert runs.total == 0
+
+
+@pytest.mark.skipif(
+    "CI" in os.environ, reason="Test locally; functionality is mostly duplicated."
+)
+class TestStatelessExtraction:
+    """Tests for stateless extraction methods that don't require creating an agent."""
+
+    @pytest.fixture
+    def test_config(self):
+        return ExtractConfig(extraction_mode=ExtractMode.FAST)
+
+    @pytest.fixture
+    def test_schema_dict(self):
+        return {
+            "type": "object",
+            "properties": {
+                "title": {"type": "string"},
+                "summary": {"type": "string"},
+            },
+        }
+
+    @pytest.mark.asyncio
+    async def test_aextract_single_file(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test async stateless extraction with a single file."""
+        result = await llama_extract.aextract(test_schema_dict, test_config, TEST_PDF)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_single_file(self, llama_extract, test_schema_dict, test_config):
+        """Test synchronous stateless extraction with a single file."""
+        result = llama_extract.extract(test_schema_dict, test_config, TEST_PDF)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_from_bytes_with_source_text(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test stateless extraction from bytes using SourceText with filename."""
+        with open(TEST_PDF, "rb") as f:
+            file_bytes = f.read()
+        source_text = SourceText(file=file_bytes, filename=TEST_PDF.name)
+        result = llama_extract.extract(test_schema_dict, test_config, source_text)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_from_source_text_with_file(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test stateless extraction from SourceText with file."""
+        source_text = SourceText(file=TEST_PDF, filename=TEST_PDF.name)
+        result = llama_extract.extract(test_schema_dict, test_config, source_text)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_from_buffered_io(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test stateless extraction from BufferedIO file handle."""
+        with open(TEST_PDF, "rb") as file_handle:
+            result = llama_extract.extract(test_schema_dict, test_config, file_handle)
+            assert result.status == "SUCCESS"
+            assert result.data is not None
+            assert isinstance(result.data, dict)
+            assert "title" in result.data
+            assert "summary" in result.data
+
+    def test_extract_from_source_text_with_text_content(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test stateless extraction from SourceText with text content."""
+        TEST_TEXT = """
+        # Llamas
+        Llamas are social animals and live with others as a herd. Their wool is soft and
+        contains only a small amount of lanolin. Llamas can learn simple tasks after a
+        few repetitions. When using a pack, they can carry about 25 to 30% of their body
+        weight for 8 to 13 km (5–8 miles). The name llama was adopted by European settlers
+        from native Peruvians.
+        """
+        source_text = SourceText(text_content=TEST_TEXT)
+        result = llama_extract.extract(test_schema_dict, test_config, source_text)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    @pytest.mark.asyncio
+    async def test_queue_extraction_single_file(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test queuing extraction job without waiting for completion."""
+        job = await llama_extract.queue_extraction(
+            test_schema_dict, test_config, TEST_PDF
+        )
+        assert hasattr(job, "id")
+        assert hasattr(job, "status")
+
+    @pytest.mark.asyncio
+    async def test_extract_multiple_files(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test stateless extraction with multiple files."""
+        files = [TEST_PDF, TEST_PDF]  # Using same file twice for testing
+        results = await llama_extract.aextract(test_schema_dict, test_config, files)
+
+        assert isinstance(results, list)
+        assert len(results) == 2
+
+        for result in results:
+            assert result.status == "SUCCESS"
+            assert result.data is not None
+            assert isinstance(result.data, dict)
+            assert "title" in result.data
+            assert "summary" in result.data
+
+    def test_extract_with_pydantic_schema(self, llama_extract, test_config):
+        """Test stateless extraction with Pydantic schema."""
+        result = llama_extract.extract(ExampleSchema, test_config, TEST_PDF)
+        assert result.status == "SUCCESS"
+        assert result.data is not None
+        assert isinstance(result.data, dict)
+        assert "title" in result.data
+        assert "summary" in result.data
+
+    def test_extract_from_raw_bytes_raises_error(
+        self, llama_extract, test_schema_dict, test_config
+    ):
+        """Test that raw bytes without filename raises an error."""
+        with open(TEST_PDF, "rb") as f:
+            file_bytes = f.read()
+
+        with pytest.raises(
+            ValueError, match="Cannot determine file type from raw bytes"
+        ):
+            llama_extract.extract(test_schema_dict, test_config, file_bytes)
+
+    def test_mime_type_detection(self, llama_extract):
+        """Test that MIME types are correctly detected for various file types."""
+        # Test PDF
+        assert llama_extract._get_mime_type(filename="test.pdf") == "application/pdf"
+
+        # Test DOCX
+        assert (
+            llama_extract._get_mime_type(filename="test.docx")
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        )
+
+        # Test text files
+        assert llama_extract._get_mime_type(filename="test.txt") == "text/plain"
+        assert llama_extract._get_mime_type(filename="test.csv") == "text/csv"
+        assert llama_extract._get_mime_type(filename="test.json") == "application/json"
+
+        # Test image files
+        assert llama_extract._get_mime_type(filename="test.png") == "image/png"
+        assert llama_extract._get_mime_type(filename="test.jpg") == "image/jpeg"
+
+        # Test file path
+        from pathlib import Path
+
+        assert (
+            llama_extract._get_mime_type(file_path=Path("test.pdf"))
+            == "application/pdf"
+        )
+
+        # Test unsupported file type
+        with pytest.raises(ValueError, match="Unsupported file type: 'xyz'"):
+            llama_extract._get_mime_type(filename="test.xyz")

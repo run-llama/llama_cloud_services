@@ -1,26 +1,22 @@
-name: Test - Python
+name: Test end-to-end - Python
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "py/**"
   pull_request:
     paths:
       - "py/**"
 
 env:
   UV_VERSION: "0.7.20"
+  LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
-  test:
+  test_e2e:
     runs-on: ubuntu-latest
     strategy:
       # You can use PyPy versions in python-version.
       # For example, pypy-2.7 and pypy-3.8
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,7 +31,7 @@ jobs:
 
       - name: Run Tests
         working-directory: py
-        run: uv run pytest unit_tests/ -v
+        run: uv run pytest unit_tests/ tests/ -v
 
       - name: Remove virtual environment
         working-directory: py
