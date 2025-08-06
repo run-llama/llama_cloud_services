@@ -125,6 +125,8 @@ export class LlamaExtract {
     config: ExtractConfig | undefined = undefined,
     project_id: string | null = null,
     organization_id: string | null = null,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 0.5,
   ): Promise<LlamaExtractAgent | undefined> {
     const agent = await extract.createAgent(
       name,
@@ -133,6 +135,8 @@ export class LlamaExtract {
       project_id,
       organization_id,
       this.client,
+      maxRetriesOnError,
+      retryInterval,
     );
     if (typeof agent != "undefined") {
       return new LlamaExtractAgent(agent, this.client);
@@ -144,6 +148,8 @@ export class LlamaExtract {
     id: string | undefined = undefined,
     project_id: string | null = null,
     organization_id: string | null = null,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 0.5,
   ): Promise<LlamaExtractAgent | undefined> {
     const agent = await extract.getAgent(
       id,
@@ -151,6 +157,8 @@ export class LlamaExtract {
       project_id,
       organization_id,
       this.client,
+      maxRetriesOnError,
+      retryInterval,
     );
     if (typeof agent != "undefined") {
       return new LlamaExtractAgent(agent, this.client);

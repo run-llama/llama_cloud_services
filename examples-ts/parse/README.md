@@ -40,8 +40,8 @@ A TypeScript demo application showcasing the power of **LlamaParse** - an intell
 1. Clone the repository:
 
 ```bash
-git clone <repository-url>
-cd llamaparse-demo
+git clone https://github.com/run-llama/llama_cloud_services
+cd lama_cloud_services/examples-ts/parse/
 ```
 
 2. Install dependencies:
@@ -113,12 +113,12 @@ pnpm run lint
 
 ## License
 
-MIT License - see the [LICENSE](../../../LICENSE) file for details.
+MIT License - see the [LICENSE](../../LICENSE) file for details.
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run `pnpm format` and `pnpm lint`
+4. Run `pnpm run format` and `pnpm run lint`
 5. Submit a pull request

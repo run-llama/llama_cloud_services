@@ -59,6 +59,8 @@ export async function createAgent(
   project_id: string | null = null,
   organization_id: string | null = null,
   client: Client | undefined = undefined,
+  maxRetriesOnError: number = 10,
+  retryInterval: number = 0.5,
 ): Promise<ExtractAgent | undefined> {
   const agentData = {
     name: name,
@@ -74,18 +76,28 @@ export async function createAgent(
   if (typeof client != "undefined") {
     options.client = client;
   }
-  const response =
-    await createExtractionAgentApiV1ExtractionExtractionAgentsPost(options);
-  if (!response.response.ok) {
-    if ("error" in response) {
+  let retries: number = 0;
+  while (true) {
+    if (retries > maxRetriesOnError) {
       throw new Error(
-        `An error occurred while creating the extraction agent.\nDetails:\n\n${JSON.stringify(
-          response.error,
-        )}\n\n`,
+        "Error while creating the agent: Exceeded maximum number of retries, the API keeps returning errors.",
       );
     }
-  } else {
-    return response.data as ExtractAgent;
+    const response =
+      await createExtractionAgentApiV1ExtractionExtractionAgentsPost(options);
+    if (!response.response.ok) {
+      if ("error" in response) {
+        console.log(
+          `An error occurred while creating the extraction agent.\nDetails:\n\n${JSON.stringify(
+            response.error,
+          )}\n\nRetrying...`,
+        );
+      }
+      retries++;
+      await sleep(retryInterval * 1000);
+    } else {
+      return response.data as ExtractAgent;
+    }
   }
 }
 
@@ -95,6 +107,8 @@ export async function getAgent(
   project_id: string | null = null,
   organization_id: string | null = null,
   client: Client | undefined = undefined,
+  maxRetriesOnError: number = 10,
+  retryInterval: number = 0.5,
 ): Promise<ExtractAgent | undefined> {
   if (typeof id === "undefined" && typeof name === "undefined") {
     throw new Error("One of `id` and `string` must be passed.");
@@ -108,20 +122,30 @@ export async function getAgent(
     if (typeof client != "undefined") {
       options.client = client;
     }
-    const response =
-      await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
-        options,
-      );
-    if (!response.response.ok) {
-      if ("error" in response) {
+    let retries: number = 0;
+    while (true) {
+      if (retries > maxRetriesOnError) {
         throw new Error(
-          `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
-            response.error,
-          )}\n\n`,
+          "Error while getting the agent: Exceeded maximum number of retries, the API keeps returning errors.",
         );
       }
-    } else {
-      return response.data as ExtractAgent;
+      const response =
+        await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
+          options,
+        );
+      if (!response.response.ok) {
+        if ("error" in response) {
+          console.log(
+            `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
+              response.error,
+            )}\n\nRetrying...`,
+          );
+        }
+        retries++;
+        await sleep(retryInterval * 1000);
+      } else {
+        return response.data as ExtractAgent;
+      }
     }
   } else if (typeof name != "undefined" && typeof id === "undefined") {
     const data = {
@@ -133,20 +157,30 @@ export async function getAgent(
     if (typeof client != "undefined") {
       options.client = client;
     }
-    const response =
-      await getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet(
-        options,
-      );
-    if (!response.response.ok) {
-      if ("error" in response) {
+    let retries: number = 0;
+    while (true) {
+      if (retries > maxRetriesOnError) {
         throw new Error(
-          `An error occurred while getting the extraction agent by name.\nDetails:\n\n${JSON.stringify(
-            response.error,
-          )}\n\n`,
+          "Error while getting the agent: Exceeded maximum number of retries, the API keeps returning errors.",
         );
       }
-    } else {
-      return response.data as ExtractAgent;
+      const response =
+        await getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet(
+          options,
+        );
+      if (!response.response.ok) {
+        if ("error" in response) {
+          console.log(
+            `An error occurred while getting the extraction agent by name.\nDetails:\n\n${JSON.stringify(
+              response.error,
+            )}\n\nRetrying...`,
+          );
+        }
+        retries++;
+        await sleep(retryInterval * 1000);
+      } else {
+        return response.data as ExtractAgent;
+      }
     }
   } else {
     const data = {
@@ -157,20 +191,32 @@ export async function getAgent(
     if (typeof client != "undefined") {
       options.client = client;
     }
-    const response =
-      await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
-        options,
-      );
-    if (!response.response.ok) {
-      if ("error" in response) {
+    let retries: number = 0;
+    while (true) {
+      if (retries > maxRetriesOnError) {
         throw new Error(
-          `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
-            response.error,
-          )}\n\n`,
+          "Error while getting the agent: Exceeded maximum number of retries, the API keeps returning errors.",
         );
       }
-    } else {
-      return response.data as ExtractAgent;
+      const response =
+        await getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGet(
+          options,
+        );
+      if (!response.response.ok) {
+        if (!response.response.ok) {
+          if ("error" in response) {
+            console.log(
+              `An error occurred while getting the extraction agent by ID.\nDetails:\n\n${JSON.stringify(
+                response.error,
+              )}\n\nRetrying...`,
+            );
+          }
+          retries++;
+          await sleep(retryInterval * 1000);
+        }
+      } else {
+        return response.data as ExtractAgent;
+      }
     }
   }
 }

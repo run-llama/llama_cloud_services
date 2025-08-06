@@ -1,6 +1,6 @@
-# LlamaCloud Index Demo
+# LlamaExtract Demo
 
-A TypeScript demo application showcasing the power of **LlamaCloud Index** - a fully automated document ingestion and retrieval serviced offered within [LlamaCloud](https://cloud.llamaindex.ai). This demo allows you to ask questions, retrieve relevant contextual information and generate AI-powered responses using OpenAI's GPT models.
+A TypeScript demo application showcasing the power of **LlamaExract** - a structured data extraction agentic service from [LlamaCloud](https://cloud.llamaindex.ai). This demo allows you to extract structured information from scientific papers and get them into a nice markdown format.
 
 ## Table of Contents
 
@@ -22,7 +22,8 @@ A TypeScript demo application showcasing the power of **LlamaCloud Index** - a f
 
 ## Features
 
-- 🤖 **RAG**: Simple-yet-effective Retrieval Augmented Generation pipeline built on top of LlamaCloud Index and OpenAI
+- 📄 **Structured Data Extraction**: Extract data from your files effortlessly, and structure them the way you want!
+- 🤖 **Markdown Rendering**: Generate markdown directly from your extracted data
 - 🎨 **Beautiful CLI**: Styled console interface with colors and ASCII art
 - ⚡ **Fast Development**: Hot reload support with watch mode
 - 🛠️ **TypeScript**: Full TypeScript support with strict type checking
@@ -31,9 +32,7 @@ A TypeScript demo application showcasing the power of **LlamaCloud Index** - a f
 
 - Node.js (version 18 or higher)
 - pnpm package manager
-- OpenAI API key
 - LlamaCloud API key
-- An existing LlamaCloud Index pipeline
 
 ## Installation
 
@@ -41,29 +40,20 @@ A TypeScript demo application showcasing the power of **LlamaCloud Index** - a f
 
 ```bash
 git clone https://github.com/run-llama/llama_cloud_services
-cd lama_cloud_services/examples-ts/index/
+cd lama_cloud_services/examples-ts/extract/
 ```
 
 2. Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
 3. Set up your environment variables:
 
 ```bash
-export OPENAI_API_KEY="your-openai-api-key"
+# Add your API key to your environment
 export LLAMA_CLOUD_API_KEY="your-llamacloud-api-key"
-export PIPELINE_NAME="your-pipeline-name"
-```
-
-4. Or write them into a `.env` file:
-
-```env
-OPENAI_API_KEY="your-openai-api-key"
-LLAMA_CLOUD_API_KEY="your-llamacloud-api-key"
-PIPELINE_NAME="your-pipeline-name"
 ```
 
 ## Usage
@@ -71,23 +61,23 @@ PIPELINE_NAME="your-pipeline-name"
 ### Start the Demo
 
 ```bash
-pnpm run start
+npm run start
 ```
 
-The application will display a welcome screen and prompt you to start chatting!
+The application will display a welcome screen and prompt you to enter the path to a document you'd like to process.
 
 ### Development Mode
 
 For development with hot reload:
 
 ```bash
-pnpm run dev
+npm run dev
 ```
 
 ### Build the Project
 
 ```bash
-pnpm run build
+npm run build
 ```
 
 ### Code Quality
@@ -95,28 +85,29 @@ pnpm run build
 Format code:
 
 ```bash
-pnpm run format
+npm run format
 ```
 
 Lint code:
 
 ```bash
-pnpm run lint
+npm run lint
 ```
 
 ## How It Works
 
-1. **Message Input**: Enter a message
-2. **Retrieval**: Several nodes are retrieved from the LlamaCloud index you specified
-3. **AI Response Generation**: The retrieved information is passed on to the AI model, along with its relevance score, and a reply to your original message is generated starting from that.
-4. **Results**: View the AI-generated summary in your terminal
+1. **Document Input**: Enter the path to your document when prompted
+2. **Parsing**: LlamaExtract, based on the schema you can find [here](./src/schema.ts), processes the document and extracts structured data
+3. **Markdown Rendering**: The extracted content is rendered into beautiful markdown
+4. **Results**: View the results directly in your terminal
 
 ## Troubleshooting
 
 ### Common Issues
 
 1. **Module Resolution Errors**: Ensure you're using Node.js 18+ and have all dependencies installed
-2. **API Key Issues**: Verify your OpenAI and LlamaCloud API keys are correctly set
+2. **API Key Issues**: Verify your LlamaCloud API key is correctly set
+3. **File Path Errors**: Use absolute paths or ensure relative paths are correct from the project root
 
 ## License
 
@@ -127,5 +118,5 @@ MIT License - see the [LICENSE](../../LICENSE) file for details.
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run `pnpm run format` and `pnpm run lint`
+4. Run `npm run format` and `npm run lint`
 5. Submit a pull request

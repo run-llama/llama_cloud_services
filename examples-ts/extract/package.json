@@ -1,0 +1,37 @@
+{
+  "name": "llama-extract-demo",
+  "version": "0.1.0",
+  "description": "Demo for LlamaExtract in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"There are no tests\"",
+    "start": "npm exec tsx src/index.ts",
+    "lint": "eslint ./src/",
+    "format": "prettier --write ./src/",
+    "build": "tsc",
+    "dev": "npm exec tsx --watch src/index.ts"
+  },
+  "author": "LlamaIndex",
+  "license": "MIT",
+  "dependencies": {
+    "cli-markdown": "^3.5.1",
+    "consola": "^3.4.2",
+    "figlet": "^1.8.2",
+    "llama-cloud-services": "file:../../ts/llama_cloud_services",
+    "marked": "^15.0.12",
+    "marked-terminal": "^7.3.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.32.0",
+    "@types/figlet": "^1.7.0",
+    "@types/marked-terminal": "^6.1.1",
+    "@types/node": "^24.2.0",
+    "eslint": "^9.32.0",
+    "globals": "^16.3.0",
+    "jiti": "^2.5.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0"
+  }
+}
