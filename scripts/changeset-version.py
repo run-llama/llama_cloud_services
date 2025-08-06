@@ -156,6 +156,7 @@ def maybe_publish_ts_package() -> None:
         )
         return
     click.echo(f"Publishing llama-cloud-services@{version}")
+    # defer to the package.json publish script
     output = _run_command(["pnpm", "run" "publish"], check=True, capture=True, cwd=target_dir)
     click.echo(output.stdout)
 
