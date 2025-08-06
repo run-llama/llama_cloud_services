@@ -50,29 +50,12 @@ jobs:
         with:
           commit: "chore: version packages"
           title: "chore: version packages"
-          # Use our custom script that propagates package.json changes to pyproject.toml
-          version: ./scripts/changeset-version.py apply
-          # Standard changesets publish - will handle both TS and Python packages
-          publish: pnpm release
+          # Custom version script
+          version: pnpm -w run version
+          # Custom publish script
+          publish: pnpm -w run publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
           UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
-
-      - name: Create additional tags for Python release  
-        if: steps.changesets.outputs.published == 'true'
-        run: |
-          # Get the published packages info
-          echo '${{ steps.changesets.outputs.publishedPackages }}' | jq -r '.[] | select(.name == "llama-cloud-services") | .version' | while read version; do
-            if [ -n "$version" ]; then
-              # Create Python-style tag (v prefix) if it doesn't exist
-              if ! git tag -l "v$version" | grep -q "v$version"; then
-                git tag "v$version"
-                git push origin "v$version"
-                echo "Created and pushed tag v$version for Python release"
-              fi
-            fi
-          done
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}

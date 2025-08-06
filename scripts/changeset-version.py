@@ -115,11 +115,14 @@ def publish(tag: bool):
     # move to the root
     os.chdir(Path(__file__).parent.parent)
 
+    if not os.getenv("NPM_TOKEN"):
+        click.echo("NPM_TOKEN is not set, skipping publish", err=True)
+        raise click.Abort("No token set")
+    if not os.getenv("UV_PUBLISH_TOKEN"):
+        click.echo("UV_PUBLISH_TOKEN is not set, skipping publish", err=True)
+        raise click.Abort("No token set")
     if not os.getenv("LLAMA_PARSE_PYPI_TOKEN"):
         click.echo("LLAMA_PARSE_PYPI_TOKEN is not set, skipping publish", err=True)
-        raise click.Abort("No token set")
-    if not os.getenv("LLAMA_CLOUD_SERVICES_NPM_TOKEN"):
-        click.echo("LLAMA_CLOUD_SERVICES_NPM_TOKEN is not set, skipping publish", err=True)
         raise click.Abort("No token set")
 
     # not general script. Just checks each of the 2 packages to see if they need to be published.
@@ -153,7 +156,8 @@ def maybe_publish_ts_package() -> None:
         )
         return
     click.echo(f"Publishing llama-cloud-services@{version}")
-    _run_command(["pnpm", "publish"], check=True, capture=True, cwd=target_dir)
+    output = _run_command(["pnpm", "publish", "--access", "public", "--no-git-checks"], check=True, capture=True, cwd=target_dir)
+    click.echo(output.stdout)
 
 
 def maybe_publish_py_packages() -> None:
@@ -164,7 +168,25 @@ def maybe_publish_py_packages() -> None:
             click.echo(f"{name}@{version} already published, skipping")
             continue
         click.echo(f"Publishing {name}@{version}")
-        _run_command(["uv", "publish"], check=True, capture=True, cwd=pyproject.parent)
+        
+        # Use different tokens for different packages
+        env = os.environ.copy()
+        if name == "llama-parse":
+            # llama-parse uses its own token
+            env["UV_PUBLISH_TOKEN"] = os.getenv("LLAMA_PARSE_PYPI_TOKEN")
+        else:
+            # llama-cloud-services uses the main PyPI token
+            env["UV_PUBLISH_TOKEN"] = os.getenv("UV_PUBLISH_TOKEN")
+        
+        result = subprocess.run(
+            ["uv", "publish"], 
+            check=True, 
+            capture_output=True, 
+            text=True, 
+            cwd=pyproject.parent,
+            env=env
+        )
+        click.echo(result.stdout)
 
 
 def current_version(pyproject: Path) -> tuple[str, str]:
