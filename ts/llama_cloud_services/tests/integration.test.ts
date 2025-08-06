@@ -475,7 +475,7 @@ describe("Integration Tests", () => {
         const resultBuffer = await agent!.extract(
           undefined,
           buffer,
-          "test-extract-agent",
+          "test-extract-agent.md",
         );
         expect("data" in resultBuffer!).toBeTruthy();
         expect("extractionMetadata" in resultBuffer!).toBeTruthy();

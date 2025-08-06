@@ -35,6 +35,7 @@ import {
 } from "./api";
 import type { Client } from "@hey-api/client-fetch";
 import { sleep } from "./utils";
+import { fileTypeFromBlob, fileTypeFromBuffer } from "file-type";
 
 type BodyUploadFileApiV1FilesPost = {
   upload_file: Blob | File;
@@ -177,7 +178,7 @@ export async function getAgent(
 function textToFile(text: string, fileName: string | null = null) {
   return new File(
     [text],
-    fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+    fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_") + ".txt",
   );
 }
 
@@ -210,15 +211,21 @@ async function uploadFile(
     if (fileContent instanceof File) {
       file = fileContent;
     } else if (fileContent instanceof Buffer) {
+      const fileType = await fileTypeFromBuffer(fileContent);
+      const ext = fileType?.ext ?? "pdf";
       const uint8Array = new Uint8Array(fileContent);
       file = new File(
         [uint8Array],
-        fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+        fileName ??
+          "uploadedFile_" + randomUUID().replaceAll("-", "_") + "." + ext,
       );
     } else if (fileContent instanceof Uint8Array) {
+      const fileType = await fileTypeFromBuffer(fileContent);
+      const ext = fileType?.ext ?? "pdf";
       file = new File(
         [fileContent],
-        fileName ?? "uploadedFile_" + randomUUID().replaceAll("-", "_"),
+        fileName ??
+          "uploadedFile_" + randomUUID().replaceAll("-", "_") + "." + ext,
       );
     } else if (typeof fileContent === "string") {
       file = textToFile(fileContent, fileName);
@@ -226,7 +233,6 @@ async function uploadFile(
       throw new Error("Unsupported fileContent type");
     }
   }
-
   const fileToUpload = {
     upload_file: file,
   } as BodyUploadFileApiV1FilesPost;
