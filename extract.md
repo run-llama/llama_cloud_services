@@ -87,7 +87,9 @@ result = extractor.extract(Resume, config, SourceText(text_content=text))
 
 ### Async Extraction
 
-For better performance with multiple files or when integrating with async applications:
+For better performance with multiple files or when integrating with async applications.
+Here `queue_extraction` will enqueue the extraction jobs and exit. Alternatively, you
+can use `aextract` to poll for the job and return the extraction results.
 
 ```python
 import asyncio
@@ -103,10 +105,18 @@ async def extract_resumes():
         Resume, config, ["resume1.pdf", "resume2.pdf"]
     )
     print(f"Queued {len(jobs)} extraction jobs")
+    return jobs
 
 
 # Run async function
-asyncio.run(extract_resumes())
+jobs = asyncio.run(extract_resumes())
+# Check job status
+for job in jobs:
+    status = agent.get_extraction_job(job.id).status
+    print(f"Job {job.id}: {status}")
+
+# Get results when complete
+results = [agent.get_extraction_run_for_job(job.id) for job in jobs]
 ```
 
 ## Core Concepts
