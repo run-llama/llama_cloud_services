@@ -688,10 +688,10 @@ export class LlamaParseReader extends FileReader {
     for (const result of jsonResult) {
       for (const page of result.pages) {
         if ("items" in page && Array.isArray(page.items)) {
-          for (let i = 0; i++; i < page.items.length) {
+          for (let i = 0; i < page.items.length; i++) {
             if (
               "type" in page.items[i] &&
-              page.items[i].type == "table" &&
+              page.items[i].type === "table" &&
               "csv" in page.items[i] &&
               typeof page.items[i].csv === "string" &&
               page.items[i].csv != ""
