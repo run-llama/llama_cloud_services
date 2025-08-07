@@ -54,7 +54,7 @@ export type ParseResult = {
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
   pages: Record<string, any>[];
   // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-  job_metadata: Record<string, any>[];
+  job_metadata: Record<string, any>;
   job_id: string;
   is_completed: boolean;
   file_path: string;

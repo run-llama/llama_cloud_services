@@ -5,6 +5,7 @@ import { LlamaExtract, LlamaExtractAgent } from "../src/LlamaExtract.js";
 import { Document } from "@llamaindex/core/schema";
 import { fs } from "@llamaindex/env";
 import { ExtractConfig } from "../src/api.js";
+import { ParseResult } from "../src/type.js";
 
 // Integration tests that require actual API keys and files
 describe("Integration Tests", () => {
@@ -281,6 +282,78 @@ describe("Integration Tests", () => {
           } catch {}
           throw error;
         }
+      },
+      60000,
+    );
+
+    it.skipIf(skipIfNoApiKey)(
+      "should parse a file and return a ParseResult array",
+      async () => {
+        const parseReader = new LlamaParseReader({
+          apiKey: process.env.LLAMA_CLOUD_API_KEY!,
+          verbose: false,
+        });
+
+        const testContent = "Test document for JSON parsing";
+        const testFilePath = "test-json.txt";
+
+        await fs.writeFile(testFilePath, new TextEncoder().encode(testContent));
+
+        try {
+          const result = await parseReader.parse(testFilePath);
+
+          expect(result).toBeDefined();
+          expect(Array.isArray(result)).toBe(true);
+          expect(result.length).toBeGreaterThan(0);
+          expect(result[0]).toHaveProperty("job_id");
+          expect(result[0]).toHaveProperty("job_metadata");
+          expect(result[0]).toHaveProperty("file_path");
+          expect(result[0]).toHaveProperty("pages");
+
+          await fs.unlink(testFilePath);
+        } catch (error) {
+          try {
+            await fs.unlink(testFilePath);
+          } catch {}
+          throw error;
+        }
+      },
+      60000,
+    );
+
+    it.skipIf(skipIfNoApiKey)(
+      "should extract tables correctly from a JSON result",
+      async () => {
+        const parseReader = new LlamaParseReader({
+          apiKey: process.env.LLAMA_CLOUD_API_KEY!,
+          verbose: false,
+        });
+        const pseudoJsonResult = [
+          {
+            pages: [
+              {
+                items: [
+                  {
+                    type: "table",
+                    csv: "Name,Age,Height (cm)\nAnna,12,140\nBob,22,175\nClaire,33,173\nDenis,44,185\n",
+                  },
+                ],
+              },
+            ],
+            job_id: "jobId",
+            job_metadata: { job_id: "jobId" },
+            file_path: "table.csv",
+            is_completed: true,
+          },
+        ] as ParseResult[];
+
+        const tmpdir = await fs.mkdtemp("tables");
+        const result = await parseReader.getTables(pseudoJsonResult, tmpdir);
+
+        expect(result).toBeDefined();
+        expect(Array.isArray(result)).toBe(true);
+        expect(result.length).toBeGreaterThan(0);
+        expect(typeof result[0] === "string").toBe(true);
       },
       60000,
     );
