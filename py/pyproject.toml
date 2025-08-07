@@ -17,7 +17,7 @@ dev = [
 
 [project]
 name = "llama-cloud-services"
-version = "0.6.55"
+version = "0.6.56"
 description = "Tailored SDK clients for LlamaCloud services."
 authors = [{name = "Logan Markewich", email = "logan@runllama.ai"}]
 requires-python = ">=3.9,<4.0"
