@@ -649,10 +649,10 @@ export class LlamaParseReader extends FileReader {
   async parse(
     filePathOrContent: string | Uint8Array | string[] | Uint8Array[],
   ): Promise<ParseResult[]> {
-    const jsnonResults: Record<string, any>[][] = [];
+    const jsonResults: Record<string, any>[][] = [];
     if (!Array.isArray(filePathOrContent)) {
       const jsonResult = await this.loadJson(filePathOrContent);
-      jsnonResults.push(jsonResult);
+      jsonResults.push(jsonResult);
     } else {
       for (let i = 0; i < filePathOrContent.length; i++) {
         console.log(
@@ -661,11 +661,11 @@ export class LlamaParseReader extends FileReader {
         const jsonResult = await this.loadJson(
           filePathOrContent[i] as string | Uint8Array,
         );
-        jsnonResults.push(jsonResult);
+        jsonResults.push(jsonResult);
       }
     }
     const parseResults: ParseResult[] = [];
-    for (const jsonResult of jsnonResults) {
+    for (const jsonResult of jsonResults) {
       for (const result of jsonResult) {
         const parseResult = {
           pages: result.pages,
@@ -680,12 +680,19 @@ export class LlamaParseReader extends FileReader {
     return parseResults;
   }
 
+  /**
+   * Downloads and saves tables from a given array of ParseResult to a specified download path.
+   *
+   * @param jsonResults - The array of ParseResult containing table information.
+   * @param downloadPath - The path where the downloaded tables will be saved as CSV files.
+   * @returns A Promise that resolves to an array of strings representing the paths to the tables.
+   */
   async getTables(
-    jsonResult: ParseResult[],
+    jsonResults: ParseResult[],
     downloadPath: string,
   ): Promise<string[]> {
     const tables: string[] = [];
-    for (const result of jsonResult) {
+    for (const result of jsonResults) {
       for (const page of result.pages) {
         if ("items" in page && Array.isArray(page.items)) {
           for (let i = 0; i < page.items.length; i++) {
