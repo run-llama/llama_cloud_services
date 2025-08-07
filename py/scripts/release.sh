@@ -20,15 +20,17 @@ if [[ $pypi_token == "no_token" ]]; then
     fi
 fi
 
-# build and publish llama_cloud_services
-## build
-uv build
-## publish
-uv publish --token $pypi_token
+# check pre-release
+uv venv && source .venv/bin/activate && uv pip install -r scripts/requirements.txt
+do_not_release=$(python3 scripts/pre_release_check.py)
 
-# build and publish llama_parse
-cd llama_parse/
-## build
-uv build
-## publish
-uv publish --token $pypi_token
+if [ "$do_not_release" -eq 1 ]; then
+   echo "Nothing to release"
+   exit 0
+else
+    # build and publish llama_cloud_services
+    ## build
+    uv build
+    ## publish
+    uv publish --token $pypi_token
+fi
