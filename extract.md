@@ -2,6 +2,29 @@
 
 LlamaExtract provides a simple API for extracting structured data from unstructured documents like PDFs, text files and images.
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+  - [Supported File Types](#supported-file-types)
+  - [Different Input Types](#different-input-types)
+  - [Async Extraction](#async-extraction)
+- [Core Concepts](#core-concepts)
+- [Defining Schemas](#defining-schemas)
+  - [Using Pydantic (Recommended)](#using-pydantic-recommended)
+  - [Using JSON Schema](#using-json-schema)
+  - [Important restrictions on JSON/Pydantic Schema](#important-restrictions-on-jsonpydantic-schema)
+- [Extraction Configuration](#extraction-configuration)
+  - [Configuration Options](#configuration-options)
+- [Extraction Agents (Advanced)](#extraction-agents-advanced)
+  - [Creating Agents](#creating-agents)
+  - [Agent Batch Processing](#agent-batch-processing)
+  - [Updating Agent Schemas](#updating-agent-schemas)
+  - [Managing Agents](#managing-agents)
+  - [When to Use Agents vs Direct Extraction](#when-to-use-agents-vs-direct-extraction)
+- [Installation](#installation)
+- [Tips & Best Practices](#tips--best-practices)
+- [Additional Resources](#additional-resources)
+
 ## Quick Start
 
 The simplest way to get started is to use the stateless API with the extraction configuration and the file/text to extract from:
@@ -12,7 +35,7 @@ from llama_cloud import ExtractConfig, ExtractMode
 from pydantic import BaseModel, Field
 
 # Initialize client
-extractor = LlamaExtract()
+extractor = LlamaExtract(api_key="YOUR_API_KEY")
 
 
 # Define schema using Pydantic
@@ -159,24 +182,6 @@ config = ExtractConfig(extraction_mode=ExtractMode.FAST)
 result = extractor.extract(schema, config, "resume.pdf")
 ```
 
-## Extraction Configuration
-
-Configure how extraction is performed using `ExtractConfig`:
-
-```python
-from llama_cloud import ExtractConfig, ExtractMode
-
-# Fast extraction (lower accuracy, faster processing)
-fast_config = ExtractConfig(extraction_mode=ExtractMode.FAST)
-
-# Balanced extraction (good balance of speed and accuracy)
-balanced_config = ExtractConfig(extraction_mode=ExtractMode.BALANCED)
-
-# Use different configs for different needs
-result = extractor.extract(schema, fast_config, "simple_document.pdf")
-result = extractor.extract(schema, balanced_config, "complex_document.pdf")
-```
-
 ### Important restrictions on JSON/Pydantic Schema
 
 _LlamaExtract only supports a subset of the JSON Schema specification._ While limited, it should
@@ -193,6 +198,62 @@ be sufficient for a wide variety of use-cases.
   hit for complex extraction use cases. In such cases, it is worth thinking how to restructure
   your extraction workflow to fit within these constraints, e.g. by extracting subset of fields
   and later merging them together.
+
+## Extraction Configuration
+
+Configure how extraction is performed using `ExtractConfig`. The schema is the most important part, but several configuration options can significantly impact the extraction process.
+
+```python
+from llama_cloud import ExtractConfig, ExtractMode, ChunkMode, ExtractTarget
+
+# Basic configuration
+config = ExtractConfig(
+    extraction_mode=ExtractMode.BALANCED,  # FAST, BALANCED, MULTIMODAL, PREMIUM
+    extraction_target=ExtractTarget.PER_DOC,  # PER_DOC, PER_PAGE
+    system_prompt="Focus on the most recent data",
+    page_range="1-5,10-15",  # Extract from specific pages
+)
+
+# Advanced configuration
+advanced_config = ExtractConfig(
+    extraction_mode=ExtractMode.MULTIMODAL,
+    chunk_mode=ChunkMode.PAGE,  # PAGE, SECTION
+    high_resolution_mode=True,  # Better OCR accuracy
+    invalidate_cache=False,  # Bypass cached results
+    cite_sources=True,  # Enable source citations
+    use_reasoning=True,  # Enable reasoning (not in FAST mode)
+    confidence_scores=True,  # MULTIMODAL/PREMIUM only
+)
+```
+
+### Key Configuration Options
+
+**Extraction Mode**: Controls processing quality and speed
+
+- `FAST`: Fastest processing, suitable for simple documents with no OCR
+- `BALANCED`: Good speed/accuracy tradeoff for text-rich documents
+- `MULTIMODAL`: For visually rich documents with text, tables, and images (recommended)
+- `PREMIUM`: Highest accuracy with OCR, complex table/header detection
+
+**Extraction Target**: Defines extraction scope
+
+- `PER_DOC`: Apply schema to entire document (default)
+- `PER_PAGE`: Apply schema to each page, returns array of results
+
+**Advanced Options**:
+
+- `system_prompt`: Additional system-level instructions
+- `page_range`: Specific pages to extract (e.g., "1,3,5-7,9")
+- `chunk_mode`: Document splitting strategy (`PAGE` or `SECTION`)
+- `high_resolution_mode`: Better OCR for small text (slower processing)
+
+**Extensions** (return additional metadata):
+
+- `cite_sources`: Source tracing for extracted fields
+- `use_reasoning`: Explanations for extraction decisions
+- `confidence_scores`: Quantitative confidence measures (MULTIMODAL/PREMIUM only)
+
+For complete configuration options, advanced settings, and detailed examples, see the [LlamaExtract Configuration Documentation](https://docs.cloud.llamaindex.ai/llamaextract/features/options).
 
 ## Extraction Agents (Advanced)
 
@@ -326,6 +387,7 @@ Another option (orthogonal to the above) is to break the document into smaller s
 
 ## Additional Resources
 
+- [Extract Documentation](https://docs.cloud.llamaindex.ai/llamaextract/getting_started) - Details on Extract features, API and examples.
 - [Example Notebook](docs/examples-py/extract/resume_screening.ipynb) - Detailed walkthrough of resume parsing
 - [Example Application with TypeScript](./examples-ts/extract/) - End-to-end examples using LlamaExtract TypeScript client.
 - [Discord Community](https://discord.com/invite/eN6D2HQ4aX) - Get help and share feedback
