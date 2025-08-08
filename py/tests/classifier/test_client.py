@@ -2,28 +2,10 @@ import os
 import pytest
 from llama_cloud.client import AsyncLlamaCloud
 from llama_cloud.types import Project, ClassifierRule, ClassifyJobResults
-from llama_index.core.constants import DEFAULT_BASE_URL
-from pydantic import Field, SecretStr
-from pydantic_settings import BaseSettings
 from llama_cloud_services.beta.classifier.client import ClassifyClient
 from llama_cloud_services.files.client import FileClient
 from llama_cloud.errors.unprocessable_entity_error import UnprocessableEntityError
-
-
-class TestSettings(BaseSettings):
-    LLAMA_CLOUD_BASE_URL: str = Field(
-        description="The base URL of the LlamaCloud API", default=DEFAULT_BASE_URL
-    )
-    LLAMA_CLOUD_API_KEY: SecretStr = Field(
-        description="The API key for the LlamaCloud API"
-    )
-    LLAMA_CLOUD_ORGANIZATION_ID: str = Field(
-        description="The organization ID for the LlamaCloud API"
-    )
-    LLAMA_CLOUD_PROJECT_NAME: str = Field(
-        description="The project name for the LlamaCloud API",
-        default="framework_integration_test",
-    )
+from tests.conftest import EndToEndTestSettings
 
 
 # Skip all tests if API key is not set
@@ -33,25 +15,22 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.fixture
-def settings() -> TestSettings:
-    return TestSettings()
-
-
-@pytest.fixture
-def async_llama_cloud_client(settings: TestSettings) -> AsyncLlamaCloud:
+def async_llama_cloud_client(
+    e2e_test_settings: EndToEndTestSettings,
+) -> AsyncLlamaCloud:
     return AsyncLlamaCloud(
-        token=settings.LLAMA_CLOUD_API_KEY.get_secret_value(),
-        base_url=settings.LLAMA_CLOUD_BASE_URL,
+        token=e2e_test_settings.LLAMA_CLOUD_API_KEY.get_secret_value(),
+        base_url=e2e_test_settings.LLAMA_CLOUD_BASE_URL,
     )
 
 
 @pytest.fixture
 async def project(
-    async_llama_cloud_client: AsyncLlamaCloud, settings: TestSettings
+    async_llama_cloud_client: AsyncLlamaCloud, e2e_test_settings: EndToEndTestSettings
 ) -> Project:
     projects = await async_llama_cloud_client.projects.list_projects(
-        project_name=settings.LLAMA_CLOUD_PROJECT_NAME,
-        organization_id=settings.LLAMA_CLOUD_ORGANIZATION_ID,
+        project_name=e2e_test_settings.LLAMA_CLOUD_PROJECT_NAME,
+        organization_id=e2e_test_settings.LLAMA_CLOUD_ORGANIZATION_ID,
     )
     assert len(projects) == 1
     return projects[0]
