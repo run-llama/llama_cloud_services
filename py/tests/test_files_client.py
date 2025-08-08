@@ -82,9 +82,7 @@ async def test_upload_file_from_path(
     uploaded_file = await file_client.upload_file(test_file, external_file_id)
 
     assert isinstance(uploaded_file, File)
-    expected_name = (
-        external_file_id if use_presigned_url else os.path.basename(test_file)
-    )
+    expected_name = os.path.basename(test_file)
     assert uploaded_file.name == expected_name
     assert uploaded_file.external_file_id == external_file_id
 
@@ -155,6 +153,5 @@ async def test_upload_with_default_external_id(
     uploaded_file = await file_client.upload_file(test_file)
 
     assert isinstance(uploaded_file, File)
-    expected_name = test_file if use_presigned_url else os.path.basename(test_file)
-    assert uploaded_file.name == expected_name
+    assert uploaded_file.name == os.path.basename(test_file)
     assert uploaded_file.external_file_id == test_file

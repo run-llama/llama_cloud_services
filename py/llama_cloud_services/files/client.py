@@ -2,7 +2,7 @@ from io import BytesIO
 from typing import BinaryIO
 import os
 from llama_cloud.client import AsyncLlamaCloud
-from llama_cloud.types import File
+from llama_cloud.types import File, FileCreate
 from typing import Optional
 
 
@@ -53,12 +53,18 @@ class FileClient:
         file_size: int,
     ) -> File:
         if self.use_presigned_url:
+            if getattr(buffer, "name", None):
+                name = os.path.basename(str(getattr(buffer, "name", external_file_id)))
+            else:
+                name = external_file_id
             presigned_url = await self.client.files.generate_presigned_url(
                 project_id=self.project_id,
                 organization_id=self.organization_id,
-                name=external_file_id,
-                external_file_id=external_file_id,
-                file_size=file_size,
+                request=FileCreate(
+                    name=name,
+                    external_file_id=external_file_id,
+                    file_size=file_size,
+                ),
             )
             httpx_client = self.client._client_wrapper.httpx_client
             httpx_client.post(presigned_url.url, data=buffer)
