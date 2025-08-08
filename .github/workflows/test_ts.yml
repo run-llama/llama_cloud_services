@@ -30,8 +30,13 @@ jobs:
         with:
           node-version-file: "ts/llama_cloud_services/.nvmrc"
       - name: Install dependencies
-        working-directory: ts/llama_cloud_services/
         run: pnpm install --no-frozen-lockfile
-      - name: Run tests
+      - name: Run Build
         working-directory: ts/llama_cloud_services/
+        run: pnpm build
+      - name: Run Tests
+        working-directory: ts/llama_cloud_services/
+        run: pnpm test
+      - name: Run e2e tests
+        working-directory: ts/e2e-tests/
         run: pnpm test

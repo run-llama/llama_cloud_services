@@ -1573,21 +1573,21 @@ wheels = [
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.36"
+version = "0.1.37"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/30/a7/b2a18624814f1d8170d995a212aa513cec277b528e4b005c0d5e005bf213/llama_cloud-0.1.36.tar.gz", hash = "sha256:322866b27ca3d6d433104b1b5b8346fe937973ee15dae968002be1a985f10428", size = 117811, upload_time = "2025-08-01T18:42:21.686Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9c/dd/c4f2516523778a0d4b284fa4b66a0136afdd59694f105102838cf793e675/llama_cloud-0.1.37.tar.gz", hash = "sha256:b6d62e7386d1aa85905b7e3f7c19a40694be54c1596668bceaa456cd84ede666", size = 108707, upload_time = "2025-08-04T22:00:37.18Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/ef/60/7dd2a3eb87f45ee5598cd55930f8aebfdf925e50628a1ca45b736ea3d05e/llama_cloud-0.1.36-py3-none-any.whl", hash = "sha256:b8b19f5d4b089b682331d435a3d0ba352b158c8b06153f2f23fcc6b3c9f4b148", size = 310265, upload_time = "2025-08-01T18:42:20.225Z" },
+    { url = "https://files.pythonhosted.org/packages/59/ca/a7f874b041d2566f000ecc88bf1b76819a8bdbbaea85036ca6905ae3f0f7/llama_cloud-0.1.37-py3-none-any.whl", hash = "sha256:3109ec74575f53311ec4957ca8aea2d6e30556a43d24c6316ceab91c4fed6ab7", size = 314244, upload_time = "2025-08-04T22:00:35.696Z" },
 ]
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.53"
+version = "0.6.56"
 source = { editable = "." }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1595,6 +1595,7 @@ dependencies = [
     { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
     { name = "llama-cloud" },
     { name = "llama-index-core" },
+    { name = "packaging" },
     { name = "platformdirs" },
     { name = "pydantic" },
     { name = "python-dotenv" },
@@ -1620,8 +1621,9 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.1.7,<9" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'", specifier = ">=0.2.0,<0.3" },
-    { name = "llama-cloud", specifier = "==0.1.36" },
+    { name = "llama-cloud", specifier = "==0.1.37" },
     { name = "llama-index-core", specifier = ">=0.12.0" },
+    { name = "packaging", specifier = ">=25.0" },
     { name = "platformdirs", specifier = ">=4.3.7,<5" },
     { name = "pydantic", specifier = ">=2.8,!=2.10" },
     { name = "python-dotenv", specifier = ">=1.0.1,<2" },

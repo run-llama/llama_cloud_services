@@ -3472,6 +3472,12 @@ export const zUserOrganizationRoleCreate = z.object({
   role_id: z.string().uuid(),
 });
 
+export const zStatelessExtractionRequest = z.object({
+  data_schema: z.union([z.object({}), z.string(), z.null()]),
+  config: zExtractConfig.optional(),
+  file_id: z.string().uuid().optional(),
+});
+
 export const zListKeysApiV1ApiKeysGetResponse = z.array(zApiKey);
 
 export const zGenerateKeyApiV1ApiKeysPostResponse = zApiKey;
@@ -3828,6 +3834,8 @@ export const zGetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentId
 
 export const zUpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   zExtractAgent;
+
+export const zExtractStatelessApiV1ExtractionRunPostResponse = zExtractJob;
 
 export const zListJobsApiV1ExtractionJobsGetResponse = z.array(zExtractJob);
 

@@ -52,6 +52,10 @@ class PageItem(BaseModel):
     bBox: Optional[BBox] = Field(
         default=None, description="The bounding box of the item."
     )
+    html: Optional[str] = Field(
+        default=None,
+        description="The HTML-formatted content of the item. Only applicable for table items when output_tables_as_HTML=True.",
+    )
 
 
 class ImageItem(BaseModel):

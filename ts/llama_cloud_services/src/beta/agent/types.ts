@@ -32,10 +32,12 @@ export type FilterOperation = RawFilterOperation;
  * Metadata for an extracted field, including confidence and citation information
  */
 export interface ExtractedFieldMetadata {
+  /** The reasoning for the confidence score */
+  reasoning?: string;
   /** The confidence score for the field, combined with parsing confidence if applicable */
   confidence?: number;
   /** The confidence score for the field based on the extracted text only */
-  extracted_confidence?: number;
+  extraction_confidence?: number;
   /** The page number that the field occurred on */
   page_number?: number;
   /** The original text this field's value was derived from */
