@@ -12,7 +12,6 @@ on:
 
 env:
   UV_VERSION: "0.7.20"
-  LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
   test:
@@ -36,7 +35,7 @@ jobs:
 
       - name: Run Tests
         working-directory: py
-        run: uv run -- pytest tests/**/test_*.py
+        run: uv run pytest unit_tests/ -v
 
       - name: Remove virtual environment
         working-directory: py

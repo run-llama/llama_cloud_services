@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import os
 import time
 from io import BufferedIOBase, BufferedReader, BytesIO, TextIOWrapper
@@ -21,6 +22,7 @@ from llama_cloud import (
     ExtractJobCreate,
     ExtractRun,
     File,
+    FileData,
     ExtractMode,
     StatusEnum,
     ExtractTarget,
@@ -47,7 +49,7 @@ SchemaInput = Union[JSONObjectType, Type[BaseModel]]
 
 DEFAULT_EXTRACT_CONFIG = ExtractConfig(
     extraction_target=ExtractTarget.PER_DOC,
-    extraction_mode=ExtractMode.BALANCED,
+    extraction_mode=ExtractMode.MULTIMODAL,
 )
 
 
@@ -60,6 +62,132 @@ def _is_retryable_error(exception: BaseException) -> bool:
     ):
         return True
     return False
+
+
+async def _validate_schema(
+    client: AsyncLlamaCloud, data_schema: SchemaInput
+) -> JSONObjectType:
+    """Convert SchemaInput to a validated JSON schema dictionary."""
+    processed_schema: JSONObjectType
+    if isinstance(data_schema, dict):
+        # TODO: if we expose a get_validated JSON schema method, we can use it here
+        processed_schema = data_schema  # type: ignore
+    elif isinstance(data_schema, type) and issubclass(data_schema, BaseModel):
+        processed_schema = data_schema.model_json_schema()
+    else:
+        raise ValueError("data_schema must be either a dictionary or a Pydantic model")
+
+    # Validate schema via API
+    validated_schema = await client.llama_extract.validate_extraction_schema(
+        data_schema=processed_schema
+    )
+    return validated_schema.data_schema
+
+
+async def _get_job_with_retry(
+    client: AsyncLlamaCloud,
+    job_id: str,
+    max_attempts: int = 5,
+    initial_wait: float = 1,
+    max_wait: float = 60,
+    jitter: float = 5,
+) -> ExtractJob:
+    """Get extraction job with retry logic."""
+    async for attempt in AsyncRetrying(
+        retry=retry_if_exception(_is_retryable_error),
+        stop=stop_after_attempt(max_attempts),
+        wait=wait_exponential_jitter(initial=initial_wait, max=max_wait, jitter=jitter),
+        reraise=True,
+    ):
+        with attempt:
+            return await client.llama_extract.get_job(job_id=job_id)
+
+
+async def _get_run_with_retry(
+    client: AsyncLlamaCloud,
+    job_id: str,
+    project_id: Optional[str] = None,
+    organization_id: Optional[str] = None,
+    max_attempts: int = 3,
+    initial_wait: float = 1,
+    max_wait: float = 20,
+    jitter: float = 3,
+) -> ExtractRun:
+    """Get extraction run with retry logic."""
+    async for attempt in AsyncRetrying(
+        retry=retry_if_exception(_is_retryable_error),
+        stop=stop_after_attempt(max_attempts),
+        wait=wait_exponential_jitter(initial=initial_wait, max=max_wait, jitter=jitter),
+        reraise=True,
+    ):
+        with attempt:
+            return await client.llama_extract.get_run_by_job_id(
+                job_id=job_id,
+                project_id=project_id,
+                organization_id=organization_id,
+            )
+
+
+async def _wait_for_job_result(
+    client: AsyncLlamaCloud,
+    job_id: str,
+    check_interval: int = 1,
+    max_timeout: int = 2000,
+    verbose: bool = False,
+    project_id: Optional[str] = None,
+    organization_id: Optional[str] = None,
+    job_retry_attempts: int = 5,
+    job_max_wait: float = 60,
+    job_jitter: float = 5,
+    run_retry_attempts: int = 3,
+    run_max_wait: float = 20,
+    run_jitter: float = 3,
+) -> Optional[ExtractRun]:
+    """Wait for and return the results of an extraction job."""
+    start = time.perf_counter()
+    poll_count = 0
+
+    while True:
+        await asyncio.sleep(check_interval)
+        poll_count += 1
+        job = await _get_job_with_retry(
+            client,
+            job_id,
+            max_attempts=job_retry_attempts,
+            max_wait=job_max_wait,
+            jitter=job_jitter,
+        )
+
+        if job.status == StatusEnum.SUCCESS:
+            return await _get_run_with_retry(
+                client,
+                job_id,
+                project_id,
+                organization_id,
+                max_attempts=run_retry_attempts,
+                max_wait=run_max_wait,
+                jitter=run_jitter,
+            )
+        elif job.status == StatusEnum.PENDING:
+            end = time.perf_counter()
+            if end - start > max_timeout:
+                raise Exception(f"Timeout while extracting the file: {job_id}")
+            if verbose and poll_count % 10 == 0:
+                print(".", end="", flush=True)
+            continue
+        else:
+            warnings.warn(
+                f"Failure in job: {job_id}, status: {job.status}, error: {job.error}"
+            )
+            return await _get_run_with_retry(
+                client,
+                job_id,
+                project_id,
+                organization_id,
+                max_attempts=run_retry_attempts,
+                max_wait=run_max_wait,
+                jitter=run_jitter,
+            )
 
 
 class SourceText:
@@ -144,6 +272,21 @@ def _extraction_config_warning(config: ExtractConfig) -> None:
             "available in the `extraction_metadata` field for the extraction run.",
             ExperimentalWarning,
         )
+    if config.use_reasoning:
+        if config.extraction_mode == ExtractMode.FAST:
+            raise ValueError(
+                "`reasoning` is only supported with BALANCED, MULTIMODAL, or PREMIUM extraction modes."
+            )
+    if config.cite_sources:
+        if config.extraction_mode in (ExtractMode.FAST, ExtractMode.BALANCED):
+            raise ValueError(
+                "`cite_sources` is only supported with MULTIMODAL or PREMIUM extraction modes."
+            )
+    if config.confidence_scores:
+        if config.extraction_mode in (ExtractMode.FAST, ExtractMode.BALANCED):
+            raise ValueError(
+                "`confidence_scores` is only supported with MULTIMODAL or PREMIUM extraction modes."
+            )
 
 
 class ExtractionAgent:
@@ -194,22 +337,10 @@ class ExtractionAgent:
 
     @data_schema.setter
     def data_schema(self, data_schema: SchemaInput) -> None:
-        processed_schema: JSONObjectType
-        if isinstance(data_schema, dict):
-            # TODO: if we expose a get_validated JSON schema method, we can use it here
-            processed_schema = data_schema  # type: ignore
-        elif isinstance(data_schema, type) and issubclass(data_schema, BaseModel):
-            processed_schema = data_schema.model_json_schema()
-        else:
-            raise ValueError(
-                "data_schema must be either a dictionary or a Pydantic model"
-            )
-        validated_schema = self._run_in_thread(
-            self._client.llama_extract.validate_extraction_schema(
-                data_schema=processed_schema
-            )
+        # Use the shared schema processing and validation function
+        self._data_schema = self._run_in_thread(
+            _validate_schema(self._client, data_schema)
         )
-        self._data_schema = validated_schema.data_schema
 
     @property
     def config(self) -> ExtractConfig:
@@ -268,7 +399,9 @@ class ExtractionAgent:
                 project_id=self._project_id, upload_file=file_contents
             )
         finally:
-            if file_contents is not None and isinstance(file_contents, BufferedReader):
+            if file_contents is not None and isinstance(
+                file_contents, (BufferedReader, BytesIO)
+            ):
                 file_contents.close()
 
     async def _upload_file(self, file_input: FileInput) -> File:
@@ -296,60 +429,23 @@ class ExtractionAgent:
 
         return await self.upload_file(source_text)
 
-    async def _get_job_with_retry(self, job_id: str) -> ExtractJob:
-        """Get job with retry logic for transient errors."""
-        async for attempt in AsyncRetrying(
-            retry=retry_if_exception(_is_retryable_error),
-            stop=stop_after_attempt(5),
-            wait=wait_exponential_jitter(initial=1, max=60, jitter=5),
-            reraise=True,
-        ):
-            with attempt:
-                return await self._client.llama_extract.get_job(job_id=job_id)
-
-    async def _get_run_with_retry(self, job_id: str) -> ExtractRun:
-        """Get extraction run with retry logic for transient errors."""
-        async for attempt in AsyncRetrying(
-            retry=retry_if_exception(_is_retryable_error),
-            stop=stop_after_attempt(3),
-            wait=wait_exponential_jitter(initial=1, max=20, jitter=3),
-            reraise=True,
-        ):
-            with attempt:
-                return await self._client.llama_extract.get_run_by_job_id(job_id=job_id)
-
     async def _wait_for_job_result(self, job_id: str) -> Optional[ExtractRun]:
         """Wait for and return the results of an extraction job."""
-        start = time.perf_counter()
-        tries = 0
-
-        while True:
-            await asyncio.sleep(self.check_interval)
-            tries += 1
-
-            try:
-                job = await self._get_job_with_retry(job_id)
-
-                if job.status == StatusEnum.SUCCESS:
-                    return await self._get_run_with_retry(job_id)
-                elif job.status == StatusEnum.PENDING:
-                    end = time.perf_counter()
-                    if end - start > self.max_timeout:
-                        raise Exception(f"Timeout while extracting the file: {job_id}")
-                    if self._verbose and tries % 10 == 0:
-                        print(".", end="", flush=True)
-                    continue
-                else:
-                    warnings.warn(
-                        f"Failure in job: {job_id}, status: {job.status}, error: {job.error}"
-                    )
-                    return await self._get_run_with_retry(job_id)
-
-            except Exception as e:
-                # If we get a non-retryable error or all retries are exhausted, re-raise
-                if self._verbose:
-                    print(f"\nError in job polling for {job_id}: {e}")
-                raise e
+        return await _wait_for_job_result(
+            client=self._client,
+            job_id=job_id,
+            check_interval=self.check_interval,
+            max_timeout=self.max_timeout,
+            verbose=self._verbose,
+            project_id=self._project_id,
+            organization_id=self._organization_id,
+            job_retry_attempts=5,
+            job_max_wait=60,
+            job_jitter=5,
+            run_retry_attempts=3,
+            run_max_wait=20,
+            run_jitter=3,
+        )
 
     def save(self) -> None:
         """Persist the extraction agent's schema and config to the database.
@@ -643,12 +739,14 @@ class LlamaExtract(BaseComponent):
             base_url = os.getenv("LLAMA_CLOUD_BASE_URL", None) or DEFAULT_BASE_URL
 
         super().__init__(
-            api_key=api_key,
-            base_url=base_url,
+            api_key=api_key,  # type: ignore
+            base_url=base_url,  # type: ignore
             check_interval=check_interval,
             max_timeout=max_timeout,
             num_workers=num_workers,
             show_progress=show_progress,
+            project_id=project_id,
+            organization_id=organization_id,
             verify=verify,
             httpx_timeout=httpx_timeout,
             verbose=verbose,
@@ -702,7 +800,7 @@ class LlamaExtract(BaseComponent):
             config = DEFAULT_EXTRACT_CONFIG
 
         if isinstance(data_schema, dict):
-            data_schema = data_schema
+            pass
         elif issubclass(data_schema, BaseModel):
             data_schema = data_schema.model_json_schema()
         else:
@@ -803,6 +901,8 @@ class LlamaExtract(BaseComponent):
                 num_workers=self.num_workers,
                 show_progress=self.show_progress,
                 verbose=self.verbose,
+                verify=self.verify,
+                httpx_timeout=self.httpx_timeout,
             )
             for agent in agents
         ]
@@ -819,6 +919,245 @@ class LlamaExtract(BaseComponent):
             )
         )
 
+    async def _wait_for_job_result(self, job_id: str) -> Optional[ExtractRun]:
+        """Wait for and return the results of an extraction job."""
+        return await _wait_for_job_result(
+            client=self._async_client,
+            job_id=job_id,
+            check_interval=self.check_interval,
+            max_timeout=self.max_timeout,
+            verbose=self.verbose,
+            project_id=self._project_id,
+            organization_id=self._organization_id,
+            job_retry_attempts=3,
+            job_max_wait=4,
+            job_jitter=5,
+            run_retry_attempts=3,
+            run_max_wait=4,
+            run_jitter=3,
+        )
+
+    def _get_mime_type(
+        self,
+        filename: Optional[str] = None,
+        file_path: Optional[Union[str, Path]] = None,
+    ) -> str:
+        """Determine MIME type for a file based on filename or path."""
+        # MIME type mappings for supported formats
+        MIME_TYPE_MAP = {
+            # Text files
+            ".txt": "text/plain",
+            ".csv": "text/csv",
+            ".json": "application/json",
+            ".html": "text/html",
+            ".htm": "text/html",
+            ".md": "text/markdown",
+            # Document files
+            ".pdf": "application/pdf",
+            ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            # Image files
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+        }
+
+        # Try to get extension from filename or file_path
+        extension = None
+        if filename:
+            extension = Path(filename).suffix.lower()
+        elif file_path:
+            extension = Path(file_path).suffix.lower()
+
+        # Check if the extension is supported
+        if extension and extension in MIME_TYPE_MAP:
+            return MIME_TYPE_MAP[extension]
+
+        # If we don't have a supported extension, provide helpful error message
+        supported_extensions = [ext[1:] for ext in MIME_TYPE_MAP.keys()]  # Remove dots
+        supported_list = ", ".join(sorted(supported_extensions))
+
+        if extension:
+            ext_without_dot = extension[1:]  # Remove the leading dot
+            raise ValueError(
+                f"Unsupported file type: '{ext_without_dot}'. "
+                f"Supported formats are: {supported_list}"
+            )
+        else:
+            raise ValueError(
+                f"Could not determine file type. Please provide a filename with one of these supported extensions: {supported_list}"
+            )
+
+    def _convert_file_to_file_data(self, file_input: FileInput) -> Union[FileData, str]:
+        """Convert FileInput to FileData or text string for stateless extraction."""
+        if isinstance(file_input, SourceText):
+            if file_input.text_content is not None:
+                return file_input.text_content
+            elif file_input.file is not None:
+                if isinstance(file_input.file, bytes):
+                    data = file_input.file
+                    filename = file_input.filename
+                elif isinstance(file_input.file, (str, Path)):
+                    with open(file_input.file, "rb") as f:
+                        data = f.read()
+                    filename = file_input.filename or str(file_input.file)
+                elif isinstance(file_input.file, (BufferedIOBase, TextIOWrapper)):
+                    if hasattr(file_input.file, "read"):
+                        content = file_input.file.read()
+                        if isinstance(content, str):
+                            data = content.encode("utf-8")
+                        else:
+                            data = content
+                    else:
+                        raise ValueError("File object must have a read method")
+                    filename = file_input.filename or getattr(
+                        file_input.file, "name", None
+                    )
+                else:
+                    raise ValueError(f"Unsupported file type: {type(file_input.file)}")
+
+                # Encode as base64
+                encoded_data = base64.b64encode(data).decode("utf-8")
+
+                # Determine mime type
+                mime_type = self._get_mime_type(filename=filename)
+
+                return FileData(data=encoded_data, mime_type=mime_type)
+            else:
+                raise ValueError("SourceText must have either text_content or file")
+
+        elif isinstance(file_input, (str, Path)):
+            with open(file_input, "rb") as f:
+                data = f.read()
+            encoded_data = base64.b64encode(data).decode("utf-8")
+            mime_type = self._get_mime_type(file_path=file_input)
+            return FileData(data=encoded_data, mime_type=mime_type)
+
+        elif isinstance(file_input, bytes):
+            # For raw bytes, we can't determine the file type, so we need to raise an error
+            raise ValueError(
+                "Cannot determine file type from raw bytes. Please use SourceText with a filename, or provide a file path."
+            )
+
+        elif isinstance(file_input, (BufferedIOBase, TextIOWrapper)):
+            if hasattr(file_input, "read"):
+                content = file_input.read()
+                if isinstance(content, str):
+                    data = content.encode("utf-8")
+                else:
+                    data = content
+                encoded_data = base64.b64encode(data).decode("utf-8")
+
+                # Try to get filename from the file object
+                filename = getattr(file_input, "name", None)
+                mime_type = self._get_mime_type(filename=filename)
+
+                return FileData(data=encoded_data, mime_type=mime_type)
+            else:
+                raise ValueError("File object must have a read method")
+
+        else:
+            raise ValueError(f"Unsupported file input type: {type(file_input)}")
+
+    async def queue_extraction(
+        self,
+        data_schema: SchemaInput,
+        config: ExtractConfig,
+        files: Union[FileInput, List[FileInput]],
+    ) -> Union[ExtractJob, List[ExtractJob]]:
+        """Queue extraction jobs using stateless extraction (no agent required).
+
+        Args:
+            data_schema: The schema defining what data to extract
+            config: The extraction configuration
+            files: File(s) to extract from
+
+        Returns:
+            ExtractJob or list of ExtractJobs
+        """
+        _extraction_config_warning(config)
+        processed_schema = await _validate_schema(self._async_client, data_schema)
+
+        if not isinstance(files, list):
+            files = [files]
+
+        jobs = []
+        for file_input in files:
+            file_data_or_text = self._convert_file_to_file_data(file_input)
+
+            if isinstance(file_data_or_text, str):
+                # It's text content
+                job = await self._async_client.llama_extract.extract_stateless(
+                    project_id=self._project_id,
+                    organization_id=self._organization_id,
+                    data_schema=processed_schema,
+                    config=config,
+                    text=file_data_or_text,
+                )
+            else:
+                # It's FileData
+                job = await self._async_client.llama_extract.extract_stateless(
+                    project_id=self._project_id,
+                    organization_id=self._organization_id,
+                    data_schema=processed_schema,
+                    config=config,
+                    file=file_data_or_text,
+                )
+            jobs.append(job)
+
+        return jobs[0] if len(jobs) == 1 else jobs
+
+    async def aextract(
+        self,
+        data_schema: SchemaInput,
+        config: ExtractConfig,
+        files: Union[FileInput, List[FileInput]],
+    ) -> Union[ExtractRun, List[ExtractRun]]:
+        """Run stateless extraction and wait for results.
+
+        Args:
+            data_schema: The schema defining what data to extract
+            config: The extraction configuration
+            files: File(s) to extract from
+
+        Returns:
+            ExtractRun or list of ExtractRuns with the extraction results
+        """
+        jobs = await self.queue_extraction(data_schema, config, files)
+
+        if isinstance(jobs, list):
+            runs = []
+            for job in jobs:
+                run = await self._wait_for_job_result(job.id)
+                if run is None:
+                    raise RuntimeError(
+                        f"Failed to get extraction result for job {job.id}"
+                    )
+                runs.append(run)
+            return runs
+        else:
+            run = await self._wait_for_job_result(jobs.id)
+            if run is None:
+                raise RuntimeError(f"Failed to get extraction result for job {jobs.id}")
+            return run
+
+    def extract(
+        self,
+        data_schema: SchemaInput,
+        config: ExtractConfig,
+        files: Union[FileInput, List[FileInput]],
+    ) -> Union[ExtractRun, List[ExtractRun]]:
+        """Run stateless extraction and wait for results (synchronous version).
+
+        Args:
+            data_schema: The schema defining what data to extract
+            config: The extraction configuration
+            files: File(s) to extract from
+
+        Returns:
+            ExtractRun or list of ExtractRuns with the extraction results
+        """
+        return self._run_in_thread(self.aextract(data_schema, config, files))
+
     def __del__(self) -> None:
         """Cleanup resources properly."""
         try:
@@ -832,6 +1171,20 @@ if __name__ == "__main__":
     from dotenv import load_dotenv
 
     load_dotenv()
+
+    # Example usage:
+    #
+    # # Basic usage with stateless extraction (no agent required)
+    # extractor = LlamaExtract()
+    # schema = {"name": {"type": "string"}, "email": {"type": "string"}}
+    # config = ExtractConfig(extraction_mode=ExtractMode.FAST)
+    # files = ["path/to/document.pdf"]
+    #
+    # # Queue extraction jobs
+    # jobs = extractor.queue_extraction(schema, config, files)
+    #
+    # # Or run extraction and wait for results
+    # results = extractor.extract(schema, config, files)
 
     data_dir = Path(__file__).parent.parent / "tests" / "data"
     extractor = LlamaExtract()

@@ -1,0 +1,23 @@
+{
+  "name": "@llamaindex/llama-cloud-services-e2e-tests",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "pnpm run test:node16 && pnpm run test:nodenext && pnpm run test:bundler",
+    "build": "pnpm run build:node16 && pnpm run build:nodenext && pnpm run build:bundler",
+    "build:node16": "tsc -p src/tsconfig.node16.json --outDir dist/node16",
+    "test:node16": "pnpm run build:node16 && node --test dist/node16/index.e2e.js",
+    "build:nodenext": "tsc -p src/tsconfig.nodenext.json --outDir dist/nodenext",
+    "test:nodenext": "pnpm run build:nodenext && node --test dist/nodenext/index.e2e.js",
+    "build:bundler": "tsc -p src/tsconfig.bundler.json --outDir dist/bundler",
+    "test:bundler": "pnpm run build:bundler && node --test dist/bundler/index.e2e.js",
+    "build:node": "tsc -p src/tsconfig.node.json --outDir dist/node",
+    "test:node": "pnpm run build:node && node --test dist/node/index.e2e.js"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.13",
+    "llama-cloud-services": "workspace:*",
+    "typescript": "^5.9.2"
+  }
+}
