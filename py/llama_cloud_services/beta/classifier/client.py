@@ -1,4 +1,5 @@
 import asyncio
+import time
 from typing import Optional
 from pydantic import BaseModel
 from llama_cloud.client import AsyncLlamaCloud
@@ -12,6 +13,7 @@ from llama_cloud.types import (
 )
 from llama_cloud.resources.classifier.client import OMIT
 from llama_cloud_services.files.client import FileClient
+from llama_cloud_services.constants import POLLING_TIMEOUT_SECONDS
 from llama_cloud_services.utils import is_terminal_status
 from llama_index.core.async_utils import DEFAULT_NUM_WORKERS, run_jobs
 
@@ -30,7 +32,8 @@ class ClassifyClient:
         client: The LlamaCloud client to use.
         project_id: The project ID to use.
         organization_id: The organization ID to use.
-        polling_interval: The interval to poll for job completion.
+        polling_interval: The interval to poll for job completion in seconds.
+        polling_timeout: The timeout for the job to complete in seconds.
     """
 
     def __init__(
@@ -38,13 +41,15 @@ class ClassifyClient:
         client: AsyncLlamaCloud,
         project_id: Optional[str] = None,
         organization_id: Optional[str] = None,
-        polling_interval: int = 1,
+        polling_interval: float = 1.0,
+        polling_timeout: float = POLLING_TIMEOUT_SECONDS,
     ):
         self.client = client
         self.project_id = project_id
         self.organization_id = organization_id
         self.polling_interval = polling_interval
         self.file_client = FileClient(client, project_id, organization_id)
+        self.polling_timeout = polling_timeout
 
     async def classify_file_ids(
         self,
@@ -126,7 +131,13 @@ class ClassifyClient:
         job = await self.client.classifier.get_classify_job(
             job_id, project_id=self.project_id, organization_id=self.organization_id
         )
+        start_time = time.time()
         while not is_terminal_status(job.status):
+            polling_duration = time.time() - start_time
+            if polling_duration > self.polling_timeout:
+                raise TimeoutError(
+                    f"Job {job_id} timed out after {polling_duration} seconds"
+                )
             await asyncio.sleep(self.polling_interval)
             job = await self.client.classifier.get_classify_job(
                 job_id, project_id=self.project_id, organization_id=self.organization_id
