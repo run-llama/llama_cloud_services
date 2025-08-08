@@ -12,7 +12,8 @@ class EndToEndTestSettings(BaseSettings):
         description="The API key for the LlamaCloud API"
     )
     LLAMA_CLOUD_ORGANIZATION_ID: str | None = Field(
-        default=None, description="The organization ID for the LlamaCloud API"
+        description="The organization ID for the LlamaCloud API",
+        default=None,
     )
     LLAMA_CLOUD_PROJECT_NAME: str = Field(
         description="The project name for the LlamaCloud API",
