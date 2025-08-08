@@ -14,7 +14,8 @@ import {
   getJobTextResultApiV1ParsingJobJobIdResultTextGet,
   uploadFileApiV1ParsingUploadPost,
 } from "./api";
-import { sleep } from "./utils";
+import { sleep, getSavePath } from "./utils";
+import type { ParseResult } from "./type";
 
 export type Language = ParserLanguages;
 export type ResultType = "text" | "markdown" | "json";
@@ -594,15 +595,15 @@ export class LlamaParseReader extends FileReader {
   }
 
   /**
-   * Loads data from a file and returns an array of JSON objects.
+   * Loads data from a file and returns an array of  ParseResult objects.
    * To be used with resultType "json".
    *
    * @param filePathOrContent - The file path or the file content as a Uint8Array.
-   * @returns A Promise that resolves to an array of JSON objects.
+   * @returns A Promise that resolves to an array of ParseResult objects, encapsulating the JSON array resulting from the parsing within the pages attribute.
    */
   async loadJson(
     filePathOrContent: string | Uint8Array,
-  ): Promise<Record<string, any>[]> {
+  ): Promise<ParseResult[]> {
     let jobId;
     const isFilePath =
       typeof filePathOrContent === "string" &&
@@ -628,7 +629,7 @@ export class LlamaParseReader extends FileReader {
       const resultJson = await this.getJobResult(jobId, "json");
       resultJson.job_id = jobId;
       resultJson.file_path = isFilePath ? filePathOrContent : undefined;
-      return [resultJson];
+      return [resultJson] as ParseResult[];
     } catch (e) {
       console.error(`Error while parsing the file under job id ${jobId}`, e);
       if (this.ignoreErrors) {
@@ -640,6 +641,80 @@ export class LlamaParseReader extends FileReader {
   }
 
   /**
+   * Loads data from a file or file bytes (or an array of those) and returns an array of ParseResult objects.
+   *
+   * @param filePathOrContent - The file path or the file content as a Uint8Array, or an array of one of those two types.
+   * @returns A Promise that resolves to an array of ParseResult objects, encapsulating the JSON array resulting from the parsing within the pages attribute.
+   */
+  async parse(
+    filePathOrContent: string | Uint8Array | string[] | Uint8Array[],
+  ): Promise<ParseResult[]> {
+    const jsonResults: Record<string, any>[][] = [];
+    if (!Array.isArray(filePathOrContent)) {
+      const jsonResult = await this.loadJson(filePathOrContent);
+      jsonResults.push(jsonResult);
+    } else {
+      for (let i = 0; i < filePathOrContent.length; i++) {
+        console.log(
+          `Processing file ${i + 1} of ${filePathOrContent.length}...`,
+        );
+        const jsonResult = await this.loadJson(
+          filePathOrContent[i] as string | Uint8Array,
+        );
+        jsonResults.push(jsonResult);
+      }
+    }
+    const parseResults: ParseResult[] = [];
+    for (const jsonResult of jsonResults) {
+      for (const result of jsonResult) {
+        const parseResult = {
+          pages: result.pages,
+          job_metadata: result.job_metadata,
+          job_id: result.job_id,
+          file_path: result?.file_path ?? "",
+          is_completed: true,
+        } as ParseResult;
+        parseResults.push(parseResult);
+      }
+    }
+    return parseResults;
+  }
+
+  /**
+   * Downloads and saves tables from a given array of ParseResult to a specified download path.
+   *
+   * @param jsonResults - The array of ParseResult containing table information.
+   * @param downloadPath - The path where the downloaded tables will be saved as CSV files.
+   * @returns A Promise that resolves to an array of strings representing the paths to the tables.
+   */
+  async getTables(
+    jsonResults: ParseResult[],
+    downloadPath: string,
+  ): Promise<string[]> {
+    const tables: string[] = [];
+    for (const result of jsonResults) {
+      for (const page of result.pages) {
+        if ("items" in page && Array.isArray(page.items)) {
+          for (let i = 0; i < page.items.length; i++) {
+            if (
+              "type" in page.items[i] &&
+              page.items[i].type === "table" &&
+              "csv" in page.items[i] &&
+              typeof page.items[i].csv === "string" &&
+              page.items[i].csv != ""
+            ) {
+              const savePath = getSavePath(downloadPath, i);
+              await fs.writeFile(savePath, page.items[i].csv);
+              tables.push(savePath);
+            }
+          }
+        }
+      }
+    }
+    return tables;
+  }
+
+  /**
    * Downloads and saves images from a given JSON result to a specified download path.
    * Currently only supports resultType "json".
    *
@@ -648,7 +723,7 @@ export class LlamaParseReader extends FileReader {
    * @returns A Promise that resolves to an array of image objects.
    */
   async getImages(
-    jsonResult: Record<string, any>[],
+    jsonResult: ParseResult[],
     downloadPath: string,
   ): Promise<Record<string, any>[]> {
     try {
