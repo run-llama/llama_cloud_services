@@ -53,9 +53,7 @@ parametrize_use_presigned_url = pytest.mark.parametrize(
 
 @parametrize_use_presigned_url
 @pytest.mark.asyncio
-async def test_upload_file_from_path(
-    file_client: FileClient, test_file: str, use_presigned_url: bool
-):
+async def test_upload_file_from_path(file_client: FileClient, test_file: str):
     """Test uploading a file from file path"""
     external_file_id = f"test_upload_path_{os.getpid()}"
     uploaded_file = await file_client.upload_file(test_file, external_file_id)
@@ -124,9 +122,7 @@ async def test_get_file(file_client: FileClient, test_file: str):
 
 @parametrize_use_presigned_url
 @pytest.mark.asyncio
-async def test_upload_with_default_external_id(
-    file_client: FileClient, test_file: str, use_presigned_url: bool
-):
+async def test_upload_with_default_external_id(file_client: FileClient, test_file: str):
     """Test uploading file with default external_file_id"""
     # Upload file without specifying external_file_id
     uploaded_file = await file_client.upload_file(test_file)
