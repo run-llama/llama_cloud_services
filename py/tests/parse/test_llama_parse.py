@@ -202,3 +202,12 @@ async def test_get_result(markdown_parser: LlamaParse) -> None:
     result = await markdown_parser.aget_result(expected.job_id)
     assert result.job_id == expected.job_id
     assert len(result.pages) == len(expected.pages)
+
+
+@pytest.mark.asyncio
+async def test_parse_audio() -> None:
+    parser = LlamaParse()
+    filepath = "tests/test_files/hello_world.m4a"
+
+    result = await parser.aparse(filepath)
+    assert result.job_id is not None
