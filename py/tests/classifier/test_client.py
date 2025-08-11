@@ -66,22 +66,20 @@ def simple_pdf_file_path() -> str:
 
 
 @pytest.fixture
-def resume_file_path() -> str:
-    return "tests/test_files/resume/software_architect_resume.html"
+def research_paper_path() -> str:
+    return "tests/test_files/attention_is_all_you_need_chart.pdf"
 
 
 @pytest.fixture
 def classification_rules() -> list[ClassifierRule]:
     return [
         ClassifierRule(
-            type="Number Document",
+            type="number",
             description="Documents with numbers",
-            classification="number",
         ),
         ClassifierRule(
-            type="Resume Document",
-            description="Resume or CV documents",
-            classification="resume",
+            type="research_paper",
+            description="Research papers",
         ),
     ]
 
@@ -91,23 +89,26 @@ async def test_classify_file_ids(
     classify_client: ClassifyClient,
     file_client: FileClient,
     simple_pdf_file_path: str,
-    resume_file_path: str,
+    research_paper_path: str,
     classification_rules: list[ClassifierRule],
 ):
     """Test classifying files by their IDs"""
     # Upload test files first to get their IDs
     pdf_file = await file_client.upload_file(simple_pdf_file_path)
-    resume_file = await file_client.upload_file(resume_file_path)
+    research_paper_file = await file_client.upload_file(research_paper_path)
 
     # Classify the uploaded files
     results = await classify_client.classify_file_ids(
-        rules=classification_rules, file_ids=[pdf_file.id, resume_file.id]
+        rules=classification_rules, file_ids=[pdf_file.id, research_paper_file.id]
     )
 
     assert isinstance(results, ClassifyJobResults)
     assert len(results.items) == 2
 
-    file_id_to_expected_type = {pdf_file.id: "pdf", resume_file.id: "resume"}
+    file_id_to_expected_type = {
+        pdf_file.id: "number",
+        research_paper_file.id: "research_paper",
+    }
     # Verify each file got classified
     for item in results.items:
         expected_type = file_id_to_expected_type[item.file_id]
@@ -137,27 +138,29 @@ async def test_classify_file_path(
 @pytest.mark.asyncio
 async def test_classify_file_paths(
     classify_client: ClassifyClient,
+    file_client: FileClient,
     simple_pdf_file_path: str,
-    resume_file_path: str,
+    research_paper_path: str,
     classification_rules: list[ClassifierRule],
 ):
     """Test classifying multiple files by paths"""
     # Classify all test files
     results = await classify_client.classify_file_paths(
         rules=classification_rules,
-        file_input_paths=[simple_pdf_file_path, resume_file_path],
+        file_input_paths=[simple_pdf_file_path, research_paper_path],
     )
 
     assert isinstance(results, ClassifyJobResults)
     assert len(results.items) == 2
 
-    file_id_to_expected_type = {
-        simple_pdf_file_path: "number",
-        resume_file_path: "resume",
+    file_name_to_expected_type = {
+        os.path.basename(simple_pdf_file_path): "number",
+        os.path.basename(research_paper_path): "research_paper",
     }
     # Verify each file got classified
     for item in results.items:
-        expected_type = file_id_to_expected_type[item.file_id]
+        file = await file_client.get_file(item.file_id)
+        expected_type = file_name_to_expected_type[file.name]
         assert item.result.type == expected_type
 
 

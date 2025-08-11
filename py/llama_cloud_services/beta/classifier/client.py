@@ -87,7 +87,7 @@ class ClassifyClient:
                 f"Error classifying files under job ID {classify_job_with_status.id}"
             )
 
-        results = self.client.classifier.get_classification_job_results(
+        results = await self.client.classifier.get_classification_job_results(
             classify_job_with_status.id,
             project_id=self.project_id,
             organization_id=self.organization_id,
