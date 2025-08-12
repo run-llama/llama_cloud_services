@@ -33,9 +33,9 @@ from llama_cloud.client import AsyncLlamaCloud
 from llama_cloud.core.api_error import ApiError
 from llama_cloud_services.extract.utils import (
     JSONObjectType,
-    augment_async_errors,
     ExperimentalWarning,
 )
+from llama_cloud_services.utils import augment_async_errors
 from llama_index.core.schema import BaseComponent
 from llama_index.core.async_utils import run_jobs
 from llama_index.core.bridge.pydantic import Field, PrivateAttr

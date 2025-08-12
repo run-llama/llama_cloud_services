@@ -1,12 +1,20 @@
 import os
 import importlib.metadata
-
+from contextlib import contextmanager
+from typing import Generator
 import difflib
 from llama_cloud.types import StatusEnum
 import httpx
 import packaging.version
 from pydantic import BaseModel
 from typing import Any, Dict, List, Tuple, Type
+
+# Asyncio error messages
+nest_asyncio_err = "cannot be called from a running event loop"
+nest_asyncio_msg = (
+    "The event loop is already running. "
+    "Add `import nest_asyncio; nest_asyncio.apply()` to your code to fix this issue."
+)
 
 
 def check_extra_params(
@@ -85,3 +93,14 @@ async def check_for_updates(client: httpx.AsyncClient, quiet: bool = True) -> bo
     elif not quiet:
         print(f"{package_name} is up to date")
     return False
+
+
+@contextmanager
+def augment_async_errors() -> Generator[None, None, None]:
+    """Context manager to add helpful information for errors due to nested event loops."""
+    try:
+        yield
+    except RuntimeError as e:
+        if nest_asyncio_err in str(e):
+            raise RuntimeError(nest_asyncio_msg)
+        raise
