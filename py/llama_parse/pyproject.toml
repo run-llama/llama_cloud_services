@@ -11,7 +11,7 @@ dev = [
 
 [project]
 name = "llama-parse"
-version = "0.6.56"
+version = "0.6.57"
 description = "Parse files into RAG-Optimized formats."
 authors = [{name = "Logan Markewich", email = "logan@llamaindex.ai"}]
 requires-python = ">=3.9,<4.0"
