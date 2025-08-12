@@ -35,6 +35,17 @@ class FileClient:
             file_id, project_id=self.project_id, organization_id=self.organization_id
         )
 
+    async def read_file_content(self, file_id: str) -> bytes:
+        presigned_url = await self.client.files.read_file_content(
+            file_id,
+            project_id=self.project_id,
+            organization_id=self.organization_id,
+        )
+        httpx_client = self.client._client_wrapper.httpx_client
+        response = await httpx_client.get(presigned_url.url)
+        response.raise_for_status()
+        return response.content
+
     async def upload_file(
         self, file_path: str, external_file_id: Optional[str] = None
     ) -> File:
@@ -67,7 +78,11 @@ class FileClient:
                 ),
             )
             httpx_client = self.client._client_wrapper.httpx_client
-            await httpx_client.post(presigned_url.url, data=buffer)
+            upload_response = await httpx_client.put(
+                presigned_url.url,
+                data=buffer.read(),
+            )
+            upload_response.raise_for_status()
             return await self.client.files.get_file(
                 presigned_url.file_id,
                 project_id=self.project_id,

@@ -130,3 +130,18 @@ async def test_upload_with_default_external_id(file_client: FileClient, test_fil
     assert isinstance(uploaded_file, File)
     assert uploaded_file.name == os.path.basename(test_file)
     assert uploaded_file.external_file_id == test_file
+
+
+@parametrize_use_presigned_url
+@pytest.mark.asyncio
+async def test_read_file_content(file_client: FileClient, test_file: str):
+    """Test reading a file content"""
+    # Upload a file first
+    external_file_id = f"test_read_file_content_{os.getpid()}"
+    uploaded_file = await file_client.upload_file(test_file, external_file_id)
+
+    # Read the file content
+    file_content = await file_client.read_file_content(uploaded_file.id)
+    with open(test_file, "rb") as f:
+        expected_file_content = f.read()
+    assert file_content == expected_file_content
