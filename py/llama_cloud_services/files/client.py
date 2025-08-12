@@ -67,7 +67,7 @@ class FileClient:
                 ),
             )
             httpx_client = self.client._client_wrapper.httpx_client
-            httpx_client.post(presigned_url.url, data=buffer)
+            await httpx_client.post(presigned_url.url, data=buffer)
             return await self.client.files.get_file(
                 presigned_url.file_id,
                 project_id=self.project_id,
