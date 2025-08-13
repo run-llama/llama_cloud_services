@@ -5,6 +5,7 @@ build-backend = "hatchling.build"
 [dependency-groups]
 dev = [
   "pytest>=8.0.0,<9",
+  "pytest-xdist>=3.6.1,<4",
   "pytest-asyncio",
   "ipykernel>=6.29.0,<7",
   "pre-commit==3.2.0",

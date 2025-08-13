@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Tests
         working-directory: py
-        run: uv run pytest unit_tests/ tests/ -v
+        run: make e2e
 
       - name: Remove virtual environment
         working-directory: py
