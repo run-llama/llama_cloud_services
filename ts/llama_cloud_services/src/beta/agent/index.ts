@@ -4,6 +4,8 @@ export type {
   AggregateAgentDataOptions,
   ComparisonOperator,
   ExtractedData,
+  ExtractedFieldMetadata,
+  ExtractedFieldMetadataDict,
   FilterOperation,
   SearchAgentDataOptions,
   StatusType,
