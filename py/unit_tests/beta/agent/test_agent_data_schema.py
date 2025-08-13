@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field, ValidationError
 from llama_cloud_services.beta.agent_data.schema import (
     ExtractedData,
     ExtractedFieldMetadata,
+    FieldCitation,
     InvalidExtractionData,
     TypedAgentData,
     TypedAggregateGroup,
@@ -83,8 +84,12 @@ def test_extracted_data_create_method():
 
     # Test with custom values using ExtractedFieldMetadata
     field_metadata = {
-        "name": ExtractedFieldMetadata(confidence=0.99, page_number=1),
-        "age": ExtractedFieldMetadata(confidence=0.85, page_number=1),
+        "name": ExtractedFieldMetadata(
+            confidence=0.99, citation=[FieldCitation(page=1)]
+        ),
+        "age": ExtractedFieldMetadata(
+            confidence=0.85, citation=[FieldCitation(page=1)]
+        ),
     }
     extracted_custom = ExtractedData.create(
         person, status="accepted", field_metadata=field_metadata
@@ -256,14 +261,16 @@ def test_parse_extracted_field_metadata():
     # name should have parsed citation data
     assert isinstance(result["name"], ExtractedFieldMetadata)
     assert result["name"].confidence == 0.95
-    assert result["name"].page_number == 1
-    assert result["name"].matching_text == "John Smith"
+    assert result["name"].citation == [
+        FieldCitation(page=1, matching_text="John Smith")
+    ]
 
     # age should handle float page number
     assert isinstance(result["age"], ExtractedFieldMetadata)
     assert result["age"].confidence == 0.87
-    assert result["age"].page_number == 2  # Should be converted to int
-    assert result["age"].matching_text == "25 years old"
+    assert result["age"].citation == [
+        FieldCitation(page=2, matching_text="25 years old")
+    ]
 
     # email should handle empty citations
     assert isinstance(result["email"], ExtractedFieldMetadata)
@@ -329,30 +336,38 @@ def test_parse_extracted_field_metadata_complex():
             reasoning="Combined key parametrics and construction from the datasheet for a structured title.",
             confidence=0.9470628580889779,
             extraction_confidence=0.9470628580889779,
-            page_number=1,
-            matching_text="PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+            citation=[
+                FieldCitation(
+                    page=1,
+                    matching_text="PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+                )
+            ],
         ),
         "manufacturer": ExtractedFieldMetadata(
             reasoning="VERBATIM EXTRACTION",
             confidence=0.9997446550976602,
             extraction_confidence=0.9997446550976602,
-            page_number=1,
-            matching_text="YAGEO KEMET",
+            citation=[FieldCitation(page=1, matching_text="YAGEO KEMET")],
         ),
         "features": [
             ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999308195540074,
                 extraction_confidence=0.9999308195540074,
-                page_number=1,
-                matching_text="Features</td><td>EMI Safety",
+                citation=[
+                    FieldCitation(
+                        page=1,
+                        matching_text="Features</td><td>EMI Safety",
+                    )
+                ],
             ),
             ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.8642493886452225,
                 extraction_confidence=0.8642493886452225,
-                page_number=1,
-                matching_text="THB Performance</td><td>Yes",
+                citation=[
+                    FieldCitation(page=1, matching_text="THB Performance</td><td>Yes")
+                ],
             ),
         ],
         "dimensions": {
@@ -360,15 +375,13 @@ def test_parse_extracted_field_metadata_complex():
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.8986941382802304,
                 extraction_confidence=0.8986941382802304,
-                page_number=1,
-                matching_text="L</td><td>41mm MAX",
+                citation=[FieldCitation(page=1, matching_text="L</td><td>41mm MAX")],
             ),
             "width": ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999377974447091,
                 extraction_confidence=0.9999377974447091,
-                page_number=1,
-                matching_text="T</td><td>13mm MAX",
+                citation=[FieldCitation(page=1, matching_text="T</td><td>13mm MAX")],
             ),
         },
     }
@@ -452,8 +465,9 @@ def test_extracted_data_from_extraction_result_success():
     # Verify field metadata was parsed
     assert isinstance(extracted.field_metadata["name"], ExtractedFieldMetadata)
     assert extracted.field_metadata["name"].confidence == 0.95
-    assert extracted.field_metadata["name"].page_number == 1
-    assert extracted.field_metadata["name"].matching_text == "John Doe"
+    assert extracted.field_metadata["name"].citation == [
+        FieldCitation(page=1, matching_text="John Doe")
+    ]
 
     # Verify overall confidence was calculated
     expected_confidence = (0.95 + 0.87 + 0.92) / 3
@@ -565,15 +579,11 @@ def test_full_parse_nested_dimensions():
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999999031936799,
                 extraction_confidence=0.9999999031936799,
-                page_number=None,
-                matching_text=None,
             ),
             "length": ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999968039036192,
                 extraction_confidence=0.9999968039036192,
-                page_number=None,
-                matching_text=None,
             ),
         }
     }

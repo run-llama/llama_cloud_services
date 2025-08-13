@@ -38,8 +38,12 @@ export interface ExtractedFieldMetadata {
   confidence?: number;
   /** The confidence score for the field based on the extracted text only */
   extraction_confidence?: number;
+  citation: FieldCitation[];
+}
+
+export interface FieldCitation {
   /** The page number that the field occurred on */
-  page_number?: number;
+  page?: number;
   /** The original text this field's value was derived from */
   matching_text?: string;
 }

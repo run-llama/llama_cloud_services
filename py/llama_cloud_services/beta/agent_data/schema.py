@@ -37,7 +37,6 @@ Example Usage:
 """
 
 from datetime import datetime
-import numbers
 from llama_cloud import ExtractRun
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
@@ -176,6 +175,16 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
     )
 
 
+class FieldCitation(BaseModel):
+    page: Optional[int] = Field(
+        None, description="The page number that the field occurred on"
+    )
+    matching_text: Optional[str] = Field(
+        None,
+        description="The original text this field's value was derived from",
+    )
+
+
 class ExtractedFieldMetadata(BaseModel):
     """
     Metadata for an extracted data field, such as confidence, and citation information.
@@ -193,12 +202,9 @@ class ExtractedFieldMetadata(BaseModel):
         None,
         description="The confidence score for the field based on the extracted text only",
     )
-    page_number: Optional[int] = Field(
-        None, description="The page number that the field occurred on"
-    )
-    matching_text: Optional[str] = Field(
+    citation: Optional[List[FieldCitation]] = Field(
         None,
-        description="The original text this field's value was derived from",
+        description="The citation for the field, including page number and matching text",
     )
 
     # Forbid unknown keys to avoid swallowing nested dicts
@@ -245,17 +251,6 @@ def _parse_extracted_field_metadata_recursive(
                 merged = {k: v for k, v in merged.items() if k in allowed_fields}
                 validated = ExtractedFieldMetadata.model_validate(merged)
 
-                # grab the citation from the array. This is just an array for backwards compatibility.
-                if "citation" in field_value and len(field_value["citation"]) > 0:
-                    first_citation = field_value["citation"][0]
-                    if "page" in first_citation and isinstance(
-                        first_citation["page"], numbers.Number
-                    ):
-                        validated.page_number = int(first_citation["page"])  # type: ignore
-                    if "matching_text" in first_citation and isinstance(
-                        first_citation["matching_text"], str
-                    ):
-                        validated.matching_text = first_citation["matching_text"]
                 return validated
             except ValidationError:
                 pass
