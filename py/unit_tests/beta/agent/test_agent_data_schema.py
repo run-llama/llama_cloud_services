@@ -554,7 +554,7 @@ def test_full_parse_nested_dimensions():
     with open(Path(__file__).parent.parent.parent / "data" / "capacitor.json") as f:
         data = json.load(f)
     result = ExtractedData.from_extraction_result(ExtractRun.parse_obj(data), Capacitor)
-    assert result.field_metadata == {
+    expected = {
         "dimensions": {
             "diameter": ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
@@ -577,3 +577,6 @@ def test_full_parse_nested_dimensions():
             ),
         }
     }
+    assert result.field_metadata == expected
+    parsed = ExtractedData.model_validate_json(result.model_dump_json())
+    assert parsed.field_metadata == expected
