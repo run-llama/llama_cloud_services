@@ -1,11 +1,13 @@
 from datetime import datetime
-from typing import Any, Dict
+import json
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 import pytest
 from llama_cloud import ExtractRun, File
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from llama_cloud_services.beta.agent_data.schema import (
     ExtractedData,
@@ -523,3 +525,55 @@ def test_extracted_data_from_extraction_result_invalid_data():
     assert isinstance(invalid_data.field_metadata["name"], ExtractedFieldMetadata)
     assert invalid_data.field_metadata["name"].confidence == 0.9
     assert invalid_data.overall_confidence == 0.9
+
+
+class Dimensions(BaseModel):
+    length: Optional[str] = Field(
+        None, description="Length in mm (Size, Longest Side, L)"
+    )
+    width: Optional[str] = Field(
+        None, description="Width in mm (Breadth, Side Width, W)"
+    )
+    height: Optional[str] = Field(
+        None, description="Height in mm (Thickness, Vertical Size, H)"
+    )
+    diameter: Optional[str] = Field(
+        None,
+        description="Diameter in mm (for radial or cylindrical types) (Outer Diameter, dt, OD, D, d<sub>t</sub>)",
+    )
+    lead_spacing: Optional[str] = Field(
+        None, description="Lead spacing in mm (Pin Pitch, Terminal Gap, LS)"
+    )
+
+
+class Capacitor(BaseModel):
+    dimensions: Optional[Dimensions] = None
+
+
+def test_full_parse_nested_dimensions():
+    with open(Path(__file__).parent.parent.parent / "data" / "capacitor.json") as f:
+        data = json.load(f)
+    result = ExtractedData.from_extraction_result(ExtractRun.parse_obj(data), Capacitor)
+    assert result.field_metadata == {
+        "dimensions": {
+            "diameter": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=1.0,
+                extraction_confidence=1.0,
+            ),
+            "lead_spacing": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999999031936799,
+                extraction_confidence=0.9999999031936799,
+                page_number=None,
+                matching_text=None,
+            ),
+            "length": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999968039036192,
+                extraction_confidence=0.9999968039036192,
+                page_number=None,
+                matching_text=None,
+            ),
+        }
+    }

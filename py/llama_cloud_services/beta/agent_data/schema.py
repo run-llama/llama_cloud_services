@@ -203,7 +203,7 @@ class ExtractedFieldMetadata(BaseModel):
 
 
 ExtractedFieldMetaDataDict = Dict[
-    str, Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]
+    str, Union[Dict[str, Any], ExtractedFieldMetadata, list[Any]]
 ]
 
 
@@ -223,7 +223,7 @@ _METADATA_FIELDS_SIBLING_TO_LEAF = {"reasoning"}
 def _parse_extracted_field_metadata_recursive(
     field_value: Any,
     additional_fields: dict[str, Any] = {},
-) -> Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]:
+) -> Union[Dict[str, Any], ExtractedFieldMetadata, list[Any]]:
     """
     Parse the extracted field metadata into a dictionary of field names to field metadata.
     """
