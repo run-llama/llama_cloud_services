@@ -24,8 +24,8 @@ from llama_cloud_services.beta.agent_data.schema import (
 # Test data models
 class Person(BaseModel):
     name: str
-    age: int | None
-    email: str | None
+    age: Optional[int] = None
+    email: Optional[str] = None
 
 
 class Company(BaseModel):
@@ -503,10 +503,9 @@ def test_extracted_data_from_extraction_result_invalid_data():
     # Create ExtractRun with data that doesn't match Person schema
     extract_run = create_extract_run(
         data={
-            "name": "Valid Name",
+            "missing_name": "Valid Name",
             "age": "not_a_number",
-            "missing_email": True,
-        },  # Invalid age, missing email
+        },  # Invalid age, missing name
         extraction_metadata={
             "name": {"confidence": 0.9},
         },
@@ -525,9 +524,8 @@ def test_extracted_data_from_extraction_result_invalid_data():
     assert isinstance(invalid_data, ExtractedData)
     assert invalid_data.status == "error"
     assert invalid_data.data == {
-        "name": "Valid Name",
+        "missing_name": "Valid Name",
         "age": "not_a_number",
-        "missing_email": True,
     }
     assert invalid_data.file_id == "error-file"
     assert invalid_data.file_name == "bad_data.pdf"
