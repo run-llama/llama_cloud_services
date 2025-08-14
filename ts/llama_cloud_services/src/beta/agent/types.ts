@@ -38,7 +38,7 @@ export interface ExtractedFieldMetadata {
   confidence?: number;
   /** The confidence score for the field based on the extracted text only */
   extraction_confidence?: number;
-  citation: FieldCitation[];
+  citation?: FieldCitation[];
 }
 
 export interface FieldCitation {
