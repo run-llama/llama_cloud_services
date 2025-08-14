@@ -24,8 +24,8 @@ from llama_cloud_services.beta.agent_data.schema import (
 # Test data models
 class Person(BaseModel):
     name: str
-    age: int
-    email: str
+    age: int | None
+    email: str | None
 
 
 class Company(BaseModel):
@@ -405,6 +405,7 @@ def create_file(
 
 def create_extract_run(
     id: str = "extract-123",
+    job_id: str = "job-123",
     data: Dict[str, Any] = {"name": "John Doe", "age": 30, "email": "john@example.com"},
     extraction_metadata: Dict[str, Any] = {
         "name": {
@@ -423,6 +424,7 @@ def create_extract_run(
     return ExtractRun.parse_obj(
         {
             "id": id,
+            "job_id": job_id,
             "data": data,
             "extraction_metadata": {
                 "field_metadata": extraction_metadata,
@@ -590,3 +592,26 @@ def test_full_parse_nested_dimensions():
     assert result.field_metadata == expected
     parsed = ExtractedData.model_validate_json(result.model_dump_json())
     assert parsed.field_metadata == expected
+
+
+def test_parses_field_metadata_with_error_field():
+    extract_run = create_extract_run(
+        extraction_metadata={
+            "name": {
+                "confidence": 0.95,
+                "citation": [{"page": 1, "matching_text": "John Smith"}],
+            },
+            "error": "This is an error",
+        },
+    )
+
+    parsed = ExtractedData.from_extraction_result(extract_run, Person)
+
+    assert parsed.field_metadata == {
+        "name": ExtractedFieldMetadata(
+            confidence=0.95,
+            citation=[FieldCitation(page=1, matching_text="John Smith")],
+        ),
+    }
+    assert parsed.metadata.get("field_errors") == "This is an error"
+    assert parsed.metadata.get("job_id") == "job-123"

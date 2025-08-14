@@ -223,10 +223,12 @@ def parse_extracted_field_metadata(
         k: _parse_extracted_field_metadata_recursive(v)
         for k, v in field_metadata.items()
         if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
+        and k not in _ADDITIONAL_ROOT_METADATA_FIELDS
     }
 
 
 _METADATA_FIELDS_SIBLING_TO_LEAF = {"reasoning"}
+_ADDITIONAL_ROOT_METADATA_FIELDS = {"error"}
 
 
 def _parse_extracted_field_metadata_recursive(
@@ -417,11 +419,14 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
         """
         file_id = file_id or result.file.id
         file_name = file_name or result.file.name
+        job_id = result.job_id
+        job_field_metadata = result.extraction_metadata.get("field_metadata", {})
+        errors = job_field_metadata.get("error", None)
+        if not isinstance(errors, str):
+            errors = None
 
         try:
-            field_metadata = parse_extracted_field_metadata(
-                result.extraction_metadata.get("field_metadata", {})
-            )
+            field_metadata = parse_extracted_field_metadata(job_field_metadata)
         except ValidationError:
             field_metadata = {}
 
@@ -430,11 +435,15 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
             return cls.create(
                 data=data,
                 status=status,
-                field_metadata=field_metadata,
+                field_metadata=job_field_metadata,
                 file_id=file_id,
                 file_name=file_name,
                 file_hash=file_hash,
-                metadata=metadata or {},
+                metadata={
+                    **({"field_errors": errors} if errors else {}),
+                    "job_id": job_id,
+                    **(metadata or {}),
+                },
             )
         except ValidationError as e:
             invalid_item = ExtractedData[Dict[str, Any]].create(
