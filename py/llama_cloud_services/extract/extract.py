@@ -227,7 +227,7 @@ class SourceText:
             raise ValueError(f"Unsupported file type: {type(self.file)}")
 
 
-FileInput = Union[str, Path, BufferedIOBase, SourceText]
+FileInput = Union[str, Path, BufferedIOBase, SourceText, File]
 
 
 def run_in_thread(
@@ -406,6 +406,8 @@ class ExtractionAgent:
 
     async def _upload_file(self, file_input: FileInput) -> File:
         source_text = None
+        if isinstance(file_input, File):
+            return file_input
         if isinstance(file_input, SourceText):
             source_text = file_input
         elif isinstance(file_input, (str, Path)):
@@ -533,7 +535,7 @@ class ExtractionAgent:
 
         upload_tasks = [self._upload_file(file) for file in files]
         with augment_async_errors():
-            uploaded_files = await run_jobs(
+            uploaded_files: List[File] = await run_jobs(
                 upload_tasks,
                 workers=self.num_workers,
                 desc="Uploading files",
@@ -987,8 +989,13 @@ class LlamaExtract(BaseComponent):
                 f"Could not determine file type. Please provide a filename with one of these supported extensions: {supported_list}"
             )
 
-    def _convert_file_to_file_data(self, file_input: FileInput) -> Union[FileData, str]:
+    def _convert_file_to_file_data(
+        self, file_input: FileInput
+    ) -> Union[FileData, str, File]:
         """Convert FileInput to FileData or text string for stateless extraction."""
+        if isinstance(file_input, File):
+            return file_input
+
         if isinstance(file_input, SourceText):
             if file_input.text_content is not None:
                 return file_input.text_content
@@ -1084,24 +1091,23 @@ class LlamaExtract(BaseComponent):
         for file_input in files:
             file_data_or_text = self._convert_file_to_file_data(file_input)
 
-            if isinstance(file_data_or_text, str):
+            if isinstance(file_data_or_text, File):
+                file_args = {"file_id": file_data_or_text.id}
+
+            elif isinstance(file_data_or_text, str):
                 # It's text content
-                job = await self._async_client.llama_extract.extract_stateless(
-                    project_id=self._project_id,
-                    organization_id=self._organization_id,
-                    data_schema=processed_schema,
-                    config=config,
-                    text=file_data_or_text,
-                )
+                file_args = {"text": file_data_or_text}
             else:
                 # It's FileData
-                job = await self._async_client.llama_extract.extract_stateless(
-                    project_id=self._project_id,
-                    organization_id=self._organization_id,
-                    data_schema=processed_schema,
-                    config=config,
-                    file=file_data_or_text,
-                )
+                file_args = {"file": file_data_or_text}
+
+            job = await self._async_client.llama_extract.extract_stateless(
+                project_id=self._project_id,
+                organization_id=self._organization_id,
+                data_schema=processed_schema,
+                config=config,
+                **file_args,
+            )
             jobs.append(job)
 
         return jobs[0] if len(jobs) == 1 else jobs
