@@ -1582,21 +1582,21 @@ wheels = [
 
 [[package]]
 name = "llama-cloud"
-version = "0.1.37"
+version = "0.1.38"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
     { name = "httpx" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9c/dd/c4f2516523778a0d4b284fa4b66a0136afdd59694f105102838cf793e675/llama_cloud-0.1.37.tar.gz", hash = "sha256:b6d62e7386d1aa85905b7e3f7c19a40694be54c1596668bceaa456cd84ede666", size = 108707, upload-time = "2025-08-04T22:00:37.18Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9a/4b/1494eff6b45922c220f07e19fc38f59c51fb0b9be51df4114afc674126f0/llama_cloud-0.1.38.tar.gz", hash = "sha256:a879d5299e32d22ba44a935806d7c817497b293bb22a3c017e3bd3dcb406a297", size = 121667, upload-time = "2025-08-16T18:45:57.528Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/ca/a7f874b041d2566f000ecc88bf1b76819a8bdbbaea85036ca6905ae3f0f7/llama_cloud-0.1.37-py3-none-any.whl", hash = "sha256:3109ec74575f53311ec4957ca8aea2d6e30556a43d24c6316ceab91c4fed6ab7", size = 314244, upload-time = "2025-08-04T22:00:35.696Z" },
+    { url = "https://files.pythonhosted.org/packages/34/7c/8b132f0abcdcc464c3d0b1f275a4735568972e594af8ccd32466019d191f/llama_cloud-0.1.38-py3-none-any.whl", hash = "sha256:5322235a2e50fec706bb84e718ce26cdaa7c6fd7732e7d1efe3ad47a307e7f54", size = 319316, upload-time = "2025-08-16T18:45:55.794Z" },
 ]
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.59"
+version = "0.6.60"
 source = { editable = "." }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1631,7 +1631,7 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.1.7,<9" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'", specifier = ">=0.2.0,<0.3" },
-    { name = "llama-cloud", specifier = "==0.1.37" },
+    { name = "llama-cloud", specifier = "==0.1.38" },
     { name = "llama-index-core", specifier = ">=0.12.0" },
     { name = "packaging", specifier = ">=25.0" },
     { name = "platformdirs", specifier = ">=4.3.7,<5" },
