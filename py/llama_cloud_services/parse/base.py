@@ -5,6 +5,7 @@ import time
 import warnings
 from contextlib import asynccontextmanager
 from copy import deepcopy
+from deprecated import deprecated
 from enum import Enum
 from io import BufferedIOBase
 from pathlib import Path, PurePath, PurePosixPath
@@ -1270,6 +1271,13 @@ class LlamaParse(BasePydanticReader):
             else:
                 raise e
 
+    @deprecated(
+        reason=(
+            "Use the `.aparse()` method instead. See the docs for more information on usage: "
+            "https://github.com/run-llama/llama_cloud_services/blob/main/parse.md#python-usage"
+        ),
+        version="0.6.62",
+    )
     async def aload_data(
         self,
         file_path: Union[List[FileInput], FileInput],
@@ -1316,6 +1324,13 @@ class LlamaParse(BasePydanticReader):
                 "The input file_path must be a string or a list of strings."
             )
 
+    @deprecated(
+        reason=(
+            "Use the `.parse()` method instead. See the docs for more information on usage: "
+            "https://github.com/run-llama/llama_cloud_services/blob/main/parse.md#python-usage"
+        ),
+        version="0.6.62",
+    )
     def load_data(
         self,
         file_path: Union[List[FileInput], FileInput],
