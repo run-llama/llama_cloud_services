@@ -167,7 +167,8 @@ class LlamaParse(BasePydanticReader):
     )
     split_by_page: bool = Field(
         default=True,
-        description="Whether to split by page using the page separator",
+        description="(Deprecated, use `result.get_x_documents(split_by_page=True)` instead) Whether to split by page using the page separator",
+        deprecated=True,
     )
     verbose: bool = Field(
         default=True, description="Whether to print the progress of the parsing."
@@ -558,6 +559,11 @@ class LlamaParse(BasePydanticReader):
                 "The following parameters are unused: "
                 + ", ".join(extra_params)
                 + f".\n{suggestions_str}",
+            )
+
+        if "split_by_page" in data:
+            warnings.warn(
+                "The `split_by_page` parameter is deprecated. Use `result.get_x_documents(split_by_page=True)` instead.",
             )
 
         return data
