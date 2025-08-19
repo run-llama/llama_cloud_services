@@ -17,7 +17,6 @@ from llama_index.core.async_utils import asyncio_run, run_jobs
 from llama_index.core.bridge.pydantic import (
     Field,
     PrivateAttr,
-    field_validator,
     model_validator,
 )
 from llama_index.core.constants import DEFAULT_BASE_URL
@@ -105,17 +104,29 @@ class BackoffPattern(str, Enum):
     EXPONENTIAL = "exponential"
 
 
+def _get_default_api_key() -> str:
+    env_key = os.getenv("LLAMA_CLOUD_API_KEY")
+    if env_key is None:
+        raise ValueError("The API key is required.")
+    return env_key
+
+
+def _get_default_base_url() -> str:
+    env_url = os.getenv("LLAMA_CLOUD_BASE_URL")
+    return env_url or DEFAULT_BASE_URL
+
+
 class LlamaParse(BasePydanticReader):
     """A smart-parser for files."""
 
     # Library / access specific configurations
     api_key: str = Field(
-        default="",
+        default_factory=_get_default_api_key,
         description="The API key for the LlamaParse API.",
         validate_default=True,
     )
     base_url: str = Field(
-        default=DEFAULT_BASE_URL,
+        default_factory=_get_default_base_url,
         description="The base URL of the Llama Parsing API.",
     )
     organization_id: Optional[str] = Field(
@@ -560,27 +571,6 @@ class LlamaParse(BasePydanticReader):
             )
 
         return data
-
-    @field_validator("api_key", mode="before", check_fields=True)
-    @classmethod
-    def validate_api_key(cls, v: str) -> str:
-        """Validate the API key."""
-        if not v:
-            import os
-
-            api_key = os.getenv("LLAMA_CLOUD_API_KEY", None)
-            if api_key is None:
-                raise ValueError("The API key is required.")
-            return api_key
-
-        return v
-
-    @field_validator("base_url", mode="before", check_fields=True)
-    @classmethod
-    def validate_base_url(cls, v: str) -> str:
-        """Validate the base URL."""
-        url = os.getenv("LLAMA_CLOUD_BASE_URL", None)
-        return url or v or DEFAULT_BASE_URL
 
     _aclient: Union[httpx.AsyncClient, None] = PrivateAttr(default=None, init=False)
 
