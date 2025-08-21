@@ -17,7 +17,6 @@ from llama_index.core.async_utils import asyncio_run, run_jobs
 from llama_index.core.bridge.pydantic import (
     Field,
     PrivateAttr,
-    field_validator,
     model_validator,
 )
 from llama_index.core.constants import DEFAULT_BASE_URL
@@ -25,7 +24,7 @@ from llama_index.core.readers.base import BasePydanticReader
 from llama_index.core.readers.file.base import get_default_fs
 from llama_index.core.schema import Document
 
-from llama_cloud_services.utils import check_extra_params
+from llama_cloud_services.utils import check_extra_params, check_for_updates
 from llama_cloud_services.parse.types import JobResult
 from llama_cloud_services.parse.utils import (
     SUPPORTED_FILE_TYPES,
@@ -105,17 +104,29 @@ class BackoffPattern(str, Enum):
     EXPONENTIAL = "exponential"
 
 
+def _get_default_api_key() -> str:
+    env_key = os.getenv("LLAMA_CLOUD_API_KEY")
+    if env_key is None:
+        raise ValueError("The API key is required.")
+    return env_key
+
+
+def _get_default_base_url() -> str:
+    env_url = os.getenv("LLAMA_CLOUD_BASE_URL")
+    return env_url or DEFAULT_BASE_URL
+
+
 class LlamaParse(BasePydanticReader):
     """A smart-parser for files."""
 
     # Library / access specific configurations
     api_key: str = Field(
-        default="",
+        default_factory=_get_default_api_key,
         description="The API key for the LlamaParse API.",
         validate_default=True,
     )
     base_url: str = Field(
-        default=DEFAULT_BASE_URL,
+        default_factory=_get_default_base_url,
         description="The base URL of the Llama Parsing API.",
     )
     organization_id: Optional[str] = Field(
@@ -541,6 +552,11 @@ class LlamaParse(BasePydanticReader):
         description="Whether to use the vendor multimodal API.",
     )
 
+    check_for_updates: Optional[bool] = Field(
+        default=False,
+        description="Automatically check for Python SDK updates.",
+    )
+
     @model_validator(mode="before")
     @classmethod
     def warn_extra_params(cls, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -555,27 +571,6 @@ class LlamaParse(BasePydanticReader):
             )
 
         return data
-
-    @field_validator("api_key", mode="before", check_fields=True)
-    @classmethod
-    def validate_api_key(cls, v: str) -> str:
-        """Validate the API key."""
-        if not v:
-            import os
-
-            api_key = os.getenv("LLAMA_CLOUD_API_KEY", None)
-            if api_key is None:
-                raise ValueError("The API key is required.")
-            return api_key
-
-        return v
-
-    @field_validator("base_url", mode="before", check_fields=True)
-    @classmethod
-    def validate_base_url(cls, v: str) -> str:
-        """Validate the base URL."""
-        url = os.getenv("LLAMA_CLOUD_BASE_URL", None)
-        return url or v or DEFAULT_BASE_URL
 
     _aclient: Union[httpx.AsyncClient, None] = PrivateAttr(default=None, init=False)
 
@@ -595,6 +590,16 @@ class LlamaParse(BasePydanticReader):
         self._aclient.timeout = self.max_timeout
 
         return self._aclient
+
+    _update_checked = False
+
+    async def _check_for_updates(self) -> None:
+        if self.check_for_updates and not self._update_checked:
+            try:
+                await check_for_updates(self.aclient, quiet=False)
+                self._update_checked = True
+            except (ValueError, httpx.HTTPStatusError):
+                pass
 
     @asynccontextmanager
     async def client_context(self) -> AsyncGenerator[httpx.AsyncClient, None]:
@@ -645,6 +650,7 @@ class LlamaParse(BasePydanticReader):
         fs: Optional[AbstractFileSystem] = None,
         partition_target_pages: Optional[str] = None,
     ) -> str:
+        await self._check_for_updates()
         files = None
         file_handle = None
         input_url = file_input if self._is_input_url(file_input) else None
@@ -1534,6 +1540,7 @@ class LlamaParse(BasePydanticReader):
         self, json_result: List[dict], download_path: str, asset_key: str
     ) -> List[dict]:
         """Download assets (images or charts) from the parsed result."""
+        await self._check_for_updates()
         # Make the download path
         if not os.path.exists(download_path):
             os.makedirs(download_path)
@@ -1642,6 +1649,7 @@ class LlamaParse(BasePydanticReader):
         self, json_result: List[dict], download_path: str
     ) -> List[dict]:
         """Download xlsx from the parsed result."""
+        await self._check_for_updates()
         # make the download path
         if not os.path.exists(download_path):
             os.makedirs(download_path)

@@ -1,0 +1,116 @@
+{
+  "id": "de058dda-6ca7-4eea-a426-da802f84f971",
+  "created_at": "2025-08-13T15:45:39.286921Z",
+  "updated_at": "2025-08-13T15:47:04.878069Z",
+  "extraction_agent_id": "e834e99f-1f35-4748-b82f-03de4bd07ca6",
+  "data_schema": {
+    "additionalProperties": false,
+    "properties": {
+      "dimensions": {
+        "anyOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "length": {
+                "anyOf": [{ "type": "string" }, { "type": "null" }],
+                "description": "Length in mm (Size, Longest Side, L)"
+              },
+              "width": {
+                "anyOf": [{ "type": "string" }, { "type": "null" }],
+                "description": "Width in mm (Breadth, Side Width, W)"
+              },
+              "height": {
+                "anyOf": [{ "type": "string" }, { "type": "null" }],
+                "description": "Height in mm (Thickness, Vertical Size, H)"
+              },
+              "diameter": {
+                "anyOf": [{ "type": "string" }, { "type": "null" }],
+                "description": "Diameter in mm (for radial or cylindrical types) (Outer Diameter, OD, D)"
+              },
+              "lead_spacing": {
+                "anyOf": [{ "type": "string" }, { "type": "null" }],
+                "description": "Lead spacing in mm (Pin Pitch, Terminal Gap, LS)"
+              }
+            },
+            "required": [
+              "length",
+              "width",
+              "height",
+              "diameter",
+              "lead_spacing"
+            ],
+            "type": "object"
+          },
+          { "type": "null" }
+        ]
+      }
+    },
+    "required": ["dimensions"],
+    "type": "object"
+  },
+  "config": {
+    "priority": null,
+    "extraction_target": "PER_DOC",
+    "extraction_mode": "PREMIUM",
+    "multimodal_fast_mode": false,
+    "system_prompt": "",
+    "use_reasoning": true,
+    "cite_sources": false,
+    "confidence_scores": true,
+    "chunk_mode": "PAGE",
+    "high_resolution_mode": false,
+    "invalidate_cache": false,
+    "page_range": null
+  },
+  "file": {
+    "id": "9233cc2b-00e3-4ddd-b426-b8b59357d4cb",
+    "created_at": "2025-08-12T18:31:54.269440Z",
+    "updated_at": "2025-08-13T15:45:39.064906Z",
+    "name": "document (2).pdf.txt",
+    "external_file_id": "document (2).pdf.txt",
+    "file_size": 2562,
+    "file_type": "txt",
+    "project_id": "77bdc79f-fb69-49ae-a783-fcc573eec7ce",
+    "last_modified_at": "2025-08-13T15:45:39Z",
+    "resource_info": {
+      "file_size": 2562,
+      "last_modified_at": "2025-08-13T15:45:39"
+    },
+    "permission_info": null,
+    "data_source_id": null
+  },
+  "status": "SUCCESS",
+  "error": null,
+  "job_id": "5bb8a583-366c-416c-ba55-4f5724fef9a9",
+  "data": {
+    "dimensions": {
+      "length": "82 mm",
+      "width": null,
+      "height": null,
+      "diameter": "35 mm",
+      "lead_spacing": "6.0 mm"
+    }
+  },
+  "extraction_metadata": {
+    "field_metadata": {
+      "dimensions": {
+        "length": {
+          "extraction_confidence": 0.9999968039036192,
+          "confidence": 0.9999968039036192
+        },
+        "diameter": { "extraction_confidence": 1.0, "confidence": 1.0 },
+        "lead_spacing": {
+          "extraction_confidence": 0.9999999031936799,
+          "confidence": 0.9999999031936799
+        },
+        "reasoning": "VERBATIM EXTRACTION"
+      }
+    },
+    "usage": {
+      "num_pages_extracted": 2,
+      "num_document_tokens": 1034,
+      "num_output_tokens": 3440
+    }
+  },
+  "from_ui": false
+}

@@ -1,0 +1,38 @@
+name: Test end-to-end - Python
+
+on:
+  pull_request:
+    paths:
+      - "py/**"
+
+env:
+  UV_VERSION: "0.7.20"
+  LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
+
+jobs:
+  test_e2e:
+    runs-on: ubuntu-latest
+    strategy:
+      # You can use PyPy versions in python-version.
+      # For example, pypy-2.7 and pypy-3.8
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Set up Python
+        run: uv python install ${{ matrix.python-version }} && uv python pin ${{ matrix.python-version }}
+
+      - name: Run Tests
+        working-directory: py
+        run: make e2e
+
+      - name: Remove virtual environment
+        working-directory: py
+        run: rm -rf .venv/

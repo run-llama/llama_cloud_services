@@ -52,6 +52,10 @@ class PageItem(BaseModel):
     bBox: Optional[BBox] = Field(
         default=None, description="The bounding box of the item."
     )
+    html: Optional[str] = Field(
+        default=None,
+        description="The HTML-formatted content of the item. Only applicable for table items when output_tables_as_HTML=True.",
+    )
 
 
 class ImageItem(BaseModel):
@@ -108,7 +112,7 @@ class ChartItem(BaseModel):
 class Page(BaseModel):
     """A page of the document."""
 
-    page: int = Field(description="The page number.")
+    page: int = Field(default=0, description="The page number.")
     text: Optional[str] = Field(default=None, description="The text of the page.")
     md: Optional[str] = Field(default=None, description="The markdown of the page.")
     images: List[ImageItem] = Field(
@@ -148,6 +152,12 @@ class Page(BaseModel):
     )
     noTextContent: bool = Field(
         default=False, description="Whether the page has no text content."
+    )
+    isAudioTranscript: bool = Field(
+        default=False, description="Whether the page is an audio transcript."
+    )
+    durationInSeconds: Optional[float] = Field(
+        default=None, description="The duration of the audio transcript in seconds."
     )
 
 

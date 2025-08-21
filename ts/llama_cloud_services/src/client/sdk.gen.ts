@@ -452,6 +452,9 @@ import type {
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutData,
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse,
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutError,
+  ExtractStatelessApiV1ExtractionRunPostData,
+  ExtractStatelessApiV1ExtractionRunPostResponse,
+  ExtractStatelessApiV1ExtractionRunPostError,
   ListJobsApiV1ExtractionJobsGetData,
   ListJobsApiV1ExtractionJobsGetResponse,
   ListJobsApiV1ExtractionJobsGetError,
@@ -5700,6 +5703,39 @@ export const updateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgent
       },
     });
   };
+
+/**
+ * Extract Stateless
+ * Stateless extraction endpoint that uses a default extraction agent in the user's default project. Requires data_schema, config, and either file_id, text, or base64 encoded file data.
+ */
+export const extractStatelessApiV1ExtractionRunPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ExtractStatelessApiV1ExtractionRunPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    ExtractStatelessApiV1ExtractionRunPostResponse,
+    ExtractStatelessApiV1ExtractionRunPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/run",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
 
 /**
  * List Jobs

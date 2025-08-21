@@ -37,7 +37,7 @@ LLAMA_CLOUD_BASE_URL = os.getenv("LLAMA_CLOUD_BASE_URL")
 LLAMA_DEPLOY_DEPLOYMENT_NAME = os.getenv("LLAMA_DEPLOY_DEPLOYMENT_NAME")
 
 
-class TestData(BaseModel):
+class ExampleData(BaseModel):
     """Simple test data model for agent data testing"""
 
     name: str
@@ -66,13 +66,13 @@ async def test_agent_data_crud_operations():
     # Create agent data client with unique collection name
     agent_data_client = AsyncAgentDataClient(
         client=client,
-        type=TestData,
+        type=ExampleData,
         collection=f"test-collection-{test_id[:8]}",
         agent_url_id=LLAMA_DEPLOY_DEPLOYMENT_NAME,
     )
 
     # Create test data
-    test_data = TestData(name="test-item", test_id=test_id, value=42)
+    test_data = ExampleData(name="test-item", test_id=test_id, value=42)
 
     created_item = None
     try:
@@ -107,7 +107,7 @@ async def test_agent_data_crud_operations():
         assert aggregate_results.items[0].count == 1
 
         # Test UPDATE
-        updated_data = TestData(name="updated-item", test_id=test_id, value=84)
+        updated_data = ExampleData(name="updated-item", test_id=test_id, value=84)
         updated_item = await agent_data_client.update_item(
             created_item.id, updated_data
         )

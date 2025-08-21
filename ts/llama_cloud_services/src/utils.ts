@@ -6,6 +6,8 @@ import {
 import { DEFAULT_BASE_URL } from "@llamaindex/core/global";
 import { getEnv } from "@llamaindex/env";
 import type { ClientParams } from "./type.js";
+import fs from "fs";
+import path from "path";
 
 function getBaseUrl(baseUrl?: string): string {
   return baseUrl ?? getEnv("LLAMA_CLOUD_BASE_URL") ?? DEFAULT_BASE_URL;
@@ -98,4 +100,20 @@ export async function getPipelineId(
 
 export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function getSavePath(downloadPath: string, i: number): string {
+  const now = new Date();
+  const formatted =
+    now.toISOString().replace(/[-:T]/g, "_").replace(/\..+/, "") +
+    "_" +
+    now.getMilliseconds().toString().padStart(3, "0");
+
+  let savePath = path.join(downloadPath, `table_${formatted}.csv`);
+
+  if (fs.existsSync(savePath)) {
+    savePath = savePath.replace(".csv", "_") + i.toString() + ".csv";
+  }
+
+  return savePath;
 }

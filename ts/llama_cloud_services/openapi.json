@@ -12855,6 +12855,72 @@
         }
       }
     },
+    "/api/v1/extraction/run": {
+      "post": {
+        "tags": ["LlamaExtract"],
+        "summary": "Extract Stateless",
+        "description": "Stateless extraction endpoint that uses a default extraction agent in the user's default project. Requires data_schema, config, and either file_id, text, or base64 encoded file data.",
+        "operationId": "extract_stateless_api_v1_extraction_run_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatelessExtractionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/extraction/jobs": {
       "get": {
         "tags": ["LlamaExtract"],
@@ -35482,6 +35548,64 @@
         "type": "object",
         "title": "WebhookConfiguration",
         "description": "Allows the user to configure webhook options for notifications and callbacks."
+      },
+      "StatelessExtractionRequest": {
+        "type": "object",
+        "required": ["data_schema"],
+        "properties": {
+          "data_schema": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "anyOf": [
+                    {
+                      "additionalProperties": true,
+                      "type": "object"
+                    },
+                    {
+                      "items": {},
+                      "type": "array"
+                    },
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "number"
+                    },
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "type": "object"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "config": {
+            "$ref": "#/components/schemas/ExtractConfig",
+            "description": "The configuration parameters for the extraction agent."
+          },
+          "file_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "File Id",
+            "description": "ID of an uploaded file to extract from"
+          }
+        },
+        "title": "StatelessExtractionRequest",
+        "description": "Request body for stateless extraction. Must include either file_id, text, or base64."
       },
       "llama_index__core__base__llms__types__ChatMessage": {
         "properties": {

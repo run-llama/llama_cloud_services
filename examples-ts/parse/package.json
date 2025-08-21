@@ -41,7 +41,7 @@
     "ai": "^4.3.19",
     "consola": "^3.4.2",
     "figlet": "^1.8.2",
-    "llama-cloud-services": "link:../../../ts/llama_cloud_services",
+    "llama-cloud-services": "link:../../ts/llama_cloud_services",
     "picocolors": "^1.1.1"
   }
 }

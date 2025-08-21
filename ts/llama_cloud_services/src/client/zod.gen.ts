@@ -3219,7 +3219,7 @@ export const zPromptConf = z.object({
   reasoning_prompt: z.string().optional().default(`
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `),
   cite_sources_prompt: z
@@ -3470,6 +3470,12 @@ export const zUserOrganizationRoleCreate = z.object({
   user_id: z.string(),
   organization_id: z.string().uuid(),
   role_id: z.string().uuid(),
+});
+
+export const zStatelessExtractionRequest = z.object({
+  data_schema: z.union([z.object({}), z.string(), z.null()]),
+  config: zExtractConfig.optional(),
+  file_id: z.string().uuid().optional(),
 });
 
 export const zListKeysApiV1ApiKeysGetResponse = z.array(zApiKey);
@@ -3828,6 +3834,8 @@ export const zGetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentId
 
 export const zUpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   zExtractAgent;
+
+export const zExtractStatelessApiV1ExtractionRunPostResponse = zExtractJob;
 
 export const zListJobsApiV1ExtractionJobsGetResponse = z.array(zExtractJob);
 

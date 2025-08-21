@@ -8273,6 +8273,35 @@ export type WebhookConfiguration = {
 };
 
 /**
+ * Request body for stateless extraction. Must include either file_id, text, or base64.
+ */
+export type StatelessExtractionRequest = {
+  data_schema:
+    | {
+        [key: string]:
+          | {
+              [key: string]: unknown;
+            }
+          | Array<unknown>
+          | string
+          | number
+          | number
+          | boolean
+          | null;
+      }
+    | string
+    | null;
+  /**
+   * The configuration parameters for the extraction agent.
+   */
+  config?: ExtractConfig;
+  /**
+   * ID of an uploaded file to extract from
+   */
+  file_id?: string;
+};
+
+/**
  * Chat message.
  */
 export type LlamaIndexCoreBaseLlmsTypesChatMessage = {
@@ -13077,6 +13106,33 @@ export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentI
 
 export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses[keyof UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses];
+
+export type ExtractStatelessApiV1ExtractionRunPostData = {
+  body: StatelessExtractionRequest;
+  path?: never;
+  query?: never;
+  url: "/api/v1/extraction/run";
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostError =
+  ExtractStatelessApiV1ExtractionRunPostErrors[keyof ExtractStatelessApiV1ExtractionRunPostErrors];
+
+export type ExtractStatelessApiV1ExtractionRunPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractJob;
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostResponse =
+  ExtractStatelessApiV1ExtractionRunPostResponses[keyof ExtractStatelessApiV1ExtractionRunPostResponses];
 
 export type ListJobsApiV1ExtractionJobsGetData = {
   body?: never;

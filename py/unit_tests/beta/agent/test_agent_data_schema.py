@@ -1,15 +1,18 @@
 from datetime import datetime
-from typing import Any, Dict
+import json
+from pathlib import Path
+from typing import Any, Dict, Optional
 
 import pytest
 from llama_cloud import ExtractRun, File
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, Field, ValidationError
 
 from llama_cloud_services.beta.agent_data.schema import (
     ExtractedData,
     ExtractedFieldMetadata,
+    FieldCitation,
     InvalidExtractionData,
     TypedAgentData,
     TypedAggregateGroup,
@@ -21,8 +24,8 @@ from llama_cloud_services.beta.agent_data.schema import (
 # Test data models
 class Person(BaseModel):
     name: str
-    age: int
-    email: str
+    age: Optional[int] = None
+    email: Optional[str] = None
 
 
 class Company(BaseModel):
@@ -81,8 +84,12 @@ def test_extracted_data_create_method():
 
     # Test with custom values using ExtractedFieldMetadata
     field_metadata = {
-        "name": ExtractedFieldMetadata(confidence=0.99, page_number=1),
-        "age": ExtractedFieldMetadata(confidence=0.85, page_number=1),
+        "name": ExtractedFieldMetadata(
+            confidence=0.99, citation=[FieldCitation(page=1)]
+        ),
+        "age": ExtractedFieldMetadata(
+            confidence=0.85, citation=[FieldCitation(page=1)]
+        ),
     }
     extracted_custom = ExtractedData.create(
         person, status="accepted", field_metadata=field_metadata
@@ -254,14 +261,16 @@ def test_parse_extracted_field_metadata():
     # name should have parsed citation data
     assert isinstance(result["name"], ExtractedFieldMetadata)
     assert result["name"].confidence == 0.95
-    assert result["name"].page_number == 1
-    assert result["name"].matching_text == "John Smith"
+    assert result["name"].citation == [
+        FieldCitation(page=1, matching_text="John Smith")
+    ]
 
     # age should handle float page number
     assert isinstance(result["age"], ExtractedFieldMetadata)
     assert result["age"].confidence == 0.87
-    assert result["age"].page_number == 2  # Should be converted to int
-    assert result["age"].matching_text == "25 years old"
+    assert result["age"].citation == [
+        FieldCitation(page=2, matching_text="25 years old")
+    ]
 
     # email should handle empty citations
     assert isinstance(result["email"], ExtractedFieldMetadata)
@@ -327,30 +336,38 @@ def test_parse_extracted_field_metadata_complex():
             reasoning="Combined key parametrics and construction from the datasheet for a structured title.",
             confidence=0.9470628580889779,
             extraction_confidence=0.9470628580889779,
-            page_number=1,
-            matching_text="PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+            citation=[
+                FieldCitation(
+                    page=1,
+                    matching_text="PHE844/F844, Film, Metallized Polypropylene, Safety, 0.47 uF",
+                )
+            ],
         ),
         "manufacturer": ExtractedFieldMetadata(
             reasoning="VERBATIM EXTRACTION",
             confidence=0.9997446550976602,
             extraction_confidence=0.9997446550976602,
-            page_number=1,
-            matching_text="YAGEO KEMET",
+            citation=[FieldCitation(page=1, matching_text="YAGEO KEMET")],
         ),
         "features": [
             ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999308195540074,
                 extraction_confidence=0.9999308195540074,
-                page_number=1,
-                matching_text="Features</td><td>EMI Safety",
+                citation=[
+                    FieldCitation(
+                        page=1,
+                        matching_text="Features</td><td>EMI Safety",
+                    )
+                ],
             ),
             ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.8642493886452225,
                 extraction_confidence=0.8642493886452225,
-                page_number=1,
-                matching_text="THB Performance</td><td>Yes",
+                citation=[
+                    FieldCitation(page=1, matching_text="THB Performance</td><td>Yes")
+                ],
             ),
         ],
         "dimensions": {
@@ -358,15 +375,13 @@ def test_parse_extracted_field_metadata_complex():
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.8986941382802304,
                 extraction_confidence=0.8986941382802304,
-                page_number=1,
-                matching_text="L</td><td>41mm MAX",
+                citation=[FieldCitation(page=1, matching_text="L</td><td>41mm MAX")],
             ),
             "width": ExtractedFieldMetadata(
                 reasoning="VERBATIM EXTRACTION",
                 confidence=0.9999377974447091,
                 extraction_confidence=0.9999377974447091,
-                page_number=1,
-                matching_text="T</td><td>13mm MAX",
+                citation=[FieldCitation(page=1, matching_text="T</td><td>13mm MAX")],
             ),
         },
     }
@@ -390,6 +405,7 @@ def create_file(
 
 def create_extract_run(
     id: str = "extract-123",
+    job_id: str = "job-123",
     data: Dict[str, Any] = {"name": "John Doe", "age": 30, "email": "john@example.com"},
     extraction_metadata: Dict[str, Any] = {
         "name": {
@@ -408,6 +424,7 @@ def create_extract_run(
     return ExtractRun.parse_obj(
         {
             "id": id,
+            "job_id": job_id,
             "data": data,
             "extraction_metadata": {
                 "field_metadata": extraction_metadata,
@@ -450,8 +467,9 @@ def test_extracted_data_from_extraction_result_success():
     # Verify field metadata was parsed
     assert isinstance(extracted.field_metadata["name"], ExtractedFieldMetadata)
     assert extracted.field_metadata["name"].confidence == 0.95
-    assert extracted.field_metadata["name"].page_number == 1
-    assert extracted.field_metadata["name"].matching_text == "John Doe"
+    assert extracted.field_metadata["name"].citation == [
+        FieldCitation(page=1, matching_text="John Doe")
+    ]
 
     # Verify overall confidence was calculated
     expected_confidence = (0.95 + 0.87 + 0.92) / 3
@@ -485,10 +503,9 @@ def test_extracted_data_from_extraction_result_invalid_data():
     # Create ExtractRun with data that doesn't match Person schema
     extract_run = create_extract_run(
         data={
-            "name": "Valid Name",
+            "missing_name": "Valid Name",
             "age": "not_a_number",
-            "missing_email": True,
-        },  # Invalid age, missing email
+        },  # Invalid age, missing name
         extraction_metadata={
             "name": {"confidence": 0.9},
         },
@@ -507,9 +524,8 @@ def test_extracted_data_from_extraction_result_invalid_data():
     assert isinstance(invalid_data, ExtractedData)
     assert invalid_data.status == "error"
     assert invalid_data.data == {
-        "name": "Valid Name",
+        "missing_name": "Valid Name",
         "age": "not_a_number",
-        "missing_email": True,
     }
     assert invalid_data.file_id == "error-file"
     assert invalid_data.file_name == "bad_data.pdf"
@@ -523,3 +539,77 @@ def test_extracted_data_from_extraction_result_invalid_data():
     assert isinstance(invalid_data.field_metadata["name"], ExtractedFieldMetadata)
     assert invalid_data.field_metadata["name"].confidence == 0.9
     assert invalid_data.overall_confidence == 0.9
+
+
+class Dimensions(BaseModel):
+    length: Optional[str] = Field(
+        None, description="Length in mm (Size, Longest Side, L)"
+    )
+    width: Optional[str] = Field(
+        None, description="Width in mm (Breadth, Side Width, W)"
+    )
+    height: Optional[str] = Field(
+        None, description="Height in mm (Thickness, Vertical Size, H)"
+    )
+    diameter: Optional[str] = Field(
+        None,
+        description="Diameter in mm (for radial or cylindrical types) (Outer Diameter, dt, OD, D, d<sub>t</sub>)",
+    )
+    lead_spacing: Optional[str] = Field(
+        None, description="Lead spacing in mm (Pin Pitch, Terminal Gap, LS)"
+    )
+
+
+class Capacitor(BaseModel):
+    dimensions: Optional[Dimensions] = None
+
+
+def test_full_parse_nested_dimensions():
+    with open(Path(__file__).parent.parent.parent / "data" / "capacitor.json") as f:
+        data = json.load(f)
+    result = ExtractedData.from_extraction_result(ExtractRun.parse_obj(data), Capacitor)
+    expected = {
+        "dimensions": {
+            "diameter": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=1.0,
+                extraction_confidence=1.0,
+            ),
+            "lead_spacing": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999999031936799,
+                extraction_confidence=0.9999999031936799,
+            ),
+            "length": ExtractedFieldMetadata(
+                reasoning="VERBATIM EXTRACTION",
+                confidence=0.9999968039036192,
+                extraction_confidence=0.9999968039036192,
+            ),
+        }
+    }
+    assert result.field_metadata == expected
+    parsed = ExtractedData.model_validate_json(result.model_dump_json())
+    assert parsed.field_metadata == expected
+
+
+def test_parses_field_metadata_with_error_field():
+    extract_run = create_extract_run(
+        extraction_metadata={
+            "name": {
+                "confidence": 0.95,
+                "citation": [{"page": 1, "matching_text": "John Smith"}],
+            },
+            "error": "This is an error",
+        },
+    )
+
+    parsed = ExtractedData.from_extraction_result(extract_run, Person)
+
+    assert parsed.field_metadata == {
+        "name": ExtractedFieldMetadata(
+            confidence=0.95,
+            citation=[FieldCitation(page=1, matching_text="John Smith")],
+        ),
+    }
+    assert parsed.metadata.get("field_errors") == "This is an error"
+    assert parsed.metadata.get("job_id") == "job-123"

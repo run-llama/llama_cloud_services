@@ -16350,7 +16350,7 @@ export const PromptConfSchema = {
       default: `
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `,
     },
@@ -17689,7 +17689,7 @@ export const StructParseConfSchema = {
         reasoning_prompt: `
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `,
         cite_sources_prompt: {
@@ -18642,6 +18642,66 @@ export const WebhookConfigurationSchema = {
   title: "WebhookConfiguration",
   description:
     "Allows the user to configure webhook options for notifications and callbacks.",
+} as const;
+
+export const StatelessExtractionRequestSchema = {
+  type: "object",
+  required: ["data_schema"],
+  properties: {
+    data_schema: {
+      anyOf: [
+        {
+          additionalProperties: {
+            anyOf: [
+              {
+                additionalProperties: true,
+                type: "object",
+              },
+              {
+                items: {},
+                type: "array",
+              },
+              {
+                type: "string",
+              },
+              {
+                type: "integer",
+              },
+              {
+                type: "number",
+              },
+              {
+                type: "boolean",
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          type: "object",
+        },
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+    },
+    config: {
+      $ref: "#/components/schemas/ExtractConfig",
+      description: "The configuration parameters for the extraction agent.",
+    },
+    file_id: {
+      type: "string",
+      format: "uuid",
+      title: "File Id",
+      description: "ID of an uploaded file to extract from",
+    },
+  },
+  title: "StatelessExtractionRequest",
+  description:
+    "Request body for stateless extraction. Must include either file_id, text, or base64.",
 } as const;
 
 export const llama_index__core__base__llms__types__ChatMessageSchema = {
