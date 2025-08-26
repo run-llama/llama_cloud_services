@@ -11,6 +11,7 @@ from tenacity import (
     wait_exponential,
     retry_if_exception,
     before_sleep_log,
+    RetryError,
 )
 from typing import Any, Iterable, Iterator, Optional, List, cast
 
@@ -300,7 +301,17 @@ async def make_api_request(
         response.raise_for_status()
         return response
 
-    return await _make_request(url, **httpx_kwargs)
+    try:
+        return await _make_request(url, **httpx_kwargs)
+    except RetryError as retry_err:
+        # Extract the last exception from the retry error to preserve the original error details
+        if retry_err.last_attempt and retry_err.last_attempt.exception():
+            last_exception = retry_err.last_attempt.exception()
+            # Re-raise the original exception to preserve error details like response.text
+            raise last_exception from retry_err
+        else:
+            # Fallback if we can't extract the original exception
+            raise retry_err
 
 
 def expand_target_pages(target_pages: str) -> Iterator[int]:

@@ -1015,11 +1015,20 @@ class LlamaParse(BasePydanticReader):
         try:
             url = build_url(JOB_UPLOAD_ROUTE, self.organization_id, self.project_id)
             resp = await make_api_request(self.aclient, "POST", url, timeout=self.max_timeout, files=files, data=data)  # type: ignore
-            resp.raise_for_status()  # this raises if status is not 2xx
+            # Note: make_api_request already calls raise_for_status(), so no need to call it again
             return resp.json()["id"]
-        except httpx.HTTPStatusError as err:  # this catches it
+        except httpx.HTTPStatusError as err:  # this catches HTTP status errors
             msg = f"Failed to parse the file: {err.response.text}"
             raise Exception(msg) from err  # this preserves the exception context
+        except Exception as err:  # this catches other exceptions like RetryError, ValueError, etc.
+            # Try to extract meaningful error message from the exception chain
+            if hasattr(err, '__cause__') and isinstance(err.__cause__, httpx.HTTPStatusError):
+                # If the exception was caused by an HTTPStatusError, extract the response text
+                msg = f"Failed to parse the file: {err.__cause__.response.text}"
+            else:
+                # For other exceptions, use the string representation
+                msg = f"Failed to parse the file: {str(err)}"
+            raise Exception(msg) from err
         finally:
             if file_handle is not None:
                 file_handle.close()
@@ -1578,7 +1587,7 @@ class LlamaParse(BasePydanticReader):
                             resp = await make_api_request(
                                 client, "GET", asset_url, timeout=self.max_timeout
                             )
-                            resp.raise_for_status()
+                            # Note: make_api_request already calls raise_for_status()
                             f.write(resp.content)
                         assets.append(asset)
             return assets
@@ -1676,7 +1685,7 @@ class LlamaParse(BasePydanticReader):
                     res = await make_api_request(
                         client, "GET", xlsx_url, timeout=self.max_timeout
                     )
-                    res.raise_for_status()
+                    # Note: make_api_request already calls raise_for_status()
                     f.write(res.content)
                 xlsx_list.append(xlsx)
             return xlsx_list
