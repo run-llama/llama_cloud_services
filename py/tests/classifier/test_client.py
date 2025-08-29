@@ -130,6 +130,42 @@ async def test_classify_file_ids(
         assert item.result.type == expected_type
 
 
+@pytest.mark.asyncio
+async def test_classify_file_ids_from_api_key(
+    e2e_test_settings: EndToEndTestSettings,
+    file_client: FileClient,
+    simple_pdf_file_path: str,
+    research_paper_path: str,
+    classification_rules: list[ClassifierRule],
+):
+    """Test classifying files by their IDs"""
+    # Upload test files first to get their IDs
+    pdf_file = await file_client.upload_file(simple_pdf_file_path)
+    research_paper_file = await file_client.upload_file(research_paper_path)
+
+    classify_client = ClassifyClient.from_api_key(
+        api_key=e2e_test_settings.LLAMA_CLOUD_API_KEY.get_secret_value(),
+        base_url=e2e_test_settings.LLAMA_CLOUD_BASE_URL,
+    )
+
+    # Classify the uploaded files
+    results = await classify_client.aclassify_file_ids(
+        rules=classification_rules, file_ids=[pdf_file.id, research_paper_file.id]
+    )
+
+    assert isinstance(results, ClassifyJobResults)
+    assert len(results.items) == 2
+
+    file_id_to_expected_type = {
+        pdf_file.id: "number",
+        research_paper_file.id: "research_paper",
+    }
+    # Verify each file got classified
+    for item in results.items:
+        expected_type = file_id_to_expected_type[item.file_id]
+        assert item.result.type == expected_type
+
+
 @parameterize_sync_and_async
 @pytest.mark.asyncio
 async def test_classify_file_path(

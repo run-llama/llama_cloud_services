@@ -52,6 +52,24 @@ class ClassifyClient:
         self.file_client = FileClient(client, project_id, organization_id)
         self.polling_timeout = polling_timeout
 
+    @classmethod
+    def from_api_key(
+        cls,
+        api_key: str,
+        project_id: Optional[str] = None,
+        organization_id: Optional[str] = None,
+        base_url: Optional[str] = None,
+    ) -> "ClassifyClient":
+        """
+        Create a classify client from an API key.
+        """
+        client = AsyncLlamaCloud(token=api_key, base_url=base_url)
+        return cls(
+            client,
+            project_id,
+            organization_id,
+        )
+
     async def acreate_classify_job(
         self,
         rules: list[ClassifierRule],
