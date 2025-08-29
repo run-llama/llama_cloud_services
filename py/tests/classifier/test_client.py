@@ -146,6 +146,8 @@ async def test_classify_file_ids_from_api_key(
     classify_client = ClassifyClient.from_api_key(
         api_key=e2e_test_settings.LLAMA_CLOUD_API_KEY.get_secret_value(),
         base_url=e2e_test_settings.LLAMA_CLOUD_BASE_URL,
+        project_id=pdf_file.project_id,
+        organization_id=e2e_test_settings.LLAMA_CLOUD_ORGANIZATION_ID,
     )
 
     # Classify the uploaded files
