@@ -2,6 +2,7 @@ import os
 import pytest
 from llama_cloud.client import AsyncLlamaCloud
 from llama_cloud.types import Project, ClassifierRule, ClassifyJobResults
+from llama_cloud_services.beta.classifier.types import ClassifyJobResultsWithFiles
 from llama_cloud_services.beta.classifier.client import ClassifyClient
 from llama_cloud_services.files.client import FileClient
 from llama_cloud.errors.unprocessable_entity_error import UnprocessableEntityError
@@ -149,7 +150,7 @@ async def test_classify_file_path(
             rules=classification_rules, file_input_path=simple_pdf_file_path
         )
 
-    assert isinstance(results, ClassifyJobResults)
+    assert isinstance(results, ClassifyJobResultsWithFiles)
     assert len(results.items) == 1
 
     # Verify the file got classified
@@ -180,7 +181,7 @@ async def test_classify_file_paths(
             file_input_paths=[simple_pdf_file_path, research_paper_path],
         )
 
-    assert isinstance(results, ClassifyJobResults)
+    assert isinstance(results, ClassifyJobResultsWithFiles)
     assert len(results.items) == 2
 
     file_name_to_expected_type = {
@@ -189,8 +190,7 @@ async def test_classify_file_paths(
     }
     # Verify each file got classified
     for item in results.items:
-        file = await file_client.get_file(item.file_id)
-        expected_type = file_name_to_expected_type[file.name]
+        expected_type = file_name_to_expected_type[item.file.name]
         assert item.result.type == expected_type
 
 
