@@ -159,6 +159,9 @@ class Page(BaseModel):
     durationInSeconds: Optional[float] = Field(
         default=None, description="The duration of the audio transcript in seconds."
     )
+    slideSpeakerNotes: Optional[str] = Field(
+        default=None, description="The speaker notes for the slide."
+    )
 
 
 class JobResult(BaseModel):
