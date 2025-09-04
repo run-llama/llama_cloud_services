@@ -1,4 +1,4 @@
-name: Lint - TypeScript
+name: Test - TypeScript
 
 on:
   push:
@@ -23,17 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version-file: "ts/llama_cloud_services/.nvmrc"
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
-      - name: Run Build
-        working-directory: ts/llama_cloud_services/
-        run: pnpm build
+        run: pnpm -r install --no-frozen-lockfile
+      - name: Build package
+        run: pnpm --filter llama-cloud-services build
       - name: Run Tests
         working-directory: ts/llama_cloud_services/
         run: pnpm test

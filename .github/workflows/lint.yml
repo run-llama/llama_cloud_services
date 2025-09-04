@@ -1,4 +1,4 @@
-name: Lint - Python
+name: Lint
 
 on:
   push:
@@ -29,7 +29,18 @@ jobs:
       - name: Set up Python
         run: uv python install ${{ matrix.python-version }}
 
+      - uses: pnpm/action-setup@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: "ts/llama_cloud_services/.nvmrc"
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
       - name: Run linter
         shell: bash
         working-directory: py
         run: uv run -- pre-commit run -a
+      # the js checks are run roundaboutly through lint-staged, and -a doesn't run it. Run them directly.
+      - run: pnpm -w --filter llama-cloud-services run lint
+      - run: pnpm -w --filter llama-cloud-services run format:check

@@ -8,10 +8,11 @@ import subprocess
 import sys
 import tomlkit
 from pathlib import Path
+import json
 
 
-def get_current_versions() -> tuple[str, str, str]:
-    """Get current versions from both pyproject.toml files."""
+def get_current_versions() -> tuple[str, str, str, str | None]:
+    """Get current versions from both pyproject.toml files and TS package.json."""
     # Read main pyproject.toml
     main_content = Path("py/pyproject.toml").read_text()
     main_doc = tomlkit.parse(main_content)
@@ -34,11 +35,21 @@ def get_current_versions() -> tuple[str, str, str]:
             )
             break
 
-    return str(main_version), str(llama_parse_version), str(dependency_version)
+    # Read TypeScript package.json version via helper
+    ts_version: str = get_ts_version()
+
+    return (
+        str(main_version),
+        str(llama_parse_version),
+        str(dependency_version),
+        str(ts_version) if ts_version is not None else None,
+    )
 
 
 def validate_versions(
-    main_version: str, llama_parse_version: str, dependency_version: str
+    main_version: str,
+    llama_parse_version: str,
+    dependency_version: str,
 ) -> list[str]:
     """Validate that versions are consistent and return warnings."""
     warnings = []
@@ -60,7 +71,7 @@ def validate_versions(
 
 
 def set_version(version: str) -> None:
-    """Set version across all pyproject.toml files using tomlkit to preserve formatting."""
+    """Set version across Python projects (no TS change)."""
     # Update main pyproject.toml
     main_content = Path("py/pyproject.toml").read_text()
     main_doc = tomlkit.parse(main_content)
@@ -79,7 +90,26 @@ def set_version(version: str) -> None:
             break
     Path("py/llama_parse/pyproject.toml").write_text(tomlkit.dumps(llama_parse_doc))
 
-    click.echo(f"Updated all versions to {version}")
+    click.echo(f"Updated Python versions to {version}")
+
+
+def get_ts_version() -> str:
+    """Read TypeScript package.json version (if present)."""
+    ts_package_path = Path("ts/llama_cloud_services/package.json")
+    package_data = json.loads(ts_package_path.read_text())
+    data = package_data.get("version")
+    if data is None:
+        raise RuntimeError("TypeScript package.json version not found")
+    return data
+
+
+def set_ts_version(version: str) -> None:
+    """Set TypeScript package.json version only."""
+    ts_package_path = Path("ts/llama_cloud_services/package.json")
+    package_data = json.loads(ts_package_path.read_text())
+    package_data["version"] = version
+    ts_package_path.write_text(json.dumps(package_data, indent=2) + "\n")
+    click.echo(f"Updated TypeScript package.json version to {version}")
 
 
 def get_current_branch() -> str:
@@ -133,12 +163,18 @@ def cli() -> None:
 @cli.command()
 def get() -> None:
     """Get current versions and show validation warnings."""
-    main_version, llama_parse_version, dependency_version = get_current_versions()
+    (
+        main_version,
+        llama_parse_version,
+        dependency_version,
+        ts_version,
+    ) = get_current_versions()
 
     click.echo("Current versions:")
     click.echo(f"  llama-cloud-services: {main_version}")
     click.echo(f"  llama-parse: {llama_parse_version}")
     click.echo(f"  dependency reference: {dependency_version}")
+    click.echo(f"  typescript package: {ts_version}")
 
     warnings = validate_versions(main_version, llama_parse_version, dependency_version)
     if warnings:
@@ -151,9 +187,15 @@ def get() -> None:
 
 @cli.command()
 @click.argument("version")
-def set(version: str) -> None:
-    """Set version across all pyproject.toml files."""
-    set_version(version)
+@click.option("--js", is_flag=True, help="Update TypeScript package.json only")
+def set(version: str, js: bool) -> None:
+    """Set version for Python, TypeScript, or both (default: Python only)."""
+
+    if js:
+        set_ts_version(version)
+        return
+    else:
+        set_version(version)
 
 
 @cli.command()
@@ -168,7 +210,7 @@ def set(version: str) -> None:
 def tag(version: str | None = None, push: bool = False) -> None:
     """Create and push a git tag for the current version."""
     if not version:
-        main_version, _, _ = get_current_versions()
+        main_version, _, _, _ = get_current_versions()
         version = main_version
 
     create_if_not_exists(version)

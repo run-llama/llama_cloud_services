@@ -1,0 +1,19 @@
+{
+  "name": "llama-cloud-services-workspace",
+  "version": "0.0.1",
+  "description": "",
+  "private": true,
+  "keywords": [],
+  "author": "",
+  "devDependencies": {
+    "prettier": "^3.6.2",
+    "lint-staged": "^15.4.2"
+  },
+  "lint-staged": {
+    "ts/llama_cloud_services/src/**/*.{ts,tsx,js,jsx}": [
+      "pnpm --filter llama-cloud-services exec eslint --fix",
+      "pnpm --filter llama-cloud-services exec prettier --write"
+    ]
+  },
+  "packageManager": "pnpm@10.11.1+sha512.e519b9f7639869dc8d5c3c5dfef73b3f091094b0a006d7317353c72b124e80e1afd429732e28705ad6bfa1ee879c1fce46c128ccebd3192101f43dd67c667912"
+}

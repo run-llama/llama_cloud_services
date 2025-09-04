@@ -194,7 +194,7 @@ export class LlamaParseReader extends FileReader {
       ? this.language
       : [this.language];
     this.stdout =
-      params.stdout ?? typeof process !== "undefined"
+      (params.stdout ?? typeof process !== "undefined")
         ? process!.stdout
         : undefined;
     const apiKey = params.apiKey ?? getEnv("LLAMA_CLOUD_API_KEY");
