@@ -129,7 +129,7 @@ def create_if_not_exists(version: str) -> None:
         )
         sys.exit(1)
 
-    tag_name = f"v{version}"
+    tag_name = f"v{version}" if version[0].isdigit() else version
     if not tag_exists(version):
         # Create tag
         subprocess.run(["git", "tag", tag_name], check=True)
@@ -207,11 +207,16 @@ def set(version: str, js: bool) -> None:
     is_flag=True,
     help="Push the tag to the remote repository",
 )
-def tag(version: str | None = None, push: bool = False) -> None:
+@click.option(
+    "--js",
+    is_flag=True,
+    help="tag TypeScript package.json only",
+)
+def tag(version: str | None = None, push: bool = False, js: bool = False) -> None:
     """Create and push a git tag for the current version."""
     if not version:
-        main_version, _, _, _ = get_current_versions()
-        version = main_version
+        main_version, _, _, js_version = get_current_versions()
+        version = f"llama-cloud-services@{js_version}" if js else main_version
 
     create_if_not_exists(version)
     if push:
