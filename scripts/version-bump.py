@@ -120,7 +120,7 @@ def get_current_branch() -> str:
     return result.stdout.strip()
 
 
-def create_if_not_exists(version: str) -> None:
+def create_if_not_exists(version: str) -> str:
     """Create a git tag and push it."""
     current_branch = get_current_branch()
     if current_branch != "main":
@@ -130,26 +130,25 @@ def create_if_not_exists(version: str) -> None:
         sys.exit(1)
 
     tag_name = f"v{version}" if version[0].isdigit() else version
-    if not tag_exists(version):
+    if not tag_exists(tag_name):
         # Create tag
         subprocess.run(["git", "tag", tag_name], check=True)
         click.echo(f"Created tag {tag_name}")
     else:
         click.echo(f"Tag {tag_name} already exists")
+    return tag_name
 
 
-def tag_exists(version: str) -> bool:
+def tag_exists(tag_name: str) -> bool:
     """Check if a git tag exists."""
-    tag_name = f"v{version}"
     result = subprocess.run(
         ["git", "tag", "-l", tag_name], capture_output=True, text=True, check=True
     )
     return tag_name in result.stdout.strip()
 
 
-def push_tag(version: str) -> None:
+def push_tag(tag_name: str) -> None:
     """Push a git tag."""
-    tag_name = f"v{version}"
     subprocess.run(["git", "push", "origin", tag_name], check=True)
     click.echo(f"Pushed tag {tag_name}")
 
@@ -218,9 +217,9 @@ def tag(version: str | None = None, push: bool = False, js: bool = False) -> Non
         main_version, _, _, js_version = get_current_versions()
         version = f"llama-cloud-services@{js_version}" if js else main_version
 
-    create_if_not_exists(version)
+    tag_name = create_if_not_exists(version)
     if push:
-        push_tag(version)
+        push_tag(tag_name)
 
 
 if __name__ == "__main__":
