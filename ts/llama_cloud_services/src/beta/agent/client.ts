@@ -1,5 +1,5 @@
-import { createClient, createConfig } from "@hey-api/client-fetch";
-import { getEnv } from "@llamaindex/env";
+import { createClient } from "@hey-api/client-fetch";
+import { client as defaultClient } from "../../api";
 import {
   aggregateAgentDataApiV1BetaAgentDataAggregatePost,
   createAgentDataApiV1BetaAgentDataPost,
@@ -24,36 +24,19 @@ import type {
  */
 export class AgentClient<T = unknown> {
   private client: ReturnType<typeof createClient>;
-  private baseUrl: string;
-  private headers: Record<string, string>;
   private collection: string;
   private agentUrlId: string;
 
   constructor({
-    apiKey = getEnv("LLAMA_CLOUD_API_KEY"),
-    baseUrl = "https://api.cloud.llamaindex.ai/",
+    client = defaultClient,
     collection = "default",
     agentUrlId = "_public",
   }: {
-    apiKey?: string;
-    baseUrl?: string;
+    client?: ReturnType<typeof createClient>;
     collection?: string;
     agentUrlId?: string;
   }) {
-    this.baseUrl = baseUrl;
-
-    this.headers = {
-      "X-SDK-Name": "llamaindex-ts",
-      ...(apiKey && { Authorization: `Bearer ${apiKey}` }),
-    };
-
-    this.client = createClient(
-      createConfig({
-        baseUrl: this.baseUrl,
-        headers: this.headers,
-      }),
-    );
-
+    this.client = client;
     this.collection = collection;
     this.agentUrlId = agentUrlId;
   }
@@ -281,15 +264,13 @@ export interface AgentDataClientOptions {
  * @returns A new AgentClient instance
  */
 export function createAgentDataClient<T = unknown>({
-  apiKey,
-  baseUrl,
+  client = defaultClient,
   windowUrl,
   env,
   agentUrlId,
   collection = "default",
 }: {
-  apiKey?: string;
-  baseUrl?: string;
+  client?: ReturnType<typeof createClient>;
   windowUrl?: string;
   env?: Record<string, string>;
   agentUrlId?: string;
@@ -321,9 +302,8 @@ export function createAgentDataClient<T = unknown>({
   }
 
   return new AgentClient({
-    ...(apiKey && { apiKey }),
-    ...(baseUrl && { baseUrl }),
     ...(agentUrlId && { agentUrlId }),
     collection,
+    client,
   });
 }
