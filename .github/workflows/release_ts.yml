@@ -47,6 +47,6 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "ts/llama_cloud_services/llama-cloud-services*.tgz"
-          name: Release ${{ github.ref }} - LlamaCloud Services TS
-          bodyFile: "ts/llama_cloud_services/CHANGELOG.md"
+          name: Release ${{ github.ref_name }} - LlamaCloud Services TS
+          generateReleaseNotes: true
           token: ${{ secrets.GITHUB_TOKEN }}
