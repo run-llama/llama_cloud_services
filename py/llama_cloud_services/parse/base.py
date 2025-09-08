@@ -966,10 +966,14 @@ class LlamaParse(BasePydanticReader):
             data["spreadsheet_extract_sub_tables"] = self.spreadsheet_extract_sub_tables
 
         if self.specialized_chart_parsing_agentic:
-            data["specialized_chart_parsing_agentic"] = self.specialized_chart_parsing_agentic
+            data[
+                "specialized_chart_parsing_agentic"
+            ] = self.specialized_chart_parsing_agentic
 
         if self.specialized_chart_parsing_efficient:
-            data["specialized_chart_parsing_efficient"] = self.specialized_chart_parsing_efficient
+            data[
+                "specialized_chart_parsing_efficient"
+            ] = self.specialized_chart_parsing_efficient
 
         if self.specialized_chart_parsing_plus:
             data["specialized_chart_parsing_plus"] = self.specialized_chart_parsing_plus
