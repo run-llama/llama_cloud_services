@@ -945,7 +945,7 @@ class LlamaParse(BasePydanticReader):
 
         if self.precise_bounding_box:
             data["precise_bounding_box"] = self.precise_bounding_box
-            
+
         if self.replace_failed_page_mode is not None:
             data["replace_failed_page_mode"] = self.replace_failed_page_mode.value
 
@@ -967,7 +967,7 @@ class LlamaParse(BasePydanticReader):
 
         if self.specialized_chart_parsing_agentic:
             data["specialized_chart_parsing_agentic"] = self.specialized_chart_parsing_agentic
-        
+
         if self.specialized_chart_parsing_efficient:
             data["specialized_chart_parsing_efficient"] = self.specialized_chart_parsing_efficient
 
