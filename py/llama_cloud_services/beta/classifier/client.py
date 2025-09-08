@@ -9,7 +9,6 @@ from llama_cloud.types import (
     ClassifyJobResults,
     ClassifyParsingConfiguration,
     StatusEnum,
-    ClassifyJobWithStatus,
     File,
 )
 from llama_cloud.resources.classifier.client import OMIT
@@ -229,7 +228,7 @@ class ClassifyClient:
                 )
             )
 
-    async def wait_for_job_completion(self, job_id: str) -> ClassifyJobWithStatus:
+    async def wait_for_job_completion(self, job_id: str) -> ClassifyJob:
         """
         Wait for a classify job to complete.
         Meant to expose lower level access to classifier jobs for advanced use cases.
