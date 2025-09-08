@@ -336,7 +336,8 @@ export class LlamaParseReader extends FileReader {
         this.preserve_layout_alignment_across_pages,
       spreadsheet_extract_sub_tables: this.spreadsheet_extract_sub_tables,
       specialized_chart_parsing_agentic: this.specialized_chart_parsing_agentic,
-      specialized_chart_parsing_efficient: this.specialized_chart_parsing_efficient,
+      specialized_chart_parsing_efficient:
+        this.specialized_chart_parsing_efficient,
       specialized_chart_parsing_plus: this.specialized_chart_parsing_plus,
       precise_bounding_box: this.precise_bounding_box,
       formatting_instruction: this.formatting_instruction,
