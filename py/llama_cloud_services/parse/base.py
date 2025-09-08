@@ -396,6 +396,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set, the parser will try to preserve very small text lines. This can be useful for documents containing vector graphics with very small text lines that may not be recognized by OCR or a vision model (such as in CAD drawings).",
     )
+    precise_bounding_box: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a more precise bounding box to extract text from documents. This will increase the accuracy of the parsing job, but reduce the speed.",
+    )
     replace_failed_page_mode: Optional[FailedPageMode] = Field(
         default=None,
         description="The mode to use to replace the failed page, see FailedPageMode enum for possible value. If set, the parser will replace the failed page with the specified mode. If not set, the default mode (raw_text) will be used.",
@@ -416,7 +420,18 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will extract sub-tables from the spreadsheet when possible (more than one table per sheet).",
     )
-
+    specialized_chart_parsing_agentic: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a specialized agentic chart parsing model to extract data from charts. This model is able to understand the chart type and extract the data accordingly.",
+    )
+    specialized_chart_parsing_efficient: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a specialized efficient chart parsing model to extract data from charts. This model is faster and cheaper than the agentic model, but may be less accurate.",
+    )
+    specialized_chart_parsing_plus: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a specialized one-shot chart parsing model to extract data from charts. This model is able to understand the chart type and extract the data accordingly. It is more accurate than the efficient model, but also more expensive.",
+    )
     strict_mode_buggy_font: Optional[bool] = Field(
         default=False,
         description="If set to true, the parser will fail if it can't extract text from a document because of a buggy font.",
@@ -928,6 +943,9 @@ class LlamaParse(BasePydanticReader):
         if self.preset is not None:
             data["preset"] = self.preset
 
+        if self.precise_bounding_box:
+            data["precise_bounding_box"] = self.precise_bounding_box
+            
         if self.replace_failed_page_mode is not None:
             data["replace_failed_page_mode"] = self.replace_failed_page_mode.value
 
@@ -946,6 +964,15 @@ class LlamaParse(BasePydanticReader):
 
         if self.spreadsheet_extract_sub_tables:
             data["spreadsheet_extract_sub_tables"] = self.spreadsheet_extract_sub_tables
+
+        if self.specialized_chart_parsing_agentic:
+            data["specialized_chart_parsing_agentic"] = self.specialized_chart_parsing_agentic
+        
+        if self.specialized_chart_parsing_efficient:
+            data["specialized_chart_parsing_efficient"] = self.specialized_chart_parsing_efficient
+
+        if self.specialized_chart_parsing_plus:
+            data["specialized_chart_parsing_plus"] = self.specialized_chart_parsing_plus
 
         if self.strict_mode_buggy_font:
             data["strict_mode_buggy_font"] = self.strict_mode_buggy_font
