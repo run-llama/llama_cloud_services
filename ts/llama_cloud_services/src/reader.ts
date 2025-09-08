@@ -147,6 +147,10 @@ export class LlamaParseReader extends FileReader {
   output_s3_region?: string | undefined;
   preserve_layout_alignment_across_pages?: boolean | undefined;
   spreadsheet_extract_sub_tables?: boolean | undefined;
+  specialized_chart_parsing_agentic?: boolean | undefined;
+  specialized_chart_parsing_efficient?: boolean | undefined;
+  specialized_chart_parsing_plus?: boolean | undefined;
+  precise_bounding_box?: boolean | undefined;
   formatting_instruction?: string | undefined;
   parse_mode?: ParsingMode | undefined;
   system_prompt?: string | undefined;
@@ -331,6 +335,10 @@ export class LlamaParseReader extends FileReader {
       preserve_layout_alignment_across_pages:
         this.preserve_layout_alignment_across_pages,
       spreadsheet_extract_sub_tables: this.spreadsheet_extract_sub_tables,
+      specialized_chart_parsing_agentic: this.specialized_chart_parsing_agentic,
+      specialized_chart_parsing_efficient: this.specialized_chart_parsing_efficient,
+      specialized_chart_parsing_plus: this.specialized_chart_parsing_plus,
+      precise_bounding_box: this.precise_bounding_box,
       formatting_instruction: this.formatting_instruction,
       parse_mode: this.parse_mode,
       system_prompt: this.system_prompt,
