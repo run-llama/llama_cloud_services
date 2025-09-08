@@ -4,6 +4,7 @@
     "title": "Llama Platform",
     "version": "0.1.0"
   },
+
   "paths": {
     "/api/v1/projects/{project_id}/agents": {
       "get": {
