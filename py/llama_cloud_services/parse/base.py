@@ -1107,15 +1107,11 @@ class LlamaParse(BasePydanticReader):
                     current_interval = self._calculate_backoff(current_interval)
                 else:
                     if raise_job_error:
-                        # Raise exception as before
                         raise JobFailedException.from_result(result_json)
                     else:
-                        # Return error information instead of raising exception
-                        # Only include fields we know exist, use .get() for optional fields
                         error_code = result_json.get("error_code")
                         error_message = result_json.get("error_message")
                         
-                        # Build error string with available information
                         error_parts = [f"Job ID: {job_id} failed with status: {status}"]
                         if error_code:
                             error_parts.append(f"Error code: {error_code}")
@@ -1123,9 +1119,6 @@ class LlamaParse(BasePydanticReader):
                             error_parts.append(f"Error message: {error_message}")
                         error_str = ", ".join(error_parts)
                         
-                        # Build result dict with only guaranteed fields
-                        # Note: don't include job_id here as it's passed separately to JobResult constructor
-                        # All error information is contained in the error string
                         return {
                             "pages": [],
                             "job_metadata": {"job_pages": 0},
@@ -1266,13 +1259,9 @@ class LlamaParse(BasePydanticReader):
                 partition_target_pages=f"{total}-{total + size - 1}",
             )
             
-            # Check if the JSON result contains an error
             if json_result.get("error"):
-                # Check if this is the expected "NO_DATA_FOUND_IN_FILE" error by looking at the error string
                 if results and "NO_DATA_FOUND_IN_FILE" in json_result.get("error", ""):
-                    # Expected when we try to read past the end of the file
                     return results
-                # For other errors, include the failed job in results
                 results.append((job_id, json_result))
                 return results
                 

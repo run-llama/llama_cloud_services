@@ -307,7 +307,6 @@ async def test_error_handling_with_minimal_fields() -> None:
         "job_metadata": {"job_pages": 0},
         "error": "Job ID: test_job_456 failed with status: CANCELED",
         "status": "CANCELED",
-        # Note: no error_code or error_message fields
     }
     
     with patch.object(parser, '_create_job', return_value="test_job_456"), \
