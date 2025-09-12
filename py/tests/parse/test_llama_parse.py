@@ -221,9 +221,9 @@ async def test_parse_audio() -> None:
 @pytest.mark.asyncio
 async def test_error_handling_with_raise_job_error_false() -> None:
     """Test that failed jobs return JobResult objects with error information when raise_job_error=False."""
-    
+
     parser = LlamaParse(api_key="test_key")
-    
+
     # Mock error result with full error information
     mock_error_result = {
         "pages": [],
@@ -231,13 +231,13 @@ async def test_error_handling_with_raise_job_error_false() -> None:
         "error": "Job ID: test_job_123 failed with status: ERROR, Error code: INVALID_FILE, Error message: File format not supported",
         "status": "ERROR",
     }
-    
-    with patch.object(parser, '_create_job', return_value="test_job_123"), \
-         patch.object(parser, '_get_job_result', return_value=mock_error_result):
-        
+
+    with patch.object(parser, "_create_job", return_value="test_job_123"), patch.object(
+        parser, "_get_job_result", return_value=mock_error_result
+    ):
         # Test aparse with raise_job_error=False
         result = await parser.aparse("test_file.txt", raise_job_error=False)
-        
+
         assert isinstance(result, type(result))  # Check it's a JobResult
         assert result.job_id == "test_job_123"
         assert result.error is not None
@@ -245,10 +245,10 @@ async def test_error_handling_with_raise_job_error_false() -> None:
         assert "INVALID_FILE" in result.error
         assert "File format not supported" in result.error
         assert len(result.pages) == 0
-        
+
         # Test parse (synchronous version) with raise_job_error=False
         result_sync = parser.parse("test_file.txt", raise_job_error=False)
-        
+
         assert isinstance(result_sync, type(result_sync))
         assert result_sync.job_id == "test_job_123"
         assert result_sync.error is not None
@@ -259,15 +259,20 @@ async def test_error_handling_with_raise_job_error_false() -> None:
 @pytest.mark.asyncio
 async def test_error_handling_with_raise_job_error_true() -> None:
     """Test that failed jobs raise JobFailedException when raise_job_error=True (default behavior)."""
-    
+
     parser = LlamaParse(api_key="test_key")
-    
+
     # Mock that _get_job_result will raise JobFailedException when raise_job_error=True
     from llama_cloud_services.parse.base import JobFailedException
-    
+
     def mock_get_job_result(job_id, result_type, verbose=False, raise_job_error=True):
         if raise_job_error:
-            raise JobFailedException("test_job_123", "ERROR", error_code="INVALID_FILE", error_message="File format not supported")
+            raise JobFailedException(
+                "test_job_123",
+                "ERROR",
+                error_code="INVALID_FILE",
+                error_message="File format not supported",
+            )
         else:
             return {
                 "pages": [],
@@ -275,22 +280,22 @@ async def test_error_handling_with_raise_job_error_true() -> None:
                 "error": "Job ID: test_job_123 failed with status: ERROR, Error code: INVALID_FILE, Error message: File format not supported",
                 "status": "ERROR",
             }
-    
-    with patch.object(parser, '_create_job', return_value="test_job_123"), \
-         patch.object(parser, '_get_job_result', side_effect=mock_get_job_result):
-        
+
+    with patch.object(parser, "_create_job", return_value="test_job_123"), patch.object(
+        parser, "_get_job_result", side_effect=mock_get_job_result
+    ):
         # Test aparse with raise_job_error=True (default) - should raise exception
         with pytest.raises(JobFailedException) as exc_info:
             await parser.aparse("test_file.txt")
-        
+
         assert exc_info.value.job_id == "test_job_123"
         assert exc_info.value.status == "ERROR"
         assert exc_info.value.error_code == "INVALID_FILE"
-        
+
         # Test parse (synchronous version) with raise_job_error=True (default) - should raise exception
         with pytest.raises(JobFailedException) as exc_info:
             parser.parse("test_file.txt")
-        
+
         assert exc_info.value.job_id == "test_job_123"
         assert exc_info.value.status == "ERROR"
 
@@ -298,9 +303,9 @@ async def test_error_handling_with_raise_job_error_true() -> None:
 @pytest.mark.asyncio
 async def test_error_handling_with_minimal_fields() -> None:
     """Test error handling when only status is available (no error_code/error_message) with raise_job_error=False."""
-    
+
     parser = LlamaParse(api_key="test_key")
-    
+
     # Mock error result with minimal fields (only what's guaranteed)
     mock_minimal_error_result = {
         "pages": [],
@@ -308,13 +313,13 @@ async def test_error_handling_with_minimal_fields() -> None:
         "error": "Job ID: test_job_456 failed with status: CANCELED",
         "status": "CANCELED",
     }
-    
-    with patch.object(parser, '_create_job', return_value="test_job_456"), \
-         patch.object(parser, '_get_job_result', return_value=mock_minimal_error_result):
-        
+
+    with patch.object(parser, "_create_job", return_value="test_job_456"), patch.object(
+        parser, "_get_job_result", return_value=mock_minimal_error_result
+    ):
         # Test aparse with a minimal error response and raise_job_error=False
         result = await parser.aparse("test_file.txt", raise_job_error=False)
-        
+
         assert isinstance(result, type(result))
         assert result.job_id == "test_job_456"
         assert result.error is not None
@@ -325,9 +330,9 @@ async def test_error_handling_with_minimal_fields() -> None:
 @pytest.mark.asyncio
 async def test_successful_job_still_works() -> None:
     """Test that successful jobs still work as before after error handling changes."""
-    
+
     parser = LlamaParse(api_key="test_key")
-    
+
     # Mock successful result
     mock_success_result = {
         "pages": [
@@ -348,22 +353,22 @@ async def test_successful_job_still_works() -> None:
         ],
         "job_metadata": {"job_pages": 1},
     }
-    
-    with patch.object(parser, '_create_job', return_value="success_job_456"), \
-         patch.object(parser, '_get_job_result', return_value=mock_success_result):
-        
+
+    with patch.object(
+        parser, "_create_job", return_value="success_job_456"
+    ), patch.object(parser, "_get_job_result", return_value=mock_success_result):
         # Test aparse with a successful job (both with and without raise_job_error parameter)
         result = await parser.aparse("test_file.txt")
-        
+
         assert isinstance(result, type(result))
         assert result.job_id == "success_job_456"
         assert result.error is None  # No error for successful jobs
         assert len(result.pages) == 1
         assert result.pages[0].text == "Sample text content"
-        
+
         # Test with explicit raise_job_error=False (should work the same for successful jobs)
         result2 = await parser.aparse("test_file.txt", raise_job_error=False)
-        
+
         assert isinstance(result2, type(result2))
         assert result2.job_id == "success_job_456"
         assert result2.error is None
@@ -374,9 +379,9 @@ async def test_successful_job_still_works() -> None:
 @pytest.mark.asyncio
 async def test_get_result_with_raise_job_error_parameter() -> None:
     """Test that get_result method respects the raise_job_error parameter."""
-    
+
     parser = LlamaParse(api_key="test_key")
-    
+
     # Mock error result
     mock_error_result = {
         "pages": [],
@@ -384,21 +389,20 @@ async def test_get_result_with_raise_job_error_parameter() -> None:
         "error": "Job ID: test_job_789 failed with status: ERROR, Error code: TIMEOUT, Error message: Job timed out",
         "status": "ERROR",
     }
-    
-    with patch.object(parser, '_get_job_result', return_value=mock_error_result):
-        
+
+    with patch.object(parser, "_get_job_result", return_value=mock_error_result):
         # Test aget_result with raise_job_error=False
         result = await parser.aget_result("test_job_789", raise_job_error=False)
-        
+
         assert isinstance(result, type(result))
         assert result.job_id == "test_job_789"
         assert result.error is not None
         assert "TIMEOUT" in result.error
         assert len(result.pages) == 0
-        
+
         # Test get_result (synchronous version) with raise_job_error=False
         result_sync = parser.get_result("test_job_789", raise_job_error=False)
-        
+
         assert isinstance(result_sync, type(result_sync))
         assert result_sync.job_id == "test_job_789"
         assert result_sync.error is not None

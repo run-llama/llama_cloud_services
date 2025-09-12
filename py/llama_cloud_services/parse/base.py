@@ -1073,7 +1073,11 @@ class LlamaParse(BasePydanticReader):
         return current_interval  # Default fallback
 
     async def _get_job_result(
-        self, job_id: str, result_type: str, verbose: bool = False, raise_job_error: bool = True
+        self,
+        job_id: str,
+        result_type: str,
+        verbose: bool = False,
+        raise_job_error: bool = True,
     ) -> Dict[str, Any]:
         start = time.time()
         tries = 0
@@ -1111,14 +1115,14 @@ class LlamaParse(BasePydanticReader):
                     else:
                         error_code = result_json.get("error_code")
                         error_message = result_json.get("error_message")
-                        
+
                         error_parts = [f"Job ID: {job_id} failed with status: {status}"]
                         if error_code:
                             error_parts.append(f"Error code: {error_code}")
                         if error_message:
                             error_parts.append(f"Error message: {error_message}")
                         error_str = ", ".join(error_parts)
-                        
+
                         return {
                             "pages": [],
                             "job_metadata": {"job_pages": 0},
@@ -1194,7 +1198,10 @@ class LlamaParse(BasePydanticReader):
         if self.verbose:
             print("Started parsing the file under job_id %s" % job_id)
         result = await self._get_job_result(
-            job_id, result_type or self.result_type.value, verbose=self.verbose, raise_job_error=raise_job_error
+            job_id,
+            result_type or self.result_type.value,
+            verbose=self.verbose,
+            raise_job_error=raise_job_error,
         )
         return job_id, result
 
@@ -1258,19 +1265,22 @@ class LlamaParse(BasePydanticReader):
                 raise_job_error=raise_job_error,
                 partition_target_pages=f"{total}-{total + size - 1}",
             )
-            
+
             if json_result.get("error"):
                 if results and "NO_DATA_FOUND_IN_FILE" in json_result.get("error", ""):
                     return results
                 results.append((job_id, json_result))
                 return results
-                
+
             result_type = result_type or self.result_type.value
             if result_type == ResultType.JSON.value:
                 job_result = json_result
             else:
                 job_result = await self._get_job_result(
-                    job_id, result_type, verbose=self.verbose, raise_job_error=raise_job_error
+                    job_id,
+                    result_type,
+                    verbose=self.verbose,
+                    raise_job_error=raise_job_error,
                 )
             results.append((job_id, job_result))
             if len(json_result["pages"]) < size:
@@ -1441,7 +1451,11 @@ class LlamaParse(BasePydanticReader):
             else:
                 file_name = str(file_path)
             result = await self._aparse_one(
-                file_path, file_name, extra_info=extra_info, fs=fs, raise_job_error=raise_job_error
+                file_path,
+                file_name,
+                extra_info=extra_info,
+                fs=fs,
+                raise_job_error=raise_job_error,
             )
             return result[0] if len(result) == 1 else result
 
@@ -1511,7 +1525,11 @@ class LlamaParse(BasePydanticReader):
             JobResult object or list of JobResult objects if multiple files were provided
         """
         try:
-            return asyncio_run(self.aparse(file_path, extra_info, fs=fs, raise_job_error=raise_job_error))
+            return asyncio_run(
+                self.aparse(
+                    file_path, extra_info, fs=fs, raise_job_error=raise_job_error
+                )
+            )
         except RuntimeError as e:
             if nest_asyncio_err in str(e):
                 raise RuntimeError(nest_asyncio_msg)
@@ -1794,7 +1812,10 @@ class LlamaParse(BasePydanticReader):
         """
         if isinstance(job_id, str):
             result = await self._get_job_result(
-                job_id, ResultType.JSON.value, verbose=self.verbose, raise_job_error=raise_job_error
+                job_id,
+                ResultType.JSON.value,
+                verbose=self.verbose,
+                raise_job_error=raise_job_error,
             )
             return JobResult(
                 job_id=job_id,
@@ -1808,7 +1829,12 @@ class LlamaParse(BasePydanticReader):
         elif isinstance(job_id, list):
             results = []
             jobs = [
-                self._get_job_result(id_, ResultType.JSON.value, verbose=self.verbose, raise_job_error=raise_job_error)
+                self._get_job_result(
+                    id_,
+                    ResultType.JSON.value,
+                    verbose=self.verbose,
+                    raise_job_error=raise_job_error,
+                )
                 for id_ in job_id
             ]
             results = await run_jobs(
@@ -1848,7 +1874,9 @@ class LlamaParse(BasePydanticReader):
             JobResult object or list of JobResult objects if multiple job IDs were provided.
         """
         try:
-            return asyncio_run(self.aget_result(job_id, raise_job_error=raise_job_error))
+            return asyncio_run(
+                self.aget_result(job_id, raise_job_error=raise_job_error)
+            )
         except RuntimeError as e:
             if nest_asyncio_err in str(e):
                 raise RuntimeError(nest_asyncio_msg)
