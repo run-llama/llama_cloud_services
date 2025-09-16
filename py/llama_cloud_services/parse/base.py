@@ -420,6 +420,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will extract sub-tables from the spreadsheet when possible (more than one table per sheet).",
     )
+    spreadsheet_force_formula_computation: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will re-compute values for all spreadsheet cells containing formulas.",
+    )
     specialized_chart_parsing_agentic: Optional[bool] = Field(
         default=False,
         description="If set to true, the parser will use a specialized agentic chart parsing model to extract data from charts. This model is able to understand the chart type and extract the data accordingly.",
@@ -964,6 +968,11 @@ class LlamaParse(BasePydanticReader):
 
         if self.spreadsheet_extract_sub_tables:
             data["spreadsheet_extract_sub_tables"] = self.spreadsheet_extract_sub_tables
+
+        if self.spreadsheet_force_formula_computation:
+            data[
+                "spreadsheet_force_formula_computation"
+            ] = self.spreadsheet_force_formula_computation
 
         if self.specialized_chart_parsing_agentic:
             data[
