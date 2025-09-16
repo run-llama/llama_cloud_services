@@ -452,7 +452,8 @@ export const AggregateRequestSchema = {
     deployment_name: {
       type: "string",
       title: "Deployment Name",
-      description: "The agent deployment's deployment_name to aggregate data for",
+      description:
+        "The agent deployment's deployment_name to aggregate data for",
     },
     collection: {
       type: "string",

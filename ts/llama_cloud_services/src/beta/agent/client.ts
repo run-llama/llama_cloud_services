@@ -209,7 +209,7 @@ export class AgentClient<T = unknown> {
   private transformResponse(data: AgentData): TypedAgentData<T> {
     const result: TypedAgentData<T> = {
       id: data.id!,
-      deploymentName: (data as any).deployment_name,
+      deploymentName: data.deployment_name,
       data: data.data as T,
       createdAt: new Date(data.created_at!),
       updatedAt: new Date(data.updated_at!),
