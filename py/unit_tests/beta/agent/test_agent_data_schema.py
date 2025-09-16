@@ -38,7 +38,7 @@ def test_typed_agent_data_from_raw():
     """Test TypedAgentData.from_raw class method."""
     raw_data = AgentData(
         id="456",
-        agent_slug="extraction-agent",
+        deployment_name="extraction-agent",
         collection="employees",
         data={"name": "Jane Smith", "age": 25, "email": "jane@company.com"},
         created_at=datetime.now(),
@@ -48,7 +48,7 @@ def test_typed_agent_data_from_raw():
     typed_data = TypedAgentData.from_raw(raw_data, Person)
 
     assert typed_data.id == "456"
-    assert typed_data.agent_url_id == "extraction-agent"
+    assert typed_data.deployment_name == "extraction-agent"
     assert typed_data.collection == "employees"
     assert typed_data.data.name == "Jane Smith"
     assert typed_data.data.age == 25
@@ -59,7 +59,7 @@ def test_typed_agent_data_from_raw_validation_error():
     """Test TypedAgentData.from_raw with invalid data."""
     raw_data = AgentData(
         id="789",
-        agent_slug="test-agent",
+        deployment_name="test-agent",
         collection="people",
         data={"name": "Invalid Person", "age": "not_a_number"},  # Invalid age
         created_at=datetime.now(),

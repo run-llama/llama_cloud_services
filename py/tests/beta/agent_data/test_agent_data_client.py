@@ -68,7 +68,7 @@ async def test_agent_data_crud_operations():
         client=client,
         type=ExampleData,
         collection=f"test-collection-{test_id[:8]}",
-        agent_url_id=LLAMA_DEPLOY_DEPLOYMENT_NAME,
+        deployment_name=LLAMA_DEPLOY_DEPLOYMENT_NAME,
     )
 
     # Create test data

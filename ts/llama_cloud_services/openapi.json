@@ -18764,9 +18764,9 @@
             ],
             "title": "Id"
           },
-          "agent_slug": {
+          "deployment_name": {
             "type": "string",
-            "title": "Agent Slug"
+            "title": "Deployment Name"
           },
           "collection": {
             "type": "string",
@@ -18805,7 +18805,7 @@
         },
         "type": "object",
         "required": [
-          "agent_slug",
+          "deployment_name",
           "data"
         ],
         "title": "AgentData",
@@ -18813,9 +18813,9 @@
       },
       "AgentDataCreate": {
         "properties": {
-          "agent_slug": {
+          "deployment_name": {
             "type": "string",
-            "title": "Agent Slug"
+            "title": "Deployment Name"
           },
           "collection": {
             "type": "string",
@@ -18830,7 +18830,7 @@
         },
         "type": "object",
         "required": [
-          "agent_slug",
+          "deployment_name",
           "data"
         ],
         "title": "AgentDataCreate",
@@ -18881,9 +18881,9 @@
             "title": "Project Id",
             "description": "Project ID"
           },
-          "agent_slug": {
+          "deployment_name": {
             "type": "string",
-            "title": "Agent Slug",
+            "title": "Deployment Name",
             "description": "readable ID of the deployed app"
           },
           "thumbnail_url": {
@@ -18938,7 +18938,7 @@
         "required": [
           "id",
           "project_id",
-          "agent_slug",
+          "deployment_name",
           "base_url",
           "display_name",
           "created_at",
@@ -19037,10 +19037,10 @@
             "title": "Order By",
             "description": "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order."
           },
-          "agent_slug": {
+          "deployment_name": {
             "type": "string",
-            "title": "Agent Slug",
-            "description": "The agent deployment's agent_slug to aggregate data for"
+            "title": "Deployment Name",
+            "description": "The agent deployment's deployment_name to aggregate data for"
           },
           "collection": {
             "type": "string",
@@ -19107,7 +19107,7 @@
         },
         "type": "object",
         "required": [
-          "agent_slug"
+          "deployment_name"
         ],
         "title": "AggregateRequest",
         "description": "API request body for aggregating agent data"
@@ -37237,10 +37237,10 @@
             "title": "Order By",
             "description": "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order."
           },
-          "agent_slug": {
+          "deployment_name": {
             "type": "string",
-            "title": "Agent Slug",
-            "description": "The agent deployment's agent_slug to search within"
+            "title": "Deployment Name",
+            "description": "The agent deployment's deployment_name to search within"
           },
           "collection": {
             "type": "string",
@@ -37272,7 +37272,7 @@
         },
         "type": "object",
         "required": [
-          "agent_slug"
+          "deployment_name"
         ],
         "title": "SearchRequest",
         "description": "API request body for searching agent data"

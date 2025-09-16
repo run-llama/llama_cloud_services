@@ -191,9 +191,9 @@ export const AgentDataSchema = {
       ],
       title: "Id",
     },
-    agent_slug: {
+    deployment_name: {
       type: "string",
-      title: "Agent Slug",
+      title: "Deployment Name",
     },
     collection: {
       type: "string",
@@ -231,16 +231,16 @@ export const AgentDataSchema = {
     },
   },
   type: "object",
-  required: ["agent_slug", "data"],
+  required: ["deployment_name", "data"],
   title: "AgentData",
   description: "API Result for a single agent data item",
 } as const;
 
 export const AgentDataCreateSchema = {
   properties: {
-    agent_slug: {
+    deployment_name: {
       type: "string",
-      title: "Agent Slug",
+      title: "Deployment Name",
     },
     collection: {
       type: "string",
@@ -254,7 +254,7 @@ export const AgentDataCreateSchema = {
     },
   },
   type: "object",
-  required: ["agent_slug", "data"],
+  required: ["deployment_name", "data"],
   title: "AgentDataCreate",
   description: "API request model for creating agent data",
 } as const;
@@ -302,9 +302,9 @@ export const AgentDeploymentSummarySchema = {
       title: "Project Id",
       description: "Project ID",
     },
-    agent_slug: {
+    deployment_name: {
       type: "string",
-      title: "Agent Slug",
+      title: "Deployment Name",
       description: "readable ID of the deployed app",
     },
     thumbnail_url: {
@@ -346,7 +346,7 @@ export const AgentDeploymentSummarySchema = {
   required: [
     "id",
     "project_id",
-    "agent_slug",
+    "deployment_name",
     "base_url",
     "display_name",
     "created_at",
@@ -449,10 +449,10 @@ export const AggregateRequestSchema = {
       description:
         "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.",
     },
-    agent_slug: {
+    deployment_name: {
       type: "string",
-      title: "Agent Slug",
-      description: "The agent deployment's agent_slug to aggregate data for",
+      title: "Deployment Name",
+      description: "The agent deployment's deployment_name to aggregate data for",
     },
     collection: {
       type: "string",
@@ -521,7 +521,7 @@ export const AggregateRequestSchema = {
     },
   },
   type: "object",
-  required: ["agent_slug"],
+  required: ["deployment_name"],
   title: "AggregateRequest",
   description: "API request body for aggregating agent data",
 } as const;
@@ -17515,10 +17515,10 @@ export const SearchRequestSchema = {
       description:
         "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.",
     },
-    agent_slug: {
+    deployment_name: {
       type: "string",
-      title: "Agent Slug",
-      description: "The agent deployment's agent_slug to search within",
+      title: "Deployment Name",
+      description: "The agent deployment's deployment_name to search within",
     },
     collection: {
       type: "string",
@@ -17551,7 +17551,7 @@ export const SearchRequestSchema = {
     },
   },
   type: "object",
-  required: ["agent_slug"],
+  required: ["deployment_name"],
   title: "SearchRequest",
   description: "API request body for searching agent data",
 } as const;

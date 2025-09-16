@@ -92,7 +92,7 @@ export const zAdvancedModeTransformConfig = z.object({
 
 export const zAgentData = z.object({
   id: z.union([z.string(), z.null()]).optional(),
-  agent_slug: z.string(),
+  deployment_name: z.string(),
   collection: z.string().optional().default("default"),
   data: z.object({}),
   created_at: z.union([z.string().datetime(), z.null()]).optional(),
@@ -100,7 +100,7 @@ export const zAgentData = z.object({
 });
 
 export const zAgentDataCreate = z.object({
-  agent_slug: z.string(),
+  deployment_name: z.string(),
   collection: z.string().optional().default("default"),
   data: z.object({}),
 });
@@ -112,7 +112,7 @@ export const zAgentDataUpdate = z.object({
 export const zAgentDeploymentSummary = z.object({
   id: z.string(),
   project_id: z.string().uuid(),
-  agent_slug: z.string(),
+  deployment_name: z.string(),
   thumbnail_url: z.union([z.string(), z.null()]).optional(),
   base_url: z.string(),
   display_name: z.string(),
@@ -135,7 +135,7 @@ export const zAggregateRequest = z.object({
   page_token: z.union([z.string(), z.null()]).optional(),
   filter: z.union([z.object({}), z.null()]).optional(),
   order_by: z.union([z.string(), z.null()]).optional(),
-  agent_slug: z.string(),
+  deployment_name: z.string(),
   collection: z.string().optional().default("default"),
   group_by: z.union([z.array(z.string()), z.null()]).optional(),
   count: z.union([z.boolean(), z.null()]).optional(),
@@ -3372,7 +3372,7 @@ export const zSearchRequest = z.object({
   page_token: z.union([z.string(), z.null()]).optional(),
   filter: z.union([z.object({}), z.null()]).optional(),
   order_by: z.union([z.string(), z.null()]).optional(),
-  agent_slug: z.string(),
+  deployment_name: z.string(),
   collection: z.string().optional().default("default"),
   include_total: z.boolean().optional().default(false),
   offset: z.union([z.number().int().gte(0), z.null()]).optional(),

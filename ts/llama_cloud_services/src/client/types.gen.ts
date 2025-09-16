@@ -65,7 +65,7 @@ export type AdvancedModeTransformConfig = {
  */
 export type AgentData = {
   id?: string | null;
-  agent_slug: string;
+  deployment_name: string;
   collection?: string;
   data: {
     [key: string]: unknown;
@@ -78,7 +78,7 @@ export type AgentData = {
  * API request model for creating agent data
  */
 export type AgentDataCreate = {
-  agent_slug: string;
+  deployment_name: string;
   collection?: string;
   data: {
     [key: string]: unknown;
@@ -113,7 +113,7 @@ export type AgentDeploymentSummary = {
   /**
    * readable ID of the deployed app
    */
-  agent_slug: string;
+  deployment_name: string;
   /**
    * Thumbnail URL of the deployed app
    */
@@ -172,9 +172,9 @@ export type AggregateRequest = {
    */
   order_by?: string | null;
   /**
-   * The agent deployment's agent_slug to aggregate data for
+   * The agent deployment's deployment_name to aggregate data for
    */
-  agent_slug: string;
+  deployment_name: string;
   /**
    * The logical agent data collection to aggregate data for
    */
@@ -7736,9 +7736,9 @@ export type SearchRequest = {
    */
   order_by?: string | null;
   /**
-   * The agent deployment's agent_slug to search within
+   * The agent deployment's deployment_name to search within
    */
-  agent_slug: string;
+  deployment_name: string;
   /**
    * The logical agent data collection to search within
    */

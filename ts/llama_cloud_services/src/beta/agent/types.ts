@@ -87,8 +87,8 @@ export interface ExtractedData<T = unknown> {
 export interface TypedAgentData<T = unknown> {
   /** The unique ID of the agent data record. */
   id: string;
-  /** The ID of the agent that created the data. */
-  agentUrlId: string;
+  /** The deployment name of the agent that created the data. */
+  deploymentName: string;
   /** The collection of the agent data. */
   collection?: string;
   /** The data of the agent data. Usually an ExtractedData&lt;SomeOtherType&gt; */

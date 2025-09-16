@@ -25,20 +25,20 @@ import type {
 export class AgentClient<T = unknown> {
   private client: ReturnType<typeof createClient>;
   private collection: string;
-  private agentUrlId: string;
+  private deploymentName: string;
 
   constructor({
     client = defaultClient,
     collection = "default",
-    agentUrlId = "_public",
+    deploymentName = "_public",
   }: {
     client?: ReturnType<typeof createClient>;
     collection?: string;
-    agentUrlId?: string;
+    deploymentName?: string;
   }) {
     this.client = client;
     this.collection = collection;
-    this.agentUrlId = agentUrlId;
+    this.deploymentName = deploymentName;
   }
 
   /**
@@ -48,7 +48,7 @@ export class AgentClient<T = unknown> {
     const response = await createAgentDataApiV1BetaAgentDataPost({
       throwOnError: true,
       body: {
-        agent_slug: this.agentUrlId,
+        deployment_name: this.deploymentName,
         collection: this.collection,
         data: data as Record<string, unknown>,
       },
@@ -118,7 +118,7 @@ export class AgentClient<T = unknown> {
     const response = await searchAgentDataApiV1BetaAgentDataSearchPost({
       throwOnError: true,
       body: {
-        agent_slug: this.agentUrlId,
+        deployment_name: this.deploymentName,
         ...(this.collection !== undefined && {
           collection: this.collection,
         }),
@@ -165,7 +165,7 @@ export class AgentClient<T = unknown> {
     const response = await aggregateAgentDataApiV1BetaAgentDataAggregatePost({
       throwOnError: true,
       body: {
-        agent_slug: this.agentUrlId,
+        deployment_name: this.deploymentName,
         ...(this.collection !== undefined && {
           collection: this.collection,
         }),
@@ -209,7 +209,7 @@ export class AgentClient<T = unknown> {
   private transformResponse(data: AgentData): TypedAgentData<T> {
     const result: TypedAgentData<T> = {
       id: data.id!,
-      agentUrlId: data.agent_slug,
+      deploymentName: (data as any).deployment_name,
       data: data.data as T,
       createdAt: new Date(data.created_at!),
       updatedAt: new Date(data.updated_at!),
@@ -250,10 +250,10 @@ export interface AgentDataClientOptions {
   /** Base URL for the client */
   /** Base URL of the llama cloud api */
   baseUrl?: string;
-  /** If running in an agent runtime, optionally provide the window url to infer the agent url id */
+  /** If running in an agent runtime, optionally provide the window url to infer the deployment name */
   windowUrl?: string;
-  /** Agent URL ID for the client, if not provided, it will be inferred from the window url, or fall back to "default" */
-  agentUrlId?: string;
+  /** Deployment name for the client, if not provided, it will be inferred from the window url, or fall back to "default" */
+  deploymentName?: string;
   /** Collection name for the client, defaults to "default" */
   collection?: string;
 }
@@ -267,22 +267,22 @@ export function createAgentDataClient<T = unknown>({
   client = defaultClient,
   windowUrl,
   env,
-  agentUrlId,
+  deploymentName,
   collection = "default",
 }: {
   client?: ReturnType<typeof createClient>;
   windowUrl?: string;
   env?: Record<string, string>;
-  agentUrlId?: string;
+  deploymentName?: string;
   collection?: string;
 } = {}): AgentClient<T> {
-  if (env && !agentUrlId) {
-    agentUrlId =
+  if (env && !deploymentName) {
+    deploymentName =
       env.LLAMA_DEPLOY_DEPLOYMENT_NAME ||
       env.NEXT_PUBLIC_LLAMA_DEPLOY_DEPLOYMENT_NAME ||
       env.VITE_LLAMA_DEPLOY_DEPLOYMENT_NAME;
   }
-  if (windowUrl && !agentUrlId) {
+  if (windowUrl && !deploymentName) {
     try {
       const url = new URL(windowUrl);
       const path = url.pathname;
@@ -291,18 +291,18 @@ export function createAgentDataClient<T = unknown>({
         url.hostname.includes("127.0.0.1");
       if (path.startsWith("/deployments/") && !isLocalhost) {
         // /deployments/<agent-url-id>/ui/ -> ["", "deployments", "<agent-url-id>", "ui"]
-        agentUrlId = path.split("/")[2];
+        deploymentName = path.split("/")[2];
       }
     } catch (error) {
       console.warn(
-        "Failed to infer agent url id from window url, falling back to default",
+        "Failed to infer deployment name from window url, falling back to default",
         error,
       );
     }
   }
 
   return new AgentClient({
-    ...(agentUrlId && { agentUrlId }),
+    ...(deploymentName && { deploymentName }),
     collection,
     client,
   });

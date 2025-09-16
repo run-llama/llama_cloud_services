@@ -86,7 +86,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
             client=llama_client,
             type=ExtractedPerson,
             collection="extracted_people",
-            agent_url_id="person-extraction-agent"
+            deployment_name="person-extraction-agent"
         )
 
         # Create data
@@ -109,7 +109,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         self,
         type: Type[AgentDataT],
         collection: str = "default",
-        agent_url_id: Optional[str] = None,
+        deployment_name: Optional[str] = None,
         client: Optional[AsyncLlamaCloud] = None,
         token: Optional[str] = None,
         base_url: Optional[str] = None,
@@ -123,11 +123,11 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
             collection: Named collection within the agent for organizing data.
                 Defaults to "default". Collections allow logical separation of
                 different data types or workflows within the same agent.
-            agent_url_id: Unique identifier for the agent. This normally appears in the
-                url of an agent within the llama cloud platform. If not provided,
-                will attempt to use the LLAMA_DEPLOY_DEPLOYMENT_NAME environment
-                variable. Data can only be added to an already existing agent in the
-                platform.
+            deployment_name: Unique identifier for the agent deployment. This normally
+                appears in the URL of an agent within the Llama Cloud platform. If not
+                provided, will attempt to use the LLAMA_DEPLOY_DEPLOYMENT_NAME
+                environment variable. Data can only be added to an already existing
+                agent in the platform.
             client: AsyncLlamaCloud client instance for API communication. If not provided, will
                 construct one from the provided api token and base url
             token: Llama Cloud API token. Reads from LLAMA_CLOUD_API_KEY if not provided
@@ -135,15 +135,14 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
                 defaults to https://api.cloud.llamaindex.ai
 
         Raises:
-            ValueError: If agent_url_id is not provided and the
+            ValueError: If deployment_name is not provided and the
                 LLAMA_DEPLOY_DEPLOYMENT_NAME environment variable is not set
 
         Note:
             The client automatically applies retry logic to all API calls with
             exponential backoff for timeout, connection, and HTTP status errors.
         """
-
-        self.agent_url_id = agent_url_id or get_default_agent_id()
+        self.deployment_name = deployment_name or get_default_agent_id()
 
         self.collection = collection
         if not client:
@@ -164,7 +163,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
     @agent_data_retry
     async def create_item(self, data: AgentDataT) -> TypedAgentData[AgentDataT]:
         raw_data = await self.client.beta.create_agent_data(
-            agent_slug=self.agent_url_id,
+            deployment_name=self.deployment_name,
             collection=self.collection,
             data=data.model_dump(),
         )
@@ -211,7 +210,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
             include_total: Whether to include the total count in the response. Defaults to False to improve performance. It's recommended to only request on the first page.
         """
         raw = await self.client.beta.search_agent_data_api_v_1_beta_agent_data_search_post(
-            agent_slug=self.agent_url_id,
+            deployment_name=self.deployment_name,
             collection=self.collection,
             filter=filter,
             order_by=order_by,
@@ -254,7 +253,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
             page_size: Maximum number of groups to return per page.
         """
         raw = await self.client.beta.aggregate_agent_data_api_v_1_beta_agent_data_aggregate_post(
-            agent_slug=self.agent_url_id,
+            deployment_name=self.deployment_name,
             collection=self.collection,
             page_size=page_size,
             filter=filter,

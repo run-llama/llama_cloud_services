@@ -10,7 +10,7 @@ CRUD operations, search capabilities, filtering, and aggregation functionality
 for managing agent-generated data at scale.
 
 Key Concepts:
-- Agent Slug: Unique identifier for an agent instance
+- Deployment Name: Unique identifier for an agent deployment
 - Collection: Named grouping of data within an agent (defaults to "default"). Data within a collection should be of the same type.
 - Agent Data: Individual structured data records with metadata and timestamps
 
@@ -26,7 +26,7 @@ Example Usage:
         client=async_llama_cloud,
         type=Person,
         collection="people",
-        agent_url_id="my-extraction-agent-xyz"
+        deployment_name="my-extraction-agent-xyz"
     )
 
     # Create typed data
@@ -78,7 +78,7 @@ class TypedAgentData(BaseModel, Generic[AgentDataT]):
 
     Attributes:
         id: Unique identifier for this data record
-        agent_url_id: Identifier of the agent that created this data
+        deployment_name: Identifier of the agent deployment that created this data
         collection: Named collection within the agent (used for organization)
         data: The actual structured data payload (typed as AgentDataT)
         created_at: Timestamp when the record was first created
@@ -94,8 +94,8 @@ class TypedAgentData(BaseModel, Generic[AgentDataT]):
     """
 
     id: Optional[str] = Field(description="Unique identifier for this data record")
-    agent_url_id: str = Field(
-        description="Identifier of the agent that created this data"
+    deployment_name: str = Field(
+        description="Identifier of the agent deployment that created this data"
     )
     collection: Optional[str] = Field(
         description="Named collection within the agent for data organization"
@@ -124,7 +124,7 @@ class TypedAgentData(BaseModel, Generic[AgentDataT]):
 
         return cls(
             id=raw_data.id,
-            agent_url_id=raw_data.agent_slug,
+            deployment_name=raw_data.deployment_name,
             collection=raw_data.collection,
             data=data,
             created_at=raw_data.created_at,
