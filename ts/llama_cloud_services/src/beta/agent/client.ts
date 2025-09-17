@@ -31,14 +31,17 @@ export class AgentClient<T = unknown> {
     client = defaultClient,
     collection = "default",
     deploymentName = "_public",
+    agentUrlId,
   }: {
     client?: ReturnType<typeof createClient>;
     collection?: string;
     deploymentName?: string;
+    // deprecated, use deploymentName instead
+    agentUrlId?: string;
   }) {
     this.client = client;
     this.collection = collection;
-    this.deploymentName = deploymentName;
+    this.deploymentName = agentUrlId || deploymentName;
   }
 
   /**
@@ -268,12 +271,15 @@ export function createAgentDataClient<T = unknown>({
   windowUrl,
   env,
   deploymentName,
+  agentUrlId,
   collection = "default",
 }: {
   client?: ReturnType<typeof createClient>;
   windowUrl?: string;
   env?: Record<string, string>;
   deploymentName?: string;
+  // deprecated, use deploymentName instead
+  agentUrlId?: string;
   collection?: string;
 } = {}): AgentClient<T> {
   if (env && !deploymentName) {
@@ -303,6 +309,7 @@ export function createAgentDataClient<T = unknown>({
 
   return new AgentClient({
     ...(deploymentName && { deploymentName }),
+    ...(agentUrlId && { agentUrlId }),
     collection,
     client,
   });

@@ -113,6 +113,8 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         client: Optional[AsyncLlamaCloud] = None,
         token: Optional[str] = None,
         base_url: Optional[str] = None,
+        # deprecated, use deployment_name instead
+        agent_url_id: Optional[str] = None,
     ):
         """
         Initialize the AsyncAgentDataClient.
@@ -142,7 +144,7 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
             The client automatically applies retry logic to all API calls with
             exponential backoff for timeout, connection, and HTTP status errors.
         """
-        self.deployment_name = deployment_name or get_default_agent_id()
+        self.deployment_name = deployment_name or agent_url_id or get_default_agent_id()
 
         self.collection = collection
         if not client:
