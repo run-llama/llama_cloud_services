@@ -18,6 +18,7 @@ export type ApiKey = {
   updated_at?: string | null;
   name?: string | null;
   project_id?: string | null;
+  key_type?: ApiKeyType;
   user_id: string;
   redacted_api_key: string;
 };
@@ -31,14 +32,33 @@ export type ApiKeyCreate = {
    * The project ID to associate with the API key.
    */
   project_id?: string | null;
+  key_type?: ApiKeyType;
 };
 
 /**
- * Schema for updating an API key.
+ * Response schema for paginated API key queries.
  */
-export type ApiKeyUpdate = {
-  name?: string | null;
+export type ApiKeyQueryResponse = {
+  /**
+   * The list of items.
+   */
+  items: Array<ApiKey>;
+  /**
+   * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
+   */
+  next_page_token?: string | null;
+  /**
+   * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
+   */
+  total_size?: number | null;
 };
+
+export type ApiKeyType = "user" | "agent";
+
+export const ApiKeyType = {
+  USER: "user",
+  AGENT: "agent",
+} as const;
 
 export type AdvancedModeTransformConfig = {
   mode?: "advanced";
@@ -111,7 +131,7 @@ export type AgentDeploymentSummary = {
    */
   project_id: string;
   /**
-   * readable ID of the deployed app
+   * Identifier of the deployed app
    */
   deployment_name: string;
   /**
@@ -123,10 +143,6 @@ export type AgentDeploymentSummary = {
    */
   base_url: string;
   /**
-   * Display name of the deployed app
-   */
-  display_name: string;
-  /**
    * Timestamp when the app deployment was created
    */
   created_at: string;
@@ -134,6 +150,10 @@ export type AgentDeploymentSummary = {
    * Timestamp when the app deployment was last updated
    */
   updated_at: string;
+  /**
+   * API key ID
+   */
+  api_key_id?: string | null;
 };
 
 /**
@@ -172,7 +192,7 @@ export type AggregateRequest = {
    */
   order_by?: string | null;
   /**
-   * The agent deployment's deployment_name to aggregate data for
+   * The agent deployment's name to aggregate data for
    */
   deployment_name: string;
   /**
@@ -202,14 +222,6 @@ export type AggregateRequest = {
  */
 export type AppChatInputParams = {
   messages?: Array<InputMessage>;
-};
-
-export type AudioBlock = {
-  block_type?: "audio";
-  audio?: (Blob | File) | null;
-  path?: string | null;
-  url?: string | null;
-  format?: string | null;
 };
 
 export type AutoTransformConfig = {
@@ -591,35 +603,6 @@ export type BillingPeriod = {
   end_date: string;
 };
 
-export type BodyClassifyDocumentsApiV1ClassifierClassifyPost = {
-  /**
-   * JSON string containing classifier rules
-   */
-  rules_json: string;
-  files?: Array<Blob | File> | null;
-  /**
-   * Comma-separated list of existing file IDs
-   */
-  file_ids?: string | null;
-  /**
-   * Minimum confidence threshold for acceptable matches (0.1-0.99, default: 0.6)
-   */
-  matching_threshold?: number | null;
-  /**
-   * Enable metadata-based features (document filtering + content classification, default: true)
-   */
-  enable_metadata_heuristic?: boolean | null;
-};
-
-export type BodyCreateReportApiV1ReportsPost = {
-  name: string;
-  template_text?: string;
-  template_instructions?: string | null;
-  existing_retriever_id?: string | null;
-  files: Array<Blob | File>;
-  template_file?: (Blob | File) | null;
-};
-
 export type BodyImportPipelineMetadataApiV1PipelinesPipelineIdMetadataPut = {
   upload_file: Blob | File;
 };
@@ -661,6 +644,7 @@ export type BodyScreenshotApiParsingScreenshotPost = {
   output_s3_region?: string;
   target_pages?: string;
   webhook_url?: string;
+  webhook_configurations?: string;
   job_timeout_in_seconds?: number;
   job_timeout_extra_time_per_page_in_seconds?: number;
 };
@@ -678,6 +662,7 @@ export type BodyScreenshotApiV1ParsingScreenshotPost = {
   output_s3_region?: string;
   target_pages?: string;
   webhook_url?: string;
+  webhook_configurations?: string;
   job_timeout_in_seconds?: number;
   job_timeout_extra_time_per_page_in_seconds?: number;
 };
@@ -710,6 +695,12 @@ export type BodyUploadFileApiParsingUploadPost = {
   guess_xlsx_sheet_name?: boolean;
   high_res_ocr?: boolean;
   html_make_all_elements_visible?: boolean;
+  layout_aware?: boolean;
+  specialized_chart_parsing_agentic?: boolean;
+  specialized_chart_parsing_plus?: boolean;
+  specialized_chart_parsing_efficient?: boolean;
+  specialized_image_parsing?: boolean;
+  precise_bounding_box?: boolean;
   html_remove_fixed_elements?: boolean;
   html_remove_navigation_elements?: boolean;
   http_proxy?: string;
@@ -729,8 +720,11 @@ export type BodyUploadFileApiParsingUploadPost = {
   page_separator?: string;
   page_suffix?: string;
   preserve_layout_alignment_across_pages?: boolean;
+  preserve_very_small_text?: boolean;
   skip_diagonal_text?: boolean;
   spreadsheet_extract_sub_tables?: boolean;
+  spreadsheet_force_formula_computation?: boolean;
+  inline_images_in_markdown?: boolean;
   structured_output?: boolean;
   structured_output_json_schema?: string;
   structured_output_json_schema_name?: string;
@@ -740,6 +734,7 @@ export type BodyUploadFileApiParsingUploadPost = {
   vendor_multimodal_model_name?: string;
   model?: string;
   webhook_url?: string;
+  webhook_configurations?: string;
   preset?: string;
   parse_mode?: ParsingMode | null;
   page_error_tolerance?: number;
@@ -811,6 +806,12 @@ export type BodyUploadFileApiV1ParsingUploadPost = {
   guess_xlsx_sheet_name?: boolean;
   high_res_ocr?: boolean;
   html_make_all_elements_visible?: boolean;
+  layout_aware?: boolean;
+  specialized_chart_parsing_agentic?: boolean;
+  specialized_chart_parsing_plus?: boolean;
+  specialized_chart_parsing_efficient?: boolean;
+  specialized_image_parsing?: boolean;
+  precise_bounding_box?: boolean;
   html_remove_fixed_elements?: boolean;
   html_remove_navigation_elements?: boolean;
   http_proxy?: string;
@@ -830,8 +831,11 @@ export type BodyUploadFileApiV1ParsingUploadPost = {
   page_separator?: string;
   page_suffix?: string;
   preserve_layout_alignment_across_pages?: boolean;
+  preserve_very_small_text?: boolean;
   skip_diagonal_text?: boolean;
   spreadsheet_extract_sub_tables?: boolean;
+  spreadsheet_force_formula_computation?: boolean;
+  inline_images_in_markdown?: boolean;
   structured_output?: boolean;
   structured_output_json_schema?: string;
   structured_output_json_schema_name?: string;
@@ -841,6 +845,7 @@ export type BodyUploadFileApiV1ParsingUploadPost = {
   vendor_multimodal_model_name?: string;
   model?: string;
   webhook_url?: string;
+  webhook_configurations?: string;
   preset?: string;
   parse_mode?: ParsingMode | null;
   page_error_tolerance?: number;
@@ -878,6 +883,11 @@ export type BodyUploadFileApiV1ParsingUploadPost = {
   page_header_suffix?: string;
   page_footer_prefix?: string;
   page_footer_suffix?: string;
+};
+
+export type BodyUploadFileV2ApiV2Alpha1ParseUploadPost = {
+  configuration: string;
+  file?: (Blob | File) | null;
 };
 
 export type BoxAuthMechanism = "developer_token" | "ccg";
@@ -1010,6 +1020,33 @@ export type ChatInputParams = {
   class_name?: string;
 };
 
+export type ChatMessage = {
+  id: string;
+  /**
+   * The index of the message in the chat.
+   */
+  index: number;
+  /**
+   * Retrieval annotations for the message.
+   */
+  annotations?: Array<MessageAnnotation>;
+  /**
+   * The role of the message.
+   */
+  role: MessageRole;
+  /**
+   * Text content of the generation
+   */
+  content?: string | null;
+  /**
+   * Additional arguments passed to the model
+   */
+  additional_kwargs?: {
+    [key: string]: string;
+  };
+  class_name?: string;
+};
+
 export type ChunkMode = "PAGE" | "DOCUMENT" | "SECTION" | "GROUPED_PAGES";
 
 export const ChunkMode = {
@@ -1021,38 +1058,103 @@ export const ChunkMode = {
 
 /**
  * Result of classifying a single file.
- *
- * Contains the classification outcome with confidence score and matched rule info.
  */
 export type ClassificationResult = {
   /**
-   * The ID of the classified file
+   * Step-by-step explanation of why this classification was chosen and the confidence score assigned
    */
-  file_id: string;
-  /**
-   * The assigned document type ('unknown' if no rules matched)
-   */
-  type: string;
+  reasoning: string;
   /**
    * Confidence score of the classification (0.0-1.0)
    */
   confidence: number;
   /**
-   * Description of the rule that matched, or method used (e.g., 'auto: filename contains invoice')
+   * The document type that best matches, or null if no match.
    */
-  matched_rule: string | null;
+  type: string | null;
+};
+
+/**
+ * A rule for classifying documents - v0 simplified version.
+ *
+ * This represents a single classification rule that will be applied to documents.
+ * All rules are content-based and use natural language descriptions.
+ */
+export type ClassifierRule = {
+  /**
+   * The document type to assign when this rule matches (e.g., 'invoice', 'receipt', 'contract')
+   */
+  type: string;
+  /**
+   * Natural language description of what to classify. Be specific about the content characteristics that identify this document type.
+   */
+  description: string;
+};
+
+/**
+ * A classify job.
+ */
+export type ClassifyJob = {
+  /**
+   * Unique identifier
+   */
+  id: string;
+  /**
+   * Creation datetime
+   */
+  created_at?: string | null;
+  /**
+   * Update datetime
+   */
+  updated_at?: string | null;
+  /**
+   * The rules to classify the files
+   */
+  rules: Array<ClassifierRule>;
+  /**
+   * The ID of the user
+   */
+  user_id: string;
+  /**
+   * The ID of the project
+   */
+  project_id: string;
+  /**
+   * The status of the classify job
+   */
+  status: StatusEnum;
+  /**
+   * The configuration for the parsing job
+   */
+  parsing_configuration?: ClassifyParsingConfiguration;
+};
+
+/**
+ * A classify job.
+ */
+export type ClassifyJobCreate = {
+  /**
+   * The rules to classify the files
+   */
+  rules: Array<ClassifierRule>;
+  /**
+   * The IDs of the files to classify
+   */
+  file_ids: Array<string>;
+  /**
+   * The configuration for the parsing job
+   */
+  parsing_configuration?: ClassifyParsingConfiguration;
 };
 
 /**
  * Response model for the classify endpoint following AIP-132 pagination standard.
- *
- * Contains classification results with pagination support and summary statistics.
  */
-export type ClassifyResponse = {
+export type ClassifyJobResults = {
   /**
    * The list of items.
    */
-  items: Array<ClassificationResult>;
+  items: Array<FileClassification>;
   /**
    * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
    */
@@ -1061,10 +1163,96 @@ export type ClassifyResponse = {
    * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
    */
   total_size?: number | null;
+};
+
+/**
+ * Parsing configuration for a classify job.
+ */
+export type ClassifyParsingConfiguration = {
   /**
-   * Number of files that couldn't be classified
+   * The language to parse the files in
    */
-  unknown_count: number;
+  lang?: ParserLanguages;
+  /**
+   * The maximum number of pages to parse
+   */
+  max_pages?: number | null;
+  /**
+   * The pages to target for parsing (0-indexed, so first page is at 0)
+   */
+  target_pages?: Array<number> | null;
+};
+
+/**
+ * Cloud AstraDB Vector Store.
+ *
+ * This class is used to store the configuration for an AstraDB vector store, so that it can be
+ * created and used in LlamaCloud.
+ *
+ * Args:
+ * token (str): The Astra DB Application Token to use.
+ * api_endpoint (str): The Astra DB JSON API endpoint for your database.
+ * collection_name (str): Collection name to use. If not existing, it will be created.
+ * embedding_dimension (int): Length of the embedding vectors in use.
+ * keyspace (optional[str]): The keyspace to use. If not provided, 'default_keyspace'
+ */
+export type CloudAstraDbVectorStoreReadable = {
+  supports_nested_metadata_filters?: true;
+  /**
+   * The Astra DB JSON API endpoint for your database
+   */
+  api_endpoint: string;
+  /**
+   * Collection name to use. If not existing, it will be created
+   */
+  collection_name: string;
+  /**
+   * Length of the embedding vectors in use
+   */
+  embedding_dimension: number;
+  /**
+   * The keyspace to use. If not provided, 'default_keyspace'
+   */
+  keyspace?: string | null;
+  class_name?: string;
+};
+
+/**
+ * Cloud AstraDB Vector Store.
+ *
+ * This class is used to store the configuration for an AstraDB vector store, so that it can be
+ * created and used in LlamaCloud.
+ *
+ * Args:
+ * token (str): The Astra DB Application Token to use.
+ * api_endpoint (str): The Astra DB JSON API endpoint for your database.
+ * collection_name (str): Collection name to use. If not existing, it will be created.
+ * embedding_dimension (int): Length of the embedding vectors in use.
+ * keyspace (optional[str]): The keyspace to use. If not provided, 'default_keyspace'
+ */
+export type CloudAstraDbVectorStoreWritable = {
+  supports_nested_metadata_filters?: true;
+  /**
+   * The Astra DB Application Token to use
+   */
+  token: string;
+  /**
+   * The Astra DB JSON API endpoint for your database
+   */
+  api_endpoint: string;
+  /**
+   * Collection name to use. If not existing, it will be created
+   */
+  collection_name: string;
+  /**
+   * Length of the embedding vectors in use
+   */
+  embedding_dimension: number;
+  /**
+   * The keyspace to use. If not provided, 'default_keyspace'
+   */
+  keyspace?: string | null;
+  class_name?: string;
 };
 
 export type CloudAzStorageBlobDataSourceReadable = {
@@ -1294,6 +1482,18 @@ export type CloudConfluenceDataSourceReadable = {
    * Whether to keep the markdown format.
    */
   keep_markdown_format?: boolean;
+  /**
+   * Configuration for handling failures during processing. Key-value object controlling failure handling behaviors.
+   *
+   * Example:
+   * {
+   * "skip_list_failures": true
+   * }
+   *
+   * Currently supports:
+   * - skip_list_failures: Skip failed batches/lists and continue processing
+   */
+  failure_handling?: FailureHandlingConfig;
   class_name?: string;
 };
 
@@ -1339,6 +1539,18 @@ export type CloudConfluenceDataSourceWritable = {
    * Whether to keep the markdown format.
    */
   keep_markdown_format?: boolean;
+  /**
+   * Configuration for handling failures during processing. Key-value object controlling failure handling behaviors.
+   *
+   * Example:
+   * {
+   * "skip_list_failures": true
+   * }
+   *
+   * Currently supports:
+   * - skip_list_failures: Skip failed batches/lists and continue processing
+   */
+  failure_handling?: FailureHandlingConfig;
   class_name?: string;
 };
 
@@ -1437,6 +1649,110 @@ export type CloudJiraDataSourceWritable = {
    * JQL (Jira Query Language) query to search.
    */
   query: string;
+  class_name?: string;
+};
+
+/**
+ * Cloud Jira Data Source integrating JiraReaderV2.
+ */
+export type CloudJiraDataSourceV2Readable = {
+  supports_access_control?: boolean;
+  /**
+   * The email address to use for authentication.
+   */
+  email?: string | null;
+  /**
+   * The API Access Token used for Basic, PAT and OAuth2 authentication.
+   */
+  api_token?: string | null;
+  /**
+   * The server url for Jira Cloud.
+   */
+  server_url: string;
+  /**
+   * The cloud ID, used in case of OAuth2.
+   */
+  cloud_id?: string | null;
+  /**
+   * Type of Authentication for connecting to Jira APIs.
+   */
+  authentication_mechanism: string;
+  /**
+   * Jira REST API version to use (2 or 3). 3 supports Atlassian Document Format (ADF).
+   */
+  api_version?: "2" | "3";
+  /**
+   * JQL (Jira Query Language) query to search.
+   */
+  query: string;
+  /**
+   * List of fields to retrieve from Jira. If None, retrieves all fields.
+   */
+  fields?: Array<string> | null;
+  /**
+   * Fields to expand in the response.
+   */
+  expand?: string | null;
+  /**
+   * Rate limit for Jira API requests per minute.
+   */
+  requests_per_minute?: number | null;
+  /**
+   * Whether to fetch project role permissions and issue-level security
+   */
+  get_permissions?: boolean;
+  class_name?: string;
+};
+
+/**
+ * Cloud Jira Data Source integrating JiraReaderV2.
+ */
+export type CloudJiraDataSourceV2Writable = {
+  supports_access_control?: boolean;
+  /**
+   * The email address to use for authentication.
+   */
+  email?: string | null;
+  /**
+   * The API Access Token used for Basic, PAT and OAuth2 authentication.
+   */
+  api_token?: string | null;
+  /**
+   * The server url for Jira Cloud.
+   */
+  server_url: string;
+  /**
+   * The cloud ID, used in case of OAuth2.
+   */
+  cloud_id?: string | null;
+  /**
+   * Type of Authentication for connecting to Jira APIs.
+   */
+  authentication_mechanism: string;
+  /**
+   * Jira REST API version to use (2 or 3). 3 supports Atlassian Document Format (ADF).
+   */
+  api_version?: "2" | "3";
+  /**
+   * JQL (Jira Query Language) query to search.
+   */
+  query: string;
+  /**
+   * List of fields to retrieve from Jira. If None, retrieves all fields.
+   */
+  fields?: Array<string> | null;
+  /**
+   * Fields to expand in the response.
+   */
+  expand?: string | null;
+  /**
+   * Rate limit for Jira API requests per minute.
+   */
+  requests_per_minute?: number | null;
+  /**
+   * Whether to fetch project role permissions and issue-level security
+   */
+  get_permissions?: boolean;
   class_name?: string;
 };
 
@@ -2084,7 +2400,8 @@ export type ConfigurableDataSinkNames =
   | "QDRANT"
   | "AZUREAI_SEARCH"
   | "MONGODB_ATLAS"
-  | "MILVUS";
+  | "MILVUS"
+  | "ASTRA_DB";
 
 export const ConfigurableDataSinkNames = {
   PINECONE: "PINECONE",
@@ -2093,6 +2410,7 @@ export const ConfigurableDataSinkNames = {
   AZUREAI_SEARCH: "AZUREAI_SEARCH",
   MONGODB_ATLAS: "MONGODB_ATLAS",
   MILVUS: "MILVUS",
+  ASTRA_DB: "ASTRA_DB",
 } as const;
 
 export type ConfigurableDataSourceNames =
@@ -2105,6 +2423,7 @@ export type ConfigurableDataSourceNames =
   | "NOTION_PAGE"
   | "CONFLUENCE"
   | "JIRA"
+  | "JIRA_V2"
   | "BOX";
 
 export const ConfigurableDataSourceNames = {
@@ -2117,6 +2436,7 @@ export const ConfigurableDataSourceNames = {
   NOTION_PAGE: "NOTION_PAGE",
   CONFLUENCE: "CONFLUENCE",
   JIRA: "JIRA",
+  JIRA_V2: "JIRA_V2",
   BOX: "BOX",
 } as const;
 
@@ -2128,6 +2448,53 @@ export type CreateIntentAndCustomerSessionResponse = {
 export type CreditType = {
   id: string;
   name: string;
+};
+
+/**
+ * Custom claims that dictate various limits or allowed behaviors.
+ * Currently these claims reside at a per user level. Claims may expand to a per organization level or project in the future.
+ */
+export type CustomClaims = {
+  /**
+   * Whether the user is allowed to create organizations.
+   */
+  allowed_org_creation?: boolean;
+  /**
+   * The maximum number of jobs the user can have in execution per job type.
+   */
+  max_jobs_in_execution_per_job_type?: number;
+  /**
+   * The maximum number of document ingestion jobs the user can have in execution.
+   */
+  max_document_ingestion_jobs_in_execution?: number;
+  /**
+   * The maximum number of metadata update jobs the user can have in execution.
+   */
+  max_metadata_update_jobs_in_execution?: number;
+  /**
+   * Whether the user is a test user for extraction. This will include additional debug metadata and access to test endpoints.
+   */
+  extraction_test_user?: boolean;
+  /**
+   * Whether the user is allowed to access llama-report generation.
+   */
+  allowed_report?: boolean;
+  /**
+   * Whether the user is allowed to access the app.
+   */
+  allowed_app?: boolean;
+  /**
+   * Whether the user is allowed to access the classifier feature.
+   */
+  allowed_classify?: boolean;
+  /**
+   * Whether the user is allowed to access API data sources.
+   */
+  api_datasource_access?: boolean;
+  /**
+   * Whether the user is allowed to delete organizations.
+   */
+  allow_org_deletion?: boolean;
 };
 
 export type CustomerPortalSessionCreatePayload = {
@@ -2167,7 +2534,8 @@ export type DataSinkReadable = {
     | CloudQdrantVectorStoreReadable
     | CloudAzureAiSearchVectorStoreReadable
     | CloudMongoDbAtlasVectorSearchReadable
-    | CloudMilvusVectorStoreReadable;
+    | CloudMilvusVectorStoreReadable
+    | CloudAstraDbVectorStoreReadable;
   project_id: string;
 };
 
@@ -2204,7 +2572,8 @@ export type DataSinkWritable = {
     | CloudQdrantVectorStoreWritable
     | CloudAzureAiSearchVectorStoreWritable
     | CloudMongoDbAtlasVectorSearchWritable
-    | CloudMilvusVectorStoreWritable;
+    | CloudMilvusVectorStoreWritable
+    | CloudAstraDbVectorStoreWritable;
   project_id: string;
 };
 
@@ -2229,7 +2598,8 @@ export type DataSinkCreateReadable = {
     | CloudQdrantVectorStoreReadable
     | CloudAzureAiSearchVectorStoreReadable
     | CloudMongoDbAtlasVectorSearchReadable
-    | CloudMilvusVectorStoreReadable;
+    | CloudMilvusVectorStoreReadable
+    | CloudAstraDbVectorStoreReadable;
 };
 
 /**
@@ -2253,7 +2623,8 @@ export type DataSinkCreateWritable = {
     | CloudQdrantVectorStoreWritable
     | CloudAzureAiSearchVectorStoreWritable
     | CloudMongoDbAtlasVectorSearchWritable
-    | CloudMilvusVectorStoreWritable;
+    | CloudMilvusVectorStoreWritable
+    | CloudAstraDbVectorStoreWritable;
 };
 
 /**
@@ -2278,6 +2649,7 @@ export type DataSinkUpdateReadable = {
     | CloudAzureAiSearchVectorStoreReadable
     | CloudMongoDbAtlasVectorSearchReadable
     | CloudMilvusVectorStoreReadable
+    | CloudAstraDbVectorStoreReadable
     | null;
 };
 
@@ -2303,6 +2675,7 @@ export type DataSinkUpdateWritable = {
     | CloudAzureAiSearchVectorStoreWritable
     | CloudMongoDbAtlasVectorSearchWritable
     | CloudMilvusVectorStoreWritable
+    | CloudAstraDbVectorStoreWritable
     | null;
 };
 
@@ -2357,6 +2730,7 @@ export type DataSourceReadable = {
     | CloudNotionPageDataSourceReadable
     | CloudConfluenceDataSourceReadable
     | CloudJiraDataSourceReadable
+    | CloudJiraDataSourceV2Readable
     | CloudBoxDataSourceReadable;
   /**
    * Version metadata for the data source
@@ -2416,6 +2790,7 @@ export type DataSourceWritable = {
     | CloudNotionPageDataSourceWritable
     | CloudConfluenceDataSourceWritable
     | CloudJiraDataSourceWritable
+    | CloudJiraDataSourceV2Writable
     | CloudBoxDataSourceWritable;
   /**
    * Version metadata for the data source
@@ -2463,6 +2838,7 @@ export type DataSourceCreateReadable = {
     | CloudNotionPageDataSourceReadable
     | CloudConfluenceDataSourceReadable
     | CloudJiraDataSourceReadable
+    | CloudJiraDataSourceV2Readable
     | CloudBoxDataSourceReadable;
 };
 
@@ -2505,6 +2881,7 @@ export type DataSourceCreateWritable = {
     | CloudNotionPageDataSourceWritable
     | CloudConfluenceDataSourceWritable
     | CloudJiraDataSourceWritable
+    | CloudJiraDataSourceV2Writable
     | CloudBoxDataSourceWritable;
 };
 
@@ -2512,7 +2889,7 @@ export type DataSourceReaderVersionMetadata = {
   /**
    * The version of the reader to use for this data source.
    */
-  reader_version?: string | null;
+  reader_version?: ("1.0" | "2.0" | "2.1") | null;
 };
 
 /**
@@ -2554,6 +2931,7 @@ export type DataSourceUpdateReadable = {
     | CloudNotionPageDataSourceReadable
     | CloudConfluenceDataSourceReadable
     | CloudJiraDataSourceReadable
+    | CloudJiraDataSourceV2Readable
     | CloudBoxDataSourceReadable
     | null;
 };
@@ -2597,6 +2975,7 @@ export type DataSourceUpdateWritable = {
     | CloudNotionPageDataSourceWritable
     | CloudConfluenceDataSourceWritable
     | CloudJiraDataSourceWritable
+    | CloudJiraDataSourceV2Writable
     | CloudBoxDataSourceWritable
     | null;
 };
@@ -2682,15 +3061,6 @@ export type DirectRetrievalParams = {
   pipelines?: Array<RetrieverPipeline>;
 };
 
-export type DocumentBlock = {
-  block_type?: "document";
-  data?: (Blob | File) | null;
-  path?: string | null;
-  url?: string | null;
-  title?: string | null;
-  document_mimetype?: string | null;
-};
-
 export type DocumentChunkMode = "PAGE" | "SECTION";
 
 export const DocumentChunkMode = {
@@ -2739,23 +3109,6 @@ export type DocumentIngestionJobParams = {
    * The number of pages in the file. Only used if used llama-parse
    */
   page_count?: number | null;
-};
-
-/**
- * A suggestion for an edit to a report.
- */
-export type EditSuggestion = {
-  justification: string;
-  blocks: Array<ReportBlock | ReportPlanBlock>;
-  removed_indices?: Array<number>;
-};
-
-/**
- * A request to suggest edits for a report.
- */
-export type EditSuggestionCreate = {
-  user_query: string;
-  chat_history: Array<LlamaIndexCoreBaseLlmsTypesChatMessage>;
 };
 
 export type ElementSegmentationConfig = {
@@ -2927,6 +3280,10 @@ export type ExtractAgent = {
    */
   config: ExtractConfig;
   /**
+   * Custom configuration type for the extraction agent. Currently supports 'default'.
+   */
+  custom_configuration?: "default" | null;
+  /**
    * The creation time of the extraction agent.
    */
   created_at?: string | null;
@@ -3007,11 +3364,19 @@ export type ExtractConfig = {
    */
   extraction_target?: ExtractTarget;
   /**
-   * The extraction mode specified.
+   * The extraction mode specified (FAST, BALANCED, MULTIMODAL, PREMIUM).
    */
   extraction_mode?: ExtractMode;
   /**
-   * Whether to use fast mode for multimodal extraction.
+   * The parse model to use for document parsing. If not provided, uses the default for the extraction mode.
+   */
+  parse_model?: PublicModelName | null;
+  /**
+   * The extract model to use for data extraction. If not provided, uses the default for the extraction mode.
+   */
+  extract_model?: ExtractModels | null;
+  /**
+   * DEPRECATED: Whether to use fast mode for multimodal extraction.
    */
   multimodal_fast_mode?: boolean;
   /**
@@ -3027,13 +3392,25 @@ export type ExtractConfig = {
    */
   cite_sources?: boolean;
   /**
+   * Whether to fetch confidence scores for the extraction.
+   */
+  confidence_scores?: boolean;
+  /**
    * The mode to use for chunking the document.
    */
   chunk_mode?: DocumentChunkMode;
   /**
+   * Whether to use high resolution mode for the extraction.
+   */
+  high_resolution_mode?: boolean;
+  /**
    * Whether to invalidate the cache for the extraction.
    */
   invalidate_cache?: boolean;
+  /**
+   * Comma-separated list of page numbers or ranges to extract from (1-based, e.g., '1,3,5-7,9' or '1-3,8-10').
+   */
+  page_range?: string | null;
 };
 
 export type ExtractJob = {
@@ -3063,6 +3440,10 @@ export type ExtractJob = {
  * Schema for creating an extraction job.
  */
 export type ExtractJobCreate = {
+  /**
+   * The priority for the request. This field may be ignored or overwritten depending on the organization tier.
+   */
+  priority?: ("low" | "medium" | "high" | "critical") | null;
   /**
    * The outbound webhook configurations
    */
@@ -3145,28 +3526,28 @@ export const ExtractMode = {
 } as const;
 
 export type ExtractModels =
-  | "gpt-4.1"
-  | "gpt-4.1-mini"
-  | "gpt-4.1-nano"
+  | "openai-gpt-4-1"
+  | "openai-gpt-4-1-mini"
+  | "openai-gpt-4-1-nano"
+  | "openai-gpt-5"
+  | "openai-gpt-5-mini"
   | "gemini-2.0-flash"
-  | "o3-mini"
   | "gemini-2.5-flash"
   | "gemini-2.5-pro"
-  | "gemini-2.5-flash-lite-preview-06-17"
-  | "gpt-4o"
-  | "gpt-4o-mini";
+  | "openai-gpt-4o"
+  | "openai-gpt-4o-mini";
 
 export const ExtractModels = {
-  GPT_4_1: "gpt-4.1",
-  GPT_4_1_MINI: "gpt-4.1-mini",
-  GPT_4_1_NANO: "gpt-4.1-nano",
+  OPENAI_GPT_4_1: "openai-gpt-4-1",
+  OPENAI_GPT_4_1_MINI: "openai-gpt-4-1-mini",
+  OPENAI_GPT_4_1_NANO: "openai-gpt-4-1-nano",
+  OPENAI_GPT_5: "openai-gpt-5",
+  OPENAI_GPT_5_MINI: "openai-gpt-5-mini",
   GEMINI_2_0_FLASH: "gemini-2.0-flash",
-  O3_MINI: "o3-mini",
   GEMINI_2_5_FLASH: "gemini-2.5-flash",
   GEMINI_2_5_PRO: "gemini-2.5-pro",
-  GEMINI_2_5_FLASH_LITE_PREVIEW_06_17: "gemini-2.5-flash-lite-preview-06-17",
-  GPT_4O: "gpt-4o",
-  GPT_4O_MINI: "gpt-4o-mini",
+  OPENAI_GPT_4O: "openai-gpt-4o",
+  OPENAI_GPT_4O_MINI: "openai-gpt-4o-mini",
 } as const;
 
 /**
@@ -3408,6 +3789,49 @@ export const ExtractState = {
   ERROR: "ERROR",
 } as const;
 
+/**
+ * Schema for stateless extraction requests.
+ */
+export type ExtractStatelessRequest = {
+  /**
+   * The outbound webhook configurations
+   */
+  webhook_configurations?: Array<WebhookConfiguration> | null;
+  /**
+   * The schema of the data to extract
+   */
+  data_schema:
+    | {
+        [key: string]:
+          | {
+              [key: string]: unknown;
+            }
+          | Array<unknown>
+          | string
+          | number
+          | number
+          | boolean
+          | null;
+      }
+    | string;
+  /**
+   * The configuration parameters for the extraction
+   */
+  config: ExtractConfig;
+  /**
+   * The ID of the file to extract from
+   */
+  file_id?: string | null;
+  /**
+   * The text content to extract from
+   */
+  text?: string | null;
+  /**
+   * The file data with base64 content and MIME type
+   */
+  file?: FileData | null;
+};
+
 export type ExtractTarget = "PER_DOC" | "PER_PAGE";
 
 export const ExtractTarget = {
@@ -3430,6 +3854,16 @@ export const FailPageMode = {
 } as const;
 
 /**
+ * Configuration for handling different types of failures during data source processing.
+ */
+export type FailureHandlingConfig = {
+  /**
+   * Whether to skip failed batches/lists and continue processing
+   */
+  skip_list_failures?: boolean;
+};
+
+/**
  * Schema for a file.
  */
 export type File = {
@@ -3449,7 +3883,7 @@ export type File = {
   /**
    * The ID of the file in the external system
    */
-  external_file_id: string;
+  external_file_id?: string | null;
   /**
    * Size of the file in bytes
    */
@@ -3500,6 +3934,36 @@ export type File = {
    * The ID of the data source that the file belongs to
    */
   data_source_id?: string | null;
+};
+
+/**
+ * A file classification.
+ */
+export type FileClassification = {
+  /**
+   * Unique identifier
+   */
+  id: string;
+  /**
+   * Creation datetime
+   */
+  created_at?: string | null;
+  /**
+   * Update datetime
+   */
+  updated_at?: string | null;
+  /**
+   * The ID of the classify job
+   */
+  classify_job_id: string;
+  /**
+   * The ID of the classified file
+   */
+  file_id: string;
+  /**
+   * The classification result
+   */
+  result?: ClassificationResult | null;
 };
 
 export type FileCountByStatusResponse = {
@@ -3625,6 +4089,50 @@ export type FileCreateFromUrl = {
 };
 
 /**
+ * Schema for file data with base64 content and MIME type.
+ */
+export type FileData = {
+  /**
+   * The file content as base64-encoded string
+   */
+  data: string;
+  /**
+   * The MIME type of the file (e.g., 'application/pdf', 'text/plain')
+   */
+  mime_type: string;
+};
+
+/**
+ * Filter parameters for file queries.
+ */
+export type FileFilter = {
+  /**
+   * Filter by project ID
+   */
+  project_id?: string | null;
+  /**
+   * Filter by specific file IDs
+   */
+  file_ids?: Array<string> | null;
+  /**
+   * Filter by file name
+   */
+  file_name?: string | null;
+  /**
+   * Filter by data source ID
+   */
+  data_source_id?: string | null;
+  /**
+   * Filter by external file ID
+   */
+  external_file_id?: string | null;
+  /**
+   * Filter only manually uploaded files (data_source_id is null)
+   */
+  only_manually_uploaded?: boolean | null;
+};
+
+/**
  * Schema for a presigned URL with a file ID.
  */
 export type FileIdPresignedUrl = {
@@ -3673,6 +4181,46 @@ export type FileParsePublic = {
    * The path to the data file.
    */
   data_path: string;
+};
+
+/**
+ * Request schema for querying files with pagination and filtering.
+ */
+export type FileQueryRequest = {
+  /**
+   * The maximum number of items to return. The service may return fewer than this value. If unspecified, a default page size will be used. The maximum value is typically 1000; values above this will be coerced to the maximum.
+   */
+  page_size?: number | null;
+  /**
+   * A page token, received from a previous list call. Provide this to retrieve the subsequent page.
+   */
+  page_token?: string | null;
+  /**
+   * A filter object or expression that filters resources listed in the response.
+   */
+  filter?: FileFilter | null;
+  /**
+   * A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.
+   */
+  order_by?: string | null;
+};
+
+/**
+ * Response schema for paginated file queries.
+ */
+export type FileQueryResponse = {
+  /**
+   * The list of items.
+   */
+  items: Array<File>;
+  /**
+   * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
+   */
+  next_page_token?: string | null;
+  /**
+   * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
+   */
+  total_size?: number | null;
 };
 
 /**
@@ -3861,15 +4409,6 @@ export type HuggingFaceInferenceApiEmbeddingConfig = {
   component?: HuggingFaceInferenceApiEmbedding;
 };
 
-export type ImageBlock = {
-  block_type?: "image";
-  image?: (Blob | File) | null;
-  path?: string | null;
-  url?: string | null;
-  image_mimetype?: string | null;
-  detail?: string | null;
-};
-
 export type IngestionErrorResponse = {
   /**
    * ID of the job that failed.
@@ -3939,7 +4478,6 @@ export type JobNames =
   | "load_files_job"
   | "playground_job"
   | "pipeline_managed_ingestion_job"
-  | "data_source_managed_ingestion_job"
   | "data_source_update_dispatcher_job"
   | "pipeline_file_update_dispatcher_job"
   | "pipeline_file_updater_job"
@@ -3961,7 +4499,6 @@ export const JobNames = {
   LOAD_FILES_JOB: "load_files_job",
   PLAYGROUND_JOB: "playground_job",
   PIPELINE_MANAGED_INGESTION_JOB: "pipeline_managed_ingestion_job",
-  DATA_SOURCE_MANAGED_INGESTION_JOB: "data_source_managed_ingestion_job",
   DATA_SOURCE_UPDATE_DISPATCHER_JOB: "data_source_update_dispatcher_job",
   PIPELINE_FILE_UPDATE_DISPATCHER_JOB: "pipeline_file_update_dispatcher_job",
   PIPELINE_FILE_UPDATER_JOB: "pipeline_file_updater_job",
@@ -4225,6 +4762,10 @@ export type LegacyParseJobConfig = {
    */
   preserveLayoutAlignmentAcrossPages?: boolean;
   /**
+   * Whether to preserve very small text lines.
+   */
+  preserveVerySmallText?: boolean;
+  /**
    * Whether to invalidate the cache.
    */
   invalidateCache: boolean;
@@ -4260,6 +4801,10 @@ export type LegacyParseJobConfig = {
    * Whether to extract subTables from spreadsheet.
    */
   spreadSheetExtractSubTables?: boolean | null;
+  /**
+   * Whether to force re-computation of spreadsheet cells containing formulas.
+   */
+  spreadSheetForceFormulaComputation?: boolean | null;
   /**
    * Whether to perform layout extraction.
    */
@@ -4590,19 +5135,27 @@ export type LlamaExtractSettings = {
    */
   use_multimodal_parsing?: boolean;
   /**
-   * Whether to use extraction over pixels for multimodal mode.
+   * DEPRECATED: Whether to use extraction over pixels for multimodal mode.
    */
   use_pixel_extraction?: boolean;
   /**
    * LlamaParse related settings.
    */
   llama_parse_params?: LlamaParseParameters;
+  /**
+   * The resolution to use for multimodal parsing.
+   */
+  multimodal_parse_resolution?: MultimodalParseResolution;
 };
 
 /**
  * Settings that can be configured for how to use LlamaParse to parse files within a LlamaCloud pipeline.
  */
 export type LlamaParseParameters = {
+  /**
+   * The outbound webhook configurations
+   */
+  webhook_configurations?: Array<WebhookConfiguration> | null;
   /**
    * The priority for the request. This field may be ignored or overwritten depending on the organization tier.
    */
@@ -4623,12 +5176,19 @@ export type LlamaParseParameters = {
   fast_mode?: boolean | null;
   skip_diagonal_text?: boolean | null;
   preserve_layout_alignment_across_pages?: boolean | null;
+  preserve_very_small_text?: boolean | null;
   gpt4o_mode?: boolean | null;
   gpt4o_api_key?: string | null;
   do_not_unroll_columns?: boolean | null;
   extract_layout?: boolean | null;
   high_res_ocr?: boolean | null;
   html_make_all_elements_visible?: boolean | null;
+  layout_aware?: boolean | null;
+  specialized_chart_parsing_agentic?: boolean | null;
+  specialized_chart_parsing_plus?: boolean | null;
+  specialized_chart_parsing_efficient?: boolean | null;
+  specialized_image_parsing?: boolean | null;
+  precise_bounding_box?: boolean | null;
   html_remove_navigation_elements?: boolean | null;
   html_remove_fixed_elements?: boolean | null;
   guess_xlsx_sheet_name?: boolean | null;
@@ -4678,6 +5238,8 @@ export type LlamaParseParameters = {
   complemental_formatting_instruction?: string | null;
   content_guideline_instruction?: string | null;
   spreadsheet_extract_sub_tables?: boolean | null;
+  spreadsheet_force_formula_computation?: boolean | null;
+  inline_images_in_markdown?: boolean | null;
   job_timeout_in_seconds?: number | null;
   job_timeout_extra_time_per_page_in_seconds?: number | null;
   strict_mode_image_extraction?: boolean | null;
@@ -4917,6 +5479,33 @@ export type ManagedIngestionStatusResponse = {
   effective_at?: string | null;
 };
 
+export type ManagedOpenAiEmbedding = {
+  /**
+   * The name of the OpenAI embedding model.
+   */
+  model_name?: "openai-text-embedding-3-small";
+  /**
+   * The batch size for embedding calls.
+   */
+  embed_batch_size?: number;
+  /**
+   * The number of workers to use for async embedding calls.
+   */
+  num_workers?: number | null;
+  class_name?: string;
+};
+
+export type ManagedOpenAiEmbeddingConfig = {
+  /**
+   * Type of the embedding model.
+   */
+  type?: "MANAGED_OPENAI_EMBEDDING";
+  /**
+   * Configuration for the Managed OpenAI embedding model.
+   */
+  component?: ManagedOpenAiEmbedding;
+};
+
 export type MessageAnnotation = {
   type: string;
   data: string;
@@ -4988,6 +5577,13 @@ export type MetronomeDashboardType = "invoices" | "usage";
 export const MetronomeDashboardType = {
   INVOICES: "invoices",
   USAGE: "usage",
+} as const;
+
+export type MultimodalParseResolution = "medium" | "high";
+
+export const MultimodalParseResolution = {
+  MEDIUM: "medium",
+  HIGH: "high",
 } as const;
 
 /**
@@ -5133,6 +5729,12 @@ export type Organization = {
    * Whether the organization is a Parse Premium customer.
    */
   parse_plan_level?: ParsePlanLevel;
+  /**
+   * Feature flags for the organization.
+   */
+  feature_flags?: {
+    [key: string]: unknown;
+  } | null;
 };
 
 /**
@@ -5153,6 +5755,12 @@ export type OrganizationUpdate = {
    * A name for the organization.
    */
   name: string;
+  /**
+   * Feature flags for the organization.
+   */
+  feature_flags?: {
+    [key: string]: unknown;
+  } | null;
 };
 
 /**
@@ -5377,13 +5985,6 @@ export type PaginatedListPipelineFilesResponse = {
   total_count: number;
 };
 
-export type PaginatedReportResponse = {
-  report_responses: Array<ReportResponse>;
-  limit: number;
-  offset: number;
-  total_count: number;
-};
-
 export type PaginatedResponseAgentData = {
   /**
    * The list of items.
@@ -5414,10 +6015,189 @@ export type PaginatedResponseAggregateGroup = {
   total_size?: number | null;
 };
 
+export type PaginatedResponseClassifyJob = {
+  /**
+   * The list of items.
+   */
+  items: Array<ClassifyJob>;
+  /**
+   * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
+   */
+  next_page_token?: string | null;
+  /**
+   * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
+   */
+  total_size?: number | null;
+};
+
+export type PaginatedResponseQuotaConfiguration = {
+  total: number;
+  page: number;
+  size: number;
+  pages: number;
+  items: Array<QuotaConfiguration>;
+};
+
+/**
+ * Parse configuration schema.
+ */
+export type ParseConfiguration = {
+  /**
+   * Unique identifier for the parse configuration
+   */
+  id: string;
+  /**
+   * Name of the parse configuration
+   */
+  name: string;
+  /**
+   * Type of the source (e.g., 'project')
+   */
+  source_type: string;
+  /**
+   * ID of the source
+   */
+  source_id: string;
+  /**
+   * Creator of the configuration
+   */
+  creator?: string | null;
+  /**
+   * Version of the configuration
+   */
+  version: string;
+  /**
+   * LlamaParseParameters configuration
+   */
+  parameters: LlamaParseParameters;
+  /**
+   * Creation timestamp
+   */
+  created_at: string;
+  /**
+   * Last update timestamp
+   */
+  updated_at: string;
+};
+
+/**
+ * Schema for creating a new parse configuration (API boundary).
+ */
+export type ParseConfigurationCreate = {
+  /**
+   * Name of the parse configuration
+   */
+  name: string;
+  /**
+   * Type of the source (e.g., 'project')
+   */
+  source_type?: string | null;
+  /**
+   * ID of the source
+   */
+  source_id?: string | null;
+  /**
+   * Creator of the configuration
+   */
+  creator?: string | null;
+  /**
+   * Version of the configuration
+   */
+  version: string;
+  /**
+   * LlamaParseParameters configuration
+   */
+  parameters: LlamaParseParameters;
+};
+
+/**
+ * Filter parameters for parse configuration queries.
+ */
+export type ParseConfigurationFilter = {
+  /**
+   * Filter by name
+   */
+  name?: string | null;
+  /**
+   * Filter by source type
+   */
+  source_type?: string | null;
+  /**
+   * Filter by source ID
+   */
+  source_id?: string | null;
+  /**
+   * Filter by creator
+   */
+  creator?: string | null;
+  /**
+   * Filter by version
+   */
+  version?: string | null;
+  /**
+   * Filter by specific parse configuration IDs
+   */
+  parse_config_ids?: Array<string> | null;
+};
+
+/**
+ * Request schema for querying parse configurations with pagination and filtering.
+ */
+export type ParseConfigurationQueryRequest = {
+  /**
+   * The maximum number of items to return. The service may return fewer than this value. If unspecified, a default page size will be used. The maximum value is typically 1000; values above this will be coerced to the maximum.
+   */
+  page_size?: number | null;
+  /**
+   * A page token, received from a previous list call. Provide this to retrieve the subsequent page.
+   */
+  page_token?: string | null;
+  /**
+   * A filter object or expression that filters resources listed in the response.
+   */
+  filter?: ParseConfigurationFilter | null;
+  /**
+   * A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.
+   */
+  order_by?: string | null;
+};
+
+/**
+ * Response schema for paginated parse configuration queries.
+ */
+export type ParseConfigurationQueryResponse = {
+  /**
+   * The list of items.
+   */
+  items: Array<ParseConfiguration>;
+  /**
+   * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
+   */
+  next_page_token?: string | null;
+  /**
+   * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
+   */
+  total_size?: number | null;
+};
+
+/**
+ * Schema for updating an existing parse configuration.
+ */
+export type ParseConfigurationUpdate = {
+  /**
+   * Updated LlamaParseParameters configuration
+   */
+  parameters?: LlamaParseParameters | null;
+};
+
 /**
  * Configuration for llamaparse job
  */
 export type ParseJobConfig = {
+  /**
+   * The outbound webhook configurations
+   */
+  webhook_configurations?: Array<WebhookConfiguration> | null;
   /**
    * The priority for the request. This field may be ignored or overwritten depending on the organization tier.
    */
@@ -5450,12 +6230,19 @@ export type ParseJobConfig = {
   fast_mode?: boolean | null;
   skip_diagonal_text?: boolean | null;
   preserve_layout_alignment_across_pages?: boolean | null;
+  preserve_very_small_text?: boolean | null;
   gpt4o_mode?: boolean | null;
   gpt4o_api_key?: string | null;
   do_not_unroll_columns?: boolean | null;
   extract_layout?: boolean | null;
   high_res_ocr?: boolean | null;
   html_make_all_elements_visible?: boolean | null;
+  layout_aware?: boolean | null;
+  specialized_chart_parsing_agentic?: boolean | null;
+  specialized_chart_parsing_plus?: boolean | null;
+  specialized_chart_parsing_efficient?: boolean | null;
+  specialized_image_parsing?: boolean | null;
+  precise_bounding_box?: boolean | null;
   html_remove_navigation_elements?: boolean | null;
   html_remove_fixed_elements?: boolean | null;
   guess_xlsx_sheet_name?: boolean | null;
@@ -5517,6 +6304,8 @@ export type ParseJobConfig = {
   complemental_formatting_instruction?: string | null;
   content_guideline_instruction?: string | null;
   spreadsheet_extract_sub_tables?: boolean | null;
+  spreadsheet_force_formula_computation?: boolean | null;
+  inline_images_in_markdown?: boolean | null;
   job_timeout_in_seconds?: number | null;
   job_timeout_extra_time_per_page_in_seconds?: number | null;
   strict_mode_image_extraction?: boolean | null;
@@ -5937,6 +6726,10 @@ export type PipelineReadable = {
    */
   embedding_model_config_id?: string | null;
   /**
+   * The embedding model configuration for this pipeline.
+   */
+  embedding_model_config?: EmbeddingModelConfig | null;
+  /**
    * Type of pipeline. Either PLAYGROUND or MANAGED.
    */
   pipeline_type?: PipelineType;
@@ -5945,6 +6738,9 @@ export type PipelineReadable = {
    */
   managed_pipeline_id?: string | null;
   embedding_config:
+    | ({
+        type: "MANAGED_OPENAI_EMBEDDING";
+      } & ManagedOpenAiEmbeddingConfig)
     | ({
         type: "AZURE_EMBEDDING";
       } & AzureOpenAiEmbeddingConfig)
@@ -5966,6 +6762,10 @@ export type PipelineReadable = {
     | ({
         type: "BEDROCK_EMBEDDING";
       } & BedrockEmbeddingConfig);
+  /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
   /**
    * Hashes for the configuration of the pipeline.
    */
@@ -6023,6 +6823,10 @@ export type PipelineWritable = {
    */
   embedding_model_config_id?: string | null;
   /**
+   * The embedding model configuration for this pipeline.
+   */
+  embedding_model_config?: EmbeddingModelConfig | null;
+  /**
    * Type of pipeline. Either PLAYGROUND or MANAGED.
    */
   pipeline_type?: PipelineType;
@@ -6031,6 +6835,9 @@ export type PipelineWritable = {
    */
   managed_pipeline_id?: string | null;
   embedding_config:
+    | ({
+        type: "MANAGED_OPENAI_EMBEDDING";
+      } & ManagedOpenAiEmbeddingConfig)
     | ({
         type: "AZURE_EMBEDDING";
       } & AzureOpenAiEmbeddingConfig)
@@ -6052,6 +6859,10 @@ export type PipelineWritable = {
     | ({
         type: "BEDROCK_EMBEDDING";
       } & BedrockEmbeddingConfig);
+  /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
   /**
    * Hashes for the configuration of the pipeline.
    */
@@ -6138,6 +6949,10 @@ export type PipelineCreateReadable = {
    */
   transform_config?: AutoTransformConfig | AdvancedModeTransformConfig | null;
   /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
+  /**
    * Data sink ID. When provided instead of data_sink, the data sink will be looked up by ID.
    */
   data_sink_id?: string | null;
@@ -6210,6 +7025,10 @@ export type PipelineCreateWritable = {
    * Configuration for the transformation.
    */
   transform_config?: AutoTransformConfig | AdvancedModeTransformConfig | null;
+  /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
   /**
    * Data sink ID. When provided instead of data_sink, the data sink will be looked up by ID.
    */
@@ -6301,6 +7120,7 @@ export type PipelineDataSourceReadable = {
     | CloudNotionPageDataSourceReadable
     | CloudConfluenceDataSourceReadable
     | CloudJiraDataSourceReadable
+    | CloudJiraDataSourceV2Readable
     | CloudBoxDataSourceReadable;
   /**
    * Version metadata for the data source
@@ -6390,6 +7210,7 @@ export type PipelineDataSourceWritable = {
     | CloudNotionPageDataSourceWritable
     | CloudConfluenceDataSourceWritable
     | CloudJiraDataSourceWritable
+    | CloudJiraDataSourceV2Writable
     | CloudBoxDataSourceWritable;
   /**
    * Version metadata for the data source
@@ -6495,6 +7316,9 @@ export type PipelineFile = {
    * Update datetime
    */
   updated_at?: string | null;
+  /**
+   * Name of the file
+   */
   name?: string | null;
   /**
    * The ID of the file in the external system
@@ -6511,11 +7335,19 @@ export type PipelineFile = {
   /**
    * The ID of the project that the file belongs to
    */
-  project_id: string;
+  project_id?: string | null;
   /**
    * The last modified time of the file
    */
   last_modified_at?: string | null;
+  /**
+   * The ID of the file
+   */
+  file_id?: string | null;
+  /**
+   * The ID of the pipeline that the file is associated with
+   */
+  pipeline_id: string;
   /**
    * Resource information for the file
    */
@@ -6547,18 +7379,6 @@ export type PipelineFile = {
       | null;
   } | null;
   /**
-   * The ID of the data source that the file belongs to
-   */
-  data_source_id?: string | null;
-  /**
-   * The ID of the file
-   */
-  file_id?: string | null;
-  /**
-   * The ID of the pipeline that the file is associated with
-   */
-  pipeline_id: string;
-  /**
    * Custom metadata for the file
    */
   custom_metadata?: {
@@ -6573,6 +7393,10 @@ export type PipelineFile = {
       | boolean
       | null;
   } | null;
+  /**
+   * The ID of the data source that the file belongs to
+   */
+  data_source_id?: string | null;
   /**
    * Hashes for the configuration of the pipeline.
    */
@@ -6781,6 +7605,10 @@ export type PipelineUpdateReadable = {
    */
   transform_config?: AutoTransformConfig | AdvancedModeTransformConfig | null;
   /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
+  /**
    * Data sink ID. When provided instead of data_sink, the data sink will be looked up by ID.
    */
   data_sink_id?: string | null;
@@ -6802,6 +7630,7 @@ export type PipelineUpdateReadable = {
   eval_parameters?: EvalExecutionParams | null;
   /**
    * Settings that can be configured for how to use LlamaParse to parse files within a LlamaCloud pipeline.
+   * @deprecated
    */
   llama_parse_parameters?: LlamaParseParameters | null;
   /**
@@ -6853,6 +7682,10 @@ export type PipelineUpdateWritable = {
    */
   transform_config?: AutoTransformConfig | AdvancedModeTransformConfig | null;
   /**
+   * Configuration for the sparse model used in hybrid search.
+   */
+  sparse_model_config?: SparseModelConfig | null;
+  /**
    * Data sink ID. When provided instead of data_sink, the data sink will be looked up by ID.
    */
   data_sink_id?: string | null;
@@ -6874,6 +7707,7 @@ export type PipelineUpdateWritable = {
   eval_parameters?: EvalExecutionParams | null;
   /**
    * Settings that can be configured for how to use LlamaParse to parse files within a LlamaCloud pipeline.
+   * @deprecated
    */
   llama_parse_parameters?: LlamaParseParameters | null;
   /**
@@ -6954,7 +7788,7 @@ export type PlaygroundSession = {
   /**
    * Chat message history for this session.
    */
-  chat_messages?: Array<SrcAppSchemaChatChatMessage>;
+  chat_messages?: Array<ChatMessage>;
 };
 
 /**
@@ -7079,41 +7913,6 @@ export type PresignedUrl = {
 };
 
 /**
- * Event for tracking progress of operations in workflows.
- */
-export type ProgressEvent = {
-  timestamp?: string;
-  /**
-   * The ID of the event
-   */
-  id?: string;
-  /**
-   * The ID of the group this event belongs to
-   */
-  group_id?: string;
-  type?: "progress";
-  variant: ReportEventType;
-  /**
-   * The message to display to the user
-   */
-  msg: string;
-  /**
-   * Progress value between 0-1 if available
-   */
-  progress?: number | null;
-  /**
-   * Current status of the operation
-   */
-  status?: "pending" | "in_progress" | "completed" | "error";
-  /**
-   * Any extra details to display to the user
-   */
-  extra_detail?: {
-    [key: string]: unknown;
-  } | null;
-};
-
-/**
  * Schema for a project.
  */
 export type Project = {
@@ -7184,6 +7983,132 @@ export type PromptConf = {
   scratchpad_prompt?: string;
 };
 
+export type PublicModelName =
+  | "openai-gpt-4o"
+  | "openai-gpt-4o-mini"
+  | "openai-gpt-4-1"
+  | "openai-gpt-4-1-mini"
+  | "openai-gpt-4-1-nano"
+  | "openai-gpt-5"
+  | "openai-gpt-5-mini"
+  | "openai-gpt-5-nano"
+  | "openai-text-embedding-3-small"
+  | "openai-text-embedding-3-large"
+  | "openai-whisper-1"
+  | "anthropic-sonnet-3.5"
+  | "anthropic-sonnet-3.5-v2"
+  | "anthropic-sonnet-3.7"
+  | "anthropic-sonnet-4.0"
+  | "gemini-2.5-flash"
+  | "gemini-2.5-pro"
+  | "gemini-2.0-flash"
+  | "gemini-2.0-flash-lite"
+  | "gemini-1.5-flash"
+  | "gemini-1.5-pro";
+
+export const PublicModelName = {
+  OPENAI_GPT_4O: "openai-gpt-4o",
+  OPENAI_GPT_4O_MINI: "openai-gpt-4o-mini",
+  OPENAI_GPT_4_1: "openai-gpt-4-1",
+  OPENAI_GPT_4_1_MINI: "openai-gpt-4-1-mini",
+  OPENAI_GPT_4_1_NANO: "openai-gpt-4-1-nano",
+  OPENAI_GPT_5: "openai-gpt-5",
+  OPENAI_GPT_5_MINI: "openai-gpt-5-mini",
+  OPENAI_GPT_5_NANO: "openai-gpt-5-nano",
+  OPENAI_TEXT_EMBEDDING_3_SMALL: "openai-text-embedding-3-small",
+  OPENAI_TEXT_EMBEDDING_3_LARGE: "openai-text-embedding-3-large",
+  OPENAI_WHISPER_1: "openai-whisper-1",
+  ANTHROPIC_SONNET_3_5: "anthropic-sonnet-3.5",
+  ANTHROPIC_SONNET_3_5_V2: "anthropic-sonnet-3.5-v2",
+  ANTHROPIC_SONNET_3_7: "anthropic-sonnet-3.7",
+  ANTHROPIC_SONNET_4_0: "anthropic-sonnet-4.0",
+  GEMINI_2_5_FLASH: "gemini-2.5-flash",
+  GEMINI_2_5_PRO: "gemini-2.5-pro",
+  GEMINI_2_0_FLASH: "gemini-2.0-flash",
+  GEMINI_2_0_FLASH_LITE: "gemini-2.0-flash-lite",
+  GEMINI_1_5_FLASH: "gemini-1.5-flash",
+  GEMINI_1_5_PRO: "gemini-1.5-pro",
+} as const;
+
+/**
+ * Full quota configuration model.
+ */
+export type QuotaConfiguration = {
+  /**
+   * The source type, e.g. 'organization'
+   */
+  source_type: "organization";
+  /**
+   * The source ID, e.g. the organization ID
+   */
+  source_id: string;
+  /**
+   * The quota configuration type
+   */
+  configuration_type:
+    | "rate_limit_parse_concurrent_premium"
+    | "rate_limit_parse_concurrent_default"
+    | "rate_limit_concurrent_jobs_in_execution_default"
+    | "rate_limit_concurrent_jobs_in_execution_doc_ingest"
+    | "limit_embedding_character";
+  /**
+   * The quota configuration value
+   */
+  configuration_value: QuotaRateLimitConfigurationValue;
+  /**
+   * The configuration metadata
+   */
+  configuration_metadata: {
+    [key: string]: unknown;
+  } | null;
+  /**
+   * The start date of the quota
+   */
+  started_at?: string;
+  /**
+   * The end date of the quota
+   */
+  ended_at?: string | null;
+  /**
+   * The idempotency key
+   */
+  idempotency_key?: string | null;
+  /**
+   * The status of the quota, i.e. 'ACTIVE' or 'INACTIVE'
+   */
+  status: "ACTIVE" | "INACTIVE";
+  /**
+   * The system-generated UUID for the quota
+   */
+  id?: string | null;
+  /**
+   * The creation date of the quota configuration in the database
+   */
+  created_at?: string | null;
+  /**
+   * The last updated date of the quota configuration in the database
+   */
+  updated_at?: string | null;
+};
+
+/**
+ * Quota-specific wrapper for default rate limit configuration.
+ */
+export type QuotaRateLimitConfigurationValue = {
+  /**
+   * The rate numerator
+   */
+  numerator: number;
+  /**
+   * The rate limit denominator
+   */
+  denominator?: number | null;
+  /**
+   * The default rate limit denominator units
+   */
+  denominator_units?: ("second" | "minute" | "hour" | "day") | null;
+};
+
 export type ReRankConfig = {
   /**
    * The number of nodes to retrieve after reranking over retrieved nodes from all retrieval tools.
@@ -7247,237 +8172,11 @@ export type RelatedNodeInfo = {
   class_name?: string;
 };
 
-export type Report = {
+export type Restrict = {
   /**
-   * The id of the report
+   * The project ID to restrict the user to.
    */
-  id: string;
-  /**
-   * The blocks of the report
-   */
-  blocks?: Array<ReportBlock>;
-};
-
-export type ReportBlock = {
-  /**
-   * The index of the block
-   */
-  idx: number;
-  /**
-   * The content of the block
-   */
-  template: string;
-  /**
-   * Whether the block requires human review
-   */
-  requires_human_review?: boolean;
-  /**
-   * The sources for the block
-   */
-  sources?: Array<TextNodeWithScore>;
-};
-
-export type ReportBlockDependency = "none" | "all" | "previous" | "next";
-
-export const ReportBlockDependency = {
-  NONE: "none",
-  ALL: "all",
-  PREVIOUS: "previous",
-  NEXT: "next",
-} as const;
-
-export type ReportCreateResponse = {
-  /**
-   * The id of the report
-   */
-  id: string;
-};
-
-/**
- * From backend schema
- */
-export type ReportEventItem = {
-  /**
-   * The id of the event
-   */
-  id: string;
-  /**
-   * The id of the report
-   */
-  report_id: string;
-  /**
-   * The type of the event
-   */
-  event_type: string;
-  /**
-   * The data for the event
-   */
-  event_data: ProgressEvent | ReportUpdateEvent | ReportStateEvent;
-  /**
-   * The timestamp for the event
-   */
-  timestamp: string;
-};
-
-export type ReportEventType =
-  | "load_template"
-  | "extract_plan"
-  | "summarize"
-  | "file_processing"
-  | "generate_block"
-  | "editing";
-
-export const ReportEventType = {
-  LOAD_TEMPLATE: "load_template",
-  EXTRACT_PLAN: "extract_plan",
-  SUMMARIZE: "summarize",
-  FILE_PROCESSING: "file_processing",
-  GENERATE_BLOCK: "generate_block",
-  EDITING: "editing",
-} as const;
-
-/**
- * Used to update the metadata of a report.
- */
-export type ReportMetadata = {
-  /**
-   * The id of the report
-   */
-  id: string;
-  /**
-   * The name of the report
-   */
-  name: string;
-  /**
-   * The metadata for the report
-   */
-  report_metadata: {
-    [key: string]: unknown;
-  };
-  /**
-   * The state of the report
-   */
-  state: ReportState;
-  input_files?: Array<string> | null;
-  template_file?: string | null;
-  template_text?: string | null;
-  template_instructions?: string | null;
-};
-
-export type ReportNameUpdate = {
-  /**
-   * The name of the report
-   */
-  name: string;
-};
-
-export type ReportPlan = {
-  /**
-   * The id of the report plan
-   */
-  id?: string;
-  /**
-   * The blocks of the report
-   */
-  blocks?: Array<ReportPlanBlock>;
-  /**
-   * The timestamp of when the plan was generated
-   */
-  generated_at?: string;
-};
-
-export type ReportPlanBlock = {
-  block: ReportBlock;
-  /**
-   * The queries for the block
-   */
-  queries?: Array<ReportQuery>;
-  /**
-   * The dependency for the block
-   */
-  dependency: ReportBlockDependency;
-};
-
-export type ReportQuery = {
-  /**
-   * The field in the template that needs to be filled in
-   */
-  field: string;
-  /**
-   * The prompt for filling in the field
-   */
-  prompt: string;
-  /**
-   * Any additional context for the query
-   */
-  context: string;
-};
-
-export type ReportResponse = {
-  name: string;
-  report_id: string;
-  report: Report | null;
-  plan: ReportPlan | null;
-  version: number;
-  last_updated: string;
-  status: ReportState;
-  total_versions: number;
-};
-
-export type ReportState =
-  | "pending"
-  | "planning"
-  | "waiting_approval"
-  | "generating"
-  | "completed"
-  | "error";
-
-export const ReportState = {
-  PENDING: "pending",
-  PLANNING: "planning",
-  WAITING_APPROVAL: "waiting_approval",
-  GENERATING: "generating",
-  COMPLETED: "completed",
-  ERROR: "error",
-} as const;
-
-/**
- * Event for notifying when an report's state changes.
- */
-export type ReportStateEvent = {
-  timestamp?: string;
-  type: "report_state_update";
-  /**
-   * The message to display to the user
-   */
-  msg: string;
-  /**
-   * The new state of the report
-   */
-  status: ReportState;
-};
-
-/**
- * Event for updating the state of an report.
- */
-export type ReportUpdateEvent = {
-  timestamp?: string;
-  type?: "report_block_update";
-  /**
-   * The message to display to the user
-   */
-  msg?: string;
-  /**
-   * The block to update
-   */
-  block: ReportBlock;
-};
-
-export type ReportVersionPatch = {
-  /**
-   * The content of the report version
-   */
-  content: Report;
+  project_id: string | null;
 };
 
 export type RetrievalMode =
@@ -7736,7 +8435,7 @@ export type SearchRequest = {
    */
   order_by?: string | null;
   /**
-   * The agent deployment's deployment_name to search within
+   * The agent deployment's name to search within
    */
   deployment_name: string;
   /**
@@ -7766,6 +8465,42 @@ export type SentenceChunkingConfig = {
   separator?: string;
   paragraph_separator?: string;
 };
+
+/**
+ * Configuration for sparse embedding models used in hybrid search.
+ *
+ * This allows users to choose between Splade and BM25 models for
+ * sparse retrieval in managed data sinks.
+ */
+export type SparseModelConfig = {
+  /**
+   * The sparse model type to use. 'auto' selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade), 'splade' uses HuggingFace Splade model, 'bm25' uses Qdrant's FastEmbed BM25 model.
+   */
+  model_type?: SparseModelType;
+  class_name?: string;
+};
+
+/**
+ * Enum for sparse model types supported in LlamaCloud.
+ *
+ * SPLADE: Uses HuggingFace Splade model for sparse embeddings
+ * BM25: Uses Qdrant's FastEmbed BM25 model for sparse embeddings
+ * AUTO: Automatically selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade)
+ */
+export type SparseModelType = "splade" | "bm25" | "auto";
+
+/**
+ * Enum for sparse model types supported in LlamaCloud.
+ *
+ * SPLADE: Uses HuggingFace Splade model for sparse embeddings
+ * BM25: Uses Qdrant's FastEmbed BM25 model for sparse embeddings
+ * AUTO: Automatically selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade)
+ */
+export const SparseModelType = {
+  SPLADE: "splade",
+  BM25: "bm25",
+  AUTO: "auto",
+} as const;
 
 /**
  * Enum for representing the status of a job
@@ -7824,6 +8559,10 @@ export type StructParseConf = {
    */
   struct_mode?: StructMode;
   /**
+   * Whether to fetch logprobs for the structured parsing.
+   */
+  fetch_logprobs?: boolean;
+  /**
    * Whether to handle missing fields in the schema.
    */
   handle_missing?: boolean;
@@ -7867,6 +8606,9 @@ export type SupportedLlmModelNames =
   | "GPT_4_1_MINI"
   | "AZURE_OPENAI_GPT_4O"
   | "AZURE_OPENAI_GPT_4O_MINI"
+  | "AZURE_OPENAI_GPT_4_1"
+  | "AZURE_OPENAI_GPT_4_1_MINI"
+  | "AZURE_OPENAI_GPT_4_1_NANO"
   | "CLAUDE_3_5_SONNET"
   | "BEDROCK_CLAUDE_3_5_SONNET_V1"
   | "BEDROCK_CLAUDE_3_5_SONNET_V2"
@@ -7880,16 +8622,14 @@ export const SupportedLlmModelNames = {
   GPT_4_1_MINI: "GPT_4_1_MINI",
   AZURE_OPENAI_GPT_4O: "AZURE_OPENAI_GPT_4O",
   AZURE_OPENAI_GPT_4O_MINI: "AZURE_OPENAI_GPT_4O_MINI",
+  AZURE_OPENAI_GPT_4_1: "AZURE_OPENAI_GPT_4_1",
+  AZURE_OPENAI_GPT_4_1_MINI: "AZURE_OPENAI_GPT_4_1_MINI",
+  AZURE_OPENAI_GPT_4_1_NANO: "AZURE_OPENAI_GPT_4_1_NANO",
   CLAUDE_3_5_SONNET: "CLAUDE_3_5_SONNET",
   BEDROCK_CLAUDE_3_5_SONNET_V1: "BEDROCK_CLAUDE_3_5_SONNET_V1",
   BEDROCK_CLAUDE_3_5_SONNET_V2: "BEDROCK_CLAUDE_3_5_SONNET_V2",
   VERTEX_AI_CLAUDE_3_5_SONNET_V2: "VERTEX_AI_CLAUDE_3_5_SONNET_V2",
 } as const;
-
-export type TextBlock = {
-  block_type?: "text";
-  text: string;
-};
 
 /**
  * Provided for backward compatibility.
@@ -8001,9 +8741,44 @@ export type UsageResponse = {
     | "plan_spend_limit_soft_alert"
     | "configured_spend_limit_exceeded"
     | "free_credits_exhausted"
+    | "internal_spending_alert"
+    | "has_spending_alert"
   >;
   current_invoice_total_usd_cents?: number | null;
   total_extraction_agents?: number;
+};
+
+export type User = {
+  id: string;
+  email: string;
+  /**
+   * The last login provider.
+   */
+  last_login_provider?: "oidc" | "basic" | "no_auth";
+  /**
+   * The user's name.
+   */
+  name?: string | null;
+  /**
+   * The user's first name.
+   */
+  first_name?: string | null;
+  /**
+   * The user's last name.
+   */
+  last_name?: string | null;
+  /**
+   * The user's custom claims.
+   */
+  claims?: CustomClaims;
+  /**
+   * The restrictions on the user.
+   */
+  restrict?: Restrict | null;
+  /**
+   * The user's creation date.
+   */
+  created_at?: string | null;
 };
 
 export type UserJobRecord = {
@@ -8268,95 +9043,83 @@ export type WebhookConfiguration = {
     | "extract.error"
     | "extract.partial_success"
     | "extract.cancelled"
+    | "parse.pending"
+    | "parse.success"
+    | "parse.error"
+    | "parse.partial_success"
+    | "parse.cancelled"
     | "unmapped_event"
   > | null;
+  /**
+   * The output format to use for the webhook. Defaults to string if none supplied. Currently supported values: string, json
+   */
+  webhook_output_format?: string | null;
 };
 
-/**
- * Request body for stateless extraction. Must include either file_id, text, or base64.
- */
-export type StatelessExtractionRequest = {
-  data_schema:
-    | {
-        [key: string]:
-          | {
-              [key: string]: unknown;
-            }
-          | Array<unknown>
-          | string
-          | number
-          | number
-          | boolean
-          | null;
-      }
-    | string
-    | null;
-  /**
-   * The configuration parameters for the extraction agent.
-   */
-  config?: ExtractConfig;
-  /**
-   * ID of an uploaded file to extract from
-   */
-  file_id?: string;
-};
-
-/**
- * Chat message.
- */
-export type LlamaIndexCoreBaseLlmsTypesChatMessage = {
-  role?: MessageRole;
-  additional_kwargs?: {
-    [key: string]: unknown;
+export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetData = {
+  body?: never;
+  path: {
+    project_id: string;
   };
-  blocks?: Array<
-    | ({
-        block_type: "text";
-      } & TextBlock)
-    | ({
-        block_type: "image";
-      } & ImageBlock)
-    | ({
-        block_type: "audio";
-      } & AudioBlock)
-    | ({
-        block_type: "document";
-      } & DocumentBlock)
-  >;
+  query?: never;
+  url: "/api/v1/projects/{project_id}/agents";
 };
 
-export type SrcAppSchemaChatChatMessage = {
-  id: string;
+export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors = {
   /**
-   * The index of the message in the chat.
+   * Validation Error
    */
-  index: number;
-  /**
-   * Retrieval annotations for the message.
-   */
-  annotations?: Array<MessageAnnotation>;
-  /**
-   * The role of the message.
-   */
-  role: MessageRole;
-  /**
-   * Text content of the generation
-   */
-  content?: string | null;
-  /**
-   * Additional arguments passed to the model
-   */
-  additional_kwargs?: {
-    [key: string]: string;
-  };
-  class_name?: string;
+  422: HttpValidationError;
 };
+
+export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetError =
+  ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors[keyof ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors];
+
+export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: AgentDeploymentList;
+};
+
+export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponse =
+  ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses[keyof ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses];
+
+export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostData = {
+  body?: never;
+  path: {
+    project_id: string;
+  };
+  query?: never;
+  url: "/api/v1/projects/{project_id}/agents:sync";
+};
+
+export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostError =
+  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors[keyof SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors];
+
+export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: AgentDeploymentList;
+};
+
+export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponse =
+  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses[keyof SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses];
 
 export type ListKeysApiV1ApiKeysGetData = {
   body?: never;
   path?: never;
   query?: {
     project_id?: string | null;
+    key_type?: ApiKeyType;
   };
   url: "/api/v1/api-keys";
 };
@@ -8436,35 +9199,6 @@ export type DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponses = {
 
 export type DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponse =
   DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponses[keyof DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponses];
-
-export type UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutData = {
-  body: ApiKeyUpdate;
-  path: {
-    api_key_id: string;
-  };
-  query?: never;
-  url: "/api/v1/api-keys/{api_key_id}";
-};
-
-export type UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutError =
-  UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutErrors[keyof UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutErrors];
-
-export type UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutResponses = {
-  /**
-   * Successful Response
-   */
-  200: ApiKey;
-};
-
-export type UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutResponse =
-  UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutResponses[keyof UpdateExistingApiKeyApiV1ApiKeysApiKeyIdPutResponses];
 
 export type ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostData =
   {
@@ -10325,6 +11059,79 @@ export type GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetRespon
     200: unknown;
   };
 
+export type GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostData =
+  {
+    body?: never;
+    path: {
+      id: string;
+      page_index: number;
+    };
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/files/{id}/page_screenshots/{page_index}/presigned_url";
+  };
+
+export type GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostError =
+  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostErrors[keyof GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostErrors];
+
+export type GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: PresignedUrl;
+  };
+
+export type GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse =
+  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponses[keyof GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponses];
+
+export type GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostData =
+  {
+    body?: never;
+    path: {
+      id: string;
+      page_index: number;
+      figure_name: string;
+    };
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/files/{id}/page-figures/{page_index}/{figure_name}/presigned_url";
+  };
+
+export type GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostError =
+  GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostErrors[keyof GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostErrors];
+
+export type GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: PresignedUrl;
+  };
+
+export type GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponse =
+  GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponses[keyof GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponses];
+
 export type SearchPipelinesApiV1PipelinesGetData = {
   body?: never;
   path?: never;
@@ -10721,6 +11528,7 @@ export type ListPipelineFiles2ApiV1PipelinesPipelineIdFiles2GetData = {
   query?: {
     data_source_id?: string | null;
     only_manually_uploaded?: boolean;
+    file_name_contains?: string | null;
     limit?: number | null;
     offset?: number | null;
     order_by?: string | null;
@@ -11525,6 +12333,36 @@ export type GetPipelineDocumentStatusApiV1PipelinesPipelineIdDocumentsDocumentId
 export type GetPipelineDocumentStatusApiV1PipelinesPipelineIdDocumentsDocumentIdStatusGetResponse =
   GetPipelineDocumentStatusApiV1PipelinesPipelineIdDocumentsDocumentIdStatusGetResponses[keyof GetPipelineDocumentStatusApiV1PipelinesPipelineIdDocumentsDocumentIdStatusGetResponses];
 
+export type SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostData =
+  {
+    body?: never;
+    path: {
+      document_id: string;
+      pipeline_id: string;
+    };
+    query?: never;
+    url: "/api/v1/pipelines/{pipeline_id}/documents/{document_id}/sync";
+  };
+
+export type SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostError =
+  SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostErrors[keyof SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostErrors];
+
+export type SyncPipelineDocumentApiV1PipelinesPipelineIdDocumentsDocumentIdSyncPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+  };
+
 export type ListPipelineDocumentChunksApiV1PipelinesPipelineIdDocumentsDocumentIdChunksGetData =
   {
     body?: never;
@@ -11557,6 +12395,41 @@ export type ListPipelineDocumentChunksApiV1PipelinesPipelineIdDocumentsDocumentI
 
 export type ListPipelineDocumentChunksApiV1PipelinesPipelineIdDocumentsDocumentIdChunksGetResponse =
   ListPipelineDocumentChunksApiV1PipelinesPipelineIdDocumentsDocumentIdChunksGetResponses[keyof ListPipelineDocumentChunksApiV1PipelinesPipelineIdDocumentsDocumentIdChunksGetResponses];
+
+export type ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostData =
+  {
+    body?: never;
+    path: {
+      pipeline_id: string;
+    };
+    query?: {
+      batch_size?: number;
+      /**
+       * Only sync retriable documents (failed/cancelled/not-started/stalled-in-progress)
+       */
+      only_failed?: boolean;
+    };
+    url: "/api/v1/pipelines/{pipeline_id}/documents/force-sync-all";
+  };
+
+export type ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostError =
+  ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostErrors[keyof ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostErrors];
+
+export type ForceSyncAllPipelineDocumentsApiV1PipelinesPipelineIdDocumentsForceSyncAllPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    202: unknown;
+  };
 
 export type ListRetrieversApiV1RetrieversGetData = {
   body?: never;
@@ -11817,7 +12690,7 @@ export type GetJobsApiV1JobsGetData = {
     project_id?: string | null;
     organization_id?: string | null;
   };
-  url: "/api/v1/jobs/";
+  url: "/api/v1/jobs";
 };
 
 export type GetJobsApiV1JobsGetErrors = {
@@ -12627,93 +13500,161 @@ export type ChatWithChatAppApiV1AppsIdChatPostResponses = {
   200: unknown;
 };
 
-export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetData = {
+export type ListClassifyJobsApiV1ClassifierJobsGetData = {
   body?: never;
-  path: {
-    project_id: string;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+    page_size?: number | null;
+    page_token?: string | null;
   };
-  query?: never;
-  url: "/api/v1/projects/{project_id}/agents";
+  url: "/api/v1/classifier/jobs";
 };
 
-export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors = {
+export type ListClassifyJobsApiV1ClassifierJobsGetErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetError =
-  ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors[keyof ListDeploymentsApiV1ProjectsProjectIdAgentsGetErrors];
+export type ListClassifyJobsApiV1ClassifierJobsGetError =
+  ListClassifyJobsApiV1ClassifierJobsGetErrors[keyof ListClassifyJobsApiV1ClassifierJobsGetErrors];
 
-export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses = {
+export type ListClassifyJobsApiV1ClassifierJobsGetResponses = {
   /**
    * Successful Response
    */
-  200: AgentDeploymentList;
+  200: PaginatedResponseClassifyJob;
 };
 
-export type ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponse =
-  ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses[keyof ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponses];
+export type ListClassifyJobsApiV1ClassifierJobsGetResponse =
+  ListClassifyJobsApiV1ClassifierJobsGetResponses[keyof ListClassifyJobsApiV1ClassifierJobsGetResponses];
 
-export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostData = {
-  body?: never;
-  path: {
-    project_id: string;
-  };
-  query?: never;
-  url: "/api/v1/projects/{project_id}/agents:sync";
-};
-
-export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostError =
-  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors[keyof SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostErrors];
-
-export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: AgentDeploymentList;
-};
-
-export type SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponse =
-  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses[keyof SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponses];
-
-export type ClassifyDocumentsApiV1ClassifierClassifyPostData = {
-  body: BodyClassifyDocumentsApiV1ClassifierClassifyPost;
+export type CreateClassifyJobApiV1ClassifierJobsPostData = {
+  body: ClassifyJobCreate;
   path?: never;
   query?: {
     project_id?: string | null;
     organization_id?: string | null;
   };
-  url: "/api/v1/classifier/classify";
+  url: "/api/v1/classifier/jobs";
 };
 
-export type ClassifyDocumentsApiV1ClassifierClassifyPostErrors = {
+export type CreateClassifyJobApiV1ClassifierJobsPostErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ClassifyDocumentsApiV1ClassifierClassifyPostError =
-  ClassifyDocumentsApiV1ClassifierClassifyPostErrors[keyof ClassifyDocumentsApiV1ClassifierClassifyPostErrors];
+export type CreateClassifyJobApiV1ClassifierJobsPostError =
+  CreateClassifyJobApiV1ClassifierJobsPostErrors[keyof CreateClassifyJobApiV1ClassifierJobsPostErrors];
 
-export type ClassifyDocumentsApiV1ClassifierClassifyPostResponses = {
+export type CreateClassifyJobApiV1ClassifierJobsPostResponses = {
   /**
    * Successful Response
    */
-  200: ClassifyResponse;
+  200: ClassifyJob;
 };
 
-export type ClassifyDocumentsApiV1ClassifierClassifyPostResponse =
-  ClassifyDocumentsApiV1ClassifierClassifyPostResponses[keyof ClassifyDocumentsApiV1ClassifierClassifyPostResponses];
+export type CreateClassifyJobApiV1ClassifierJobsPostResponse =
+  CreateClassifyJobApiV1ClassifierJobsPostResponses[keyof CreateClassifyJobApiV1ClassifierJobsPostResponses];
+
+export type GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetData = {
+  body?: never;
+  path: {
+    classify_job_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/classifier/jobs/{classify_job_id}";
+};
+
+export type GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetError =
+  GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetErrors[keyof GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetErrors];
+
+export type GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ClassifyJob;
+};
+
+export type GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetResponse =
+  GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetResponses[keyof GetClassifyJobApiV1ClassifierJobsClassifyJobIdGetResponses];
+
+export type GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData =
+  {
+    body?: never;
+    path: {
+      classify_job_id: string;
+    };
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/classifier/jobs/{classify_job_id}/results";
+  };
+
+export type GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetError =
+  GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetErrors[keyof GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetErrors];
+
+export type GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ClassifyJobResults;
+  };
+
+export type GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponse =
+  GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponses[keyof GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponses];
+
+export type ReadSelfApiV1AuthMeGetData = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: "/api/v1/auth/me";
+};
+
+export type ReadSelfApiV1AuthMeGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ReadSelfApiV1AuthMeGetError =
+  ReadSelfApiV1AuthMeGetErrors[keyof ReadSelfApiV1AuthMeGetErrors];
+
+export type ReadSelfApiV1AuthMeGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: User;
+};
+
+export type ReadSelfApiV1AuthMeGetResponse =
+  ReadSelfApiV1AuthMeGetResponses[keyof ReadSelfApiV1AuthMeGetResponses];
 
 export type CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostData =
   {
@@ -12859,6 +13800,10 @@ export type ListExtractionAgentsApiV1ExtractionExtractionAgentsGetData = {
   body?: never;
   path?: never;
   query?: {
+    /**
+     * Whether to include default agents in the results
+     */
+    include_default?: boolean;
     project_id?: string | null;
     organization_id?: string | null;
   };
@@ -13014,6 +13959,39 @@ export type GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet
 export type GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetResponse =
   GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetResponses[keyof GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetResponses];
 
+export type GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetData =
+  {
+    body?: never;
+    path?: never;
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/extraction/extraction-agents/default";
+  };
+
+export type GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetError =
+  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetErrors[keyof GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetErrors];
+
+export type GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ExtractAgent;
+  };
+
+export type GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponse =
+  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponses[keyof GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponses];
+
 export type DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData =
   {
     body?: never;
@@ -13106,33 +14084,6 @@ export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentI
 
 export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses[keyof UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses];
-
-export type ExtractStatelessApiV1ExtractionRunPostData = {
-  body: StatelessExtractionRequest;
-  path?: never;
-  query?: never;
-  url: "/api/v1/extraction/run";
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostError =
-  ExtractStatelessApiV1ExtractionRunPostErrors[keyof ExtractStatelessApiV1ExtractionRunPostErrors];
-
-export type ExtractStatelessApiV1ExtractionRunPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostResponse =
-  ExtractStatelessApiV1ExtractionRunPostResponses[keyof ExtractStatelessApiV1ExtractionRunPostResponses];
 
 export type ListJobsApiV1ExtractionJobsGetData = {
   body?: never;
@@ -13493,390 +14444,153 @@ export type GetRunApiV1ExtractionRunsRunIdGetResponses = {
 export type GetRunApiV1ExtractionRunsRunIdGetResponse =
   GetRunApiV1ExtractionRunsRunIdGetResponses[keyof GetRunApiV1ExtractionRunsRunIdGetResponses];
 
-export type CreateReportApiV1ReportsPostData = {
-  body: BodyCreateReportApiV1ReportsPost;
+export type ExtractStatelessApiV1ExtractionRunPostData = {
+  body: ExtractStatelessRequest;
   path?: never;
   query?: {
     project_id?: string | null;
     organization_id?: string | null;
   };
-  url: "/api/v1/reports/";
+  url: "/api/v1/extraction/run";
 };
 
-export type CreateReportApiV1ReportsPostErrors = {
+export type ExtractStatelessApiV1ExtractionRunPostErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type CreateReportApiV1ReportsPostError =
-  CreateReportApiV1ReportsPostErrors[keyof CreateReportApiV1ReportsPostErrors];
+export type ExtractStatelessApiV1ExtractionRunPostError =
+  ExtractStatelessApiV1ExtractionRunPostErrors[keyof ExtractStatelessApiV1ExtractionRunPostErrors];
 
-export type CreateReportApiV1ReportsPostResponses = {
+export type ExtractStatelessApiV1ExtractionRunPostResponses = {
   /**
    * Successful Response
    */
-  200: ReportCreateResponse;
+  200: ExtractJob;
 };
 
-export type CreateReportApiV1ReportsPostResponse =
-  CreateReportApiV1ReportsPostResponses[keyof CreateReportApiV1ReportsPostResponses];
+export type ExtractStatelessApiV1ExtractionRunPostResponse =
+  ExtractStatelessApiV1ExtractionRunPostResponses[keyof ExtractStatelessApiV1ExtractionRunPostResponses];
 
-export type ListReportsApiV1ReportsListGetData = {
+export type ListApiKeysApiV1BetaApiKeysGetData = {
   body?: never;
   path?: never;
   query?: {
-    state?: ReportState | null;
-    limit?: number;
-    offset?: number;
+    page_size?: number | null;
+    page_token?: string | null;
+    name?: string | null;
     project_id?: string | null;
-    organization_id?: string | null;
+    key_type?: ApiKeyType | null;
   };
-  url: "/api/v1/reports/list";
+  url: "/api/v1/beta/api-keys";
 };
 
-export type ListReportsApiV1ReportsListGetErrors = {
+export type ListApiKeysApiV1BetaApiKeysGetErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type ListReportsApiV1ReportsListGetError =
-  ListReportsApiV1ReportsListGetErrors[keyof ListReportsApiV1ReportsListGetErrors];
+export type ListApiKeysApiV1BetaApiKeysGetError =
+  ListApiKeysApiV1BetaApiKeysGetErrors[keyof ListApiKeysApiV1BetaApiKeysGetErrors];
 
-export type ListReportsApiV1ReportsListGetResponses = {
+export type ListApiKeysApiV1BetaApiKeysGetResponses = {
   /**
    * Successful Response
    */
-  200: PaginatedReportResponse;
+  200: ApiKeyQueryResponse;
 };
 
-export type ListReportsApiV1ReportsListGetResponse =
-  ListReportsApiV1ReportsListGetResponses[keyof ListReportsApiV1ReportsListGetResponses];
+export type ListApiKeysApiV1BetaApiKeysGetResponse =
+  ListApiKeysApiV1BetaApiKeysGetResponses[keyof ListApiKeysApiV1BetaApiKeysGetResponses];
 
-export type DeleteReportApiV1ReportsReportIdDeleteData = {
+export type CreateApiKeyApiV1BetaApiKeysPostData = {
+  body: ApiKeyCreate;
+  path?: never;
+  query?: never;
+  url: "/api/v1/beta/api-keys";
+};
+
+export type CreateApiKeyApiV1BetaApiKeysPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateApiKeyApiV1BetaApiKeysPostError =
+  CreateApiKeyApiV1BetaApiKeysPostErrors[keyof CreateApiKeyApiV1BetaApiKeysPostErrors];
+
+export type CreateApiKeyApiV1BetaApiKeysPostResponses = {
+  /**
+   * Successful Response
+   */
+  201: ApiKey;
+};
+
+export type CreateApiKeyApiV1BetaApiKeysPostResponse =
+  CreateApiKeyApiV1BetaApiKeysPostResponses[keyof CreateApiKeyApiV1BetaApiKeysPostResponses];
+
+export type DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteData = {
   body?: never;
   path: {
-    report_id: string;
+    api_key_id: string;
   };
-  query?: {
-    /**
-     * Whether to delete associated retriever and pipeline data
-     */
-    cascade_delete?: boolean;
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}";
+  query?: never;
+  url: "/api/v1/beta/api-keys/{api_key_id}";
 };
 
-export type DeleteReportApiV1ReportsReportIdDeleteErrors = {
+export type DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type DeleteReportApiV1ReportsReportIdDeleteError =
-  DeleteReportApiV1ReportsReportIdDeleteErrors[keyof DeleteReportApiV1ReportsReportIdDeleteErrors];
+export type DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteError =
+  DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteErrors[keyof DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteErrors];
 
-export type DeleteReportApiV1ReportsReportIdDeleteResponses = {
+export type DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponses = {
   /**
    * Successful Response
    */
-  200: unknown;
+  204: void;
 };
 
-export type GetReportApiV1ReportsReportIdGetData = {
+export type DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponse =
+  DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponses[keyof DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponses];
+
+export type GetApiKeyApiV1BetaApiKeysApiKeyIdGetData = {
   body?: never;
   path: {
-    report_id: string;
+    api_key_id: string;
   };
-  query?: {
-    version?: number | null;
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}";
+  query?: never;
+  url: "/api/v1/beta/api-keys/{api_key_id}";
 };
 
-export type GetReportApiV1ReportsReportIdGetErrors = {
+export type GetApiKeyApiV1BetaApiKeysApiKeyIdGetErrors = {
   /**
    * Validation Error
    */
   422: HttpValidationError;
 };
 
-export type GetReportApiV1ReportsReportIdGetError =
-  GetReportApiV1ReportsReportIdGetErrors[keyof GetReportApiV1ReportsReportIdGetErrors];
+export type GetApiKeyApiV1BetaApiKeysApiKeyIdGetError =
+  GetApiKeyApiV1BetaApiKeysApiKeyIdGetErrors[keyof GetApiKeyApiV1BetaApiKeysApiKeyIdGetErrors];
 
-export type GetReportApiV1ReportsReportIdGetResponses = {
+export type GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponses = {
   /**
    * Successful Response
    */
-  200: ReportResponse;
+  200: ApiKey;
 };
 
-export type GetReportApiV1ReportsReportIdGetResponse =
-  GetReportApiV1ReportsReportIdGetResponses[keyof GetReportApiV1ReportsReportIdGetResponses];
-
-export type UpdateReportApiV1ReportsReportIdPatchData = {
-  body: ReportVersionPatch;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}";
-};
-
-export type UpdateReportApiV1ReportsReportIdPatchErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type UpdateReportApiV1ReportsReportIdPatchError =
-  UpdateReportApiV1ReportsReportIdPatchErrors[keyof UpdateReportApiV1ReportsReportIdPatchErrors];
-
-export type UpdateReportApiV1ReportsReportIdPatchResponses = {
-  /**
-   * Successful Response
-   */
-  200: ReportResponse;
-};
-
-export type UpdateReportApiV1ReportsReportIdPatchResponse =
-  UpdateReportApiV1ReportsReportIdPatchResponses[keyof UpdateReportApiV1ReportsReportIdPatchResponses];
-
-export type UpdateReportMetadataApiV1ReportsReportIdPostData = {
-  body: ReportNameUpdate;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}";
-};
-
-export type UpdateReportMetadataApiV1ReportsReportIdPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type UpdateReportMetadataApiV1ReportsReportIdPostError =
-  UpdateReportMetadataApiV1ReportsReportIdPostErrors[keyof UpdateReportMetadataApiV1ReportsReportIdPostErrors];
-
-export type UpdateReportMetadataApiV1ReportsReportIdPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ReportMetadata;
-};
-
-export type UpdateReportMetadataApiV1ReportsReportIdPostResponse =
-  UpdateReportMetadataApiV1ReportsReportIdPostResponses[keyof UpdateReportMetadataApiV1ReportsReportIdPostResponses];
-
-export type GetReportPlanApiV1ReportsReportIdPlanGetData = {
-  body?: never;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/plan";
-};
-
-export type GetReportPlanApiV1ReportsReportIdPlanGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetReportPlanApiV1ReportsReportIdPlanGetError =
-  GetReportPlanApiV1ReportsReportIdPlanGetErrors[keyof GetReportPlanApiV1ReportsReportIdPlanGetErrors];
-
-export type GetReportPlanApiV1ReportsReportIdPlanGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ReportPlan;
-};
-
-export type GetReportPlanApiV1ReportsReportIdPlanGetResponse =
-  GetReportPlanApiV1ReportsReportIdPlanGetResponses[keyof GetReportPlanApiV1ReportsReportIdPlanGetResponses];
-
-export type UpdateReportPlanApiV1ReportsReportIdPlanPatchData = {
-  body?: ReportPlan | null;
-  path: {
-    report_id: string;
-  };
-  query: {
-    action: "approve" | "reject" | "edit";
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/plan";
-};
-
-export type UpdateReportPlanApiV1ReportsReportIdPlanPatchErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type UpdateReportPlanApiV1ReportsReportIdPlanPatchError =
-  UpdateReportPlanApiV1ReportsReportIdPlanPatchErrors[keyof UpdateReportPlanApiV1ReportsReportIdPlanPatchErrors];
-
-export type UpdateReportPlanApiV1ReportsReportIdPlanPatchResponses = {
-  /**
-   * Successful Response
-   */
-  200: ReportResponse;
-};
-
-export type UpdateReportPlanApiV1ReportsReportIdPlanPatchResponse =
-  UpdateReportPlanApiV1ReportsReportIdPlanPatchResponses[keyof UpdateReportPlanApiV1ReportsReportIdPlanPatchResponses];
-
-export type GetReportEventsApiV1ReportsReportIdEventsGetData = {
-  body?: never;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    after?: string | null;
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/events";
-};
-
-export type GetReportEventsApiV1ReportsReportIdEventsGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetReportEventsApiV1ReportsReportIdEventsGetError =
-  GetReportEventsApiV1ReportsReportIdEventsGetErrors[keyof GetReportEventsApiV1ReportsReportIdEventsGetErrors];
-
-export type GetReportEventsApiV1ReportsReportIdEventsGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: Array<ReportEventItem>;
-};
-
-export type GetReportEventsApiV1ReportsReportIdEventsGetResponse =
-  GetReportEventsApiV1ReportsReportIdEventsGetResponses[keyof GetReportEventsApiV1ReportsReportIdEventsGetResponses];
-
-export type GetReportMetadataApiV1ReportsReportIdMetadataGetData = {
-  body?: never;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/metadata";
-};
-
-export type GetReportMetadataApiV1ReportsReportIdMetadataGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetReportMetadataApiV1ReportsReportIdMetadataGetError =
-  GetReportMetadataApiV1ReportsReportIdMetadataGetErrors[keyof GetReportMetadataApiV1ReportsReportIdMetadataGetErrors];
-
-export type GetReportMetadataApiV1ReportsReportIdMetadataGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ReportMetadata;
-};
-
-export type GetReportMetadataApiV1ReportsReportIdMetadataGetResponse =
-  GetReportMetadataApiV1ReportsReportIdMetadataGetResponses[keyof GetReportMetadataApiV1ReportsReportIdMetadataGetResponses];
-
-export type SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostData = {
-  body: EditSuggestionCreate;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/suggest_edits";
-};
-
-export type SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostError =
-  SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostErrors[keyof SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostErrors];
-
-export type SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostResponses =
-  {
-    /**
-     * Successful Response
-     */
-    200: Array<EditSuggestion>;
-  };
-
-export type SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostResponse =
-  SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostResponses[keyof SuggestEditsEndpointApiV1ReportsReportIdSuggestEditsPostResponses];
-
-export type RestartReportApiV1ReportsReportIdRestartPostData = {
-  body?: never;
-  path: {
-    report_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/reports/{report_id}/restart";
-};
-
-export type RestartReportApiV1ReportsReportIdRestartPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RestartReportApiV1ReportsReportIdRestartPostError =
-  RestartReportApiV1ReportsReportIdRestartPostErrors[keyof RestartReportApiV1ReportsReportIdRestartPostErrors];
-
-export type RestartReportApiV1ReportsReportIdRestartPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: unknown;
-};
+export type GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponse =
+  GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponses[keyof GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponses];
 
 export type ListBatchesApiV1BetaBatchesGetData = {
   body?: never;
@@ -13976,7 +14690,10 @@ export type DeleteAgentDataApiV1BetaAgentDataItemIdDeleteData = {
   path: {
     item_id: string;
   };
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data/{item_id}";
 };
 
@@ -14007,7 +14724,10 @@ export type GetAgentDataApiV1BetaAgentDataItemIdGetData = {
   path: {
     item_id: string;
   };
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data/{item_id}";
 };
 
@@ -14036,7 +14756,10 @@ export type UpdateAgentDataApiV1BetaAgentDataItemIdPutData = {
   path: {
     item_id: string;
   };
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data/{item_id}";
 };
 
@@ -14063,7 +14786,10 @@ export type UpdateAgentDataApiV1BetaAgentDataItemIdPutResponse =
 export type CreateAgentDataApiV1BetaAgentDataPostData = {
   body: AgentDataCreate;
   path?: never;
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data";
 };
 
@@ -14090,7 +14816,10 @@ export type CreateAgentDataApiV1BetaAgentDataPostResponse =
 export type SearchAgentDataApiV1BetaAgentDataSearchPostData = {
   body: SearchRequest;
   path?: never;
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data/:search";
 };
 
@@ -14117,7 +14846,10 @@ export type SearchAgentDataApiV1BetaAgentDataSearchPostResponse =
 export type AggregateAgentDataApiV1BetaAgentDataAggregatePostData = {
   body: AggregateRequest;
   path?: never;
-  query?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
   url: "/api/v1/beta/agent-data/:aggregate";
 };
 
@@ -14140,6 +14872,457 @@ export type AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses = {
 
 export type AggregateAgentDataApiV1BetaAgentDataAggregatePostResponse =
   AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses[keyof AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses];
+
+export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    source_type: "organization";
+    source_id: string;
+    page?: number;
+    page_size?: number;
+  };
+  url: "/api/v1/beta/quota-management";
+};
+
+export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetError =
+  ListQuotaConfigurationsApiV1BetaQuotaManagementGetErrors[keyof ListQuotaConfigurationsApiV1BetaQuotaManagementGetErrors];
+
+export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedResponseQuotaConfiguration;
+};
+
+export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse =
+  ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponses[keyof ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponses];
+
+export type CreateFileApiV1BetaFilesPostData = {
+  body: FileCreate;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/files";
+};
+
+export type CreateFileApiV1BetaFilesPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateFileApiV1BetaFilesPostError =
+  CreateFileApiV1BetaFilesPostErrors[keyof CreateFileApiV1BetaFilesPostErrors];
+
+export type CreateFileApiV1BetaFilesPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: File;
+};
+
+export type CreateFileApiV1BetaFilesPostResponse =
+  CreateFileApiV1BetaFilesPostResponses[keyof CreateFileApiV1BetaFilesPostResponses];
+
+export type UpsertFileApiV1BetaFilesPutData = {
+  body: FileCreate;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/files";
+};
+
+export type UpsertFileApiV1BetaFilesPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpsertFileApiV1BetaFilesPutError =
+  UpsertFileApiV1BetaFilesPutErrors[keyof UpsertFileApiV1BetaFilesPutErrors];
+
+export type UpsertFileApiV1BetaFilesPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: File;
+};
+
+export type UpsertFileApiV1BetaFilesPutResponse =
+  UpsertFileApiV1BetaFilesPutResponses[keyof UpsertFileApiV1BetaFilesPutResponses];
+
+export type QueryFilesApiV1BetaFilesQueryPostData = {
+  body: FileQueryRequest;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/files/query";
+};
+
+export type QueryFilesApiV1BetaFilesQueryPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type QueryFilesApiV1BetaFilesQueryPostError =
+  QueryFilesApiV1BetaFilesQueryPostErrors[keyof QueryFilesApiV1BetaFilesQueryPostErrors];
+
+export type QueryFilesApiV1BetaFilesQueryPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: FileQueryResponse;
+};
+
+export type QueryFilesApiV1BetaFilesQueryPostResponse =
+  QueryFilesApiV1BetaFilesQueryPostResponses[keyof QueryFilesApiV1BetaFilesQueryPostResponses];
+
+export type DeleteFileApiV1BetaFilesFileIdDeleteData = {
+  body?: never;
+  path: {
+    file_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/files/{file_id}";
+};
+
+export type DeleteFileApiV1BetaFilesFileIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteFileApiV1BetaFilesFileIdDeleteError =
+  DeleteFileApiV1BetaFilesFileIdDeleteErrors[keyof DeleteFileApiV1BetaFilesFileIdDeleteErrors];
+
+export type DeleteFileApiV1BetaFilesFileIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  204: void;
+};
+
+export type DeleteFileApiV1BetaFilesFileIdDeleteResponse =
+  DeleteFileApiV1BetaFilesFileIdDeleteResponses[keyof DeleteFileApiV1BetaFilesFileIdDeleteResponses];
+
+export type ListParseConfigurationsApiV1BetaParseConfigurationsGetData = {
+  body?: never;
+  path?: never;
+  query?: {
+    page_size?: number | null;
+    page_token?: string | null;
+    name?: string | null;
+    creator?: string | null;
+    version?: string | null;
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/parse-configurations";
+};
+
+export type ListParseConfigurationsApiV1BetaParseConfigurationsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListParseConfigurationsApiV1BetaParseConfigurationsGetError =
+  ListParseConfigurationsApiV1BetaParseConfigurationsGetErrors[keyof ListParseConfigurationsApiV1BetaParseConfigurationsGetErrors];
+
+export type ListParseConfigurationsApiV1BetaParseConfigurationsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ParseConfigurationQueryResponse;
+};
+
+export type ListParseConfigurationsApiV1BetaParseConfigurationsGetResponse =
+  ListParseConfigurationsApiV1BetaParseConfigurationsGetResponses[keyof ListParseConfigurationsApiV1BetaParseConfigurationsGetResponses];
+
+export type CreateParseConfigurationApiV1BetaParseConfigurationsPostData = {
+  body: ParseConfigurationCreate;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/parse-configurations";
+};
+
+export type CreateParseConfigurationApiV1BetaParseConfigurationsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateParseConfigurationApiV1BetaParseConfigurationsPostError =
+  CreateParseConfigurationApiV1BetaParseConfigurationsPostErrors[keyof CreateParseConfigurationApiV1BetaParseConfigurationsPostErrors];
+
+export type CreateParseConfigurationApiV1BetaParseConfigurationsPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    201: ParseConfiguration;
+  };
+
+export type CreateParseConfigurationApiV1BetaParseConfigurationsPostResponse =
+  CreateParseConfigurationApiV1BetaParseConfigurationsPostResponses[keyof CreateParseConfigurationApiV1BetaParseConfigurationsPostResponses];
+
+export type UpsertParseConfigurationApiV1BetaParseConfigurationsPutData = {
+  body: ParseConfigurationCreate;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/parse-configurations";
+};
+
+export type UpsertParseConfigurationApiV1BetaParseConfigurationsPutErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UpsertParseConfigurationApiV1BetaParseConfigurationsPutError =
+  UpsertParseConfigurationApiV1BetaParseConfigurationsPutErrors[keyof UpsertParseConfigurationApiV1BetaParseConfigurationsPutErrors];
+
+export type UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponses = {
+  /**
+   * Successful Response
+   */
+  200: ParseConfiguration;
+};
+
+export type UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponse =
+  UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponses[keyof UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponses];
+
+export type DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteData =
+  {
+    body?: never;
+    path: {
+      config_id: string;
+    };
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/beta/parse-configurations/{config_id}";
+  };
+
+export type DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteError =
+  DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteErrors[keyof DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteErrors];
+
+export type DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponses =
+  {
+    /**
+     * Successful Response
+     */
+    204: void;
+  };
+
+export type DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponse =
+  DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponses[keyof DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponses];
+
+export type GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetData = {
+  body?: never;
+  path: {
+    config_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/parse-configurations/{config_id}";
+};
+
+export type GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetError =
+  GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetErrors[keyof GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetErrors];
+
+export type GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ParseConfiguration;
+  };
+
+export type GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetResponse =
+  GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetResponses[keyof GetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetResponses];
+
+export type UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutData =
+  {
+    body: ParseConfigurationUpdate;
+    path: {
+      config_id: string;
+    };
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/beta/parse-configurations/{config_id}";
+  };
+
+export type UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutError =
+  UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutErrors[keyof UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutErrors];
+
+export type UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ParseConfiguration;
+  };
+
+export type UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponse =
+  UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponses[keyof UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponses];
+
+export type QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostData =
+  {
+    body: ParseConfigurationQueryRequest;
+    path?: never;
+    query?: {
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/beta/parse-configurations/query";
+  };
+
+export type QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostError =
+  QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostErrors[keyof QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostErrors];
+
+export type QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ParseConfigurationQueryResponse;
+  };
+
+export type QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponse =
+  QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponses[keyof QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponses];
+
+export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetData =
+  {
+    body?: never;
+    path?: never;
+    query?: {
+      creator?: string | null;
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/beta/parse-configurations/latest";
+  };
+
+export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetError =
+  GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetErrors[keyof GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetErrors];
+
+export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: ParseConfiguration | null;
+  };
+
+export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse =
+  GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponses[keyof GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponses];
+
+export type UploadFileV2ApiV2Alpha1ParseUploadPostData = {
+  body: BodyUploadFileV2ApiV2Alpha1ParseUploadPost;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v2alpha1/parse/upload";
+};
+
+export type UploadFileV2ApiV2Alpha1ParseUploadPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type UploadFileV2ApiV2Alpha1ParseUploadPostError =
+  UploadFileV2ApiV2Alpha1ParseUploadPostErrors[keyof UploadFileV2ApiV2Alpha1ParseUploadPostErrors];
+
+export type UploadFileV2ApiV2Alpha1ParseUploadPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ParsingJob;
+};
+
+export type UploadFileV2ApiV2Alpha1ParseUploadPostResponse =
+  UploadFileV2ApiV2Alpha1ParseUploadPostResponses[keyof UploadFileV2ApiV2Alpha1ParseUploadPostResponses];
 
 export type GetJobImageResultApiParsingJobJobIdResultImageNameGetData = {
   body?: never;

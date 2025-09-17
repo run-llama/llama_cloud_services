@@ -339,79 +339,6 @@
             }
           }
         }
-      },
-      "put": {
-        "tags": [
-          "API Keys"
-        ],
-        "summary": "Update Existing Api Key",
-        "description": "Update name of an existing API Key.",
-        "operationId": "update_existing_api_key_api_v1_api_keys__api_key_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "api_key_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Api Key Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/APIKeyUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/APIKey"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
       }
     },
     "/api/v1/validate-integrations/validate-embedding-connection": {
@@ -9014,6 +8941,78 @@
         }
       }
     },
+    "/api/v1/pipelines/{pipeline_id}/documents/{document_id}/sync": {
+      "post": {
+        "tags": [
+          "Pipelines"
+        ],
+        "summary": "Sync Pipeline Document",
+        "description": "Sync a specific document for a pipeline.",
+        "operationId": "sync_pipeline_document_api_v1_pipelines__pipeline_id__documents__document_id__sync_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "document_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Document Id"
+            }
+          },
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pipeline Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/pipelines/{pipeline_id}/documents/{document_id}/chunks": {
       "get": {
         "tags": [
@@ -9076,6 +9075,93 @@
                   },
                   "title": "Response List Pipeline Document Chunks Api V1 Pipelines  Pipeline Id  Documents  Document Id  Chunks Get"
                 }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/pipelines/{pipeline_id}/documents/force-sync-all": {
+      "post": {
+        "tags": [
+          "Pipelines"
+        ],
+        "summary": "Force Sync All Pipeline Documents",
+        "description": "Force sync all documents in a pipeline by batching document ingestion jobs.\n\n- Iterates all document refs for the pipeline\n- Enqueues document ingestion jobs in batches of `batch_size`",
+        "operationId": "force_sync_all_pipeline_documents_api_v1_pipelines__pipeline_id__documents_force_sync_all_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "pipeline_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Pipeline Id"
+            }
+          },
+          {
+            "name": "batch_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 1000,
+              "minimum": 1,
+              "default": 50,
+              "title": "Batch Size"
+            }
+          },
+          {
+            "name": "only_failed",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only sync retriable documents (failed/cancelled/not-started/stalled-in-progress)",
+              "default": true,
+              "title": "Only Failed"
+            },
+            "description": "Only sync retriable documents (failed/cancelled/not-started/stalled-in-progress)"
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
               }
             }
           },
@@ -14700,6 +14786,330 @@
         }
       }
     },
+    "/api/v1/beta/api-keys": {
+      "post": {
+        "tags": [
+          "Beta",
+          "API Keys V2"
+        ],
+        "summary": "Create Api Key",
+        "description": "Create a new API key.\n\nIf project_id is specified, validates user has admin permissions for that project.\n\nArgs:\n    api_key_create: API key creation data\n    user: Current user\n    db: Database session\n\nReturns:\n    The created API key with the secret key visible in redacted_api_key field",
+        "operationId": "create_api_key_api_v1_beta_api_keys_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/APIKeyCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKey"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Beta",
+          "API Keys V2"
+        ],
+        "summary": "List Api Keys",
+        "description": "List API keys.\n\nIf project_id is provided, validates user has access to that project.\nIf project_id is not provided, scopes results to the current user.\n\nArgs:\n    user: Current user\n    db: Database session\n    page_size: Number of items per page\n    page_token: Token for pagination\n    name: Filter by API key name\n    project_id: Filter by project ID\n    key_type: Filter by key type\n\nReturns:\n    Paginated response with API keys",
+        "operationId": "list_api_keys_api_v1_beta_api_keys_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Token"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "key_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/APIKeyType"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Key Type"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKeyQueryResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/beta/api-keys/{api_key_id}": {
+      "get": {
+        "tags": [
+          "Beta",
+          "API Keys V2"
+        ],
+        "summary": "Get Api Key",
+        "description": "Get an API key by ID.\n\nArgs:\n    api_key_id: The ID of the API key\n    user: Current user\n    db: Database session\n\nReturns:\n    The API key",
+        "operationId": "get_api_key_api_v1_beta_api_keys__api_key_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "api_key_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Api Key Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/APIKey"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Beta",
+          "API Keys V2"
+        ],
+        "summary": "Delete Api Key",
+        "description": "Delete an API key.\n\nIf the API key belongs to a project, validates user has admin permissions for that project.\nIf the API key has no project, validates it belongs to the current user.\n\nArgs:\n    api_key_id: The ID of the API key to delete\n    user: Current user\n    db: Database session",
+        "operationId": "delete_api_key_api_v1_beta_api_keys__api_key_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "api_key_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Api Key Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/beta/batches": {
       "post": {
         "tags": [
@@ -18675,6 +19085,48 @@
         "title": "APIKeyCreate",
         "description": "Schema for creating an API key."
       },
+      "APIKeyQueryResponse": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/APIKey"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "The list of items."
+          },
+          "next_page_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Page Token",
+            "description": "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages."
+          },
+          "total_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Size",
+            "description": "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only."
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "APIKeyQueryResponse",
+        "description": "Response schema for paginated API key queries."
+      },
       "APIKeyType": {
         "type": "string",
         "enum": [
@@ -18682,26 +19134,6 @@
           "agent"
         ],
         "title": "APIKeyType"
-      },
-      "APIKeyUpdate": {
-        "properties": {
-          "name": {
-            "anyOf": [
-              {
-                "type": "string",
-                "maxLength": 3000,
-                "minLength": 0
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Name"
-          }
-        },
-        "type": "object",
-        "title": "APIKeyUpdate",
-        "description": "Schema for updating an API key."
       },
       "AdvancedModeTransformConfig": {
         "properties": {
@@ -18884,7 +19316,7 @@
           "deployment_name": {
             "type": "string",
             "title": "Deployment Name",
-            "description": "readable ID of the deployed app"
+            "description": "Identifier of the deployed app"
           },
           "thumbnail_url": {
             "anyOf": [
@@ -18902,11 +19334,6 @@
             "type": "string",
             "title": "Base Url",
             "description": "Base URL of the deployed app"
-          },
-          "display_name": {
-            "type": "string",
-            "title": "Display Name",
-            "description": "Display name of the deployed app"
           },
           "created_at": {
             "type": "string",
@@ -18940,7 +19367,6 @@
           "project_id",
           "deployment_name",
           "base_url",
-          "display_name",
           "created_at",
           "updated_at"
         ],
@@ -19040,7 +19466,7 @@
           "deployment_name": {
             "type": "string",
             "title": "Deployment Name",
-            "description": "The agent deployment's deployment_name to aggregate data for"
+            "description": "The agent deployment's name to aggregate data for"
           },
           "collection": {
             "type": "string",
@@ -19093,8 +19519,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 1000,
-                "minimum": 0
+                "maximum": 1000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -19146,7 +19572,7 @@
           },
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Chunk Size",
             "description": "Chunk size for the transformation.",
             "default": 1024
@@ -19172,8 +19598,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -19231,7 +19657,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "Timeout for each request.",
-            "default": 60,
+            "default": 60.0,
             "gte": 0
           },
           "default_headers": {
@@ -19870,8 +20296,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -19950,7 +20376,7 @@
           },
           "max_retries": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Max Retries",
             "description": "The maximum number of API retries.",
             "default": 10
@@ -19959,7 +20385,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "The timeout for the Bedrock API request in seconds. It will be used for both connect and read timeouts.",
-            "default": 60
+            "default": 60.0
           },
           "additional_kwargs": {
             "additionalProperties": true,
@@ -20428,9 +20854,14 @@
             "title": "Specialized Chart Parsing Efficient",
             "default": false
           },
-          "precise_bbox_extraction": {
+          "specialized_image_parsing": {
             "type": "boolean",
-            "title": "Precise Bbox Extraction",
+            "title": "Specialized Image Parsing",
+            "default": false
+          },
+          "precise_bounding_box": {
+            "type": "boolean",
+            "title": "Precise Bounding Box",
             "default": false
           },
           "html_remove_fixed_elements": {
@@ -20550,6 +20981,16 @@
             "type": "boolean",
             "title": "Spreadsheet Extract Sub Tables",
             "default": true
+          },
+          "spreadsheet_force_formula_computation": {
+            "type": "boolean",
+            "title": "Spreadsheet Force Formula Computation",
+            "default": false
+          },
+          "inline_images_in_markdown": {
+            "type": "boolean",
+            "title": "Inline Images In Markdown",
+            "default": false
           },
           "structured_output": {
             "type": "boolean",
@@ -20953,9 +21394,14 @@
             "title": "Specialized Chart Parsing Efficient",
             "default": false
           },
-          "precise_bbox_extraction": {
+          "specialized_image_parsing": {
             "type": "boolean",
-            "title": "Precise Bbox Extraction",
+            "title": "Specialized Image Parsing",
+            "default": false
+          },
+          "precise_bounding_box": {
+            "type": "boolean",
+            "title": "Precise Bounding Box",
             "default": false
           },
           "html_remove_fixed_elements": {
@@ -21075,6 +21521,16 @@
             "type": "boolean",
             "title": "Spreadsheet Extract Sub Tables",
             "default": true
+          },
+          "spreadsheet_force_formula_computation": {
+            "type": "boolean",
+            "title": "Spreadsheet Force Formula Computation",
+            "default": false
+          },
+          "inline_images_in_markdown": {
+            "type": "boolean",
+            "title": "Inline Images In Markdown",
+            "default": false
           },
           "structured_output": {
             "type": "boolean",
@@ -21348,7 +21804,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -21715,8 +22171,8 @@
           },
           "confidence": {
             "type": "number",
-            "maximum": 1,
-            "minimum": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
             "title": "Confidence",
             "description": "Confidence score of the classification (0.0-1.0)"
           },
@@ -23588,8 +24044,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -23978,10 +24434,10 @@
             "description": "Whether the user is allowed to access API data sources.",
             "default": false
           },
-          "allowed_deployment": {
+          "allow_org_deletion": {
             "type": "boolean",
-            "title": "Allowed Deployment",
-            "description": "Whether the user is allowed to access the deployment.",
+            "title": "Allow Org Deletion",
+            "description": "Whether the user is allowed to delete organizations.",
             "default": false
           }
         },
@@ -26462,7 +26918,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -26752,7 +27208,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -27495,8 +27951,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -27630,8 +28086,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -28567,6 +29023,19 @@
             "description": "Whether to extract subTables from spreadsheet.",
             "default": false
           },
+          "spreadSheetForceFormulaComputation": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spreadsheetforceformulacomputation",
+            "description": "Whether to force re-computation of spreadsheet cells containing formulas.",
+            "default": false
+          },
           "extractLayout": {
             "anyOf": [
               {
@@ -29402,7 +29871,8 @@
               "specialized_chart_parsing_agentic": false,
               "specialized_chart_parsing_plus": false,
               "specialized_chart_parsing_efficient": false,
-              "precise_bbox_extraction": false,
+              "specialized_image_parsing": false,
+              "precise_bounding_box": false,
               "html_remove_navigation_elements": false,
               "html_remove_fixed_elements": false,
               "guess_xlsx_sheet_name": false,
@@ -29419,6 +29889,8 @@
               "structured_output": false,
               "extract_charts": false,
               "spreadsheet_extract_sub_tables": false,
+              "spreadsheet_force_formula_computation": false,
+              "inline_images_in_markdown": false,
               "strict_mode_image_extraction": false,
               "strict_mode_image_ocr": false,
               "strict_mode_reconstruction": false,
@@ -29798,7 +30270,7 @@
             "title": "Specialized Chart Parsing Efficient",
             "default": false
           },
-          "precise_bbox_extraction": {
+          "specialized_image_parsing": {
             "anyOf": [
               {
                 "type": "boolean"
@@ -29807,7 +30279,19 @@
                 "type": "null"
               }
             ],
-            "title": "Precise Bbox Extraction",
+            "title": "Specialized Image Parsing",
+            "default": false
+          },
+          "precise_bounding_box": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precise Bounding Box",
             "default": false
           },
           "html_remove_navigation_elements": {
@@ -30363,6 +30847,30 @@
             "title": "Spreadsheet Extract Sub Tables",
             "default": false
           },
+          "spreadsheet_force_formula_computation": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spreadsheet Force Formula Computation",
+            "default": false
+          },
+          "inline_images_in_markdown": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inline Images In Markdown",
+            "default": false
+          },
           "job_timeout_in_seconds": {
             "anyOf": [
               {
@@ -30854,8 +31362,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -31113,8 +31621,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -31186,7 +31694,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "Timeout for each request.",
-            "default": 60,
+            "default": 60.0,
             "gte": 0
           },
           "default_headers": {
@@ -31305,6 +31813,19 @@
             "$ref": "#/components/schemas/ParsePlanLevel",
             "description": "Whether the organization is a Parse Premium customer.",
             "default": "DEFAULT"
+          },
+          "feature_flags": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Flags",
+            "description": "Feature flags for the organization."
           }
         },
         "type": "object",
@@ -31340,6 +31861,19 @@
             "minLength": 1,
             "title": "Name",
             "description": "A name for the organization."
+          },
+          "feature_flags": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Feature Flags",
+            "description": "Feature flags for the organization."
           }
         },
         "type": "object",
@@ -31366,21 +31900,21 @@
         "properties": {
           "ef_construction": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Ef Construction",
             "description": "The number of edges to use during the construction phase.",
             "default": 64
           },
           "ef_search": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "Ef Search",
             "description": "The number of edges to use during the search phase.",
             "default": 40
           },
           "m": {
             "type": "integer",
-            "minimum": 1,
+            "minimum": 1.0,
             "title": "M",
             "description": "The number of bi-directional links created for each new element.",
             "default": 16
@@ -31426,13 +31960,13 @@
           },
           "page_index": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Page Index",
             "description": "The index of the page for which the figure is taken (0-indexed)"
           },
           "figure_size": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Figure Size",
             "description": "The size of the figure in bytes"
           },
@@ -31444,8 +31978,8 @@
           },
           "confidence": {
             "type": "number",
-            "maximum": 1,
-            "minimum": 0,
+            "maximum": 1.0,
+            "minimum": 0.0,
             "title": "Confidence",
             "description": "The confidence of the figure"
           },
@@ -31501,7 +32035,7 @@
         "properties": {
           "page_index": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Page Index",
             "description": "The index of the page for which the screenshot is taken (0-indexed)"
           },
@@ -31513,7 +32047,7 @@
           },
           "image_size": {
             "type": "integer",
-            "minimum": 0,
+            "minimum": 0.0,
             "title": "Image Size",
             "description": "The size of the image in bytes"
           },
@@ -32584,7 +33118,7 @@
             "title": "Specialized Chart Parsing Efficient",
             "default": false
           },
-          "precise_bbox_extraction": {
+          "specialized_image_parsing": {
             "anyOf": [
               {
                 "type": "boolean"
@@ -32593,7 +33127,19 @@
                 "type": "null"
               }
             ],
-            "title": "Precise Bbox Extraction",
+            "title": "Specialized Image Parsing",
+            "default": false
+          },
+          "precise_bounding_box": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Precise Bounding Box",
             "default": false
           },
           "html_remove_navigation_elements": {
@@ -33151,6 +33697,30 @@
               }
             ],
             "title": "Spreadsheet Extract Sub Tables",
+            "default": false
+          },
+          "spreadsheet_force_formula_computation": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Spreadsheet Force Formula Computation",
+            "default": false
+          },
+          "inline_images_in_markdown": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Inline Images In Markdown",
             "default": false
           },
           "job_timeout_in_seconds": {
@@ -34756,7 +35326,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -35937,8 +36507,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -35952,8 +36522,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -35961,14 +36531,14 @@
             ],
             "title": "Dense Similarity Cutoff",
             "description": "Minimum similarity score wrt query for retrieval",
-            "default": 0
+            "default": 0.0
           },
           "sparse_similarity_top_k": {
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -35994,8 +36564,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -36009,8 +36579,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -36073,8 +36643,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 5,
-                "minimum": 1
+                "maximum": 5.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -36358,7 +36928,8 @@
               "rate_limit_parse_concurrent_premium",
               "rate_limit_parse_concurrent_default",
               "rate_limit_concurrent_jobs_in_execution_default",
-              "rate_limit_concurrent_jobs_in_execution_doc_ingest"
+              "rate_limit_concurrent_jobs_in_execution_doc_ingest",
+              "limit_embedding_character"
             ],
             "title": "Configuration Type",
             "description": "The quota configuration type"
@@ -36679,8 +37250,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -36694,8 +37265,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -36703,14 +37274,14 @@
             ],
             "title": "Dense Similarity Cutoff",
             "description": "Minimum similarity score wrt query for retrieval",
-            "default": 0
+            "default": 0.0
           },
           "sparse_similarity_top_k": {
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -36736,8 +37307,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100,
-                "minimum": 1
+                "maximum": 100.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -36751,8 +37322,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1,
-                "minimum": 0
+                "maximum": 1.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -36815,8 +37386,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 5,
-                "minimum": 1
+                "maximum": 5.0,
+                "minimum": 1.0
               },
               {
                 "type": "null"
@@ -37240,7 +37811,7 @@
           "deployment_name": {
             "type": "string",
             "title": "Deployment Name",
-            "description": "The agent deployment's deployment_name to search within"
+            "description": "The agent deployment's name to search within"
           },
           "collection": {
             "type": "string",
@@ -37258,8 +37829,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 1000,
-                "minimum": 0
+                "maximum": 1000.0,
+                "minimum": 0.0
               },
               {
                 "type": "null"
@@ -37303,7 +37874,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -37394,7 +37965,7 @@
             "type": "number",
             "title": "Temperature",
             "description": "The temperature to use for the structured parsing.",
-            "default": 0
+            "default": 0.0
           },
           "relaxation_mode": {
             "$ref": "#/components/schemas/SchemaRelaxMode",
@@ -37659,7 +38230,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "exclusiveMinimum": 0.0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -38308,8 +38879,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048,
-            "exclusiveMinimum": 0,
+            "maximum": 2048.0,
+            "exclusiveMinimum": 0.0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10

@@ -59,6 +59,10 @@ export const APIKeySchema = {
       ],
       title: "Project Id",
     },
+    key_type: {
+      $ref: "#/components/schemas/APIKeyType",
+      default: "user",
+    },
     user_id: {
       type: "string",
       title: "User Id",
@@ -102,31 +106,63 @@ export const APIKeyCreateSchema = {
       title: "Project Id",
       description: "The project ID to associate with the API key.",
     },
+    key_type: {
+      $ref: "#/components/schemas/APIKeyType",
+      default: "user",
+    },
   },
   type: "object",
   title: "APIKeyCreate",
   description: "Schema for creating an API key.",
 } as const;
 
-export const APIKeyUpdateSchema = {
+export const APIKeyQueryResponseSchema = {
   properties: {
-    name: {
+    items: {
+      items: {
+        $ref: "#/components/schemas/APIKey",
+      },
+      type: "array",
+      title: "Items",
+      description: "The list of items.",
+    },
+    next_page_token: {
       anyOf: [
         {
           type: "string",
-          maxLength: 3000,
-          minLength: 0,
         },
         {
           type: "null",
         },
       ],
-      title: "Name",
+      title: "Next Page Token",
+      description:
+        "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.",
+    },
+    total_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Total Size",
+      description:
+        "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
     },
   },
   type: "object",
-  title: "APIKeyUpdate",
-  description: "Schema for updating an API key.",
+  required: ["items"],
+  title: "APIKeyQueryResponse",
+  description: "Response schema for paginated API key queries.",
+} as const;
+
+export const APIKeyTypeSchema = {
+  type: "string",
+  enum: ["user", "agent"],
+  title: "APIKeyType",
 } as const;
 
 export const AdvancedModeTransformConfigSchema = {
@@ -305,7 +341,7 @@ export const AgentDeploymentSummarySchema = {
     deployment_name: {
       type: "string",
       title: "Deployment Name",
-      description: "readable ID of the deployed app",
+      description: "Identifier of the deployed app",
     },
     thumbnail_url: {
       anyOf: [
@@ -324,11 +360,6 @@ export const AgentDeploymentSummarySchema = {
       title: "Base Url",
       description: "Base URL of the deployed app",
     },
-    display_name: {
-      type: "string",
-      title: "Display Name",
-      description: "Display name of the deployed app",
-    },
     created_at: {
       type: "string",
       format: "date-time",
@@ -341,6 +372,19 @@ export const AgentDeploymentSummarySchema = {
       title: "Updated At",
       description: "Timestamp when the app deployment was last updated",
     },
+    api_key_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Api Key Id",
+      description: "API key ID",
+    },
   },
   type: "object",
   required: [
@@ -348,7 +392,6 @@ export const AgentDeploymentSummarySchema = {
     "project_id",
     "deployment_name",
     "base_url",
-    "display_name",
     "created_at",
     "updated_at",
   ],
@@ -452,8 +495,7 @@ export const AggregateRequestSchema = {
     deployment_name: {
       type: "string",
       title: "Deployment Name",
-      description:
-        "The agent deployment's deployment_name to aggregate data for",
+      description: "The agent deployment's name to aggregate data for",
     },
     collection: {
       type: "string",
@@ -508,6 +550,7 @@ export const AggregateRequestSchema = {
       anyOf: [
         {
           type: "integer",
+          maximum: 1000,
           minimum: 0,
         },
         {
@@ -518,7 +561,6 @@ export const AggregateRequestSchema = {
       description:
         "The offset to start from. If not provided, the first page is returned",
       default: 0,
-      lte: 1000,
     },
   },
   type: "object",
@@ -550,70 +592,6 @@ export const AppChatInputParamsSchema = {
       ],
     },
   ],
-} as const;
-
-export const AudioBlockSchema = {
-  properties: {
-    block_type: {
-      type: "string",
-      const: "audio",
-      title: "Block Type",
-      default: "audio",
-    },
-    audio: {
-      anyOf: [
-        {
-          type: "string",
-          format: "binary",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Audio",
-    },
-    path: {
-      anyOf: [
-        {
-          type: "string",
-          format: "file-path",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Path",
-    },
-    url: {
-      anyOf: [
-        {
-          type: "string",
-          minLength: 1,
-          format: "uri",
-        },
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Url",
-    },
-    format: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Format",
-    },
-  },
-  type: "object",
-  title: "AudioBlock",
 } as const;
 
 export const AutoTransformConfigSchema = {
@@ -1491,135 +1469,6 @@ export const BillingPeriodSchema = {
   title: "BillingPeriod",
 } as const;
 
-export const Body_classify_documents_api_v1_classifier_classify_postSchema = {
-  properties: {
-    rules_json: {
-      type: "string",
-      title: "Rules Json",
-      description: "JSON string containing classifier rules",
-    },
-    files: {
-      anyOf: [
-        {
-          items: {
-            type: "string",
-            format: "binary",
-          },
-          type: "array",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Files",
-    },
-    file_ids: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "File Ids",
-      description: "Comma-separated list of existing file IDs",
-    },
-    matching_threshold: {
-      anyOf: [
-        {
-          type: "number",
-          maximum: 0.99,
-          minimum: 0.1,
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Matching Threshold",
-      description:
-        "Minimum confidence threshold for acceptable matches (0.1-0.99, default: 0.6)",
-      default: 0.6,
-    },
-    enable_metadata_heuristic: {
-      anyOf: [
-        {
-          type: "boolean",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Enable Metadata Heuristic",
-      description:
-        "Enable metadata-based features (document filtering + content classification, default: true)",
-      default: true,
-    },
-  },
-  type: "object",
-  required: ["rules_json"],
-  title: "Body_classify_documents_api_v1_classifier_classify_post",
-} as const;
-
-export const Body_create_report_api_v1_reports__postSchema = {
-  properties: {
-    name: {
-      type: "string",
-      title: "Name",
-    },
-    template_text: {
-      type: "string",
-      title: "Template Text",
-    },
-    template_instructions: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Template Instructions",
-    },
-    existing_retriever_id: {
-      anyOf: [
-        {
-          type: "string",
-          format: "uuid",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Existing Retriever Id",
-    },
-    files: {
-      items: {
-        type: "string",
-        format: "binary",
-      },
-      type: "array",
-      title: "Files",
-    },
-    template_file: {
-      anyOf: [
-        {
-          type: "string",
-          format: "binary",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Template File",
-    },
-  },
-  type: "object",
-  required: ["name", "files"],
-  title: "Body_create_report_api_v1_reports__post",
-} as const;
-
 export const Body_import_pipeline_metadata_api_v1_pipelines__pipeline_id__metadata_putSchema =
   {
     properties: {
@@ -1775,6 +1624,11 @@ export const Body_screenshot_api_parsing_screenshot_postSchema = {
       title: "Webhook Url",
       default: "",
     },
+    webhook_configurations: {
+      type: "string",
+      title: "Webhook Configurations",
+      default: "",
+    },
     job_timeout_in_seconds: {
       type: "number",
       title: "Job Timeout In Seconds",
@@ -1859,6 +1713,11 @@ export const Body_screenshot_api_v1_parsing_screenshot_postSchema = {
     webhook_url: {
       type: "string",
       title: "Webhook Url",
+      default: "",
+    },
+    webhook_configurations: {
+      type: "string",
+      title: "Webhook Configurations",
       default: "",
     },
     job_timeout_in_seconds: {
@@ -2007,6 +1866,36 @@ export const Body_upload_file_api_parsing_upload_postSchema = {
       title: "Html Make All Elements Visible",
       default: false,
     },
+    layout_aware: {
+      type: "boolean",
+      title: "Layout Aware",
+      default: false,
+    },
+    specialized_chart_parsing_agentic: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Agentic",
+      default: false,
+    },
+    specialized_chart_parsing_plus: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Plus",
+      default: false,
+    },
+    specialized_chart_parsing_efficient: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Efficient",
+      default: false,
+    },
+    specialized_image_parsing: {
+      type: "boolean",
+      title: "Specialized Image Parsing",
+      default: false,
+    },
+    precise_bounding_box: {
+      type: "boolean",
+      title: "Precise Bounding Box",
+      default: false,
+    },
     html_remove_fixed_elements: {
       type: "boolean",
       title: "Html Remove Fixed Elements",
@@ -2108,6 +1997,11 @@ export const Body_upload_file_api_parsing_upload_postSchema = {
       title: "Preserve Layout Alignment Across Pages",
       default: false,
     },
+    preserve_very_small_text: {
+      type: "boolean",
+      title: "Preserve Very Small Text",
+      default: false,
+    },
     skip_diagonal_text: {
       type: "boolean",
       title: "Skip Diagonal Text",
@@ -2117,6 +2011,16 @@ export const Body_upload_file_api_parsing_upload_postSchema = {
       type: "boolean",
       title: "Spreadsheet Extract Sub Tables",
       default: true,
+    },
+    spreadsheet_force_formula_computation: {
+      type: "boolean",
+      title: "Spreadsheet Force Formula Computation",
+      default: false,
+    },
+    inline_images_in_markdown: {
+      type: "boolean",
+      title: "Inline Images In Markdown",
+      default: false,
     },
     structured_output: {
       type: "boolean",
@@ -2157,6 +2061,11 @@ export const Body_upload_file_api_parsing_upload_postSchema = {
     webhook_url: {
       type: "string",
       title: "Webhook Url",
+      default: "",
+    },
+    webhook_configurations: {
+      type: "string",
+      title: "Webhook Configurations",
       default: "",
     },
     preset: {
@@ -2495,6 +2404,36 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
       title: "Html Make All Elements Visible",
       default: false,
     },
+    layout_aware: {
+      type: "boolean",
+      title: "Layout Aware",
+      default: false,
+    },
+    specialized_chart_parsing_agentic: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Agentic",
+      default: false,
+    },
+    specialized_chart_parsing_plus: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Plus",
+      default: false,
+    },
+    specialized_chart_parsing_efficient: {
+      type: "boolean",
+      title: "Specialized Chart Parsing Efficient",
+      default: false,
+    },
+    specialized_image_parsing: {
+      type: "boolean",
+      title: "Specialized Image Parsing",
+      default: false,
+    },
+    precise_bounding_box: {
+      type: "boolean",
+      title: "Precise Bounding Box",
+      default: false,
+    },
     html_remove_fixed_elements: {
       type: "boolean",
       title: "Html Remove Fixed Elements",
@@ -2596,6 +2535,11 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
       title: "Preserve Layout Alignment Across Pages",
       default: false,
     },
+    preserve_very_small_text: {
+      type: "boolean",
+      title: "Preserve Very Small Text",
+      default: false,
+    },
     skip_diagonal_text: {
       type: "boolean",
       title: "Skip Diagonal Text",
@@ -2605,6 +2549,16 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
       type: "boolean",
       title: "Spreadsheet Extract Sub Tables",
       default: true,
+    },
+    spreadsheet_force_formula_computation: {
+      type: "boolean",
+      title: "Spreadsheet Force Formula Computation",
+      default: false,
+    },
+    inline_images_in_markdown: {
+      type: "boolean",
+      title: "Inline Images In Markdown",
+      default: false,
     },
     structured_output: {
       type: "boolean",
@@ -2645,6 +2599,11 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
     webhook_url: {
       type: "string",
       title: "Webhook Url",
+      default: "",
+    },
+    webhook_configurations: {
+      type: "string",
+      title: "Webhook Configurations",
       default: "",
     },
     preset: {
@@ -2835,6 +2794,30 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
   },
   type: "object",
   title: "Body_upload_file_api_v1_parsing_upload_post",
+} as const;
+
+export const Body_upload_file_v2_api_v2alpha1_parse_upload_postSchema = {
+  properties: {
+    configuration: {
+      type: "string",
+      title: "Configuration",
+    },
+    file: {
+      anyOf: [
+        {
+          type: "string",
+          format: "binary",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "File",
+    },
+  },
+  type: "object",
+  required: ["configuration"],
+  title: "Body_upload_file_v2_api_v2alpha1_parse_upload_post",
 } as const;
 
 export const BoxAuthMechanismSchema = {
@@ -3142,34 +3125,31 @@ export const ChatInputParamsSchema = {
   title: "ChatInputParams",
 } as const;
 
-export const ChunkModeSchema = {
-  type: "string",
-  enum: ["PAGE", "DOCUMENT", "SECTION", "GROUPED_PAGES"],
-  title: "ChunkMode",
-} as const;
-
-export const ClassificationResultSchema = {
+export const ChatMessageSchema = {
   properties: {
-    file_id: {
+    id: {
       type: "string",
       format: "uuid",
-      title: "File Id",
-      description: "The ID of the classified file",
+      title: "Id",
     },
-    type: {
-      type: "string",
-      title: "Type",
-      description: "The assigned document type ('unknown' if no rules matched)",
-      examples: ["invoice", "receipt", "contract", "unknown"],
+    index: {
+      type: "integer",
+      title: "Index",
+      description: "The index of the message in the chat.",
     },
-    confidence: {
-      type: "number",
-      maximum: 1,
-      minimum: 0,
-      title: "Confidence",
-      description: "Confidence score of the classification (0.0-1.0)",
+    annotations: {
+      items: {
+        $ref: "#/components/schemas/MessageAnnotation",
+      },
+      type: "array",
+      title: "Annotations",
+      description: "Retrieval annotations for the message.",
     },
-    matched_rule: {
+    role: {
+      $ref: "#/components/schemas/MessageRole",
+      description: "The role of the message.",
+    },
+    content: {
       anyOf: [
         {
           type: "string",
@@ -3178,29 +3158,217 @@ export const ClassificationResultSchema = {
           type: "null",
         },
       ],
-      title: "Matched Rule",
+      title: "Content",
+      description: "Text content of the generation",
+    },
+    additional_kwargs: {
+      additionalProperties: {
+        type: "string",
+      },
+      type: "object",
+      title: "Additional Kwargs",
+      description: "Additional arguments passed to the model",
+    },
+    class_name: {
+      type: "string",
+      title: "Class Name",
+      default: "base_component",
+    },
+  },
+  type: "object",
+  required: ["id", "index", "role"],
+  title: "ChatMessage",
+} as const;
+
+export const ChunkModeSchema = {
+  type: "string",
+  enum: ["PAGE", "DOCUMENT", "SECTION", "GROUPED_PAGES"],
+  title: "ChunkMode",
+} as const;
+
+export const ClassificationResultSchema = {
+  properties: {
+    reasoning: {
+      type: "string",
+      title: "Reasoning",
       description:
-        "Description of the rule that matched, or method used (e.g., 'auto: filename contains invoice')",
+        "Step-by-step explanation of why this classification was chosen and the confidence score assigned",
+    },
+    confidence: {
+      type: "number",
+      maximum: 1,
+      minimum: 0,
+      title: "Confidence",
+      description: "Confidence score of the classification (0.0-1.0)",
+    },
+    type: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Type",
+      description: "The document type that best matches, or null if no match.",
+    },
+  },
+  type: "object",
+  required: ["reasoning", "confidence", "type"],
+  title: "ClassificationResult",
+  description: "Result of classifying a single file.",
+} as const;
+
+export const ClassifierRuleSchema = {
+  properties: {
+    type: {
+      type: "string",
+      maxLength: 50,
+      minLength: 1,
+      title: "Type",
+      description:
+        "The document type to assign when this rule matches (e.g., 'invoice', 'receipt', 'contract')",
+      examples: ["invoice", "receipt", "contract", "report", "proposal"],
+    },
+    description: {
+      type: "string",
+      maxLength: 500,
+      minLength: 10,
+      title: "Description",
+      description:
+        "Natural language description of what to classify. Be specific about the content characteristics that identify this document type.",
       examples: [
-        "contains invoice number, line items, and total",
-        "auto: filename contains 'invoice'",
-        null,
+        "contains invoice number, line items, and total amount",
+        "purchase receipt with transaction info and merchant details",
+        "legal contract with terms, conditions, and signatures",
       ],
     },
   },
   type: "object",
-  required: ["file_id", "type", "confidence", "matched_rule"],
-  title: "ClassificationResult",
-  description: `Result of classifying a single file.
+  required: ["type", "description"],
+  title: "ClassifierRule",
+  description: `A rule for classifying documents - v0 simplified version.
 
-Contains the classification outcome with confidence score and matched rule info.`,
+This represents a single classification rule that will be applied to documents.
+All rules are content-based and use natural language descriptions.`,
 } as const;
 
-export const ClassifyResponseSchema = {
+export const ClassifyJobSchema = {
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+      description: "Unique identifier",
+    },
+    created_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Created At",
+      description: "Creation datetime",
+    },
+    updated_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Updated At",
+      description: "Update datetime",
+    },
+    rules: {
+      items: {
+        $ref: "#/components/schemas/ClassifierRule",
+      },
+      type: "array",
+      minItems: 1,
+      title: "Rules",
+      description: "The rules to classify the files",
+    },
+    user_id: {
+      type: "string",
+      title: "User Id",
+      description: "The ID of the user",
+    },
+    project_id: {
+      type: "string",
+      format: "uuid",
+      title: "Project Id",
+      description: "The ID of the project",
+    },
+    status: {
+      $ref: "#/components/schemas/StatusEnum",
+      description: "The status of the classify job",
+    },
+    parsing_configuration: {
+      $ref: "#/components/schemas/ClassifyParsingConfiguration",
+      description: "The configuration for the parsing job",
+      default: {
+        lang: "en",
+        max_pages: 5,
+      },
+    },
+  },
+  type: "object",
+  required: ["id", "rules", "user_id", "project_id", "status"],
+  title: "ClassifyJob",
+  description: "A classify job.",
+} as const;
+
+export const ClassifyJobCreateSchema = {
+  properties: {
+    rules: {
+      items: {
+        $ref: "#/components/schemas/ClassifierRule",
+      },
+      type: "array",
+      minItems: 1,
+      title: "Rules",
+      description: "The rules to classify the files",
+    },
+    file_ids: {
+      items: {
+        type: "string",
+        format: "uuid",
+      },
+      type: "array",
+      maxItems: 500,
+      minItems: 1,
+      title: "File Ids",
+      description: "The IDs of the files to classify",
+    },
+    parsing_configuration: {
+      $ref: "#/components/schemas/ClassifyParsingConfiguration",
+      description: "The configuration for the parsing job",
+      default: {
+        lang: "en",
+        max_pages: 5,
+      },
+    },
+  },
+  type: "object",
+  required: ["rules", "file_ids"],
+  title: "ClassifyJobCreate",
+  description: "A classify job.",
+} as const;
+
+export const ClassifyJobResultsSchema = {
   properties: {
     items: {
       items: {
-        $ref: "#/components/schemas/ClassificationResult",
+        $ref: "#/components/schemas/FileClassification",
       },
       type: "array",
       title: "Items",
@@ -3232,19 +3400,120 @@ export const ClassifyResponseSchema = {
       description:
         "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
     },
-    unknown_count: {
-      type: "integer",
-      minimum: 0,
-      title: "Unknown Count",
-      description: "Number of files that couldn't be classified",
+  },
+  type: "object",
+  required: ["items"],
+  title: "ClassifyJobResults",
+  description:
+    "Response model for the classify endpoint following AIP-132 pagination standard.",
+} as const;
+
+export const ClassifyParsingConfigurationSchema = {
+  properties: {
+    lang: {
+      $ref: "#/components/schemas/ParserLanguages",
+      description: "The language to parse the files in",
+      default: "en",
+    },
+    max_pages: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Max Pages",
+      description: "The maximum number of pages to parse",
+      default: 5,
+    },
+    target_pages: {
+      anyOf: [
+        {
+          items: {
+            type: "integer",
+          },
+          type: "array",
+          minItems: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Target Pages",
+      description:
+        "The pages to target for parsing (0-indexed, so first page is at 0)",
     },
   },
   type: "object",
-  required: ["items", "unknown_count"],
-  title: "ClassifyResponse",
-  description: `Response model for the classify endpoint following AIP-132 pagination standard.
+  title: "ClassifyParsingConfiguration",
+  description: "Parsing configuration for a classify job.",
+} as const;
 
-Contains classification results with pagination support and summary statistics.`,
+export const CloudAstraDBVectorStoreSchema = {
+  properties: {
+    supports_nested_metadata_filters: {
+      type: "boolean",
+      const: true,
+      title: "Supports Nested Metadata Filters",
+      default: true,
+    },
+    token: {
+      type: "string",
+      format: "password",
+      title: "Token",
+      description: "The Astra DB Application Token to use",
+      writeOnly: true,
+    },
+    api_endpoint: {
+      type: "string",
+      title: "Api Endpoint",
+      description: "The Astra DB JSON API endpoint for your database",
+    },
+    collection_name: {
+      type: "string",
+      title: "Collection Name",
+      description:
+        "Collection name to use. If not existing, it will be created",
+    },
+    embedding_dimension: {
+      type: "integer",
+      title: "Embedding Dimension",
+      description: "Length of the embedding vectors in use",
+    },
+    keyspace: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Keyspace",
+      description: "The keyspace to use. If not provided, 'default_keyspace'",
+    },
+    class_name: {
+      type: "string",
+      title: "Class Name",
+      default: "CloudAstraDBVectorStore",
+    },
+  },
+  type: "object",
+  required: ["token", "api_endpoint", "collection_name", "embedding_dimension"],
+  title: "CloudAstraDBVectorStore",
+  description: `Cloud AstraDB Vector Store.
+
+This class is used to store the configuration for an AstraDB vector store, so that it can be
+created and used in LlamaCloud.
+
+Args:
+    token (str): The Astra DB Application Token to use.
+    api_endpoint (str): The Astra DB JSON API endpoint for your database.
+    collection_name (str): Collection name to use. If not existing, it will be created.
+    embedding_dimension (int): Length of the embedding vectors in use.
+    keyspace (optional[str]): The keyspace to use. If not provided, 'default_keyspace'`,
 } as const;
 
 export const CloudAzStorageBlobDataSourceSchema = {
@@ -3677,7 +3946,18 @@ export const CloudConfluenceDataSourceSchema = {
       type: "boolean",
       title: "Keep Markdown Format",
       description: "Whether to keep the markdown format.",
-      default: true,
+    },
+    failure_handling: {
+      $ref: "#/components/schemas/FailureHandlingConfig",
+      description: `Configuration for handling failures during processing. Key-value object controlling failure handling behaviors.
+
+Example:
+{
+  "skip_list_failures": true
+}
+
+Currently supports:
+- skip_list_failures: Skip failed batches/lists and continue processing`,
     },
     class_name: {
       type: "string",
@@ -3883,6 +4163,134 @@ export const CloudJiraDataSourceSchema = {
   required: ["authentication_mechanism", "query"],
   title: "CloudJiraDataSource",
   description: "Cloud Jira Data Source integrating JiraReader.",
+} as const;
+
+export const CloudJiraDataSourceV2Schema = {
+  properties: {
+    supports_access_control: {
+      type: "boolean",
+      title: "Supports Access Control",
+      default: false,
+    },
+    email: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Email",
+      description: "The email address to use for authentication.",
+    },
+    api_token: {
+      anyOf: [
+        {
+          type: "string",
+          format: "password",
+          writeOnly: true,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Api Token",
+      description:
+        "The API Access Token used for Basic, PAT and OAuth2 authentication.",
+    },
+    server_url: {
+      type: "string",
+      title: "Server Url",
+      description: "The server url for Jira Cloud.",
+    },
+    cloud_id: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Cloud Id",
+      description: "The cloud ID, used in case of OAuth2.",
+    },
+    authentication_mechanism: {
+      type: "string",
+      title: "Authentication Mechanism",
+      description: "Type of Authentication for connecting to Jira APIs.",
+    },
+    api_version: {
+      type: "string",
+      enum: ["2", "3"],
+      title: "Api Version",
+      description:
+        "Jira REST API version to use (2 or 3). 3 supports Atlassian Document Format (ADF).",
+      default: "2",
+    },
+    query: {
+      type: "string",
+      title: "Query",
+      description: "JQL (Jira Query Language) query to search.",
+    },
+    fields: {
+      anyOf: [
+        {
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Fields",
+      description:
+        "List of fields to retrieve from Jira. If None, retrieves all fields.",
+    },
+    expand: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Expand",
+      description: "Fields to expand in the response.",
+    },
+    requests_per_minute: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Requests Per Minute",
+      description: "Rate limit for Jira API requests per minute.",
+    },
+    get_permissions: {
+      type: "boolean",
+      title: "Get Permissions",
+      description:
+        "Whether to fetch project role permissions and issue-level security",
+      default: true,
+    },
+    class_name: {
+      type: "string",
+      title: "Class Name",
+      default: "CloudJiraDataSourceV2",
+    },
+  },
+  type: "object",
+  required: ["server_url", "authentication_mechanism", "query"],
+  title: "CloudJiraDataSourceV2",
+  description: "Cloud Jira Data Source integrating JiraReaderV2.",
 } as const;
 
 export const CloudMilvusVectorStoreSchema = {
@@ -4948,6 +5356,7 @@ export const ConfigurableDataSinkNamesSchema = {
     "AZUREAI_SEARCH",
     "MONGODB_ATLAS",
     "MILVUS",
+    "ASTRA_DB",
   ],
   title: "ConfigurableDataSinkNames",
 } as const;
@@ -4964,6 +5373,7 @@ export const ConfigurableDataSourceNamesSchema = {
     "NOTION_PAGE",
     "CONFLUENCE",
     "JIRA",
+    "JIRA_V2",
     "BOX",
   ],
   title: "ConfigurableDataSourceNames",
@@ -5006,6 +5416,81 @@ export const CreditTypeSchema = {
   type: "object",
   required: ["id", "name"],
   title: "CreditType",
+} as const;
+
+export const CustomClaimsSchema = {
+  properties: {
+    allowed_org_creation: {
+      type: "boolean",
+      title: "Allowed Org Creation",
+      description: "Whether the user is allowed to create organizations.",
+      default: false,
+    },
+    max_jobs_in_execution_per_job_type: {
+      type: "integer",
+      title: "Max Jobs In Execution Per Job Type",
+      description:
+        "The maximum number of jobs the user can have in execution per job type.",
+      default: 10,
+    },
+    max_document_ingestion_jobs_in_execution: {
+      type: "integer",
+      title: "Max Document Ingestion Jobs In Execution",
+      description:
+        "The maximum number of document ingestion jobs the user can have in execution.",
+      default: 2,
+    },
+    max_metadata_update_jobs_in_execution: {
+      type: "integer",
+      title: "Max Metadata Update Jobs In Execution",
+      description:
+        "The maximum number of metadata update jobs the user can have in execution.",
+      default: 10,
+    },
+    extraction_test_user: {
+      type: "boolean",
+      title: "Extraction Test User",
+      description:
+        "Whether the user is a test user for extraction. This will include additional debug metadata and access to test endpoints.",
+      default: false,
+    },
+    allowed_report: {
+      type: "boolean",
+      title: "Allowed Report",
+      description:
+        "Whether the user is allowed to access llama-report generation.",
+      default: false,
+    },
+    allowed_app: {
+      type: "boolean",
+      title: "Allowed App",
+      description: "Whether the user is allowed to access the app.",
+      default: false,
+    },
+    allowed_classify: {
+      type: "boolean",
+      title: "Allowed Classify",
+      description:
+        "Whether the user is allowed to access the classifier feature.",
+      default: true,
+    },
+    api_datasource_access: {
+      type: "boolean",
+      title: "Api Datasource Access",
+      description: "Whether the user is allowed to access API data sources.",
+      default: false,
+    },
+    allow_org_deletion: {
+      type: "boolean",
+      title: "Allow Org Deletion",
+      description: "Whether the user is allowed to delete organizations.",
+      default: false,
+    },
+  },
+  type: "object",
+  title: "CustomClaims",
+  description: `Custom claims that dictate various limits or allowed behaviors.
+Currently these claims reside at a per user level. Claims may expand to a per organization level or project in the future.`,
 } as const;
 
 export const CustomerPortalSessionCreatePayloadSchema = {
@@ -5088,6 +5573,9 @@ export const DataSinkSchema = {
         {
           $ref: "#/components/schemas/CloudMilvusVectorStore",
         },
+        {
+          $ref: "#/components/schemas/CloudAstraDBVectorStore",
+        },
       ],
       title: "DataSinkCreateComponent",
       description: "Component that implements the data sink",
@@ -5137,6 +5625,9 @@ export const DataSinkCreateSchema = {
         },
         {
           $ref: "#/components/schemas/CloudMilvusVectorStore",
+        },
+        {
+          $ref: "#/components/schemas/CloudAstraDBVectorStore",
         },
       ],
       title: "DataSinkCreateComponent",
@@ -5189,6 +5680,9 @@ export const DataSinkUpdateSchema = {
         },
         {
           $ref: "#/components/schemas/CloudMilvusVectorStore",
+        },
+        {
+          $ref: "#/components/schemas/CloudAstraDBVectorStore",
         },
         {
           type: "null",
@@ -5317,6 +5811,9 @@ export const DataSourceSchema = {
           $ref: "#/components/schemas/CloudJiraDataSource",
         },
         {
+          $ref: "#/components/schemas/CloudJiraDataSourceV2",
+        },
+        {
           $ref: "#/components/schemas/CloudBoxDataSource",
         },
       ],
@@ -5427,6 +5924,9 @@ export const DataSourceCreateSchema = {
           $ref: "#/components/schemas/CloudJiraDataSource",
         },
         {
+          $ref: "#/components/schemas/CloudJiraDataSourceV2",
+        },
+        {
           $ref: "#/components/schemas/CloudBoxDataSource",
         },
       ],
@@ -5446,6 +5946,7 @@ export const DataSourceReaderVersionMetadataSchema = {
       anyOf: [
         {
           type: "string",
+          enum: ["1.0", "2.0", "2.1"],
         },
         {
           type: "null",
@@ -5545,6 +6046,9 @@ export const DataSourceUpdateSchema = {
         },
         {
           $ref: "#/components/schemas/CloudJiraDataSource",
+        },
+        {
+          $ref: "#/components/schemas/CloudJiraDataSourceV2",
         },
         {
           $ref: "#/components/schemas/CloudBoxDataSource",
@@ -5754,79 +6258,6 @@ export const DirectRetrievalParamsSchema = {
   title: "DirectRetrievalParams",
 } as const;
 
-export const DocumentBlockSchema = {
-  properties: {
-    block_type: {
-      type: "string",
-      const: "document",
-      title: "Block Type",
-      default: "document",
-    },
-    data: {
-      anyOf: [
-        {
-          type: "string",
-          format: "binary",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Data",
-    },
-    path: {
-      anyOf: [
-        {
-          type: "string",
-          format: "file-path",
-        },
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Path",
-    },
-    url: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Url",
-    },
-    title: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Title",
-    },
-    document_mimetype: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Document Mimetype",
-    },
-  },
-  type: "object",
-  title: "DocumentBlock",
-} as const;
-
 export const DocumentChunkModeSchema = {
   type: "string",
   enum: ["PAGE", "SECTION"],
@@ -5941,60 +6372,6 @@ export const DocumentIngestionJobParamsSchema = {
   type: "object",
   title: "DocumentIngestionJobParams",
   description: "Schema for the parameters of a document ingestion job.",
-} as const;
-
-export const EditSuggestionSchema = {
-  properties: {
-    justification: {
-      type: "string",
-      title: "Justification",
-    },
-    blocks: {
-      items: {
-        anyOf: [
-          {
-            $ref: "#/components/schemas/ReportBlock",
-          },
-          {
-            $ref: "#/components/schemas/ReportPlanBlock",
-          },
-        ],
-      },
-      type: "array",
-      title: "Blocks",
-    },
-    removed_indices: {
-      items: {
-        type: "integer",
-      },
-      type: "array",
-      title: "Removed Indices",
-    },
-  },
-  type: "object",
-  required: ["justification", "blocks"],
-  title: "EditSuggestion",
-  description: "A suggestion for an edit to a report.",
-} as const;
-
-export const EditSuggestionCreateSchema = {
-  properties: {
-    user_query: {
-      type: "string",
-      title: "User Query",
-    },
-    chat_history: {
-      items: {
-        $ref: "#/components/schemas/llama_index__core__base__llms__types__ChatMessage",
-      },
-      type: "array",
-      title: "Chat History",
-    },
-  },
-  type: "object",
-  required: ["user_query", "chat_history"],
-  title: "EditSuggestionCreate",
-  description: "A request to suggest edits for a report.",
 } as const;
 
 export const ElementSegmentationConfigSchema = {
@@ -6306,6 +6683,20 @@ export const ExtractAgentSchema = {
       $ref: "#/components/schemas/ExtractConfig",
       description: "The configuration parameters for the extraction agent.",
     },
+    custom_configuration: {
+      anyOf: [
+        {
+          type: "string",
+          const: "default",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Custom Configuration",
+      description:
+        "Custom configuration type for the extraction agent. Currently supports 'default'.",
+    },
     created_at: {
       anyOf: [
         {
@@ -6473,13 +6864,39 @@ export const ExtractConfigSchema = {
     },
     extraction_mode: {
       $ref: "#/components/schemas/ExtractMode",
-      description: "The extraction mode specified.",
+      description:
+        "The extraction mode specified (FAST, BALANCED, MULTIMODAL, PREMIUM).",
       default: "BALANCED",
+    },
+    parse_model: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/PublicModelName",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description:
+        "The parse model to use for document parsing. If not provided, uses the default for the extraction mode.",
+    },
+    extract_model: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/ExtractModels",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description:
+        "The extract model to use for data extraction. If not provided, uses the default for the extraction mode.",
     },
     multimodal_fast_mode: {
       type: "boolean",
       title: "Multimodal Fast Mode",
-      description: "Whether to use fast mode for multimodal extraction.",
+      description:
+        "DEPRECATED: Whether to use fast mode for multimodal extraction.",
       default: false,
     },
     system_prompt: {
@@ -6506,16 +6923,41 @@ export const ExtractConfigSchema = {
       description: "Whether to cite sources for the extraction.",
       default: false,
     },
+    confidence_scores: {
+      type: "boolean",
+      title: "Confidence Scores",
+      description: "Whether to fetch confidence scores for the extraction.",
+      default: false,
+    },
     chunk_mode: {
       $ref: "#/components/schemas/DocumentChunkMode",
       description: "The mode to use for chunking the document.",
       default: "PAGE",
+    },
+    high_resolution_mode: {
+      type: "boolean",
+      title: "High Resolution Mode",
+      description: "Whether to use high resolution mode for the extraction.",
+      default: false,
     },
     invalidate_cache: {
       type: "boolean",
       title: "Invalidate Cache",
       description: "Whether to invalidate the cache for the extraction.",
       default: false,
+    },
+    page_range: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Page Range",
+      description:
+        "Comma-separated list of page numbers or ranges to extract from (1-based, e.g., '1,3,5-7,9' or '1-3,8-10').",
     },
   },
   type: "object",
@@ -6563,6 +7005,20 @@ export const ExtractJobSchema = {
 
 export const ExtractJobCreateSchema = {
   properties: {
+    priority: {
+      anyOf: [
+        {
+          type: "string",
+          enum: ["low", "medium", "high", "critical"],
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Priority",
+      description:
+        "The priority for the request. This field may be ignored or overwritten depending on the organization tier.",
+    },
     webhook_configurations: {
       anyOf: [
         {
@@ -6739,16 +7195,16 @@ export const ExtractModeSchema = {
 export const ExtractModelsSchema = {
   type: "string",
   enum: [
-    "gpt-4.1",
-    "gpt-4.1-mini",
-    "gpt-4.1-nano",
+    "openai-gpt-4-1",
+    "openai-gpt-4-1-mini",
+    "openai-gpt-4-1-nano",
+    "openai-gpt-5",
+    "openai-gpt-5-mini",
     "gemini-2.0-flash",
-    "o3-mini",
     "gemini-2.5-flash",
     "gemini-2.5-pro",
-    "gemini-2.5-flash-lite-preview-06-17",
-    "gpt-4o",
-    "gpt-4o-mini",
+    "openai-gpt-4o",
+    "openai-gpt-4o-mini",
   ],
   title: "ExtractModels",
 } as const;
@@ -7284,6 +7740,109 @@ export const ExtractStateSchema = {
   title: "ExtractState",
 } as const;
 
+export const ExtractStatelessRequestSchema = {
+  properties: {
+    webhook_configurations: {
+      anyOf: [
+        {
+          items: {
+            $ref: "#/components/schemas/WebhookConfiguration",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Webhook Configurations",
+      description: "The outbound webhook configurations",
+    },
+    data_schema: {
+      anyOf: [
+        {
+          additionalProperties: {
+            anyOf: [
+              {
+                additionalProperties: true,
+                type: "object",
+              },
+              {
+                items: {},
+                type: "array",
+              },
+              {
+                type: "string",
+              },
+              {
+                type: "integer",
+              },
+              {
+                type: "number",
+              },
+              {
+                type: "boolean",
+              },
+              {
+                type: "null",
+              },
+            ],
+          },
+          type: "object",
+        },
+        {
+          type: "string",
+        },
+      ],
+      title: "Data Schema",
+      description: "The schema of the data to extract",
+    },
+    config: {
+      $ref: "#/components/schemas/ExtractConfig",
+      description: "The configuration parameters for the extraction",
+    },
+    file_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "File Id",
+      description: "The ID of the file to extract from",
+    },
+    text: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Text",
+      description: "The text content to extract from",
+    },
+    file: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/FileData",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "The file data with base64 content and MIME type",
+    },
+  },
+  type: "object",
+  required: ["data_schema", "config"],
+  title: "ExtractStatelessRequest",
+  description: "Schema for stateless extraction requests.",
+} as const;
+
 export const ExtractTargetSchema = {
   type: "string",
   enum: ["PER_DOC", "PER_PAGE"],
@@ -7296,6 +7855,22 @@ export const FailPageModeSchema = {
   title: "FailPageMode",
   description:
     "Enum for representing the different available page error handling modes",
+} as const;
+
+export const FailureHandlingConfigSchema = {
+  properties: {
+    skip_list_failures: {
+      type: "boolean",
+      title: "Skip List Failures",
+      description:
+        "Whether to skip failed batches/lists and continue processing",
+      default: false,
+    },
+  },
+  type: "object",
+  title: "FailureHandlingConfig",
+  description:
+    "Configuration for handling different types of failures during data source processing.",
 } as const;
 
 export const FileSchema = {
@@ -7339,7 +7914,14 @@ export const FileSchema = {
       title: "Name",
     },
     external_file_id: {
-      type: "string",
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
       title: "External File Id",
       description: "The ID of the file in the external system",
     },
@@ -7482,9 +8064,73 @@ export const FileSchema = {
     },
   },
   type: "object",
-  required: ["id", "name", "external_file_id", "project_id"],
+  required: ["id", "name", "project_id"],
   title: "File",
   description: "Schema for a file.",
+} as const;
+
+export const FileClassificationSchema = {
+  properties: {
+    id: {
+      type: "string",
+      format: "uuid",
+      title: "Id",
+      description: "Unique identifier",
+    },
+    created_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Created At",
+      description: "Creation datetime",
+    },
+    updated_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Updated At",
+      description: "Update datetime",
+    },
+    classify_job_id: {
+      type: "string",
+      format: "uuid",
+      title: "Classify Job Id",
+      description: "The ID of the classify job",
+    },
+    file_id: {
+      type: "string",
+      format: "uuid",
+      title: "File Id",
+      description: "The ID of the classified file",
+    },
+    result: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/ClassificationResult",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "The classification result",
+    },
+  },
+  type: "object",
+  required: ["id", "classify_job_id", "file_id"],
+  title: "FileClassification",
+  description: "A file classification.",
 } as const;
 
 export const FileCountByStatusResponseSchema = {
@@ -7797,6 +8443,113 @@ export const FileCreateFromUrlSchema = {
   title: "FileCreateFromUrl",
 } as const;
 
+export const FileDataSchema = {
+  properties: {
+    data: {
+      type: "string",
+      title: "Data",
+      description: "The file content as base64-encoded string",
+    },
+    mime_type: {
+      type: "string",
+      title: "Mime Type",
+      description:
+        "The MIME type of the file (e.g., 'application/pdf', 'text/plain')",
+    },
+  },
+  type: "object",
+  required: ["data", "mime_type"],
+  title: "FileData",
+  description: "Schema for file data with base64 content and MIME type.",
+} as const;
+
+export const FileFilterSchema = {
+  properties: {
+    project_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Project Id",
+      description: "Filter by project ID",
+    },
+    file_ids: {
+      anyOf: [
+        {
+          items: {
+            type: "string",
+            format: "uuid",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "File Ids",
+      description: "Filter by specific file IDs",
+    },
+    file_name: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "File Name",
+      description: "Filter by file name",
+    },
+    data_source_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Data Source Id",
+      description: "Filter by data source ID",
+    },
+    external_file_id: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "External File Id",
+      description: "Filter by external file ID",
+    },
+    only_manually_uploaded: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Only Manually Uploaded",
+      description:
+        "Filter only manually uploaded files (data_source_id is null)",
+    },
+  },
+  type: "object",
+  title: "FileFilter",
+  description: "Filter parameters for file queries.",
+} as const;
+
 export const FileIdPresignedUrlSchema = {
   properties: {
     url: {
@@ -7893,6 +8646,109 @@ export const FileParsePublicSchema = {
   type: "object",
   required: ["created_at", "status", "input_path", "data_path"],
   title: "FileParsePublic",
+} as const;
+
+export const FileQueryRequestSchema = {
+  properties: {
+    page_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Page Size",
+      description:
+        "The maximum number of items to return. The service may return fewer than this value. If unspecified, a default page size will be used. The maximum value is typically 1000; values above this will be coerced to the maximum.",
+    },
+    page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Page Token",
+      description:
+        "A page token, received from a previous list call. Provide this to retrieve the subsequent page.",
+    },
+    filter: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/FileFilter",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description:
+        "A filter object or expression that filters resources listed in the response.",
+    },
+    order_by: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Order By",
+      description:
+        "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.",
+    },
+  },
+  type: "object",
+  title: "FileQueryRequest",
+  description:
+    "Request schema for querying files with pagination and filtering.",
+} as const;
+
+export const FileQueryResponseSchema = {
+  properties: {
+    items: {
+      items: {
+        $ref: "#/components/schemas/File",
+      },
+      type: "array",
+      title: "Items",
+      description: "The list of items.",
+    },
+    next_page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Next Page Token",
+      description:
+        "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.",
+    },
+    total_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Total Size",
+      description:
+        "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
+    },
+  },
+  type: "object",
+  required: ["items"],
+  title: "FileQueryResponse",
+  description: "Response schema for paginated file queries.",
 } as const;
 
 export const FilterConditionSchema = {
@@ -8397,81 +9253,6 @@ export const HuggingFaceInferenceAPIEmbeddingConfigSchema = {
   title: "HuggingFaceInferenceAPIEmbeddingConfig",
 } as const;
 
-export const ImageBlockSchema = {
-  properties: {
-    block_type: {
-      type: "string",
-      const: "image",
-      title: "Block Type",
-      default: "image",
-    },
-    image: {
-      anyOf: [
-        {
-          type: "string",
-          format: "binary",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Image",
-    },
-    path: {
-      anyOf: [
-        {
-          type: "string",
-          format: "file-path",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Path",
-    },
-    url: {
-      anyOf: [
-        {
-          type: "string",
-          minLength: 1,
-          format: "uri",
-        },
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Url",
-    },
-    image_mimetype: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Image Mimetype",
-    },
-    detail: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Detail",
-    },
-  },
-  type: "object",
-  title: "ImageBlock",
-} as const;
-
 export const IngestionErrorResponseSchema = {
   properties: {
     job_id: {
@@ -8559,7 +9340,6 @@ export const JobNamesSchema = {
     "load_files_job",
     "playground_job",
     "pipeline_managed_ingestion_job",
-    "data_source_managed_ingestion_job",
     "data_source_update_dispatcher_job",
     "pipeline_file_update_dispatcher_job",
     "pipeline_file_updater_job",
@@ -9166,6 +9946,12 @@ export const LegacyParseJobConfigSchema = {
       description: "Whether to preserve layout alignment across pages.",
       default: false,
     },
+    preserveVerySmallText: {
+      type: "boolean",
+      title: "Preserveverysmalltext",
+      description: "Whether to preserve very small text lines.",
+      default: false,
+    },
     invalidateCache: {
       type: "boolean",
       title: "Invalidatecache",
@@ -9251,6 +10037,20 @@ export const LegacyParseJobConfigSchema = {
       ],
       title: "Spreadsheetextractsubtables",
       description: "Whether to extract subTables from spreadsheet.",
+      default: false,
+    },
+    spreadSheetForceFormulaComputation: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Spreadsheetforceformulacomputation",
+      description:
+        "Whether to force re-computation of spreadsheet cells containing formulas.",
       default: false,
     },
     extractLayout: {
@@ -10077,7 +10877,8 @@ export const LlamaExtractSettingsSchema = {
     use_pixel_extraction: {
       type: "boolean",
       title: "Use Pixel Extraction",
-      description: "Whether to use extraction over pixels for multimodal mode.",
+      description:
+        "DEPRECATED: Whether to use extraction over pixels for multimodal mode.",
       default: false,
     },
     llama_parse_params: {
@@ -10088,23 +10889,30 @@ export const LlamaExtractSettingsSchema = {
         parsing_instruction: "",
         disable_ocr: false,
         annotate_links: true,
-        adaptive_long_table: false,
+        adaptive_long_table: true,
         compact_markdown_table: false,
         disable_reconstruction: false,
         disable_image_extraction: false,
         invalidate_cache: false,
-        outlined_table_extraction: false,
+        outlined_table_extraction: true,
         merge_tables_across_pages_in_markdown: false,
         output_pdf_of_document: false,
         do_not_cache: false,
         fast_mode: false,
         skip_diagonal_text: false,
         preserve_layout_alignment_across_pages: false,
+        preserve_very_small_text: false,
         gpt4o_mode: false,
         do_not_unroll_columns: false,
         extract_layout: false,
         high_res_ocr: false,
         html_make_all_elements_visible: false,
+        layout_aware: false,
+        specialized_chart_parsing_agentic: false,
+        specialized_chart_parsing_plus: false,
+        specialized_chart_parsing_efficient: false,
+        specialized_image_parsing: false,
+        precise_bounding_box: false,
         html_remove_navigation_elements: false,
         html_remove_fixed_elements: false,
         guess_xlsx_sheet_name: false,
@@ -10125,6 +10933,8 @@ export const LlamaExtractSettingsSchema = {
         structured_output: false,
         extract_charts: false,
         spreadsheet_extract_sub_tables: false,
+        spreadsheet_force_formula_computation: false,
+        inline_images_in_markdown: false,
         strict_mode_image_extraction: false,
         strict_mode_image_ocr: false,
         strict_mode_reconstruction: false,
@@ -10135,9 +10945,15 @@ export const LlamaExtractSettingsSchema = {
         ignore_document_elements_for_layout_detection: false,
         output_tables_as_HTML: false,
         internal_is_screenshot_job: false,
+        parse_mode: "parse_page_with_llm",
         page_error_tolerance: 0.05,
         replace_failed_page_mode: "raw_text",
       },
+    },
+    multimodal_parse_resolution: {
+      $ref: "#/components/schemas/MultimodalParseResolution",
+      description: "The resolution to use for multimodal parsing.",
+      default: "medium",
     },
   },
   type: "object",
@@ -10148,6 +10964,21 @@ are exposed to the user.`,
 
 export const LlamaParseParametersSchema = {
   properties: {
+    webhook_configurations: {
+      anyOf: [
+        {
+          items: {
+            $ref: "#/components/schemas/WebhookConfiguration",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Webhook Configurations",
+      description: "The outbound webhook configurations",
+    },
     priority: {
       anyOf: [
         {
@@ -10350,6 +11181,18 @@ export const LlamaParseParametersSchema = {
       title: "Preserve Layout Alignment Across Pages",
       default: false,
     },
+    preserve_very_small_text: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Preserve Very Small Text",
+      default: false,
+    },
     gpt4o_mode: {
       anyOf: [
         {
@@ -10419,6 +11262,78 @@ export const LlamaParseParametersSchema = {
         },
       ],
       title: "Html Make All Elements Visible",
+      default: false,
+    },
+    layout_aware: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Layout Aware",
+      default: false,
+    },
+    specialized_chart_parsing_agentic: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Agentic",
+      default: false,
+    },
+    specialized_chart_parsing_plus: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Plus",
+      default: false,
+    },
+    specialized_chart_parsing_efficient: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Efficient",
+      default: false,
+    },
+    specialized_image_parsing: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Image Parsing",
+      default: false,
+    },
+    precise_bounding_box: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Precise Bounding Box",
       default: false,
     },
     html_remove_navigation_elements: {
@@ -10974,6 +11889,30 @@ export const LlamaParseParametersSchema = {
       title: "Spreadsheet Extract Sub Tables",
       default: false,
     },
+    spreadsheet_force_formula_computation: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Spreadsheet Force Formula Computation",
+      default: false,
+    },
+    inline_images_in_markdown: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Inline Images In Markdown",
+      default: false,
+    },
     job_timeout_in_seconds: {
       anyOf: [
         {
@@ -11458,6 +12397,63 @@ export const ManagedIngestionStatusResponseSchema = {
   title: "ManagedIngestionStatusResponse",
 } as const;
 
+export const ManagedOpenAIEmbeddingSchema = {
+  properties: {
+    model_name: {
+      type: "string",
+      const: "openai-text-embedding-3-small",
+      title: "Model Name",
+      description: "The name of the OpenAI embedding model.",
+      default: "openai-text-embedding-3-small",
+    },
+    embed_batch_size: {
+      type: "integer",
+      maximum: 2048,
+      exclusiveMinimum: 0,
+      title: "Embed Batch Size",
+      description: "The batch size for embedding calls.",
+      default: 10,
+    },
+    num_workers: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Num Workers",
+      description: "The number of workers to use for async embedding calls.",
+    },
+    class_name: {
+      type: "string",
+      title: "Class Name",
+      default: "ManagedOpenAIEmbedding",
+    },
+  },
+  type: "object",
+  title: "ManagedOpenAIEmbedding",
+} as const;
+
+export const ManagedOpenAIEmbeddingConfigSchema = {
+  properties: {
+    type: {
+      type: "string",
+      const: "MANAGED_OPENAI_EMBEDDING",
+      title: "Type",
+      description: "Type of the embedding model.",
+      default: "MANAGED_OPENAI_EMBEDDING",
+    },
+    component: {
+      $ref: "#/components/schemas/ManagedOpenAIEmbedding",
+      description: "Configuration for the Managed OpenAI embedding model.",
+    },
+  },
+  type: "object",
+  title: "ManagedOpenAIEmbeddingConfig",
+} as const;
+
 export const MessageAnnotationSchema = {
   properties: {
     type: {
@@ -11604,6 +12600,12 @@ export const MetronomeDashboardTypeSchema = {
   type: "string",
   enum: ["invoices", "usage"],
   title: "MetronomeDashboardType",
+} as const;
+
+export const MultimodalParseResolutionSchema = {
+  type: "string",
+  enum: ["medium", "high"],
+  title: "MultimodalParseResolution",
 } as const;
 
 export const NodeRelationshipSchema = {
@@ -11859,6 +12861,19 @@ export const OrganizationSchema = {
       description: "Whether the organization is a Parse Premium customer.",
       default: "DEFAULT",
     },
+    feature_flags: {
+      anyOf: [
+        {
+          additionalProperties: true,
+          type: "object",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Feature Flags",
+      description: "Feature flags for the organization.",
+    },
   },
   type: "object",
   required: ["id", "name"],
@@ -11890,6 +12905,19 @@ export const OrganizationUpdateSchema = {
       minLength: 1,
       title: "Name",
       description: "A name for the organization.",
+    },
+    feature_flags: {
+      anyOf: [
+        {
+          additionalProperties: true,
+          type: "object",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Feature Flags",
+      description: "Feature flags for the organization.",
     },
   },
   type: "object",
@@ -12245,33 +13273,6 @@ export const PaginatedListPipelineFilesResponseSchema = {
   title: "PaginatedListPipelineFilesResponse",
 } as const;
 
-export const PaginatedReportResponseSchema = {
-  properties: {
-    report_responses: {
-      items: {
-        $ref: "#/components/schemas/ReportResponse",
-      },
-      type: "array",
-      title: "Report Responses",
-    },
-    limit: {
-      type: "integer",
-      title: "Limit",
-    },
-    offset: {
-      type: "integer",
-      title: "Offset",
-    },
-    total_count: {
-      type: "integer",
-      title: "Total Count",
-    },
-  },
-  type: "object",
-  required: ["report_responses", "limit", "offset", "total_count"],
-  title: "PaginatedReportResponse",
-} as const;
-
 export const PaginatedResponse_AgentData_Schema = {
   properties: {
     items: {
@@ -12356,8 +13357,431 @@ export const PaginatedResponse_AggregateGroup_Schema = {
   title: "PaginatedResponse[AggregateGroup]",
 } as const;
 
+export const PaginatedResponse_ClassifyJob_Schema = {
+  properties: {
+    items: {
+      items: {
+        $ref: "#/components/schemas/ClassifyJob",
+      },
+      type: "array",
+      title: "Items",
+      description: "The list of items.",
+    },
+    next_page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Next Page Token",
+      description:
+        "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.",
+    },
+    total_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Total Size",
+      description:
+        "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
+    },
+  },
+  type: "object",
+  required: ["items"],
+  title: "PaginatedResponse[ClassifyJob]",
+} as const;
+
+export const PaginatedResponse_QuotaConfiguration_Schema = {
+  properties: {
+    total: {
+      type: "integer",
+      title: "Total",
+    },
+    page: {
+      type: "integer",
+      title: "Page",
+    },
+    size: {
+      type: "integer",
+      title: "Size",
+    },
+    pages: {
+      type: "integer",
+      title: "Pages",
+    },
+    items: {
+      items: {
+        $ref: "#/components/schemas/QuotaConfiguration",
+      },
+      type: "array",
+      title: "Items",
+    },
+  },
+  type: "object",
+  required: ["total", "page", "size", "pages", "items"],
+  title: "PaginatedResponse[QuotaConfiguration]",
+} as const;
+
+export const ParseConfigurationSchema = {
+  properties: {
+    id: {
+      type: "string",
+      title: "Id",
+      description: "Unique identifier for the parse configuration",
+    },
+    name: {
+      type: "string",
+      title: "Name",
+      description: "Name of the parse configuration",
+    },
+    source_type: {
+      type: "string",
+      title: "Source Type",
+      description: "Type of the source (e.g., 'project')",
+    },
+    source_id: {
+      type: "string",
+      title: "Source Id",
+      description: "ID of the source",
+    },
+    creator: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Creator",
+      description: "Creator of the configuration",
+    },
+    version: {
+      type: "string",
+      title: "Version",
+      description: "Version of the configuration",
+    },
+    parameters: {
+      $ref: "#/components/schemas/LlamaParseParameters",
+      description: "LlamaParseParameters configuration",
+    },
+    created_at: {
+      type: "string",
+      format: "date-time",
+      title: "Created At",
+      description: "Creation timestamp",
+    },
+    updated_at: {
+      type: "string",
+      format: "date-time",
+      title: "Updated At",
+      description: "Last update timestamp",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "name",
+    "source_type",
+    "source_id",
+    "version",
+    "parameters",
+    "created_at",
+    "updated_at",
+  ],
+  title: "ParseConfiguration",
+  description: "Parse configuration schema.",
+} as const;
+
+export const ParseConfigurationCreateSchema = {
+  properties: {
+    name: {
+      type: "string",
+      title: "Name",
+      description: "Name of the parse configuration",
+    },
+    source_type: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Source Type",
+      description: "Type of the source (e.g., 'project')",
+    },
+    source_id: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Source Id",
+      description: "ID of the source",
+    },
+    creator: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Creator",
+      description: "Creator of the configuration",
+    },
+    version: {
+      type: "string",
+      title: "Version",
+      description: "Version of the configuration",
+    },
+    parameters: {
+      $ref: "#/components/schemas/LlamaParseParameters",
+      description: "LlamaParseParameters configuration",
+    },
+  },
+  type: "object",
+  required: ["name", "version", "parameters"],
+  title: "ParseConfigurationCreate",
+  description: "Schema for creating a new parse configuration (API boundary).",
+} as const;
+
+export const ParseConfigurationFilterSchema = {
+  properties: {
+    name: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Name",
+      description: "Filter by name",
+    },
+    source_type: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Source Type",
+      description: "Filter by source type",
+    },
+    source_id: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Source Id",
+      description: "Filter by source ID",
+    },
+    creator: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Creator",
+      description: "Filter by creator",
+    },
+    version: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Version",
+      description: "Filter by version",
+    },
+    parse_config_ids: {
+      anyOf: [
+        {
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Parse Config Ids",
+      description: "Filter by specific parse configuration IDs",
+    },
+  },
+  type: "object",
+  title: "ParseConfigurationFilter",
+  description: "Filter parameters for parse configuration queries.",
+} as const;
+
+export const ParseConfigurationQueryRequestSchema = {
+  properties: {
+    page_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Page Size",
+      description:
+        "The maximum number of items to return. The service may return fewer than this value. If unspecified, a default page size will be used. The maximum value is typically 1000; values above this will be coerced to the maximum.",
+    },
+    page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Page Token",
+      description:
+        "A page token, received from a previous list call. Provide this to retrieve the subsequent page.",
+    },
+    filter: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/ParseConfigurationFilter",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description:
+        "A filter object or expression that filters resources listed in the response.",
+    },
+    order_by: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Order By",
+      description:
+        "A comma-separated list of fields to order by, sorted in ascending order. Use 'field_name desc' to specify descending order.",
+    },
+  },
+  type: "object",
+  title: "ParseConfigurationQueryRequest",
+  description:
+    "Request schema for querying parse configurations with pagination and filtering.",
+} as const;
+
+export const ParseConfigurationQueryResponseSchema = {
+  properties: {
+    items: {
+      items: {
+        $ref: "#/components/schemas/ParseConfiguration",
+      },
+      type: "array",
+      title: "Items",
+      description: "The list of items.",
+    },
+    next_page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Next Page Token",
+      description:
+        "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.",
+    },
+    total_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Total Size",
+      description:
+        "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
+    },
+  },
+  type: "object",
+  required: ["items"],
+  title: "ParseConfigurationQueryResponse",
+  description: "Response schema for paginated parse configuration queries.",
+} as const;
+
+export const ParseConfigurationUpdateSchema = {
+  properties: {
+    parameters: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/LlamaParseParameters",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "Updated LlamaParseParameters configuration",
+    },
+  },
+  type: "object",
+  title: "ParseConfigurationUpdate",
+  description: "Schema for updating an existing parse configuration.",
+} as const;
+
 export const ParseJobConfigSchema = {
   properties: {
+    webhook_configurations: {
+      anyOf: [
+        {
+          items: {
+            $ref: "#/components/schemas/WebhookConfiguration",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Webhook Configurations",
+      description: "The outbound webhook configurations",
+    },
     priority: {
       anyOf: [
         {
@@ -12586,6 +14010,18 @@ export const ParseJobConfigSchema = {
       title: "Preserve Layout Alignment Across Pages",
       default: false,
     },
+    preserve_very_small_text: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Preserve Very Small Text",
+      default: false,
+    },
     gpt4o_mode: {
       anyOf: [
         {
@@ -12655,6 +14091,78 @@ export const ParseJobConfigSchema = {
         },
       ],
       title: "Html Make All Elements Visible",
+      default: false,
+    },
+    layout_aware: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Layout Aware",
+      default: false,
+    },
+    specialized_chart_parsing_agentic: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Agentic",
+      default: false,
+    },
+    specialized_chart_parsing_plus: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Plus",
+      default: false,
+    },
+    specialized_chart_parsing_efficient: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Chart Parsing Efficient",
+      default: false,
+    },
+    specialized_image_parsing: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Specialized Image Parsing",
+      default: false,
+    },
+    precise_bounding_box: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Precise Bounding Box",
       default: false,
     },
     html_remove_navigation_elements: {
@@ -13214,6 +14722,30 @@ export const ParseJobConfigSchema = {
         },
       ],
       title: "Spreadsheet Extract Sub Tables",
+      default: false,
+    },
+    spreadsheet_force_formula_computation: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Spreadsheet Force Formula Computation",
+      default: false,
+    },
+    inline_images_in_markdown: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Inline Images In Markdown",
       default: false,
     },
     job_timeout_in_seconds: {
@@ -13993,6 +15525,17 @@ export const PipelineSchema = {
       title: "Embedding Model Config Id",
       description: "The ID of the EmbeddingModelConfig this pipeline is using.",
     },
+    embedding_model_config: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/EmbeddingModelConfig",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "The embedding model configuration for this pipeline.",
+    },
     pipeline_type: {
       $ref: "#/components/schemas/PipelineType",
       description: "Type of pipeline. Either PLAYGROUND or MANAGED.",
@@ -14014,6 +15557,9 @@ export const PipelineSchema = {
     },
     embedding_config: {
       oneOf: [
+        {
+          $ref: "#/components/schemas/ManagedOpenAIEmbeddingConfig",
+        },
         {
           $ref: "#/components/schemas/AzureOpenAIEmbeddingConfig",
         },
@@ -14046,10 +15592,23 @@ export const PipelineSchema = {
           GEMINI_EMBEDDING: "#/components/schemas/GeminiEmbeddingConfig",
           HUGGINGFACE_API_EMBEDDING:
             "#/components/schemas/HuggingFaceInferenceAPIEmbeddingConfig",
+          MANAGED_OPENAI_EMBEDDING:
+            "#/components/schemas/ManagedOpenAIEmbeddingConfig",
           OPENAI_EMBEDDING: "#/components/schemas/OpenAIEmbeddingConfig",
           VERTEXAI_EMBEDDING: "#/components/schemas/VertexAIEmbeddingConfig",
         },
       },
+    },
+    sparse_model_config: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/SparseModelConfig",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "Configuration for the sparse model used in hybrid search.",
     },
     config_hash: {
       anyOf: [
@@ -14248,6 +15807,17 @@ export const PipelineCreateSchema = {
       ],
       title: "Transform Config",
       description: "Configuration for the transformation.",
+    },
+    sparse_model_config: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/SparseModelConfig",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "Configuration for the sparse model used in hybrid search.",
     },
     data_sink_id: {
       anyOf: [
@@ -14466,6 +16036,9 @@ export const PipelineDataSourceSchema = {
         },
         {
           $ref: "#/components/schemas/CloudJiraDataSource",
+        },
+        {
+          $ref: "#/components/schemas/CloudJiraDataSourceV2",
         },
         {
           $ref: "#/components/schemas/CloudBoxDataSource",
@@ -14740,6 +16313,7 @@ export const PipelineFileSchema = {
         },
       ],
       title: "Name",
+      description: "Name of the file",
     },
     external_file_id: {
       anyOf: [
@@ -14781,8 +16355,15 @@ export const PipelineFileSchema = {
       description: "File type (e.g. pdf, docx, etc.)",
     },
     project_id: {
-      type: "string",
-      format: "uuid",
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
       title: "Project Id",
       description: "The ID of the project that the file belongs to",
     },
@@ -14798,6 +16379,25 @@ export const PipelineFileSchema = {
       ],
       title: "Last Modified At",
       description: "The last modified time of the file",
+    },
+    file_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "File Id",
+      description: "The ID of the file",
+    },
+    pipeline_id: {
+      type: "string",
+      format: "uuid",
+      title: "Pipeline Id",
+      description: "The ID of the pipeline that the file is associated with",
     },
     resource_info: {
       anyOf: [
@@ -14877,38 +16477,6 @@ export const PipelineFileSchema = {
       title: "Permission Info",
       description: "Permission information for the file",
     },
-    data_source_id: {
-      anyOf: [
-        {
-          type: "string",
-          format: "uuid",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Data Source Id",
-      description: "The ID of the data source that the file belongs to",
-    },
-    file_id: {
-      anyOf: [
-        {
-          type: "string",
-          format: "uuid",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "File Id",
-      description: "The ID of the file",
-    },
-    pipeline_id: {
-      type: "string",
-      format: "uuid",
-      title: "Pipeline Id",
-      description: "The ID of the pipeline that the file is associated with",
-    },
     custom_metadata: {
       anyOf: [
         {
@@ -14947,6 +16515,19 @@ export const PipelineFileSchema = {
       ],
       title: "Custom Metadata",
       description: "Custom metadata for the file",
+    },
+    data_source_id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Data Source Id",
+      description: "The ID of the data source that the file belongs to",
     },
     config_hash: {
       anyOf: [
@@ -15027,7 +16608,7 @@ export const PipelineFileSchema = {
     },
   },
   type: "object",
-  required: ["id", "project_id", "pipeline_id"],
+  required: ["id", "pipeline_id"],
   title: "PipelineFile",
   description: "Schema for a file that is associated with a pipeline.",
 } as const;
@@ -15409,6 +16990,17 @@ export const PipelineUpdateSchema = {
       title: "Transform Config",
       description: "Configuration for the transformation.",
     },
+    sparse_model_config: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/SparseModelConfig",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "Configuration for the sparse model used in hybrid search.",
+    },
     data_sink_id: {
       anyOf: [
         {
@@ -15482,6 +17074,7 @@ export const PipelineUpdateSchema = {
       ],
       description:
         "Settings that can be configured for how to use LlamaParse to parse files within a LlamaCloud pipeline.",
+      deprecated: true,
     },
     status: {
       anyOf: [
@@ -15862,7 +17455,7 @@ export const PlaygroundSessionSchema = {
     },
     chat_messages: {
       items: {
-        $ref: "#/components/schemas/src__app__schema__chat__ChatMessage",
+        $ref: "#/components/schemas/ChatMessage",
       },
       type: "array",
       title: "Chat Messages",
@@ -16147,80 +17740,6 @@ export const PresignedUrlSchema = {
   description: "Schema for a presigned URL.",
 } as const;
 
-export const ProgressEventSchema = {
-  properties: {
-    timestamp: {
-      type: "string",
-      format: "date-time",
-      title: "Timestamp",
-    },
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The ID of the event",
-    },
-    group_id: {
-      type: "string",
-      format: "uuid",
-      title: "Group Id",
-      description: "The ID of the group this event belongs to",
-    },
-    type: {
-      type: "string",
-      const: "progress",
-      title: "Type",
-      default: "progress",
-    },
-    variant: {
-      $ref: "#/components/schemas/ReportEventType",
-    },
-    msg: {
-      type: "string",
-      title: "Msg",
-      description: "The message to display to the user",
-    },
-    progress: {
-      anyOf: [
-        {
-          type: "number",
-          maximum: 1,
-          minimum: 0,
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Progress",
-      description: "Progress value between 0-1 if available",
-    },
-    status: {
-      type: "string",
-      enum: ["pending", "in_progress", "completed", "error"],
-      title: "Status",
-      description: "Current status of the operation",
-      default: "pending",
-    },
-    extra_detail: {
-      anyOf: [
-        {
-          additionalProperties: true,
-          type: "object",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Extra Detail",
-      description: "Any extra details to display to the user",
-    },
-  },
-  type: "object",
-  required: ["variant", "msg"],
-  title: "ProgressEvent",
-  description: "Event for tracking progress of operations in workflows.",
-} as const;
-
 export const ProjectSchema = {
   properties: {
     name: {
@@ -16351,7 +17870,7 @@ export const PromptConfSchema = {
       default: `
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `,
     },
@@ -16365,13 +17884,13 @@ Provide a brief explanation for how you arrived at the extracted value based on 
       default: {
         description: `
 ### Citation Rules (read carefully):
-- You must ANNOTATE every value with a short EXACT substring from the source text that supports it.
-- For inferred values, cite the text used to infer it or output 'INFERRED FROM TEXT'
+- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.
+- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'
 - If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.
 `,
         page: "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
         matching_text:
-          'Cite the **EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 120 characters. If the exact substring is >120 chars, truncate with ellipsis "...".',
+          'Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis "...". Provide only the single most relevant citation.',
       },
     },
     scratchpad_prompt: {
@@ -16383,6 +17902,207 @@ Provide a brief explanation for how you arrived at the extracted value based on 
   },
   type: "object",
   title: "PromptConf",
+} as const;
+
+export const PublicModelNameSchema = {
+  type: "string",
+  enum: [
+    "openai-gpt-4o",
+    "openai-gpt-4o-mini",
+    "openai-gpt-4-1",
+    "openai-gpt-4-1-mini",
+    "openai-gpt-4-1-nano",
+    "openai-gpt-5",
+    "openai-gpt-5-mini",
+    "openai-gpt-5-nano",
+    "openai-text-embedding-3-small",
+    "openai-text-embedding-3-large",
+    "openai-whisper-1",
+    "anthropic-sonnet-3.5",
+    "anthropic-sonnet-3.5-v2",
+    "anthropic-sonnet-3.7",
+    "anthropic-sonnet-4.0",
+    "gemini-2.5-flash",
+    "gemini-2.5-pro",
+    "gemini-2.0-flash",
+    "gemini-2.0-flash-lite",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+  ],
+  title: "PublicModelName",
+} as const;
+
+export const QuotaConfigurationSchema = {
+  properties: {
+    source_type: {
+      type: "string",
+      const: "organization",
+      title: "Source Type",
+      description: "The source type, e.g. 'organization'",
+    },
+    source_id: {
+      type: "string",
+      title: "Source Id",
+      description: "The source ID, e.g. the organization ID",
+    },
+    configuration_type: {
+      type: "string",
+      enum: [
+        "rate_limit_parse_concurrent_premium",
+        "rate_limit_parse_concurrent_default",
+        "rate_limit_concurrent_jobs_in_execution_default",
+        "rate_limit_concurrent_jobs_in_execution_doc_ingest",
+        "limit_embedding_character",
+      ],
+      title: "Configuration Type",
+      description: "The quota configuration type",
+    },
+    configuration_value: {
+      $ref: "#/components/schemas/QuotaRateLimitConfigurationValue",
+      description: "The quota configuration value",
+    },
+    configuration_metadata: {
+      anyOf: [
+        {
+          additionalProperties: true,
+          type: "object",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Configuration Metadata",
+      description: "The configuration metadata",
+    },
+    started_at: {
+      type: "string",
+      format: "date-time",
+      title: "Started At",
+      description: "The start date of the quota",
+    },
+    ended_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Ended At",
+      description: "The end date of the quota",
+    },
+    idempotency_key: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Idempotency Key",
+      description: "The idempotency key",
+    },
+    status: {
+      type: "string",
+      enum: ["ACTIVE", "INACTIVE"],
+      title: "Status",
+      description: "The status of the quota, i.e. 'ACTIVE' or 'INACTIVE'",
+    },
+    id: {
+      anyOf: [
+        {
+          type: "string",
+          format: "uuid",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Id",
+      description: "The system-generated UUID for the quota",
+    },
+    created_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Created At",
+      description:
+        "The creation date of the quota configuration in the database",
+    },
+    updated_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Updated At",
+      description:
+        "The last updated date of the quota configuration in the database",
+    },
+  },
+  type: "object",
+  required: [
+    "source_type",
+    "source_id",
+    "configuration_type",
+    "configuration_value",
+    "configuration_metadata",
+    "status",
+  ],
+  title: "QuotaConfiguration",
+  description: "Full quota configuration model.",
+} as const;
+
+export const QuotaRateLimitConfigurationValueSchema = {
+  properties: {
+    numerator: {
+      type: "integer",
+      title: "Numerator",
+      description: "The rate numerator",
+    },
+    denominator: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Denominator",
+      description: "The rate limit denominator",
+    },
+    denominator_units: {
+      anyOf: [
+        {
+          type: "string",
+          enum: ["second", "minute", "hour", "day"],
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Denominator Units",
+      description: "The default rate limit denominator units",
+    },
+  },
+  type: "object",
+  required: ["numerator"],
+  title: "QuotaRateLimitConfigurationValue",
+  description: "Quota-specific wrapper for default rate limit configuration.",
 } as const;
 
 export const ReRankConfigSchema = {
@@ -16507,446 +18227,25 @@ export const RelatedNodeInfoSchema = {
   title: "RelatedNodeInfo",
 } as const;
 
-export const ReportSchema = {
+export const RestrictSchema = {
   properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The id of the report",
-    },
-    blocks: {
-      items: {
-        $ref: "#/components/schemas/ReportBlock",
-      },
-      type: "array",
-      title: "Blocks",
-      description: "The blocks of the report",
-    },
-  },
-  type: "object",
-  required: ["id"],
-  title: "Report",
-} as const;
-
-export const ReportBlockSchema = {
-  properties: {
-    idx: {
-      type: "integer",
-      title: "Idx",
-      description: "The index of the block",
-    },
-    template: {
-      type: "string",
-      title: "Template",
-      description: "The content of the block",
-    },
-    requires_human_review: {
-      type: "boolean",
-      title: "Requires Human Review",
-      description: "Whether the block requires human review",
-      default: false,
-    },
-    sources: {
-      items: {
-        $ref: "#/components/schemas/TextNodeWithScore",
-      },
-      type: "array",
-      title: "Sources",
-      description: "The sources for the block",
-    },
-  },
-  type: "object",
-  required: ["idx", "template"],
-  title: "ReportBlock",
-} as const;
-
-export const ReportBlockDependencySchema = {
-  type: "string",
-  enum: ["none", "all", "previous", "next"],
-  title: "ReportBlockDependency",
-} as const;
-
-export const ReportCreateResponseSchema = {
-  properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The id of the report",
-    },
-  },
-  type: "object",
-  required: ["id"],
-  title: "ReportCreateResponse",
-} as const;
-
-export const ReportEventItemSchema = {
-  properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The id of the event",
-    },
-    report_id: {
-      type: "string",
-      format: "uuid",
-      title: "Report Id",
-      description: "The id of the report",
-    },
-    event_type: {
-      type: "string",
-      title: "Event Type",
-      description: "The type of the event",
-    },
-    event_data: {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/ProgressEvent",
-        },
-        {
-          $ref: "#/components/schemas/ReportUpdateEvent",
-        },
-        {
-          $ref: "#/components/schemas/ReportStateEvent",
-        },
-      ],
-      title: "Event Data",
-      description: "The data for the event",
-    },
-    timestamp: {
-      type: "string",
-      format: "date-time",
-      title: "Timestamp",
-      description: "The timestamp for the event",
-    },
-  },
-  type: "object",
-  required: ["id", "report_id", "event_type", "event_data", "timestamp"],
-  title: "ReportEventItem",
-  description: "From backend schema",
-} as const;
-
-export const ReportEventTypeSchema = {
-  type: "string",
-  enum: [
-    "load_template",
-    "extract_plan",
-    "summarize",
-    "file_processing",
-    "generate_block",
-    "editing",
-  ],
-  title: "ReportEventType",
-} as const;
-
-export const ReportMetadataSchema = {
-  properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The id of the report",
-    },
-    name: {
-      type: "string",
-      title: "Name",
-      description: "The name of the report",
-    },
-    report_metadata: {
-      additionalProperties: true,
-      type: "object",
-      title: "Report Metadata",
-      description: "The metadata for the report",
-    },
-    state: {
-      $ref: "#/components/schemas/ReportState",
-      description: "The state of the report",
-    },
-    input_files: {
-      anyOf: [
-        {
-          items: {
-            type: "string",
-          },
-          type: "array",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Input Files",
-    },
-    template_file: {
+    project_id: {
       anyOf: [
         {
           type: "string",
+          format: "uuid",
         },
         {
           type: "null",
         },
       ],
-      title: "Template File",
-    },
-    template_text: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Template Text",
-    },
-    template_instructions: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Template Instructions",
+      title: "Project Id",
+      description: "The project ID to restrict the user to.",
     },
   },
   type: "object",
-  required: ["id", "name", "report_metadata", "state"],
-  title: "ReportMetadata",
-  description: "Used to update the metadata of a report.",
-} as const;
-
-export const ReportNameUpdateSchema = {
-  properties: {
-    name: {
-      type: "string",
-      title: "Name",
-      description: "The name of the report",
-    },
-  },
-  type: "object",
-  required: ["name"],
-  title: "ReportNameUpdate",
-} as const;
-
-export const ReportPlanSchema = {
-  properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-      description: "The id of the report plan",
-    },
-    blocks: {
-      items: {
-        $ref: "#/components/schemas/ReportPlanBlock",
-      },
-      type: "array",
-      title: "Blocks",
-      description: "The blocks of the report",
-    },
-    generated_at: {
-      type: "string",
-      format: "date-time",
-      title: "Generated At",
-      description: "The timestamp of when the plan was generated",
-    },
-  },
-  type: "object",
-  title: "ReportPlan",
-} as const;
-
-export const ReportPlanBlockSchema = {
-  properties: {
-    block: {
-      $ref: "#/components/schemas/ReportBlock",
-    },
-    queries: {
-      items: {
-        $ref: "#/components/schemas/ReportQuery",
-      },
-      type: "array",
-      title: "Queries",
-      description: "The queries for the block",
-    },
-    dependency: {
-      $ref: "#/components/schemas/ReportBlockDependency",
-      description: "The dependency for the block",
-    },
-  },
-  type: "object",
-  required: ["block", "dependency"],
-  title: "ReportPlanBlock",
-} as const;
-
-export const ReportQuerySchema = {
-  properties: {
-    field: {
-      type: "string",
-      title: "Field",
-      description: "The field in the template that needs to be filled in",
-    },
-    prompt: {
-      type: "string",
-      title: "Prompt",
-      description: "The prompt for filling in the field",
-    },
-    context: {
-      type: "string",
-      title: "Context",
-      description: "Any additional context for the query",
-    },
-  },
-  type: "object",
-  required: ["field", "prompt", "context"],
-  title: "ReportQuery",
-} as const;
-
-export const ReportResponseSchema = {
-  properties: {
-    name: {
-      type: "string",
-      title: "Name",
-    },
-    report_id: {
-      type: "string",
-      format: "uuid",
-      title: "Report Id",
-    },
-    report: {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/Report",
-        },
-        {
-          type: "null",
-        },
-      ],
-    },
-    plan: {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/ReportPlan",
-        },
-        {
-          type: "null",
-        },
-      ],
-    },
-    version: {
-      type: "integer",
-      title: "Version",
-    },
-    last_updated: {
-      type: "string",
-      format: "date-time",
-      title: "Last Updated",
-    },
-    status: {
-      $ref: "#/components/schemas/ReportState",
-    },
-    total_versions: {
-      type: "integer",
-      title: "Total Versions",
-    },
-  },
-  type: "object",
-  required: [
-    "name",
-    "report_id",
-    "report",
-    "plan",
-    "version",
-    "last_updated",
-    "status",
-    "total_versions",
-  ],
-  title: "ReportResponse",
-} as const;
-
-export const ReportStateSchema = {
-  type: "string",
-  enum: [
-    "pending",
-    "planning",
-    "waiting_approval",
-    "generating",
-    "completed",
-    "error",
-  ],
-  title: "ReportState",
-} as const;
-
-export const ReportStateEventSchema = {
-  properties: {
-    timestamp: {
-      type: "string",
-      format: "date-time",
-      title: "Timestamp",
-    },
-    type: {
-      type: "string",
-      const: "report_state_update",
-      title: "Type",
-    },
-    msg: {
-      type: "string",
-      title: "Msg",
-      description: "The message to display to the user",
-    },
-    status: {
-      $ref: "#/components/schemas/ReportState",
-      description: "The new state of the report",
-    },
-  },
-  type: "object",
-  required: ["type", "msg", "status"],
-  title: "ReportStateEvent",
-  description: "Event for notifying when an report's state changes.",
-} as const;
-
-export const ReportUpdateEventSchema = {
-  properties: {
-    timestamp: {
-      type: "string",
-      format: "date-time",
-      title: "Timestamp",
-    },
-    type: {
-      type: "string",
-      const: "report_block_update",
-      title: "Type",
-      default: "report_block_update",
-    },
-    msg: {
-      type: "string",
-      title: "Msg",
-      description: "The message to display to the user",
-      default: "A block has been generated and is ready to be displayed",
-    },
-    block: {
-      $ref: "#/components/schemas/ReportBlock",
-      description: "The block to update",
-    },
-  },
-  type: "object",
-  required: ["block"],
-  title: "ReportUpdateEvent",
-  description: "Event for updating the state of an report.",
-} as const;
-
-export const ReportVersionPatchSchema = {
-  properties: {
-    content: {
-      $ref: "#/components/schemas/Report",
-      description: "The content of the report version",
-    },
-  },
-  type: "object",
-  required: ["content"],
-  title: "ReportVersionPatch",
+  required: ["project_id"],
+  title: "Restrict",
 } as const;
 
 export const RetrievalModeSchema = {
@@ -17519,7 +18818,7 @@ export const SearchRequestSchema = {
     deployment_name: {
       type: "string",
       title: "Deployment Name",
-      description: "The agent deployment's deployment_name to search within",
+      description: "The agent deployment's name to search within",
     },
     collection: {
       type: "string",
@@ -17538,6 +18837,7 @@ export const SearchRequestSchema = {
       anyOf: [
         {
           type: "integer",
+          maximum: 1000,
           minimum: 0,
         },
         {
@@ -17548,7 +18848,6 @@ export const SearchRequestSchema = {
       description:
         "The offset to start from. If not provided, the first page is returned",
       default: 0,
-      lte: 1000,
     },
   },
   type: "object",
@@ -17618,6 +18917,39 @@ export const SentenceChunkingConfigSchema = {
   title: "SentenceChunkingConfig",
 } as const;
 
+export const SparseModelConfigSchema = {
+  properties: {
+    model_type: {
+      $ref: "#/components/schemas/SparseModelType",
+      description:
+        "The sparse model type to use. 'auto' selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade), 'splade' uses HuggingFace Splade model, 'bm25' uses Qdrant's FastEmbed BM25 model.",
+      default: "auto",
+    },
+    class_name: {
+      type: "string",
+      title: "Class Name",
+      default: "SparseModelConfig",
+    },
+  },
+  type: "object",
+  title: "SparseModelConfig",
+  description: `Configuration for sparse embedding models used in hybrid search.
+
+This allows users to choose between Splade and BM25 models for
+sparse retrieval in managed data sinks.`,
+} as const;
+
+export const SparseModelTypeSchema = {
+  type: "string",
+  enum: ["splade", "bm25", "auto"],
+  title: "SparseModelType",
+  description: `Enum for sparse model types supported in LlamaCloud.
+
+SPLADE: Uses HuggingFace Splade model for sparse embeddings
+BM25: Uses Qdrant's FastEmbed BM25 model for sparse embeddings
+AUTO: Automatically selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade)`,
+} as const;
+
 export const StatusEnumSchema = {
   type: "string",
   enum: ["PENDING", "SUCCESS", "ERROR", "PARTIAL_SUCCESS", "CANCELLED"],
@@ -17642,7 +18974,7 @@ export const StructParseConfSchema = {
     model: {
       $ref: "#/components/schemas/ExtractModels",
       description: "The model to use for the structured parsing.",
-      default: "gpt-4.1",
+      default: "openai-gpt-4-1",
     },
     temperature: {
       type: "number",
@@ -17659,6 +18991,12 @@ export const StructParseConfSchema = {
       $ref: "#/components/schemas/StructMode",
       description: "The struct mode to use for the structured parsing.",
       default: "STRUCT_PARSE",
+    },
+    fetch_logprobs: {
+      type: "boolean",
+      title: "Fetch Logprobs",
+      description: "Whether to fetch logprobs for the structured parsing.",
+      default: false,
     },
     handle_missing: {
       type: "boolean",
@@ -17690,18 +19028,18 @@ export const StructParseConfSchema = {
         reasoning_prompt: `
 Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
 - For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'. 
+- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
 - When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
 `,
         cite_sources_prompt: {
           description: `
 ### Citation Rules (read carefully):
-- You must ANNOTATE every value with a short EXACT substring from the source text that supports it.
-- For inferred values, cite the text used to infer it or output 'INFERRED FROM TEXT'
+- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.
+- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'
 - If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.
 `,
           matching_text:
-            'Cite the **EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 120 characters. If the exact substring is >120 chars, truncate with ellipsis "...".',
+            'Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis "...". Provide only the single most relevant citation.',
           page: "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
         },
         scratchpad_prompt:
@@ -17748,30 +19086,15 @@ export const SupportedLLMModelNamesSchema = {
     "GPT_4_1_MINI",
     "AZURE_OPENAI_GPT_4O",
     "AZURE_OPENAI_GPT_4O_MINI",
+    "AZURE_OPENAI_GPT_4_1",
+    "AZURE_OPENAI_GPT_4_1_MINI",
+    "AZURE_OPENAI_GPT_4_1_NANO",
     "CLAUDE_3_5_SONNET",
     "BEDROCK_CLAUDE_3_5_SONNET_V1",
     "BEDROCK_CLAUDE_3_5_SONNET_V2",
     "VERTEX_AI_CLAUDE_3_5_SONNET_V2",
   ],
   title: "SupportedLLMModelNames",
-} as const;
-
-export const TextBlockSchema = {
-  properties: {
-    block_type: {
-      type: "string",
-      const: "text",
-      title: "Block Type",
-      default: "text",
-    },
-    text: {
-      type: "string",
-      title: "Text",
-    },
-  },
-  type: "object",
-  required: ["text"],
-  title: "TextBlock",
 } as const;
 
 export const TextNodeSchema = {
@@ -18045,6 +19368,8 @@ export const UsageResponseSchema = {
           "plan_spend_limit_soft_alert",
           "configured_spend_limit_exceeded",
           "free_credits_exhausted",
+          "internal_spending_alert",
+          "has_spending_alert",
         ],
       },
       type: "array",
@@ -18071,6 +19396,94 @@ export const UsageResponseSchema = {
   type: "object",
   title: "UsageResponse",
   description: "Response model",
+} as const;
+
+export const UserSchema = {
+  properties: {
+    id: {
+      type: "string",
+      title: "Id",
+    },
+    email: {
+      type: "string",
+      format: "email",
+      title: "Email",
+    },
+    last_login_provider: {
+      type: "string",
+      enum: ["oidc", "basic", "no_auth"],
+      title: "Last Login Provider",
+      description: "The last login provider.",
+      default: "oidc",
+    },
+    name: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Name",
+      description: "The user's name.",
+    },
+    first_name: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "First Name",
+      description: "The user's first name.",
+    },
+    last_name: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Last Name",
+      description: "The user's last name.",
+    },
+    claims: {
+      $ref: "#/components/schemas/CustomClaims",
+      description: "The user's custom claims.",
+    },
+    restrict: {
+      anyOf: [
+        {
+          $ref: "#/components/schemas/Restrict",
+        },
+        {
+          type: "null",
+        },
+      ],
+      description: "The restrictions on the user.",
+    },
+    created_at: {
+      anyOf: [
+        {
+          type: "string",
+          format: "date-time",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Created At",
+      description: "The user's creation date.",
+    },
+  },
+  type: "object",
+  required: ["id", "email"],
+  title: "User",
 } as const;
 
 export const UserJobRecordSchema = {
@@ -18626,6 +20039,11 @@ export const WebhookConfigurationSchema = {
               "extract.error",
               "extract.partial_success",
               "extract.cancelled",
+              "parse.pending",
+              "parse.success",
+              "parse.error",
+              "parse.partial_success",
+              "parse.cancelled",
               "unmapped_event",
             ],
           },
@@ -18638,170 +20056,22 @@ export const WebhookConfigurationSchema = {
       title: "Webhook Events",
       description: "List of event names to subscribe to",
     },
+    webhook_output_format: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Webhook Output Format",
+      description:
+        "The output format to use for the webhook. Defaults to string if none supplied. Currently supported values: string, json",
+    },
   },
   type: "object",
   title: "WebhookConfiguration",
   description:
     "Allows the user to configure webhook options for notifications and callbacks.",
-} as const;
-
-export const StatelessExtractionRequestSchema = {
-  type: "object",
-  required: ["data_schema"],
-  properties: {
-    data_schema: {
-      anyOf: [
-        {
-          additionalProperties: {
-            anyOf: [
-              {
-                additionalProperties: true,
-                type: "object",
-              },
-              {
-                items: {},
-                type: "array",
-              },
-              {
-                type: "string",
-              },
-              {
-                type: "integer",
-              },
-              {
-                type: "number",
-              },
-              {
-                type: "boolean",
-              },
-              {
-                type: "null",
-              },
-            ],
-          },
-          type: "object",
-        },
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-    },
-    config: {
-      $ref: "#/components/schemas/ExtractConfig",
-      description: "The configuration parameters for the extraction agent.",
-    },
-    file_id: {
-      type: "string",
-      format: "uuid",
-      title: "File Id",
-      description: "ID of an uploaded file to extract from",
-    },
-  },
-  title: "StatelessExtractionRequest",
-  description:
-    "Request body for stateless extraction. Must include either file_id, text, or base64.",
-} as const;
-
-export const llama_index__core__base__llms__types__ChatMessageSchema = {
-  properties: {
-    role: {
-      $ref: "#/components/schemas/MessageRole",
-      default: "user",
-    },
-    additional_kwargs: {
-      additionalProperties: true,
-      type: "object",
-      title: "Additional Kwargs",
-    },
-    blocks: {
-      items: {
-        oneOf: [
-          {
-            $ref: "#/components/schemas/TextBlock",
-          },
-          {
-            $ref: "#/components/schemas/ImageBlock",
-          },
-          {
-            $ref: "#/components/schemas/AudioBlock",
-          },
-          {
-            $ref: "#/components/schemas/DocumentBlock",
-          },
-        ],
-        discriminator: {
-          propertyName: "block_type",
-          mapping: {
-            audio: "#/components/schemas/AudioBlock",
-            document: "#/components/schemas/DocumentBlock",
-            image: "#/components/schemas/ImageBlock",
-            text: "#/components/schemas/TextBlock",
-          },
-        },
-      },
-      type: "array",
-      title: "Blocks",
-    },
-  },
-  type: "object",
-  title: "ChatMessage",
-  description: "Chat message.",
-} as const;
-
-export const src__app__schema__chat__ChatMessageSchema = {
-  properties: {
-    id: {
-      type: "string",
-      format: "uuid",
-      title: "Id",
-    },
-    index: {
-      type: "integer",
-      title: "Index",
-      description: "The index of the message in the chat.",
-    },
-    annotations: {
-      items: {
-        $ref: "#/components/schemas/MessageAnnotation",
-      },
-      type: "array",
-      title: "Annotations",
-      description: "Retrieval annotations for the message.",
-    },
-    role: {
-      $ref: "#/components/schemas/MessageRole",
-      description: "The role of the message.",
-    },
-    content: {
-      anyOf: [
-        {
-          type: "string",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "Content",
-      description: "Text content of the generation",
-    },
-    additional_kwargs: {
-      additionalProperties: {
-        type: "string",
-      },
-      type: "object",
-      title: "Additional Kwargs",
-      description: "Additional arguments passed to the model",
-    },
-    class_name: {
-      type: "string",
-      title: "Class Name",
-      default: "base_component",
-    },
-  },
-  type: "object",
-  required: ["id", "index", "role"],
-  title: "ChatMessage",
 } as const;
