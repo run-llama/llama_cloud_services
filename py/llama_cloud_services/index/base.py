@@ -489,6 +489,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         name: str,
         project_name: str = DEFAULT_PROJECT_NAME,
         organization_id: Optional[str] = None,
+        project_id: Optional[str] = None,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         app_url: Optional[str] = None,
@@ -504,15 +505,15 @@ class LlamaCloudIndex(BaseManagedIndex):
         app_url = app_url or os.environ.get("LLAMA_CLOUD_APP_URL", DEFAULT_APP_URL)
         client = get_client(api_key, base_url, app_url, timeout)
 
-        # create project if it doesn't exist
-        project = client.projects.upsert_project(
-            organization_id=organization_id, request=ProjectCreate(name=project_name)
-        )
-        if project.id is None:
-            raise ValueError(f"Failed to create/get project {project_name}")
-
-        if verbose:
-            print(f"Created project {project.id} with name {project.name}")
+        if project_id is None:
+            # create project if it doesn't exist
+            project = client.projects.upsert_project(
+                organization_id=organization_id,
+                request=ProjectCreate(name=project_name),
+            )
+            project_id = project.id
+            if verbose:
+                print(f"Created project {project_id} with name {project_name}")
 
         # create pipeline
         pipeline_create = PipelineCreate(
@@ -523,7 +524,7 @@ class LlamaCloudIndex(BaseManagedIndex):
             llama_parse_parameters=llama_parse_parameters or LlamaParseParameters(),
         )
         pipeline = client.pipelines.upsert_pipeline(
-            project_id=project.id, request=pipeline_create
+            project_id=project_id, request=pipeline_create
         )
         if pipeline.id is None:
             raise ValueError(f"Failed to create/get pipeline {name}")
@@ -532,8 +533,7 @@ class LlamaCloudIndex(BaseManagedIndex):
 
         return cls(
             name,
-            project_name=project.name,
-            organization_id=project.organization_id,
+            project_id=project_id,
             api_key=api_key,
             base_url=base_url,
             app_url=app_url,
@@ -606,6 +606,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         name: str,
         project_name: str = DEFAULT_PROJECT_NAME,
         organization_id: Optional[str] = None,
+        project_id: Optional[str] = None,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
         app_url: Optional[str] = None,
@@ -631,6 +632,7 @@ class LlamaCloudIndex(BaseManagedIndex):
             verbose=verbose,
             embedding_config=embedding_config,
             transform_config=transform_config,
+            project_id=project_id,
         )
 
         app_url = app_url or os.environ.get("LLAMA_CLOUD_APP_URL", DEFAULT_APP_URL)
