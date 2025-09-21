@@ -613,3 +613,43 @@ def test_parses_field_metadata_with_error_field():
     }
     assert parsed.metadata.get("field_errors") == "This is an error"
     assert parsed.metadata.get("job_id") == "job-123"
+
+
+class SupremeCourtBriefSchema(BaseModel):
+    """Minimal schema reproducing conflict when a data field is named 'citation'."""
+
+    citation: Optional[str] = Field(None, description="Official citation")
+
+
+def test_parse_extracted_field_metadata_conflict_with_citation_field_name():
+    """
+    Reproduce bug where a schema has a field named 'citation' and the metadata
+    provides a root-level 'citation' list of page references. The parser
+    currently attempts to recurse into the list items as nested objects and
+    hits a ValueError on primitive values like page numbers.
+
+    Expected behavior (to be implemented): treat a list of {page, matching_text}
+    under a field as ExtractedFieldMetadata(citation=[...]) rather than nesting.
+    """
+
+    extract_run = create_extract_run(
+        data={
+            "citation": "602 U.S. ___ (2024)",
+        },
+        extraction_metadata={
+            # Problematic: metadata for field named 'citation' is a list of
+            # citation entries instead of a dict containing 'citation': [...].
+            "citation": [
+                {
+                    "page": 4,
+                    "matching_text": "BARRETT, J., delivered the opinion for a unanimous Court.",
+                },
+                {"page": 11, "matching_text": "Opinion of the Court"},
+            ]
+        },
+    )
+
+    # This currently raises a ValueError deep in _parse_extracted_field_metadata_recursive
+    # when it tries to recurse into the primitive page number. We do not catch it here
+    # to ensure the test fails and surfaces the stack trace for debugging.
+    ExtractedData.from_extraction_result(extract_run, SupremeCourtBriefSchema)
