@@ -613,3 +613,51 @@ def test_parses_field_metadata_with_error_field():
     }
     assert parsed.metadata.get("field_errors") == "This is an error"
     assert parsed.metadata.get("job_id") == "job-123"
+
+
+REASONING_IN_SCHEMA = {
+    "majority_opinion": {
+        "type": {
+            "citation": [
+                {
+                    "page": 4,
+                    "matching_text": "BARRETT, J., delivered the opinion for a unanimous Court.",
+                },
+                {"page": 11, "matching_text": "Opinion of the Court"},
+            ],
+            "parsing_confidence": 1.0,
+            "extraction_confidence": 0.9999998919950147,
+            "confidence": 0.9999998919950147,
+        },
+        "reasoning": {
+            "citation": [
+                {
+                    "page": 15,
+                    "matching_text": "We hold that §5110(b)(1) is not subject to equitable tolling and affirm the judg...",
+                }
+            ],
+            "parsing_confidence": 1.0,
+            "extraction_confidence": 0.414292785946868,
+            "confidence": 0.414292785946868,
+        },
+    },
+    "reasoning": {
+        "citation": [
+            {
+                "page": 15,
+                "matching_text": "We hold that §5110(b)(1) is not subject to equitable tolling and affirm the judg...",
+            }
+        ],
+        "parsing_confidence": 1.0,
+        "extraction_confidence": 0.414292785946868,
+        "confidence": 0.414292785946868,
+    },
+}
+
+
+def test_field_conflict_in_schema():
+    extracted = parse_extracted_field_metadata(REASONING_IN_SCHEMA)
+    assert isinstance(extracted["reasoning"], ExtractedFieldMetadata)
+    assert isinstance(
+        extracted["majority_opinion"]["reasoning"], ExtractedFieldMetadata
+    )
