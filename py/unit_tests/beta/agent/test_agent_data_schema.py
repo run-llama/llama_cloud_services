@@ -649,7 +649,19 @@ def test_parse_extracted_field_metadata_conflict_with_citation_field_name():
         },
     )
 
-    # This currently raises a ValueError deep in _parse_extracted_field_metadata_recursive
-    # when it tries to recurse into the primitive page number. We do not catch it here
-    # to ensure the test fails and surfaces the stack trace for debugging.
-    ExtractedData.from_extraction_result(extract_run, SupremeCourtBriefSchema)
+    extracted = ExtractedData.from_extraction_result(
+        extract_run, SupremeCourtBriefSchema
+    )
+
+    # Data field should be preserved
+    assert extracted.data.citation == "602 U.S. ___ (2024)"
+
+    # Metadata for conflicting field name 'citation' should be an empty
+    # ExtractedFieldMetadata (no citation or confidence parsed)
+    assert isinstance(extracted.field_metadata["citation"], ExtractedFieldMetadata)
+    assert extracted.field_metadata["citation"].confidence is None
+    assert extracted.field_metadata["citation"].extraction_confidence is None
+    assert extracted.field_metadata["citation"].citation is None
+
+    # No confidence available so overall should be None
+    assert extracted.overall_confidence is None
