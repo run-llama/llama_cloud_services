@@ -229,17 +229,11 @@ def parse_extracted_field_metadata(
 
 _METADATA_FIELDS_SIBLING_TO_LEAF = {"reasoning"}
 _ADDITIONAL_ROOT_METADATA_FIELDS = {"error"}
-# Field names that indicate a leaf metadata object when present as keys. These
-# also conflict with potential user schema field names. For conflicting user
-# fields, we will drop citation/confidence interpretation and return an empty
-# ExtractedFieldMetadata (preserving reasoning if available).
-_INDICATOR_FIELDS = {"confidence", "extraction_confidence", "citation"}
 
 
 def _parse_extracted_field_metadata_recursive(
     field_value: Any,
     additional_fields: dict[str, Any] = {},
-    field_name: Optional[str] = None,
 ) -> Union[ExtractedFieldMetadata, Dict[str, Any], list[Any]]:
     """
     Parse the extracted field metadata into a dictionary of field names to field metadata.
@@ -251,7 +245,8 @@ def _parse_extracted_field_metadata_recursive(
     elif isinstance(field_value, dict):
         # reasoning explicitly excluded, as it is included next to subfields, for example
         # "dimensions.width" is a leaf, but there will still potentially be a "dimensions.reasoning"
-        if len(_INDICATOR_FIELDS.intersection(field_value.keys())) > 0:
+        indicator_fields = {"confidence", "extraction_confidence", "citation"}
+        if len(indicator_fields.intersection(field_value.keys())) > 0:
             try:
                 merged = {**field_value, **additional_fields}
                 allowed_fields = ExtractedFieldMetadata.model_fields.keys()
@@ -261,51 +256,35 @@ def _parse_extracted_field_metadata_recursive(
                 return validated
             except ValidationError:
                 pass
-        # If the current field name conflicts with indicator fields, then we should
-        # not attempt to interpret its children as metadata. Instead, we return an
-        # empty ExtractedFieldMetadata, preserving any sibling reasoning if available.
-        if field_name in _INDICATOR_FIELDS:
-            allowed_fields = ExtractedFieldMetadata.model_fields.keys()
-            merged = {k: v for k, v in additional_fields.items() if k in allowed_fields}
-            try:
-                return ExtractedFieldMetadata.model_validate(merged)
-            except ValidationError:
-                return ExtractedFieldMetadata()
         additional_fields = {
             k: v
             for k, v in field_value.items()
             if k in _METADATA_FIELDS_SIBLING_TO_LEAF
         }
-        result: Dict[str, Any] = {}
-        for k, v in field_value.items():
-            if k in _METADATA_FIELDS_SIBLING_TO_LEAF:
-                continue
-            if k in _INDICATOR_FIELDS:
-                # Child key conflicts with indicator names; treat as empty metadata.
-                allowed_fields = ExtractedFieldMetadata.model_fields.keys()
-                merged = {kk: vv for kk, vv in additional_fields.items() if kk in allowed_fields}
-                try:
-                    result[k] = ExtractedFieldMetadata.model_validate(merged)
-                except ValidationError:
-                    result[k] = ExtractedFieldMetadata()
-            else:
-                result[k] = _parse_extracted_field_metadata_recursive(
-                    v, additional_fields, field_name=k
-                )
-        return result
+        return {
+            k: _parse_extracted_field_metadata_recursive(v, additional_fields)
+            for k, v in field_value.items()
+            if k not in _METADATA_FIELDS_SIBLING_TO_LEAF
+        }
     elif isinstance(field_value, list):
-        # If this list is associated with a conflicting field name (e.g. a user
-        # data field literally named 'citation'), do not recurse into list items
-        # as metadata. Return an empty ExtractedFieldMetadata (preserving reasoning).
-        if field_name in _INDICATOR_FIELDS:
-            allowed_fields = ExtractedFieldMetadata.model_fields.keys()
-            merged = {k: v for k, v in additional_fields.items() if k in allowed_fields}
+        # Special handling: list of citation dicts should be treated as
+        # ExtractedFieldMetadata with a citation list, not recursed into.
+        def _is_citation_dict(d: Any) -> bool:
+            if not isinstance(d, dict):
+                return False
+            allowed = {"page", "matching_text"}
+            return set(d.keys()).issubset(allowed)
+
+        if all(_is_citation_dict(item) for item in field_value):
             try:
+                merged: Dict[str, Any] = {**additional_fields, "citation": field_value}
+                allowed_fields = ExtractedFieldMetadata.model_fields.keys()
+                merged = {k: v for k, v in merged.items() if k in allowed_fields}
                 return ExtractedFieldMetadata.model_validate(merged)
             except ValidationError:
-                return ExtractedFieldMetadata()
+                pass
         return [
-            _parse_extracted_field_metadata_recursive(item, field_name=field_name)
+            _parse_extracted_field_metadata_recursive(item)
             for item in field_value
         ]
     else:

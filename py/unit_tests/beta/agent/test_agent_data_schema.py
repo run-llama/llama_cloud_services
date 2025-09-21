@@ -656,12 +656,17 @@ def test_parse_extracted_field_metadata_conflict_with_citation_field_name():
     # Data field should be preserved
     assert extracted.data.citation == "602 U.S. ___ (2024)"
 
-    # Metadata for conflicting field name 'citation' should be an empty
-    # ExtractedFieldMetadata (no citation or confidence parsed)
+    # The root-level 'citation' metadata list should be interpreted as
+    # ExtractedFieldMetadata(citation=[...]) for the field named 'citation'.
     assert isinstance(extracted.field_metadata["citation"], ExtractedFieldMetadata)
-    assert extracted.field_metadata["citation"].confidence is None
-    assert extracted.field_metadata["citation"].extraction_confidence is None
-    assert extracted.field_metadata["citation"].citation is None
-
-    # No confidence available so overall should be None
-    assert extracted.overall_confidence is None
+    fm = extracted.field_metadata["citation"]
+    assert fm.confidence is None
+    assert fm.extraction_confidence is None
+    assert fm.citation == [
+        FieldCitation(
+            page=4,
+            matching_text=
+            "BARRETT, J., delivered the opinion for a unanimous Court.",
+        ),
+        FieldCitation(page=11, matching_text="Opinion of the Court"),
+    ]
