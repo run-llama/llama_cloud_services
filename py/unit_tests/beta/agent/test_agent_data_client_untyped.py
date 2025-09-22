@@ -40,7 +40,12 @@ class FakeBeta:
         include_total: bool = False,
     ) -> Any:
         class Resp:
-            def __init__(self, items: List[AgentData], total_size: Optional[int], next_page_token: Optional[str]) -> None:
+            def __init__(
+                self,
+                items: List[AgentData],
+                total_size: Optional[int],
+                next_page_token: Optional[str],
+            ) -> None:
                 self.items = items
                 self.total_size = total_size
                 self.next_page_token = next_page_token
@@ -62,7 +67,12 @@ class FakeBeta:
         offset: Optional[int] = None,
     ) -> Any:
         class Resp:
-            def __init__(self, items: List[AggregateGroup], total_size: Optional[int], next_page_token: Optional[str]) -> None:
+            def __init__(
+                self,
+                items: List[AggregateGroup],
+                total_size: Optional[int],
+                next_page_token: Optional[str],
+            ) -> None:
                 self.items = items
                 self.total_size = total_size
                 self.next_page_token = next_page_token
@@ -86,7 +96,11 @@ def make_agent_data(data: Dict[str, Any]) -> AgentData:
     )
 
 
-def make_group(group_key: Dict[str, Any], first_item: Optional[Dict[str, Any]], count: Optional[int] = None) -> AggregateGroup:
+def make_group(
+    group_key: Dict[str, Any],
+    first_item: Optional[Dict[str, Any]],
+    count: Optional[int] = None,
+) -> AggregateGroup:
     return AggregateGroup(group_key=group_key, count=count, first_item=first_item)
 
 
@@ -125,7 +139,7 @@ async def test_untyped_search_mixed_items() -> None:
     assert len(results.items) == 2
     assert results.items[0].data == {"name": "Carol", "age": 22}
     assert results.items[1].data == {"name": "Dave", "age": "bad"}
-    assert results.total == 2
+    assert results.total_size == 2
 
 
 @pytest.mark.asyncio

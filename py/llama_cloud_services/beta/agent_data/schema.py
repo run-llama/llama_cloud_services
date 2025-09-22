@@ -56,7 +56,6 @@ from typing import (
 
 # Type variable for user-defined data models
 AgentDataT = TypeVar("AgentDataT", bound=BaseModel)
-
 # Type variable for extracted data (can be dict or Pydantic model)
 ExtractedT = TypeVar("ExtractedT", bound=Union[BaseModel, dict])
 
@@ -116,49 +115,19 @@ class TypedAgentData(BaseModel, Generic[AgentDataT]):
         Args:
             raw_data: Raw agent data from the API
             validator: Pydantic model class to validate the data field
-
         Returns:
             TypedAgentData instance with validated data
         """
-        try:
-            data: AgentDataT = validator.model_validate(raw_data.data)
 
-            return cls(
-                id=raw_data.id,
-                deployment_name=raw_data.deployment_name,
-                collection=raw_data.collection,
-                data=data,
-                created_at=raw_data.created_at,
-                updated_at=raw_data.updated_at,
-            )
-        except ValidationError as e:
-            # Attempt to coerce into untyped dict payload
-            if not isinstance(raw_data.data, dict):
-                # Could not coerce to dict – bubble up original validation error
-                raise e
+        data: AgentDataT = validator.model_validate(raw_data.data)
 
-            untyped: Dict[str, Any] = dict(raw_data.data)
-            invalid_item = TypedAgentData[Dict[str, Any]](
-                id=raw_data.id,
-                deployment_name=raw_data.deployment_name,
-                collection=raw_data.collection,
-                data=untyped,
-                created_at=raw_data.created_at,
-                updated_at=raw_data.updated_at,
-            )
-            raise InvalidTypedAgentData(invalid_item) from e
-
-
-class InvalidTypedAgentData(Exception):
-    """
-    Exception raised when agent data cannot be validated against the typed model
-    but can be represented as an untyped dictionary.
-    """
-
-    def __init__(self, invalid_item: "TypedAgentData[Dict[str, Any]]"):
-        self.invalid_item = invalid_item
-        super().__init__(
-            "Not able to parse the agent data into the typed model; returning untyped representation"
+        return cls(
+            id=raw_data.id,
+            deployment_name=raw_data.deployment_name,
+            collection=raw_data.collection,
+            data=data,
+            created_at=raw_data.created_at,
+            updated_at=raw_data.updated_at,
         )
 
 

@@ -7,14 +7,13 @@ import pytest
 from llama_cloud import ExtractRun, File
 from llama_cloud.types.agent_data import AgentData
 from llama_cloud.types.aggregate_group import AggregateGroup
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from llama_cloud_services.beta.agent_data.schema import (
     ExtractedData,
     ExtractedFieldMetadata,
     FieldCitation,
     InvalidExtractionData,
-    InvalidTypedAgentData,
     TypedAgentData,
     TypedAggregateGroup,
     calculate_overall_confidence,
@@ -67,11 +66,8 @@ def test_typed_agent_data_from_raw_validation_error():
         updated_at=datetime.now(),
     )
 
-    with pytest.raises(InvalidTypedAgentData) as exc:
+    with pytest.raises(ValidationError):
         TypedAgentData.from_raw(raw_data, Person)
-    # The exception should carry the untyped item
-    invalid_item = exc.value.invalid_item
-    assert invalid_item.data == {"name": "Invalid Person", "age": "not_a_number"}
 
 
 def test_extracted_data_create_method():

@@ -9,7 +9,6 @@ from .schema import (
     parse_extracted_field_metadata,
     calculate_overall_confidence,
     InvalidExtractionData,
-    InvalidTypedAgentData,
     ExtractedFieldMetadata,
     ExtractedFieldMetaDataDict,
 )
@@ -27,7 +26,6 @@ __all__ = [
     "parse_extracted_field_metadata",
     "calculate_overall_confidence",
     "InvalidExtractionData",
-    "InvalidTypedAgentData",
     "ExtractedFieldMetadata",
     "ExtractedFieldMetaDataDict",
 ]
