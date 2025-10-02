@@ -118,10 +118,8 @@ async def test_extraction_agent_aextract_accepts_llama_file(
     dummy_llama_extract_iface = SimpleNamespace()
 
     async def fake_run_job(**kwargs):
-        # Ensure we are receiving a request with the right file_id
-        request = kwargs.get("request")
-        assert hasattr(request, "file_id")
-        assert request.file_id == llama_file.id
+        file_id = kwargs.get("file_id")
+        assert file_id == llama_file.id
         return SimpleNamespace(id="job_42")
 
     dummy_llama_extract_iface.run_job = fake_run_job
