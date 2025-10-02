@@ -544,12 +544,10 @@ class ExtractionAgent:
 
         job_tasks = [
             self._client.llama_extract.run_job(
-                request=ExtractJobCreate(
-                    extraction_agent_id=self.id,
-                    file_id=file.id,
-                    data_schema_override=self.data_schema,
-                    config_override=self.config,
-                ),
+                extraction_agent_id=self.id,
+                file_id=file.id,
+                data_schema_override=self.data_schema,
+                config_override=self.config,
             )
             for file in uploaded_files
         ]
