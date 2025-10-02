@@ -19,14 +19,12 @@ from llama_cloud import (
     ExtractAgent as CloudExtractAgent,
     ExtractConfig,
     ExtractJob,
-    ExtractJobCreate,
     ExtractRun,
     File,
     FileData,
     ExtractMode,
     StatusEnum,
     ExtractTarget,
-    LlamaExtractSettings,
     PaginatedExtractRunsResponse,
 )
 from llama_cloud.client import AsyncLlamaCloud
@@ -462,56 +460,6 @@ class ExtractionAgent:
                 config=self.config,
             )
         )
-
-    async def _run_extraction_test(
-        self,
-        files: Union[FileInput, List[FileInput]],
-        extract_settings: LlamaExtractSettings,
-    ) -> Union[ExtractJob, List[ExtractJob]]:
-        if not isinstance(files, list):
-            files = [files]
-            single_file = True
-        else:
-            single_file = False
-
-        upload_tasks = [self._upload_file(file) for file in files]
-        with augment_async_errors():
-            uploaded_files = await run_jobs(
-                upload_tasks,
-                workers=self.num_workers,
-                desc="Uploading files",
-                show_progress=self.show_progress,
-            )
-
-        async def run_job(file: File) -> ExtractRun:
-            job_queued = await self._client.llama_extract.run_job_test_user(
-                job_create=ExtractJobCreate(
-                    extraction_agent_id=self.id,
-                    file_id=file.id,
-                    data_schema_override=self.data_schema,
-                    config_override=self.config,
-                ),
-                extract_settings=extract_settings,
-            )
-            return await self._wait_for_job_result(job_queued.id)
-
-        job_tasks = [run_job(file) for file in uploaded_files]
-        with augment_async_errors():
-            extract_results = await run_jobs(
-                job_tasks,
-                workers=self.num_workers,
-                desc="Running extraction jobs",
-                show_progress=self.show_progress,
-            )
-
-        if self._verbose:
-            for file, job in zip(files, extract_results):
-                file_repr = (
-                    str(file) if isinstance(file, (str, Path)) else "<bytes/buffer>"
-                )
-                print(f"Running extraction for file {file_repr} under job_id {job.id}")
-
-        return extract_results[0] if single_file else extract_results
 
     async def queue_extraction(
         self,

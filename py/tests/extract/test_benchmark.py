@@ -1,16 +1,13 @@
 import os
 import pytest
 
-from llama_cloud_services.extract import LlamaExtract, ExtractionAgent
-from time import perf_counter
+from llama_cloud_services.extract import LlamaExtract
 from collections import namedtuple
 import json
 import uuid
 from llama_cloud.types import (
     ExtractConfig,
     ExtractMode,
-    LlamaParseParameters,
-    LlamaExtractSettings,
 )
 from tests.extract.util import load_test_dotenv
 
@@ -122,27 +119,3 @@ def extraction_agent(test_case: BenchmarkTestCase, extractor: LlamaExtract):
     # Create new agent
     agent = extractor.create_agent(agent_name, schema, config=test_case.config)
     yield agent
-
-
-@pytest.mark.skipif(
-    "CI" in os.environ or not LLAMA_CLOUD_API_KEY,
-    reason="LLAMA_CLOUD_API_KEY not set or CI environment not suitable for benchmarking",
-)
-@pytest.mark.parametrize("test_case", get_test_cases(), ids=lambda x: x.name)
-@pytest.mark.asyncio(loop_scope="session")
-async def test_extraction(
-    test_case: BenchmarkTestCase, extraction_agent: ExtractionAgent
-) -> None:
-    start = perf_counter()
-    result = await extraction_agent._run_extraction_test(
-        test_case.input_file,
-        extract_settings=LlamaExtractSettings(
-            llama_parse_params=LlamaParseParameters(
-                invalidate_cache=True,
-                do_not_cache=True,
-            )
-        ),
-    )
-    end = perf_counter()
-    print(f"Time taken: {end - start} seconds")
-    print(result)

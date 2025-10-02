@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def load_test_dotenv():
-    load_dotenv(Path(__file__).parent.parent.parent / ".env.dev", override=True)
+    load_dotenv(Path(__file__).parent.parent.parent.parent / ".env.dev", override=True)
 
 
 def json_subset_match_score(expected: Any, actual: Any) -> float:
