@@ -4,6 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
+    "get-openapi": "node ./scripts/get-openapi.js",
     "generate": "./node_modules/.bin/openapi-ts",
     "build": "pnpm run generate && bunchee",
     "dev": "bunchee --watch",

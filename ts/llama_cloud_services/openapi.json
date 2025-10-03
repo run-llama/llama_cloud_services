@@ -10007,20 +10007,6 @@
             }
           },
           {
-            "name": "include_usage_metrics",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Deprecated: This parameter is no longer supported as we've moved to usage v2. It will be removed in a future version.",
-              "deprecated": true,
-              "default": false,
-              "title": "Include Usage Metrics"
-            },
-            "description": "Deprecated: This parameter is no longer supported as we've moved to usage v2. It will be removed in a future version.",
-            "deprecated": true
-          },
-          {
             "name": "project_id",
             "in": "query",
             "required": false,
@@ -12912,776 +12898,6 @@
         }
       }
     },
-    "/api/v1/extraction/extraction-agents": {
-      "post": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Create Extraction Agent",
-        "operationId": "create_extraction_agent_api_v1_extraction_extraction_agents_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "project_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Id"
-            }
-          },
-          {
-            "name": "organization_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Organization Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExtractAgentCreate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractAgent"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "List Extraction Agents",
-        "operationId": "list_extraction_agents_api_v1_extraction_extraction_agents_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "include_default",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "description": "Whether to include default agents in the results",
-              "default": false,
-              "title": "Include Default"
-            },
-            "description": "Whether to include default agents in the results"
-          },
-          {
-            "name": "project_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Id"
-            }
-          },
-          {
-            "name": "organization_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Organization Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/ExtractAgent"
-                  },
-                  "title": "Response List Extraction Agents Api V1 Extraction Extraction Agents Get"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/extraction/extraction-agents/schema/validation": {
-      "post": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Validate Extraction Schema",
-        "description": "Validates an extraction agent's schema definition.\nReturns the normalized and validated schema if valid, otherwise raises an HTTP 400.",
-        "operationId": "validate_extraction_schema_api_v1_extraction_extraction_agents_schema_validation_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExtractSchemaValidateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractSchemaValidateResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/extraction/extraction-agents/schema/generate": {
-      "post": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Generate Extraction Schema",
-        "description": "Generates an extraction agent's schema definition from a file and/or natural language prompt.",
-        "operationId": "generate_extraction_schema_api_v1_extraction_extraction_agents_schema_generate_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "project_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Id"
-            }
-          },
-          {
-            "name": "organization_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Organization Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExtractSchemaGenerateRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractSchemaGenerateResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/extraction/extraction-agents/by-name/{name}": {
-      "get": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Get Extraction Agent By Name",
-        "operationId": "get_extraction_agent_by_name_api_v1_extraction_extraction_agents_by_name__name__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "name",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "title": "Name"
-            }
-          },
-          {
-            "name": "project_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Id"
-            }
-          },
-          {
-            "name": "organization_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Organization Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractAgent"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/extraction/extraction-agents/default": {
-      "get": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Get Or Create Default Extraction Agent",
-        "description": "Get or create a default extraction agent for the current project.\nThe default agent has an empty schema and default configuration.",
-        "operationId": "get_or_create_default_extraction_agent_api_v1_extraction_extraction_agents_default_get",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "project_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Project Id"
-            }
-          },
-          {
-            "name": "organization_id",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string",
-                  "format": "uuid"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Organization Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractAgent"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/extraction/extraction-agents/{extraction_agent_id}": {
-      "get": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Get Extraction Agent",
-        "operationId": "get_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__get",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "extraction_agent_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Extraction Agent Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractAgent"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Delete Extraction Agent",
-        "operationId": "delete_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__delete",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "extraction_agent_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Extraction Agent Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {}
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Update Extraction Agent",
-        "operationId": "update_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__put",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "extraction_agent_id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid",
-              "title": "Extraction Agent Id"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ExtractAgentUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractAgent"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v1/extraction/jobs": {
       "get": {
         "tags": [
@@ -13890,84 +13106,6 @@
             }
           }
         }
-      }
-    },
-    "/api/v1/extraction/jobs/test": {
-      "post": {
-        "tags": [
-          "LlamaExtract"
-        ],
-        "summary": "Run Job Test User",
-        "operationId": "run_job_test_user_api_v1_extraction_jobs_test_post",
-        "security": [
-          {
-            "HTTPBearer": []
-          },
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "from_ui",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "boolean",
-              "default": false,
-              "title": "From Ui"
-            }
-          },
-          {
-            "name": "session",
-            "in": "cookie",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Session"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/Body_run_job_test_user_api_v1_extraction_jobs_test_post"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Successful Response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ExtractJob"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Validation Error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            }
-          }
-        },
-        "x-internal": true
       }
     },
     "/api/v1/extraction/jobs/file": {
@@ -14769,6 +13907,776 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ExtractJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents": {
+      "post": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Create Extraction Agent",
+        "operationId": "create_extraction_agent_api_v1_extraction_extraction_agents_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractAgentCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractAgent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "List Extraction Agents",
+        "operationId": "list_extraction_agents_api_v1_extraction_extraction_agents_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_default",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Whether to include default agents in the results",
+              "default": false,
+              "title": "Include Default"
+            },
+            "description": "Whether to include default agents in the results"
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExtractAgent"
+                  },
+                  "title": "Response List Extraction Agents Api V1 Extraction Extraction Agents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents/schema/validation": {
+      "post": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Validate Extraction Schema",
+        "description": "Validates an extraction agent's schema definition.\nReturns the normalized and validated schema if valid, otherwise raises an HTTP 400.",
+        "operationId": "validate_extraction_schema_api_v1_extraction_extraction_agents_schema_validation_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractSchemaValidateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractSchemaValidateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents/schema/generate": {
+      "post": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Generate Extraction Schema",
+        "description": "Generates an extraction agent's schema definition from a file and/or natural language prompt.",
+        "operationId": "generate_extraction_schema_api_v1_extraction_extraction_agents_schema_generate_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractSchemaGenerateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractSchemaGenerateResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents/by-name/{name}": {
+      "get": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Get Extraction Agent By Name",
+        "operationId": "get_extraction_agent_by_name_api_v1_extraction_extraction_agents_by_name__name__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Name"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractAgent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents/default": {
+      "get": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Get Or Create Default Extraction Agent",
+        "description": "Get or create a default extraction agent for the current project.\nThe default agent has an empty schema and default configuration.",
+        "operationId": "get_or_create_default_extraction_agent_api_v1_extraction_extraction_agents_default_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractAgent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/extraction/extraction-agents/{extraction_agent_id}": {
+      "get": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Get Extraction Agent",
+        "operationId": "get_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "extraction_agent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Extraction Agent Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractAgent"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Delete Extraction Agent",
+        "operationId": "delete_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__delete",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "extraction_agent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Extraction Agent Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "LlamaExtract"
+        ],
+        "summary": "Update Extraction Agent",
+        "operationId": "update_extraction_agent_api_v1_extraction_extraction_agents__extraction_agent_id__put",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "extraction_agent_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Extraction Agent Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtractAgentUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtractAgent"
                 }
               }
             }
@@ -16011,6 +15919,109 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaginatedResponse_AggregateGroup_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/beta/agent-data/:delete": {
+      "post": {
+        "tags": [
+          "Beta",
+          "Agent Data"
+        ],
+        "summary": "Delete Agent Data By Query",
+        "description": "Bulk delete agent data by query (deployment_name, collection, optional filters).",
+        "operationId": "delete_agent_data_by_query_api_v1_beta_agent_data__delete_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
                 }
               }
             }
@@ -17422,6 +17433,489 @@
         }
       }
     },
+    "/api/v1/beta/spreadsheet/jobs": {
+      "post": {
+        "tags": [
+          "Beta",
+          "Spreadsheet",
+          "Beta",
+          "Spreadsheet"
+        ],
+        "summary": "Create Spreadsheet Job",
+        "description": "Create a spreadsheet parsing job.\nExperimental: This endpoint is not yet ready for production use and is subject to change at any time.",
+        "operationId": "create_spreadsheet_job_api_v1_beta_spreadsheet_jobs_post",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadsheetJobCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadsheetJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Beta",
+          "Spreadsheet",
+          "Beta",
+          "Spreadsheet"
+        ],
+        "summary": "List Spreadsheet Jobs",
+        "description": "List spreadsheet parsing jobs.\nExperimental: This endpoint is not yet ready for production use and is subject to change at any time.",
+        "operationId": "list_spreadsheet_jobs_api_v1_beta_spreadsheet_jobs_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "include_results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Results"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Size"
+            }
+          },
+          {
+            "name": "page_token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Page Token"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedResponse_SpreadsheetJob_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}": {
+      "get": {
+        "tags": [
+          "Beta",
+          "Spreadsheet",
+          "Beta",
+          "Spreadsheet"
+        ],
+        "summary": "Get Spreadsheet Job",
+        "description": "Get a spreadsheet parsing job.\n\nWhen include_results=True (default), the response will include extracted tables and results\nif the job is complete, eliminating the need for a separate /results call.\n\nExperimental: This endpoint is not yet ready for production use and is subject to change at any time.",
+        "operationId": "get_spreadsheet_job_api_v1_beta_spreadsheet_jobs__spreadsheet_job_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "spreadsheet_job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Spreadsheet Job Id"
+            }
+          },
+          {
+            "name": "include_results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": true,
+              "title": "Include Results"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SpreadsheetJob"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}/tables/{table_id}/result": {
+      "get": {
+        "tags": [
+          "Beta",
+          "Spreadsheet",
+          "Beta",
+          "Spreadsheet"
+        ],
+        "summary": "Get Table Download Presigned Url",
+        "description": "Generate a presigned URL to download a specific extracted table.\nExperimental: This endpoint is not yet ready for production use and is subject to change at any time.",
+        "operationId": "get_table_download_presigned_url_api_v1_beta_spreadsheet_jobs__spreadsheet_job_id__tables__table_id__result_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          },
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "spreadsheet_job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Spreadsheet Job Id"
+            }
+          },
+          {
+            "name": "table_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Table Id"
+            }
+          },
+          {
+            "name": "expires_at_seconds",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Expires At Seconds"
+            }
+          },
+          {
+            "name": "project_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Project Id"
+            }
+          },
+          {
+            "name": "organization_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Organization Id"
+            }
+          },
+          {
+            "name": "session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PresignedUrl"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v2alpha1/parse/upload": {
       "post": {
         "tags": [
@@ -17490,16 +17984,6 @@
             }
           }
         ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "$ref": "#/components/schemas/Body_upload_file_v2_api_v2alpha1_parse_upload_post"
-              }
-            }
-          }
-        },
         "responses": {
           "200": {
             "description": "Successful Response",
@@ -19519,8 +20003,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 1000.0,
-                "minimum": 0.0
+                "maximum": 1000,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -19572,7 +20056,7 @@
           },
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Chunk Size",
             "description": "Chunk size for the transformation.",
             "default": 1024
@@ -19598,8 +20082,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -19657,7 +20141,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "Timeout for each request.",
-            "default": 60.0,
+            "default": 60,
             "gte": 0
           },
           "default_headers": {
@@ -20296,8 +20780,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -20376,7 +20860,7 @@
           },
           "max_retries": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Max Retries",
             "description": "The maximum number of API retries.",
             "default": 10
@@ -20385,7 +20869,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "The timeout for the Bedrock API request in seconds. It will be used for both connect and read timeouts.",
-            "default": 60.0
+            "default": 60
           },
           "additional_kwargs": {
             "additionalProperties": true,
@@ -20498,28 +20982,6 @@
           "file"
         ],
         "title": "Body_run_job_on_file_api_v1_extraction_jobs_file_post"
-      },
-      "Body_run_job_test_user_api_v1_extraction_jobs_test_post": {
-        "properties": {
-          "job_create": {
-            "$ref": "#/components/schemas/ExtractJobCreate"
-          },
-          "extract_settings": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/LlamaExtractSettings"
-              },
-              {
-                "type": "null"
-              }
-            ]
-          }
-        },
-        "type": "object",
-        "required": [
-          "job_create"
-        ],
-        "title": "Body_run_job_test_user_api_v1_extraction_jobs_test_post"
       },
       "Body_screenshot_api_parsing_screenshot_post": {
         "properties": {
@@ -21767,31 +22229,6 @@
         "type": "object",
         "title": "Body_upload_file_api_v1_parsing_upload_post"
       },
-      "Body_upload_file_v2_api_v2alpha1_parse_upload_post": {
-        "properties": {
-          "configuration": {
-            "type": "string",
-            "title": "Configuration"
-          },
-          "file": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "binary"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "File"
-          }
-        },
-        "type": "object",
-        "required": [
-          "configuration"
-        ],
-        "title": "Body_upload_file_v2_api_v2alpha1_parse_upload_post"
-      },
       "BoxAuthMechanism": {
         "type": "string",
         "enum": [
@@ -21804,7 +22241,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -22152,16 +22589,6 @@
         ],
         "title": "ChatMessage"
       },
-      "ChunkMode": {
-        "type": "string",
-        "enum": [
-          "PAGE",
-          "DOCUMENT",
-          "SECTION",
-          "GROUPED_PAGES"
-        ],
-        "title": "ChunkMode"
-      },
       "ClassificationResult": {
         "properties": {
           "reasoning": {
@@ -22171,8 +22598,8 @@
           },
           "confidence": {
             "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
+            "maximum": 1,
+            "minimum": 0,
             "title": "Confidence",
             "description": "Confidence score of the classification (0.0-1.0)"
           },
@@ -24044,8 +24471,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -24438,6 +24865,12 @@
             "type": "boolean",
             "title": "Allow Org Deletion",
             "description": "Whether the user is allowed to delete organizations.",
+            "default": false
+          },
+          "allowed_spreadsheet": {
+            "type": "boolean",
+            "title": "Allowed Spreadsheet",
+            "description": "Whether the user is allowed to access the spreadsheet feature.",
             "default": false
           }
         },
@@ -25183,6 +25616,56 @@
         "title": "DeleteParams",
         "description": "Schema for the parameters of a delete job."
       },
+      "DeleteRequest": {
+        "properties": {
+          "deployment_name": {
+            "type": "string",
+            "title": "Deployment Name",
+            "description": "The agent deployment's name to delete data for"
+          },
+          "collection": {
+            "type": "string",
+            "title": "Collection",
+            "description": "The logical agent data collection to delete from",
+            "default": "default"
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/FilterOperation"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Filter",
+            "description": "Optional filters to select which items to delete"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deployment_name"
+        ],
+        "title": "DeleteRequest",
+        "description": "API request body for bulk deleting agent data by query"
+      },
+      "DeleteResponse": {
+        "properties": {
+          "deleted_count": {
+            "type": "integer",
+            "title": "Deleted Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "deleted_count"
+        ],
+        "title": "DeleteResponse",
+        "description": "API response for bulk delete operation"
+      },
       "DirectRetrievalParams": {
         "properties": {
           "mode": {
@@ -25913,6 +26396,19 @@
             "description": "Whether to invalidate the cache for the extraction.",
             "default": false
           },
+          "num_pages_context": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Num Pages Context",
+            "description": "Number of pages to pass as context on long document extraction."
+          },
           "page_range": {
             "anyOf": [
               {
@@ -26181,6 +26677,7 @@
           "openai-gpt-5-mini",
           "gemini-2.0-flash",
           "gemini-2.5-flash",
+          "gemini-2.5-flash-lite",
           "gemini-2.5-pro",
           "openai-gpt-4o",
           "openai-gpt-4o-mini"
@@ -26839,6 +27336,57 @@
         ],
         "title": "ExtractTarget"
       },
+      "ExtractedTable": {
+        "properties": {
+          "table_id": {
+            "type": "integer",
+            "title": "Table Id",
+            "description": "Unique identifier for this table within the file"
+          },
+          "sheet_name": {
+            "type": "string",
+            "title": "Sheet Name",
+            "description": "Worksheet name where table was found"
+          },
+          "row_span": {
+            "type": "integer",
+            "title": "Row Span",
+            "description": "Number of rows in the table"
+          },
+          "col_span": {
+            "type": "integer",
+            "title": "Col Span",
+            "description": "Number of columns in the table"
+          },
+          "has_headers": {
+            "type": "boolean",
+            "title": "Has Headers",
+            "description": "Whether the table has header rows"
+          },
+          "metadata_json": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata Json",
+            "description": "JSON metadata with detailed table information"
+          }
+        },
+        "type": "object",
+        "required": [
+          "table_id",
+          "sheet_name",
+          "row_span",
+          "col_span",
+          "has_headers"
+        ],
+        "title": "ExtractedTable",
+        "description": "A single extracted table from a spreadsheet"
+      },
       "FailPageMode": {
         "type": "string",
         "enum": [
@@ -26918,7 +27466,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -27208,7 +27756,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -27951,8 +28499,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -28086,8 +28634,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -29788,134 +30336,6 @@
         "title": "LegacyParseJobConfig",
         "description": "Configuration for llamaparse job"
       },
-      "LlamaExtractSettings": {
-        "properties": {
-          "max_file_size": {
-            "type": "integer",
-            "title": "Max File Size",
-            "description": "The maximum file size (in bytes) allowed for the document.",
-            "default": 104857600
-          },
-          "max_file_size_ui": {
-            "type": "integer",
-            "title": "Max File Size Ui",
-            "description": "The maximum file size (in bytes) allowed for the document.",
-            "default": 31457280
-          },
-          "max_pages": {
-            "type": "integer",
-            "title": "Max Pages",
-            "description": "The maximum number of pages allowed for the document.",
-            "default": 500
-          },
-          "chunk_mode": {
-            "$ref": "#/components/schemas/ChunkMode",
-            "description": "The mode to use for chunking the document.",
-            "default": "SECTION"
-          },
-          "max_chunk_size": {
-            "type": "integer",
-            "title": "Max Chunk Size",
-            "description": "The maximum size of the chunks (in tokens) to use for chunking the document.",
-            "default": 10000
-          },
-          "extraction_agent_config": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/StructParseConf"
-            },
-            "type": "object",
-            "title": "Extraction Agent Config",
-            "description": "The configuration for the extraction agent."
-          },
-          "use_multimodal_parsing": {
-            "type": "boolean",
-            "title": "Use Multimodal Parsing",
-            "description": "Whether to use experimental multimodal parsing.",
-            "default": false
-          },
-          "use_pixel_extraction": {
-            "type": "boolean",
-            "title": "Use Pixel Extraction",
-            "description": "DEPRECATED: Whether to use extraction over pixels for multimodal mode.",
-            "default": false
-          },
-          "llama_parse_params": {
-            "$ref": "#/components/schemas/LlamaParseParameters",
-            "description": "LlamaParse related settings.",
-            "default": {
-              "languages": [
-                "en"
-              ],
-              "parsing_instruction": "",
-              "disable_ocr": false,
-              "annotate_links": true,
-              "adaptive_long_table": true,
-              "compact_markdown_table": false,
-              "disable_reconstruction": false,
-              "disable_image_extraction": false,
-              "invalidate_cache": false,
-              "outlined_table_extraction": true,
-              "merge_tables_across_pages_in_markdown": false,
-              "output_pdf_of_document": false,
-              "do_not_cache": false,
-              "fast_mode": false,
-              "skip_diagonal_text": false,
-              "preserve_layout_alignment_across_pages": false,
-              "preserve_very_small_text": false,
-              "gpt4o_mode": false,
-              "do_not_unroll_columns": false,
-              "extract_layout": false,
-              "high_res_ocr": false,
-              "html_make_all_elements_visible": false,
-              "layout_aware": false,
-              "specialized_chart_parsing_agentic": false,
-              "specialized_chart_parsing_plus": false,
-              "specialized_chart_parsing_efficient": false,
-              "specialized_image_parsing": false,
-              "precise_bounding_box": false,
-              "html_remove_navigation_elements": false,
-              "html_remove_fixed_elements": false,
-              "guess_xlsx_sheet_name": false,
-              "use_vendor_multimodal_model": false,
-              "page_prefix": "<<<PAGE:{pageNumber}>>>\n\n",
-              "page_suffix": "\n\n<<<END_PAGE>>>",
-              "take_screenshot": false,
-              "is_formatting_instruction": true,
-              "premium_mode": false,
-              "continuous_mode": false,
-              "auto_mode": false,
-              "auto_mode_trigger_on_table_in_page": false,
-              "auto_mode_trigger_on_image_in_page": false,
-              "structured_output": false,
-              "extract_charts": false,
-              "spreadsheet_extract_sub_tables": false,
-              "spreadsheet_force_formula_computation": false,
-              "inline_images_in_markdown": false,
-              "strict_mode_image_extraction": false,
-              "strict_mode_image_ocr": false,
-              "strict_mode_reconstruction": false,
-              "strict_mode_buggy_font": false,
-              "save_images": true,
-              "hide_headers": false,
-              "hide_footers": false,
-              "ignore_document_elements_for_layout_detection": false,
-              "output_tables_as_HTML": false,
-              "internal_is_screenshot_job": false,
-              "parse_mode": "parse_page_with_llm",
-              "page_error_tolerance": 0.05,
-              "replace_failed_page_mode": "raw_text"
-            }
-          },
-          "multimodal_parse_resolution": {
-            "$ref": "#/components/schemas/MultimodalParseResolution",
-            "description": "The resolution to use for multimodal parsing.",
-            "default": "medium"
-          }
-        },
-        "type": "object",
-        "title": "LlamaExtractSettings",
-        "description": "All settings for the extraction agent. Only the settings in ExtractConfig\nare exposed to the user."
-      },
       "LlamaParseParameters": {
         "properties": {
           "webhook_configurations": {
@@ -31362,8 +31782,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -31556,14 +31976,6 @@
         ],
         "title": "MetronomeDashboardType"
       },
-      "MultimodalParseResolution": {
-        "type": "string",
-        "enum": [
-          "medium",
-          "high"
-        ],
-        "title": "MultimodalParseResolution"
-      },
       "NodeRelationship": {
         "type": "string",
         "enum": [
@@ -31621,8 +32033,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
@@ -31694,7 +32106,7 @@
             "type": "number",
             "title": "Timeout",
             "description": "Timeout for each request.",
-            "default": 60.0,
+            "default": 60,
             "gte": 0
           },
           "default_headers": {
@@ -31900,21 +32312,21 @@
         "properties": {
           "ef_construction": {
             "type": "integer",
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Ef Construction",
             "description": "The number of edges to use during the construction phase.",
             "default": 64
           },
           "ef_search": {
             "type": "integer",
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "Ef Search",
             "description": "The number of edges to use during the search phase.",
             "default": 40
           },
           "m": {
             "type": "integer",
-            "minimum": 1.0,
+            "minimum": 1,
             "title": "M",
             "description": "The number of bi-directional links created for each new element.",
             "default": 16
@@ -31960,13 +32372,13 @@
           },
           "page_index": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Page Index",
             "description": "The index of the page for which the figure is taken (0-indexed)"
           },
           "figure_size": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Figure Size",
             "description": "The size of the figure in bytes"
           },
@@ -31978,8 +32390,8 @@
           },
           "confidence": {
             "type": "number",
-            "maximum": 1.0,
-            "minimum": 0.0,
+            "maximum": 1,
+            "minimum": 0,
             "title": "Confidence",
             "description": "The confidence of the figure"
           },
@@ -32035,7 +32447,7 @@
         "properties": {
           "page_index": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Page Index",
             "description": "The index of the page for which the screenshot is taken (0-indexed)"
           },
@@ -32047,7 +32459,7 @@
           },
           "image_size": {
             "type": "integer",
-            "minimum": 0.0,
+            "minimum": 0,
             "title": "Image Size",
             "description": "The size of the image in bytes"
           },
@@ -32409,6 +32821,47 @@
           "items"
         ],
         "title": "PaginatedResponse[QuotaConfiguration]"
+      },
+      "PaginatedResponse_SpreadsheetJob_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/SpreadsheetJob"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "The list of items."
+          },
+          "next_page_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Page Token",
+            "description": "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages."
+          },
+          "total_size": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total Size",
+            "description": "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only."
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "PaginatedResponse[SpreadsheetJob]"
       },
       "ParseConfiguration": {
         "properties": {
@@ -35326,7 +35779,7 @@
             "anyOf": [
               {
                 "type": "integer",
-                "minimum": 0.0
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -36507,8 +36960,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -36522,8 +36975,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1.0,
-                "minimum": 0.0
+                "maximum": 1,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -36531,14 +36984,14 @@
             ],
             "title": "Dense Similarity Cutoff",
             "description": "Minimum similarity score wrt query for retrieval",
-            "default": 0.0
+            "default": 0
           },
           "sparse_similarity_top_k": {
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -36564,8 +37017,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -36579,8 +37032,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1.0,
-                "minimum": 0.0
+                "maximum": 1,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -36643,8 +37096,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 5.0,
-                "minimum": 1.0
+                "maximum": 5,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -36833,55 +37286,6 @@
         "title": "ProjectUpdate",
         "description": "Schema for updating a project."
       },
-      "PromptConf": {
-        "properties": {
-          "system_prompt": {
-            "type": "string",
-            "title": "System Prompt",
-            "description": "The system prompt to use for the extraction.",
-            "default": "Given a JSON schema, extract the data from the provided SOURCE TEXT according to the schema. Only output information that is explicitly stated or can be inferred from the SOURCE TEXT."
-          },
-          "extraction_prompt": {
-            "type": "string",
-            "title": "Extraction Prompt",
-            "description": "The prompt to use for the extraction.",
-            "default": "The extracted data using the given JSON schema."
-          },
-          "error_handling_prompt": {
-            "type": "string",
-            "title": "Error Handling Prompt",
-            "description": "The prompt to use for error handling.",
-            "default": "If the source text does not contain enough information to extract the value, explain the reason very briefly. Else, output null and fill out the value__ field."
-          },
-          "reasoning_prompt": {
-            "type": "string",
-            "title": "Reasoning Prompt",
-            "description": "The prompt to use for reasoning.",
-            "default": "\nProvide a brief explanation for how you arrived at the extracted value based on the source text provided.\n- For inferred values, explain the reasoning behind the extraction briefly.\n- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.\n- When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.\n"
-          },
-          "cite_sources_prompt": {
-            "additionalProperties": {
-              "type": "string"
-            },
-            "type": "object",
-            "title": "Cite Sources Prompt",
-            "description": "The prompt to use for citing sources.",
-            "default": {
-              "description": "\n### Citation Rules (read carefully):\n- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.\n- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'\n- If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.\n",
-              "page": "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
-              "matching_text": "Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis \"...\". Provide only the single most relevant citation."
-            }
-          },
-          "scratchpad_prompt": {
-            "type": "string",
-            "title": "Scratchpad Prompt",
-            "description": "The prompt to use for scratchpad.",
-            "default": "Use for intermediate step-by-step reasoning. Be concise."
-          }
-        },
-        "type": "object",
-        "title": "PromptConf"
-      },
       "PublicModelName": {
         "type": "string",
         "enum": [
@@ -36904,6 +37308,7 @@
           "gemini-2.5-pro",
           "gemini-2.0-flash",
           "gemini-2.0-flash-lite",
+          "gemini-2.5-flash-lite",
           "gemini-1.5-flash",
           "gemini-1.5-pro"
         ],
@@ -37250,8 +37655,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -37265,8 +37670,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1.0,
-                "minimum": 0.0
+                "maximum": 1,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -37274,14 +37679,14 @@
             ],
             "title": "Dense Similarity Cutoff",
             "description": "Minimum similarity score wrt query for retrieval",
-            "default": 0.0
+            "default": 0
           },
           "sparse_similarity_top_k": {
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -37307,8 +37712,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 100.0,
-                "minimum": 1.0
+                "maximum": 100,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -37322,8 +37727,8 @@
             "anyOf": [
               {
                 "type": "number",
-                "maximum": 1.0,
-                "minimum": 0.0
+                "maximum": 1,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -37386,8 +37791,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 5.0,
-                "minimum": 1.0
+                "maximum": 5,
+                "minimum": 1
               },
               {
                 "type": "null"
@@ -37746,15 +38151,6 @@
         "title": "Role",
         "description": "Schema for a role."
       },
-      "SchemaRelaxMode": {
-        "type": "string",
-        "enum": [
-          "FULL",
-          "TOP_LEVEL",
-          "LEAF"
-        ],
-        "title": "SchemaRelaxMode"
-      },
       "SearchRequest": {
         "properties": {
           "page_size": {
@@ -37829,8 +38225,8 @@
             "anyOf": [
               {
                 "type": "integer",
-                "maximum": 1000.0,
-                "minimum": 0.0
+                "maximum": 1000,
+                "minimum": 0
               },
               {
                 "type": "null"
@@ -37874,7 +38270,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -37931,6 +38327,133 @@
         "title": "SparseModelType",
         "description": "Enum for sparse model types supported in LlamaCloud.\n\nSPLADE: Uses HuggingFace Splade model for sparse embeddings\nBM25: Uses Qdrant's FastEmbed BM25 model for sparse embeddings\nAUTO: Automatically selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade)"
       },
+      "SpreadsheetJob": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "The ID of the job"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id",
+            "description": "The ID of the user"
+          },
+          "project_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Project Id",
+            "description": "The ID of the project"
+          },
+          "file_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "File Id",
+            "description": "The ID of the file to parse"
+          },
+          "config": {
+            "$ref": "#/components/schemas/SpreadsheetParsingConfig",
+            "description": "Configuration for the parsing job"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusEnum",
+            "description": "The status of the parsing job"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At",
+            "description": "When the job was created"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At",
+            "description": "When the job was last updated"
+          },
+          "success": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Success",
+            "description": "Whether the job completed successfully"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedTable"
+            },
+            "type": "array",
+            "title": "Tables",
+            "description": "All extracted tables (populated when job is complete)"
+          },
+          "errors": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Errors",
+            "description": "Any errors encountered"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "project_id",
+          "file_id",
+          "config",
+          "status",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SpreadsheetJob",
+        "description": "A spreadsheet parsing job"
+      },
+      "SpreadsheetJobCreate": {
+        "properties": {
+          "file_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "File Id",
+            "description": "The ID of the file to parse"
+          },
+          "config": {
+            "$ref": "#/components/schemas/SpreadsheetParsingConfig",
+            "description": "Configuration for the parsing job"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file_id"
+        ],
+        "title": "SpreadsheetJobCreate",
+        "description": "Request to create a spreadsheet parsing job"
+      },
+      "SpreadsheetParsingConfig": {
+        "properties": {
+          "sheet_names": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sheet Names",
+            "description": "The names of the sheets to parse. If empty, all sheets will be parsed."
+          }
+        },
+        "type": "object",
+        "title": "SpreadsheetParsingConfig",
+        "description": "Configuration for spreadsheet parsing"
+      },
       "StatusEnum": {
         "type": "string",
         "enum": [
@@ -37942,85 +38465,6 @@
         ],
         "title": "StatusEnum",
         "description": "Enum for representing the status of a job"
-      },
-      "StructMode": {
-        "type": "string",
-        "enum": [
-          "STRUCT_PARSE",
-          "JSON_MODE",
-          "FUNC_CALL",
-          "STRUCT_RELAXED",
-          "UNSTRUCTURED"
-        ],
-        "title": "StructMode"
-      },
-      "StructParseConf": {
-        "properties": {
-          "model": {
-            "$ref": "#/components/schemas/ExtractModels",
-            "description": "The model to use for the structured parsing.",
-            "default": "openai-gpt-4-1"
-          },
-          "temperature": {
-            "type": "number",
-            "title": "Temperature",
-            "description": "The temperature to use for the structured parsing.",
-            "default": 0.0
-          },
-          "relaxation_mode": {
-            "$ref": "#/components/schemas/SchemaRelaxMode",
-            "description": "The relaxation mode to use for the structured parsing.",
-            "default": "LEAF"
-          },
-          "struct_mode": {
-            "$ref": "#/components/schemas/StructMode",
-            "description": "The struct mode to use for the structured parsing.",
-            "default": "STRUCT_PARSE"
-          },
-          "fetch_logprobs": {
-            "type": "boolean",
-            "title": "Fetch Logprobs",
-            "description": "Whether to fetch logprobs for the structured parsing.",
-            "default": false
-          },
-          "handle_missing": {
-            "type": "boolean",
-            "title": "Handle Missing",
-            "description": "Whether to handle missing fields in the schema.",
-            "default": false
-          },
-          "use_reasoning": {
-            "type": "boolean",
-            "title": "Use Reasoning",
-            "description": "Whether to use reasoning for the structured extraction.",
-            "default": false
-          },
-          "cite_sources": {
-            "type": "boolean",
-            "title": "Cite Sources",
-            "description": "Whether to cite sources for the structured extraction.",
-            "default": false
-          },
-          "prompt_conf": {
-            "$ref": "#/components/schemas/PromptConf",
-            "description": "The prompt configuration for the structured parsing.",
-            "default": {
-              "system_prompt": "Given a JSON schema, extract the data from the provided SOURCE TEXT according to the schema. Only output information that is explicitly stated or can be inferred from the SOURCE TEXT.",
-              "extraction_prompt": "The extracted data using the given JSON schema.",
-              "error_handling_prompt": "If the source text does not contain enough information to extract the value, explain the reason very briefly. Else, output null and fill out the value__ field.",
-              "reasoning_prompt": "\nProvide a brief explanation for how you arrived at the extracted value based on the source text provided.\n- For inferred values, explain the reasoning behind the extraction briefly.\n- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.\n- When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.\n",
-              "cite_sources_prompt": {
-                "description": "\n### Citation Rules (read carefully):\n- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.\n- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'\n- If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.\n",
-                "matching_text": "Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis \"...\". Provide only the single most relevant citation.",
-                "page": "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1."
-              },
-              "scratchpad_prompt": "Use for intermediate step-by-step reasoning. Be concise."
-            }
-          }
-        },
-        "type": "object",
-        "title": "StructParseConf",
-        "description": "Configuration for the structured parsing agent."
       },
       "SupportedLLMModel": {
         "properties": {
@@ -38230,7 +38674,7 @@
         "properties": {
           "chunk_size": {
             "type": "integer",
-            "exclusiveMinimum": 0.0,
+            "exclusiveMinimum": 0,
             "title": "Chunk Size",
             "default": 1024
           },
@@ -38879,8 +39323,8 @@
           },
           "embed_batch_size": {
             "type": "integer",
-            "maximum": 2048.0,
-            "exclusiveMinimum": 0.0,
+            "maximum": 2048,
+            "exclusiveMinimum": 0,
             "title": "Embed Batch Size",
             "description": "The batch size for embedding calls.",
             "default": 10
