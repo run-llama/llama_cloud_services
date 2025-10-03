@@ -12,14 +12,15 @@ There's 2 things this does:
 
 """
 
+from dataclasses import dataclass
 import json
 import os
 import subprocess
-import sys
 from pathlib import Path
-from typing import List
+from typing import Any, List, cast
 import urllib.request
 import urllib.error
+import re
 
 import click
 import tomlkit
@@ -33,40 +34,92 @@ def _run_command(
     subprocess.run(cmd, check=True, text=True, cwd=cwd or Path.cwd(), env=env)
 
 
-def update_python_versions(version: str) -> None:
-    """llama-cloud-services and llama-parse share a version. llama-parse is just a silly sidecar that proxies to llama-cloud-services
-    for compatibility.
+def _run_and_capture(
+    cmd: List[str], cwd: Path | None = None, env: dict[str, str] | None = None
+) -> str:
+    """Run a command and return stdout as text, raising on failure."""
+    result = subprocess.run(
+        cmd,
+        check=True,
+        text=True,
+        cwd=cwd or Path.cwd(),
+        env=env,
+        capture_output=True,
+    )
+    return result.stdout
 
-    This function updates the version in both pyproject.toml files.
+
+@dataclass
+class Package:
+    name: str
+    version: str
+    path: Path
+
+    def python_package_name(self) -> str | None:
+        if str(self.path).startswith("py"):
+            return self.name.removesuffix("-py")
+        return None
+
+
+def _get_pnpm_workspace_packages() -> list[Package]:
+    """Return directories for all workspace packages from pnpm list JSON output."""
+    output = _run_and_capture(["pnpm", "list", "-r", "--depth=-1", "--json"])
+
+    data = cast(list[dict[str, Any]], json.loads(output))
+    packages: list[Package] = [
+        Package(name=data["name"], version=data["version"], path=Path(data["path"]))
+        for data in data
+    ]
+    return packages
+
+
+def _sync_package_version_with_pyproject(
+    package_dir: Path, packages: dict[str, Package], js_package_name: str
+) -> None:
+    """Sync version from package.json to pyproject.toml.
+
+    Returns True if pyproject was changed, else False.
     """
-    # Update main pyproject.toml
-    main_path = Path("py/pyproject.toml")
-    main_content = main_path.read_text()
-    main_doc = tomlkit.parse(main_content)
-    if main_doc["project"]["version"] != version:
-        click.echo(f"Updating llama-cloud-services version to {version}")
-        main_doc["project"]["version"] = version
-    main_path.write_text(tomlkit.dumps(main_doc))
+    pyproject_path = package_dir / "pyproject.toml"
 
-    # Update llama_parse/pyproject.toml
-    parse_path = Path("py/llama_parse/pyproject.toml")
-    parse_content = parse_path.read_text()
-    parse_doc = tomlkit.parse(parse_content)
-    if parse_doc["project"]["version"] != version:
-        click.echo(f"Updating llama-parse version to {version}")
-        parse_doc["project"]["version"] = version
-        parse_path.write_text(tomlkit.dumps(parse_doc))
+    package_version = packages[js_package_name].version
+    py_doc = tomlkit.parse(pyproject_path.read_text())
 
-    # Update the dependency reference
-    dependencies = parse_doc["project"]["dependencies"]
-    for i, dep in enumerate(dependencies):
-        if isinstance(dep, str) and dep.startswith("llama-cloud-services"):
-            dependencies[i] = f"llama-cloud-services>={version}"
-            break
+    by_python_name = {
+        pkg.python_package_name(): pkg
+        for pkg in packages.values()
+        if pkg.python_package_name()
+    }
 
-    parse_path.write_text(tomlkit.dumps(parse_doc))
+    current_version = py_doc["project"]["version"]
+    assert isinstance(current_version, str)
 
-    click.echo(f"Updated Python packages to version {version}")
+    # update workspace dependency strings by replacing the first version after == or >=
+    deps = py_doc["project"]["dependencies"] or []
+    changed = False
+    for i, dep in enumerate(deps):
+        if not isinstance(dep, str):
+            continue
+        pkg = (cast(str, dep).split("==")[0]).split(">=")[0]
+        if pkg not in by_python_name:
+            continue
+        target_version = by_python_name[pkg].version
+        new_dep = re.sub(
+            r"(==|>=)\s*([0-9A-Za-z_.+-]+)", rf"\1{target_version}", dep, count=1
+        )
+        if new_dep != dep:
+            deps[i] = new_dep
+            changed = True
+
+    if current_version != package_version:
+        py_doc["project"]["version"] = package_version
+        changed = True
+
+    if changed:
+        pyproject_path.write_text(tomlkit.dumps(py_doc))
+        click.echo(
+            f"Updated {pyproject_path} version to {package_version} and synced dependency specs"
+        )
 
 
 def lock_python_dependencies() -> None:
@@ -86,24 +139,25 @@ def cli() -> None:
 
 @cli.command()
 def version() -> None:
-    """Apply changeset versions, and propagate them to Python packages."""
-    # First, run changeset version to update all package.json files (including py/package.json)
+    """Apply changeset versions, then sync versions for co-located JS/Py packages.
+
+    - Runs changesets to bump package.json versions.
+    - Discovers all workspace packages via pnpm.
+    - For any directory containing both package.json and pyproject.toml, and with
+      package.json private: false, set pyproject [project].version to match the JS version.
+    - If a pyproject is updated, run `uv sync` in that directory to update its lock file.
+    """
+    # Ensure we're at the repo root
+    os.chdir(Path(__file__).parent.parent)
+
+    # First, run changeset version to update all package.json files
     _run_command(["npx", "@changesets/cli", "version"])
 
-    # Get the updated Python package version from py/package.json (updated by changesets)
-    py_package_path = Path("py/package.json")
-    if not py_package_path.exists():
-        click.echo("Python package.json not found", err=True)
-        sys.exit(1)
-
-    with open(py_package_path) as f:
-        py_package = json.load(f)
-
-    new_version = py_package["version"]
-    # Update Python pyproject.toml files based on the package.json version
-    update_python_versions(new_version)
-
-    click.echo(f"Successfully propagated version {new_version} to all Python packages")
+    # Enumerate workspace packages and perform syncs
+    packages = _get_pnpm_workspace_packages()
+    version_map = {pkg.name: pkg for pkg in packages}
+    for pkg in packages:
+        _sync_package_version_with_pyproject(pkg.path, version_map, pkg.name)
 
 
 @cli.command()
@@ -135,9 +189,8 @@ def publish(tag: bool, dry_run: bool, js: bool, py: bool) -> None:
         if dry_run:
             click.echo("Dry run, skipping tag. Would run:")
             click.echo("  git tag llama-cloud-services@<version>")
-            click.echo("  git push --tags")
-            return
         else:
+            # Let changesets create JS-related tags as usual
             _run_command(["npx", "@changesets/cli", "tag"])
             _run_command(["git", "push", "--tags"])
 

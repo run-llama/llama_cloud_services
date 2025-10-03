@@ -21,7 +21,21 @@ importers:
         specifier: ^3.6.2
         version: 3.6.2
 
-  py: {}
+  py:
+    devDependencies:
+      changesets:
+        specifier: ^1.0.2
+        version: 1.0.2
+
+  py/llama_parse:
+    dependencies:
+      llama-cloud-services-py:
+        specifier: workspace:*
+        version: link:..
+    devDependencies:
+      changesets:
+        specifier: ^1.0.2
+        version: 1.0.2
 
   ts/e2e-tests:
     devDependencies:
