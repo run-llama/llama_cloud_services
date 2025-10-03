@@ -44,18 +44,18 @@ jobs:
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Create Release Pull Request or Publish packages
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          commit: "chore: version packages"
-          title: "chore: version packages"
-          # Custom version script
-          version: pnpm -w run version
-          # Custom publish script
-          publish: pnpm -w run publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
-          LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
+      # - name: Create Release Pull Request or Publish packages
+      #   id: changesets
+      #   uses: changesets/action@v1
+      #   with:
+      #     commit: "chore: version packages"
+      #     title: "chore: version packages"
+      #     # Custom version script
+      #     version: pnpm -w run version
+      #     # Custom publish script
+      #     publish: pnpm -w run publish
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      #     UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      #     LLAMA_PARSE_PYPI_TOKEN: ${{ secrets.LLAMA_PARSE_PYPI_TOKEN }}
