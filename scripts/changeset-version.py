@@ -81,6 +81,8 @@ def _sync_package_version_with_pyproject(
     Returns True if pyproject was changed, else False.
     """
     pyproject_path = package_dir / "pyproject.toml"
+    if not pyproject_path.exists():
+        return
 
     package_version = packages[js_package_name].version
     py_doc = tomlkit.parse(pyproject_path.read_text())
