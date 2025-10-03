@@ -1,3 +1,4 @@
+import functools
 import httpx
 import itertools
 import logging
@@ -356,6 +357,7 @@ def partition_pages(
             return
 
 
+@functools.lru_cache(maxsize=1)
 def is_jupyter() -> bool:
     """Check if we're running in a Jupyter environment."""
     try:
