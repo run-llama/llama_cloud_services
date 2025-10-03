@@ -358,7 +358,6 @@ def partition_pages(
 
 def is_jupyter() -> bool:
     """Check if we're running in a Jupyter environment."""
-    print("is_jupyter")
     try:
         from IPython import get_ipython
 
