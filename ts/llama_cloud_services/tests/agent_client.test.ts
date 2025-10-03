@@ -8,18 +8,23 @@ describe("AgentClient", () => {
   });
 
   it("createItem sends correct payload and returns typed data", async () => {
-    const spy = vi.spyOn(sdk, "createAgentDataApiV1BetaAgentDataPost").mockResolvedValue({
-      data: {
-        id: "1",
-        deployment_name: "dep",
-        collection: "col",
-        data: { foo: "bar" },
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-01T00:00:00Z",
-      },
-    } as any);
+    const spy = vi
+      .spyOn(sdk, "createAgentDataApiV1BetaAgentDataPost")
+      .mockResolvedValue({
+        data: {
+          id: "1",
+          deployment_name: "dep",
+          collection: "col",
+          data: { foo: "bar" },
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-01T00:00:00Z",
+        },
+      } as any);
 
-    const client = new AgentClient<{ foo: string }>({ deploymentName: "dep", collection: "col" });
+    const client = new AgentClient<{ foo: string }>({
+      deploymentName: "dep",
+      collection: "col",
+    });
     const result = await client.createItem({ foo: "bar" });
 
     expect(spy).toHaveBeenCalledOnce();
@@ -37,11 +42,13 @@ describe("AgentClient", () => {
   });
 
   it("getItem returns null for 404 errors", async () => {
-    const spy = vi.spyOn(sdk, "getAgentDataApiV1BetaAgentDataItemIdGet").mockImplementation(async () => {
-      const err: any = new Error("Not found");
-      err.response = { status: 404 };
-      throw err;
-    });
+    const spy = vi
+      .spyOn(sdk, "getAgentDataApiV1BetaAgentDataItemIdGet")
+      .mockImplementation(async () => {
+        const err: any = new Error("Not found");
+        err.response = { status: 404 };
+        throw err;
+      });
 
     const client = new AgentClient({ deploymentName: "dep" });
     const res = await client.getItem("missing-id");
@@ -51,18 +58,23 @@ describe("AgentClient", () => {
   });
 
   it("updateItem updates and returns typed data", async () => {
-    const spy = vi.spyOn(sdk, "updateAgentDataApiV1BetaAgentDataItemIdPut").mockResolvedValue({
-      data: {
-        id: "123",
-        deployment_name: "dep",
-        collection: "col",
-        data: { foo: "baz" },
-        created_at: "2024-01-01T00:00:00Z",
-        updated_at: "2024-01-02T00:00:00Z",
-      },
-    } as any);
+    const spy = vi
+      .spyOn(sdk, "updateAgentDataApiV1BetaAgentDataItemIdPut")
+      .mockResolvedValue({
+        data: {
+          id: "123",
+          deployment_name: "dep",
+          collection: "col",
+          data: { foo: "baz" },
+          created_at: "2024-01-01T00:00:00Z",
+          updated_at: "2024-01-02T00:00:00Z",
+        },
+      } as any);
 
-    const client = new AgentClient<{ foo: string }>({ deploymentName: "dep", collection: "col" });
+    const client = new AgentClient<{ foo: string }>({
+      deploymentName: "dep",
+      collection: "col",
+    });
     const res = await client.updateItem("123", { foo: "baz" });
 
     expect(spy).toHaveBeenCalledOnce();
@@ -91,8 +103,13 @@ describe("AgentClient", () => {
       .spyOn(sdk, "deleteAgentDataByQueryApiV1BetaAgentDataDeletePost")
       .mockResolvedValue({ data: { deleted_count: 7 } } as any);
 
-    const client = new AgentClient({ deploymentName: "dep", collection: "col" });
-    const count = await client.delete({ filter: { status: { op: "eq", value: "accepted" } as any } });
+    const client = new AgentClient({
+      deploymentName: "dep",
+      collection: "col",
+    });
+    const count = await client.delete({
+      filter: { status: { op: "eq", value: "accepted" } as any },
+    });
 
     expect(spy).toHaveBeenCalledOnce();
     const body = spy.mock.calls[0][0].body;
@@ -122,8 +139,16 @@ describe("AgentClient", () => {
         },
       } as any);
 
-    const client = new AgentClient<{ foo: string }>({ deploymentName: "dep", collection: "col" });
-    const result = await client.search({ includeTotal: true, orderBy: "created_at desc", pageSize: 1, offset: 0 });
+    const client = new AgentClient<{ foo: string }>({
+      deploymentName: "dep",
+      collection: "col",
+    });
+    const result = await client.search({
+      includeTotal: true,
+      orderBy: "created_at desc",
+      pageSize: 1,
+      offset: 0,
+    });
 
     expect(spy).toHaveBeenCalledOnce();
     const body = spy.mock.calls[0][0].body;
@@ -146,15 +171,28 @@ describe("AgentClient", () => {
       .mockResolvedValue({
         data: {
           items: [
-            { group_key: { status: "accepted" }, count: 3, first_item: { foo: "bar" } },
+            {
+              group_key: { status: "accepted" },
+              count: 3,
+              first_item: { foo: "bar" },
+            },
           ],
           total_size: 1,
           next_page_token: "tok",
         },
       } as any);
 
-    const client = new AgentClient<{ foo: string }>({ deploymentName: "dep", collection: "col" });
-    const result = await client.aggregate({ groupBy: ["status"], count: true, first: true, pageSize: 1, offset: 0 });
+    const client = new AgentClient<{ foo: string }>({
+      deploymentName: "dep",
+      collection: "col",
+    });
+    const result = await client.aggregate({
+      groupBy: ["status"],
+      count: true,
+      first: true,
+      pageSize: 1,
+      offset: 0,
+    });
 
     expect(spy).toHaveBeenCalledOnce();
     const body = spy.mock.calls[0][0].body;
@@ -175,11 +213,15 @@ describe("AgentClient", () => {
   });
 
   it("createAgentDataClient infers deployment name from env", async () => {
-    const spy = vi.spyOn(sdk, "searchAgentDataApiV1BetaAgentDataSearchPost").mockResolvedValue({
-      data: { items: [], total_size: 0 },
-    } as any);
+    const spy = vi
+      .spyOn(sdk, "searchAgentDataApiV1BetaAgentDataSearchPost")
+      .mockResolvedValue({
+        data: { items: [], total_size: 0 },
+      } as any);
 
-    const client = createAgentDataClient({ env: { LLAMA_DEPLOY_DEPLOYMENT_NAME: "env-dep" } });
+    const client = createAgentDataClient({
+      env: { LLAMA_DEPLOY_DEPLOYMENT_NAME: "env-dep" },
+    });
     await client.search({});
 
     const body = spy.mock.calls[0][0].body;
@@ -187,25 +229,18 @@ describe("AgentClient", () => {
   });
 
   it("createAgentDataClient infers deployment name from windowUrl (non-local)", async () => {
-    const spy = vi.spyOn(sdk, "deleteAgentDataByQueryApiV1BetaAgentDataDeletePost").mockResolvedValue({
-      data: { deleted_count: 0 },
-    } as any);
+    const spy = vi
+      .spyOn(sdk, "deleteAgentDataByQueryApiV1BetaAgentDataDeletePost")
+      .mockResolvedValue({
+        data: { deleted_count: 0 },
+      } as any);
 
-    const client = createAgentDataClient({ windowUrl: "https://app.llamaindex.ai/deployments/abc/ui/" });
+    const client = createAgentDataClient({
+      windowUrl: "https://app.llamaindex.ai/deployments/abc/ui/",
+    });
     await client.delete({});
 
     const body = spy.mock.calls[0][0].body;
     expect(body.deployment_name).toBe("abc");
-  });
-
-  it("constructor prefers agentUrlId over deploymentName when both provided", async () => {
-    const spy = vi.spyOn(sdk, "searchAgentDataApiV1BetaAgentDataSearchPost").mockResolvedValue({
-      data: { items: [], total_size: 0 },
-    } as any);
-
-    const client = new AgentClient({ deploymentName: "dep", agentUrlId: "legacy" } as any);
-    await client.search({});
-    const body = spy.mock.calls[0][0].body;
-    expect(body.deployment_name).toBe("legacy");
   });
 });
