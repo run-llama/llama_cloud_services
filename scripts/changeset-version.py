@@ -109,7 +109,9 @@ def version() -> None:
 @cli.command()
 @click.option("--tag", is_flag=True, help="Tag the packages after publishing")
 @click.option("--dry-run", is_flag=True, help="Dry run the publish")
-def publish(tag: bool, dry_run: bool) -> None:
+@click.option("--js/--no-js", default=True, help="Publish the js package")
+@click.option("--py/--no-py", default=True, help="Publish the py package")
+def publish(tag: bool, dry_run: bool, js: bool, py: bool) -> None:
     """Publish all packages."""
     # move to the root
     os.chdir(Path(__file__).parent.parent)
@@ -122,8 +124,10 @@ def publish(tag: bool, dry_run: bool) -> None:
         raise click.Abort("No token set")
 
     # not general script. Just checks each of the 2 packages to see if they need to be published.
-    maybe_publish_ts_package(dry_run)
-    maybe_publish_py_packages(dry_run)
+    if js:
+        maybe_publish_npm(dry_run)
+    if py:
+        maybe_publish_pypi(dry_run)
 
     if tag:
         if dry_run:
@@ -136,7 +140,7 @@ def publish(tag: bool, dry_run: bool) -> None:
             _run_command(["git", "push", "--tags"])
 
 
-def maybe_publish_ts_package(dry_run: bool) -> None:
+def maybe_publish_npm(dry_run: bool) -> None:
     """Publish the ts package if it needs to be published."""
     target_dir = Path("ts/llama_cloud_services")
     ts_path_package = target_dir / "package.json"
@@ -169,7 +173,7 @@ def maybe_publish_ts_package(dry_run: bool) -> None:
         _run_command(["pnpm", "publish"], cwd=target_dir)
 
 
-def maybe_publish_py_packages(dry_run: bool) -> None:
+def maybe_publish_pypi(dry_run: bool) -> None:
     """Publish the py packages if they need to be published."""
     for pyproject in list(Path("py").glob("*/pyproject.toml")) + [
         Path("py/pyproject.toml")
