@@ -4,7 +4,10 @@ import re
 from pydantic import BaseModel, Field, SerializeAsAny
 from typing import Dict, Any, List, Optional
 
-from llama_cloud_services.parse.utils import make_api_request
+from llama_cloud_services.parse.utils import (
+    make_api_request,
+    is_jupyter,
+)
 from llama_index.core.async_utils import asyncio_run
 from llama_index.core.schema import Document, ImageDocument, ImageNode, TextNode
 
@@ -258,6 +261,25 @@ class JobResult(BaseModel):
         documents = await self.aget_text_documents(split_by_page)
         return [TextNode(text=doc.text, metadata=doc.metadata) for doc in documents]
 
+    def _format_markdown_for_notebook(self, text: Optional[str]) -> Optional[str]:
+        """Format markdown text for Jupyter notebook display by escaping dollar signs."""
+        if text is None:
+            return None
+
+        def escape_dollar_signs(text: str) -> str:
+            """Escape dollar signs in text to prevent Jupyter from interpreting them as LaTeX.
+
+            Args:
+                text: The text to escape
+
+            Returns:
+                Text with dollar signs escaped
+            """
+            return text.replace("$", r"\$")
+
+
+        return escape_dollar_signs(text)
+
     def get_markdown_documents(self, split_by_page: bool = False) -> List[Document]:
         """
         Get the markdown documents from the job.
@@ -268,17 +290,18 @@ class JobResult(BaseModel):
         if split_by_page:
             return [
                 Document(
-                    text=page.md,
+                    text=self._format_markdown_for_notebook(page.md) if is_jupyter() else page.md,
                     metadata={"page_number": page.page, "file_name": self.file_name},
                 )
                 for page in self.pages
             ]
         else:
+            text = self._page_separator.join(
+                [page.md if page.md is not None else "" for page in self.pages]
+            )
             return [
                 Document(
-                    text=self._page_separator.join(
-                        [page.md if page.md is not None else "" for page in self.pages]
-                    ),
+                    text=self._format_markdown_for_notebook(text) if is_jupyter() else text,
                     metadata={"file_name": self.file_name},
                 )
             ]
@@ -328,7 +351,8 @@ class JobResult(BaseModel):
         """
         url = f"{self._base_url}/api/v1/parsing/job/{self.job_id}/result/raw/markdown"
         response = await make_api_request(self._client, "GET", url)
-        return response.content.decode("utf-8")
+        markdown = response.content.decode("utf-8")
+        return self._format_markdown_for_notebook(markdown) if is_jupyter() else markdown
 
     def get_text(self) -> str:
         """

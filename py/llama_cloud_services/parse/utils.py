@@ -356,6 +356,16 @@ def partition_pages(
             return
 
 
+def is_jupyter() -> bool:
+    """Check if we're running in a Jupyter environment."""
+    print("is_jupyter")
+    try:
+        from IPython import get_ipython
+
+        return get_ipython().__class__.__name__ == "ZMQInteractiveShell"
+    except (ImportError, AttributeError):
+        return False
+
 def extract_tables_from_json_results(
     json_results: List[dict], download_path: str
 ) -> List[str]:
