@@ -90,7 +90,7 @@ def cli() -> None:
 def version() -> None:
     """Apply changeset versions, and propagate them to Python packages."""
     # First, run changeset version to update all package.json files (including py/package.json)
-    _run_command(["pnpm", "changeset", "version"], capture=True, check=True)
+    _run_command(["npx", "@changesets/cli", "version"], capture=False, check=True)
 
     # Get the updated Python package version from py/package.json (updated by changesets)
     py_package_path = Path("py/package.json")
