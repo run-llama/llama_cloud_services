@@ -13,7 +13,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     # Only run on main branch pushes
-    if: github.ref == 'refs/heads/main'
+    # if: github.ref == 'refs/heads/main'
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
