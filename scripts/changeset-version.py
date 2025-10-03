@@ -27,12 +27,10 @@ from packaging.version import Version
 
 
 def _run_command(
-    cmd: List[str], check: bool = True, capture: bool = True, cwd: Path | None = None
-) -> subprocess.CompletedProcess:
-    """Run a command and return the result."""
-    return subprocess.run(
-        cmd, check=check, capture_output=capture, text=True, cwd=cwd or Path.cwd()
-    )
+    cmd: List[str], cwd: Path | None = None, env: dict[str, str] | None = None
+) -> None:
+    """Run a command, streaming output to the console, and raise on failure."""
+    subprocess.run(cmd, check=True, text=True, cwd=cwd or Path.cwd(), env=env)
 
 
 def update_python_versions(version: str) -> None:
@@ -74,7 +72,7 @@ def update_python_versions(version: str) -> None:
 def lock_python_dependencies() -> None:
     """Lock Python dependencies."""
     try:
-        _run_command(["uv", "lock"], capture=False)
+        _run_command(["uv", "lock"])
         click.echo("Locked Python dependencies")
     except subprocess.CalledProcessError as e:
         click.echo(f"Warning: Failed to lock Python dependencies: {e}", err=True)
@@ -90,7 +88,7 @@ def cli() -> None:
 def version() -> None:
     """Apply changeset versions, and propagate them to Python packages."""
     # First, run changeset version to update all package.json files (including py/package.json)
-    _run_command(["npx", "@changesets/cli", "version"], capture=False, check=True)
+    _run_command(["npx", "@changesets/cli", "version"])
 
     # Get the updated Python package version from py/package.json (updated by changesets)
     py_package_path = Path("py/package.json")
@@ -134,8 +132,8 @@ def publish(tag: bool, dry_run: bool) -> None:
             click.echo("  git push --tags")
             return
         else:
-            _run_command(["npx", "@changesets/cli", "tag"], check=True, capture=True)
-            _run_command(["git", "push", "--tags"], check=True, capture=True)
+            _run_command(["npx", "@changesets/cli", "tag"])
+            _run_command(["git", "push", "--tags"])
 
 
 def maybe_publish_ts_package(dry_run: bool) -> None:
@@ -146,10 +144,11 @@ def maybe_publish_ts_package(dry_run: bool) -> None:
     version = package_json["version"]
 
     # Check if this version is already published on npm
-    result = _run_command(
+    result = subprocess.run(
         ["npm", "view", "llama-cloud-services", "versions", "--json"],
         check=True,
-        capture=True,
+        capture_output=True,
+        text=True,
         cwd=target_dir,
     )
 
@@ -159,17 +158,15 @@ def maybe_publish_ts_package(dry_run: bool) -> None:
             f"npm  package llama-cloud-services@{version} already published, skipping"
         )
         return
-    click.echo(f"Publishing llama-cloud-services@{version}")
+    click.echo(f"Publishing npm package llama-cloud-services@{version}")
     # defer to the package.json publish script
     if dry_run:
         click.echo("Dry run, skipping publish. Would run:")
         click.echo("  pnpm run publish")
         return
     else:
-        output = _run_command(
-            ["pnpm", "runpublish"], check=True, capture=True, cwd=target_dir
-        )
-        click.echo(output.stdout)
+        _run_command(["pnpm", "run", "build"], cwd=target_dir)
+        _run_command(["pnpm", "publish"], cwd=target_dir)
 
 
 def maybe_publish_py_packages(dry_run: bool) -> None:
@@ -181,7 +178,7 @@ def maybe_publish_py_packages(dry_run: bool) -> None:
         if is_published(name, version):
             click.echo(f"PyPI package {name}@{version} already published, skipping")
             continue
-        click.echo(f"Publishing {name}@{version}")
+        click.echo(f"Publishing PyPI package {name}@{version}")
 
         # Use different tokens for different packages
         env = os.environ.copy()
@@ -192,18 +189,11 @@ def maybe_publish_py_packages(dry_run: bool) -> None:
             click.echo(
                 f"Dry run, skipping publish. Would run with publish token {summary}:"
             )
-            click.echo("  uv publish --dry-run")
-            return
+            click.echo("  uv build")
+            click.echo("  uv publish")
         else:
-            result = subprocess.run(
-                ["uv", "publish"],
-                check=True,
-                capture_output=True,
-                text=True,
-                cwd=pyproject.parent,
-                env=env,
-            )
-            click.echo(result.stdout)
+            _run_command(["uv", "build"], cwd=pyproject.parent)
+            _run_command(["uv", "publish"], cwd=pyproject.parent, env=env)
 
 
 def current_version(pyproject: Path) -> tuple[str, str]:
