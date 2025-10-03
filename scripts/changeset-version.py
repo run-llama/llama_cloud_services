@@ -56,7 +56,7 @@ class Package:
     path: Path
 
     def python_package_name(self) -> str | None:
-        if str(self.path).startswith("py"):
+        if "/py/" in str(self.path) or str(self.path).endswith("/py"):
             return self.name.removesuffix("-py")
         return None
 
@@ -107,7 +107,10 @@ def _sync_package_version_with_pyproject(
             continue
         target_version = by_python_name[pkg].version
         new_dep = re.sub(
-            r"(==|>=)\s*([0-9A-Za-z_.+-]+)", rf"\1{target_version}", dep, count=1
+            r"(==|>=)\s*([0-9A-Za-z_.+-]+)",
+            lambda m: m.group(1) + target_version,
+            dep,
+            count=1,
         )
         if new_dep != dep:
             deps[i] = new_dep
@@ -190,7 +193,8 @@ def publish(tag: bool, dry_run: bool, js: bool, py: bool) -> None:
     if tag:
         if dry_run:
             click.echo("Dry run, skipping tag. Would run:")
-            click.echo("  git tag llama-cloud-services@<version>")
+            click.echo("  npx @changesets/cli tag")
+            click.echo("  git push --tags")
         else:
             # Let changesets create JS-related tags as usual
             _run_command(["npx", "@changesets/cli", "tag"])
