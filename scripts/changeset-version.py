@@ -119,9 +119,6 @@ def publish(tag: bool, dry_run: bool) -> None:
     if not os.getenv("NPM_TOKEN"):
         click.echo("NPM_TOKEN is not set, skipping publish", err=True)
         raise click.Abort("No token set")
-    if not os.getenv("UV_PUBLISH_TOKEN"):
-        click.echo("UV_PUBLISH_TOKEN is not set, skipping publish", err=True)
-        raise click.Abort("No token set")
     if not os.getenv("LLAMA_PARSE_PYPI_TOKEN"):
         click.echo("LLAMA_PARSE_PYPI_TOKEN is not set, skipping publish", err=True)
         raise click.Abort("No token set")
@@ -188,15 +185,9 @@ def maybe_publish_py_packages(dry_run: bool) -> None:
 
         # Use different tokens for different packages
         env = os.environ.copy()
-        if name == "llama-parse":
-            # llama-parse uses its own token
-            env["UV_PUBLISH_TOKEN"] = os.environ["LLAMA_PARSE_PYPI_TOKEN"]
-        else:
-            # llama-cloud-services uses the main PyPI token
-            env["UV_PUBLISH_TOKEN"] = os.environ["UV_PUBLISH_TOKEN"]
-
+        token = os.environ["LLAMA_PARSE_PYPI_TOKEN"]
+        env["UV_PUBLISH_TOKEN"] = token
         if dry_run:
-            token = env["UV_PUBLISH_TOKEN"]
             summary = (token[:3] + "***") if len(token) <= 6 else token[:6] + "****"
             click.echo(
                 f"Dry run, skipping publish. Would run with publish token {summary}:"
