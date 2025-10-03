@@ -1,7 +1,8 @@
 {
   "name": "llama-cloud-services-py",
   "version": "0.6.71",
-  "private": "true",
+  "private": true,
   "license": "MIT",
-  "scripts": {}
+  "scripts": {},
+  "devDependencies": {}
 }

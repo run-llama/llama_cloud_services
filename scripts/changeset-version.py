@@ -116,12 +116,14 @@ def publish(tag: bool, dry_run: bool, js: bool, py: bool) -> None:
     # move to the root
     os.chdir(Path(__file__).parent.parent)
 
-    if not os.getenv("NPM_TOKEN"):
-        click.echo("NPM_TOKEN is not set, skipping publish", err=True)
-        raise click.Abort("No token set")
-    if not os.getenv("LLAMA_PARSE_PYPI_TOKEN"):
-        click.echo("LLAMA_PARSE_PYPI_TOKEN is not set, skipping publish", err=True)
-        raise click.Abort("No token set")
+    if js:
+        if not os.getenv("NPM_TOKEN"):
+            click.echo("NPM_TOKEN is not set, skipping publish", err=True)
+            raise click.Abort("No token set")
+    if py:
+        if not os.getenv("LLAMA_PARSE_PYPI_TOKEN"):
+            click.echo("LLAMA_PARSE_PYPI_TOKEN is not set, skipping publish", err=True)
+            raise click.Abort("No token set")
 
     # not general script. Just checks each of the 2 packages to see if they need to be published.
     if js:
@@ -132,7 +134,7 @@ def publish(tag: bool, dry_run: bool, js: bool, py: bool) -> None:
     if tag:
         if dry_run:
             click.echo("Dry run, skipping tag. Would run:")
-            click.echo("  npx @changesets/cli tag")
+            click.echo("  git tag llama-cloud-services@<version>")
             click.echo("  git push --tags")
             return
         else:
