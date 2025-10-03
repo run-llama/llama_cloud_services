@@ -4,6 +4,7 @@ import {
   aggregateAgentDataApiV1BetaAgentDataAggregatePost,
   createAgentDataApiV1BetaAgentDataPost,
   deleteAgentDataApiV1BetaAgentDataItemIdDelete,
+  deleteAgentDataByQueryApiV1BetaAgentDataDeletePost,
   getAgentDataApiV1BetaAgentDataItemIdGet,
   searchAgentDataApiV1BetaAgentDataSearchPost,
   updateAgentDataApiV1BetaAgentDataItemIdPut,
@@ -12,6 +13,7 @@ import {
 } from "../../client";
 import type {
   AggregateAgentDataOptions,
+  DeleteAgentDataOptions,
   SearchAgentDataOptions,
   TypedAgentData,
   TypedAgentDataItems,
@@ -110,6 +112,24 @@ export class AgentClient<T = unknown> {
       path: { item_id: id },
       client: this.client,
     });
+  }
+
+  /**
+   * Delete all matching agent data, returns the total number of deleted items
+   */
+  async delete(options: DeleteAgentDataOptions): Promise<number> {
+    const response = await deleteAgentDataByQueryApiV1BetaAgentDataDeletePost({
+      throwOnError: true,
+      body: {
+        deployment_name: this.deploymentName,
+        ...(this.collection !== undefined && {
+          collection: this.collection,
+        }),
+        ...(options.filter !== undefined && { filter: options.filter }),
+      },
+      client: this.client,
+    });
+    return response.data.deleted_count;
   }
 
   /**

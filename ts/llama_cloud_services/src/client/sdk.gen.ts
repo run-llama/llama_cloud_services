@@ -448,32 +448,6 @@ import type {
   GetMetronomeDashboardApiV1BillingMetronomeDashboardGetData,
   GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse,
   GetMetronomeDashboardApiV1BillingMetronomeDashboardGetError,
-  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetData,
-  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetResponse,
-  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetError,
-  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostData,
-  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostResponse,
-  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostError,
-  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostData,
-  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostResponse,
-  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostError,
-  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostData,
-  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostResponse,
-  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostError,
-  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetData,
-  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetResponse,
-  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetError,
-  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetData,
-  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponse,
-  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetError,
-  DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData,
-  DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteError,
-  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData,
-  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetResponse,
-  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetError,
-  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutData,
-  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse,
-  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutError,
   ListJobsApiV1ExtractionJobsGetData,
   ListJobsApiV1ExtractionJobsGetResponse,
   ListJobsApiV1ExtractionJobsGetError,
@@ -483,9 +457,6 @@ import type {
   GetJobApiV1ExtractionJobsJobIdGetData,
   GetJobApiV1ExtractionJobsJobIdGetResponse,
   GetJobApiV1ExtractionJobsJobIdGetError,
-  RunJobTestUserApiV1ExtractionJobsTestPostData,
-  RunJobTestUserApiV1ExtractionJobsTestPostResponse,
-  RunJobTestUserApiV1ExtractionJobsTestPostError,
   RunJobOnFileApiV1ExtractionJobsFilePostData,
   RunJobOnFileApiV1ExtractionJobsFilePostResponse,
   RunJobOnFileApiV1ExtractionJobsFilePostError,
@@ -512,6 +483,32 @@ import type {
   ExtractStatelessApiV1ExtractionRunPostData,
   ExtractStatelessApiV1ExtractionRunPostResponse,
   ExtractStatelessApiV1ExtractionRunPostError,
+  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetData,
+  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetResponse,
+  ListExtractionAgentsApiV1ExtractionExtractionAgentsGetError,
+  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostData,
+  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostResponse,
+  CreateExtractionAgentApiV1ExtractionExtractionAgentsPostError,
+  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostData,
+  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostResponse,
+  ValidateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValidationPostError,
+  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostData,
+  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostResponse,
+  GenerateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePostError,
+  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetData,
+  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetResponse,
+  GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetError,
+  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetData,
+  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetResponse,
+  GetOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDefaultGetError,
+  DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteData,
+  DeleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDeleteError,
+  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData,
+  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetResponse,
+  GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetError,
+  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutData,
+  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse,
+  UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutError,
   ListApiKeysApiV1BetaApiKeysGetData,
   ListApiKeysApiV1BetaApiKeysGetResponse,
   ListApiKeysApiV1BetaApiKeysGetError,
@@ -551,6 +548,9 @@ import type {
   AggregateAgentDataApiV1BetaAgentDataAggregatePostData,
   AggregateAgentDataApiV1BetaAgentDataAggregatePostResponse,
   AggregateAgentDataApiV1BetaAgentDataAggregatePostError,
+  DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostData,
+  DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse,
+  DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostError,
   ListQuotaConfigurationsApiV1BetaQuotaManagementGetData,
   ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse,
   ListQuotaConfigurationsApiV1BetaQuotaManagementGetError,
@@ -590,6 +590,18 @@ import type {
   GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetData,
   GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse,
   GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetError,
+  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetData,
+  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse,
+  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetError,
+  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostData,
+  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse,
+  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostError,
+  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetData,
+  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse,
+  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetError,
+  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetData,
+  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse,
+  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetError,
   UploadFileV2ApiV2Alpha1ParseUploadPostData,
   UploadFileV2ApiV2Alpha1ParseUploadPostResponse,
   UploadFileV2ApiV2Alpha1ParseUploadPostError,
@@ -5246,6 +5258,361 @@ export const getMetronomeDashboardApiV1BillingMetronomeDashboardGet = <
 };
 
 /**
+ * List Jobs
+ */
+export const listJobsApiV1ExtractionJobsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ListJobsApiV1ExtractionJobsGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListJobsApiV1ExtractionJobsGetResponse,
+    ListJobsApiV1ExtractionJobsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs",
+    ...options,
+  });
+};
+
+/**
+ * Run Job
+ */
+export const runJobApiV1ExtractionJobsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RunJobApiV1ExtractionJobsPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    RunJobApiV1ExtractionJobsPostResponse,
+    RunJobApiV1ExtractionJobsPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Job
+ */
+export const getJobApiV1ExtractionJobsJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetJobApiV1ExtractionJobsJobIdGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetJobApiV1ExtractionJobsJobIdGetResponse,
+    GetJobApiV1ExtractionJobsJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs/{job_id}",
+    ...options,
+  });
+};
+
+/**
+ * Run Job On File
+ */
+export const runJobOnFileApiV1ExtractionJobsFilePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RunJobOnFileApiV1ExtractionJobsFilePostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    RunJobOnFileApiV1ExtractionJobsFilePostResponse,
+    RunJobOnFileApiV1ExtractionJobsFilePostError,
+    ThrowOnError
+  >({
+    ...formDataBodySerializer,
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs/file",
+    ...options,
+    headers: {
+      "Content-Type": null,
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Run Batch Jobs
+ */
+export const runBatchJobsApiV1ExtractionJobsBatchPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<RunBatchJobsApiV1ExtractionJobsBatchPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    RunBatchJobsApiV1ExtractionJobsBatchPostResponse,
+    RunBatchJobsApiV1ExtractionJobsBatchPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs/batch",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Job Result
+ */
+export const getJobResultApiV1ExtractionJobsJobIdResultGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetJobResultApiV1ExtractionJobsJobIdResultGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetJobResultApiV1ExtractionJobsJobIdResultGetResponse,
+    GetJobResultApiV1ExtractionJobsJobIdResultGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/jobs/{job_id}/result",
+    ...options,
+  });
+};
+
+/**
+ * List Extract Runs
+ */
+export const listExtractRunsApiV1ExtractionRunsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ListExtractRunsApiV1ExtractionRunsGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListExtractRunsApiV1ExtractionRunsGetResponse,
+    ListExtractRunsApiV1ExtractionRunsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/runs",
+    ...options,
+  });
+};
+
+/**
+ * Get Latest Run From Ui
+ */
+export const getLatestRunFromUiApiV1ExtractionRunsLatestFromUiGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse,
+    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/runs/latest-from-ui",
+    ...options,
+  });
+};
+
+/**
+ * Get Run By Job Id
+ */
+export const getRunByJobIdApiV1ExtractionRunsByJobJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse,
+    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/runs/by-job/{job_id}",
+    ...options,
+  });
+};
+
+/**
+ * Delete Extraction Run
+ */
+export const deleteExtractionRunApiV1ExtractionRunsRunIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    unknown,
+    DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/runs/{run_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Run
+ */
+export const getRunApiV1ExtractionRunsRunIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<GetRunApiV1ExtractionRunsRunIdGetData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetRunApiV1ExtractionRunsRunIdGetResponse,
+    GetRunApiV1ExtractionRunsRunIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/runs/{run_id}",
+    ...options,
+  });
+};
+
+/**
+ * Extract Stateless
+ * Stateless extraction endpoint that uses a default extraction agent in the user's default project.
+ * Requires data_schema, config, and either file_id, text, or base64 encoded file data.
+ */
+export const extractStatelessApiV1ExtractionRunPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ExtractStatelessApiV1ExtractionRunPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    ExtractStatelessApiV1ExtractionRunPostResponse,
+    ExtractStatelessApiV1ExtractionRunPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/extraction/run",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
  * List Extraction Agents
  */
 export const listExtractionAgentsApiV1ExtractionExtractionAgentsGet = <
@@ -5533,393 +5900,6 @@ export const updateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgent
       },
     });
   };
-
-/**
- * List Jobs
- */
-export const listJobsApiV1ExtractionJobsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<ListJobsApiV1ExtractionJobsGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListJobsApiV1ExtractionJobsGetResponse,
-    ListJobsApiV1ExtractionJobsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs",
-    ...options,
-  });
-};
-
-/**
- * Run Job
- */
-export const runJobApiV1ExtractionJobsPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<RunJobApiV1ExtractionJobsPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    RunJobApiV1ExtractionJobsPostResponse,
-    RunJobApiV1ExtractionJobsPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Job
- */
-export const getJobApiV1ExtractionJobsJobIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetJobApiV1ExtractionJobsJobIdGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobApiV1ExtractionJobsJobIdGetResponse,
-    GetJobApiV1ExtractionJobsJobIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs/{job_id}",
-    ...options,
-  });
-};
-
-/**
- * Run Job Test User
- */
-export const runJobTestUserApiV1ExtractionJobsTestPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<RunJobTestUserApiV1ExtractionJobsTestPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    RunJobTestUserApiV1ExtractionJobsTestPostResponse,
-    RunJobTestUserApiV1ExtractionJobsTestPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs/test",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Run Job On File
- */
-export const runJobOnFileApiV1ExtractionJobsFilePost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<RunJobOnFileApiV1ExtractionJobsFilePostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    RunJobOnFileApiV1ExtractionJobsFilePostResponse,
-    RunJobOnFileApiV1ExtractionJobsFilePostError,
-    ThrowOnError
-  >({
-    ...formDataBodySerializer,
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs/file",
-    ...options,
-    headers: {
-      "Content-Type": null,
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Run Batch Jobs
- */
-export const runBatchJobsApiV1ExtractionJobsBatchPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<RunBatchJobsApiV1ExtractionJobsBatchPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    RunBatchJobsApiV1ExtractionJobsBatchPostResponse,
-    RunBatchJobsApiV1ExtractionJobsBatchPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs/batch",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Job Result
- */
-export const getJobResultApiV1ExtractionJobsJobIdResultGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobResultApiV1ExtractionJobsJobIdResultGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobResultApiV1ExtractionJobsJobIdResultGetResponse,
-    GetJobResultApiV1ExtractionJobsJobIdResultGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/jobs/{job_id}/result",
-    ...options,
-  });
-};
-
-/**
- * List Extract Runs
- */
-export const listExtractRunsApiV1ExtractionRunsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<ListExtractRunsApiV1ExtractionRunsGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListExtractRunsApiV1ExtractionRunsGetResponse,
-    ListExtractRunsApiV1ExtractionRunsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/runs",
-    ...options,
-  });
-};
-
-/**
- * Get Latest Run From Ui
- */
-export const getLatestRunFromUiApiV1ExtractionRunsLatestFromUiGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse,
-    GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/runs/latest-from-ui",
-    ...options,
-  });
-};
-
-/**
- * Get Run By Job Id
- */
-export const getRunByJobIdApiV1ExtractionRunsByJobJobIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse,
-    GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/runs/by-job/{job_id}",
-    ...options,
-  });
-};
-
-/**
- * Delete Extraction Run
- */
-export const deleteExtractionRunApiV1ExtractionRunsRunIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    unknown,
-    DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/runs/{run_id}",
-    ...options,
-  });
-};
-
-/**
- * Get Run
- */
-export const getRunApiV1ExtractionRunsRunIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetRunApiV1ExtractionRunsRunIdGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetRunApiV1ExtractionRunsRunIdGetResponse,
-    GetRunApiV1ExtractionRunsRunIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/runs/{run_id}",
-    ...options,
-  });
-};
-
-/**
- * Extract Stateless
- * Stateless extraction endpoint that uses a default extraction agent in the user's default project.
- * Requires data_schema, config, and either file_id, text, or base64 encoded file data.
- */
-export const extractStatelessApiV1ExtractionRunPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<ExtractStatelessApiV1ExtractionRunPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    ExtractStatelessApiV1ExtractionRunPostResponse,
-    ExtractStatelessApiV1ExtractionRunPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/extraction/run",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
 
 /**
  * List Api Keys
@@ -6347,6 +6327,42 @@ export const aggregateAgentDataApiV1BetaAgentDataAggregatePost = <
       },
     ],
     url: "/api/v1/beta/agent-data/:aggregate",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Delete Agent Data By Query
+ * Bulk delete agent data by query (deployment_name, collection, optional filters).
+ */
+export const deleteAgentDataByQueryApiV1BetaAgentDataDeletePost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse,
+    DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/agent-data/:delete",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -6888,19 +6904,157 @@ export const getLatestParseConfigurationApiV1BetaParseConfigurationsLatestGet =
   };
 
 /**
+ * List Spreadsheet Jobs
+ * List spreadsheet parsing jobs.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const listSpreadsheetJobsApiV1BetaSpreadsheetJobsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse,
+    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/spreadsheet/jobs",
+    ...options,
+  });
+};
+
+/**
+ * Create Spreadsheet Job
+ * Create a spreadsheet parsing job.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const createSpreadsheetJobApiV1BetaSpreadsheetJobsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse,
+    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/spreadsheet/jobs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Spreadsheet Job
+ * Get a spreadsheet parsing job.
+ *
+ * When include_results=True (default), the response will include extracted tables and results
+ * if the job is complete, eliminating the need for a separate /results call.
+ *
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const getSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse,
+    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Table Download Presigned Url
+ * Generate a presigned URL to download a specific extracted table.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const getTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse,
+      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}/tables/{table_id}/result",
+      ...options,
+    });
+  };
+
+/**
  * Upload File V2
  */
 export const uploadFileV2ApiV2Alpha1ParseUploadPost = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<UploadFileV2ApiV2Alpha1ParseUploadPostData, ThrowOnError>,
+  options?: Options<UploadFileV2ApiV2Alpha1ParseUploadPostData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).post<
+  return (options?.client ?? _heyApiClient).post<
     UploadFileV2ApiV2Alpha1ParseUploadPostResponse,
     UploadFileV2ApiV2Alpha1ParseUploadPostError,
     ThrowOnError
   >({
-    ...formDataBodySerializer,
     security: [
       {
         scheme: "bearer",
@@ -6913,10 +7067,6 @@ export const uploadFileV2ApiV2Alpha1ParseUploadPost = <
     ],
     url: "/api/v2alpha1/parse/upload",
     ...options,
-    headers: {
-      "Content-Type": null,
-      ...options?.headers,
-    },
   });
 };
 

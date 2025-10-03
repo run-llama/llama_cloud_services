@@ -128,6 +128,14 @@ export interface SearchAgentDataOptions {
 }
 
 /**
+ * Options for deleting agent data
+ */
+export interface DeleteAgentDataOptions {
+  /** Filter options for the deletion. */
+  filter?: Record<string, FilterOperation>;
+}
+
+/**
  * Options for aggregating agent data
  */
 export interface AggregateAgentDataOptions {

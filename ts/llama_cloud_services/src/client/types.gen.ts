@@ -626,11 +626,6 @@ export type BodyRunJobOnFileApiV1ExtractionJobsFilePost = {
   config_override?: string | null;
 };
 
-export type BodyRunJobTestUserApiV1ExtractionJobsTestPost = {
-  job_create: ExtractJobCreate;
-  extract_settings?: LlamaExtractSettings | null;
-};
-
 export type BodyScreenshotApiParsingScreenshotPost = {
   file?: (Blob | File) | null;
   do_not_cache?: boolean;
@@ -885,11 +880,6 @@ export type BodyUploadFileApiV1ParsingUploadPost = {
   page_footer_suffix?: string;
 };
 
-export type BodyUploadFileV2ApiV2Alpha1ParseUploadPost = {
-  configuration: string;
-  file?: (Blob | File) | null;
-};
-
 export type BoxAuthMechanism = "developer_token" | "ccg";
 
 export const BoxAuthMechanism = {
@@ -1046,15 +1036,6 @@ export type ChatMessage = {
   };
   class_name?: string;
 };
-
-export type ChunkMode = "PAGE" | "DOCUMENT" | "SECTION" | "GROUPED_PAGES";
-
-export const ChunkMode = {
-  PAGE: "PAGE",
-  DOCUMENT: "DOCUMENT",
-  SECTION: "SECTION",
-  GROUPED_PAGES: "GROUPED_PAGES",
-} as const;
 
 /**
  * Result of classifying a single file.
@@ -2495,6 +2476,10 @@ export type CustomClaims = {
    * Whether the user is allowed to delete organizations.
    */
   allow_org_deletion?: boolean;
+  /**
+   * Whether the user is allowed to access the spreadsheet feature.
+   */
+  allowed_spreadsheet?: boolean;
 };
 
 export type CustomerPortalSessionCreatePayload = {
@@ -3037,6 +3022,33 @@ export type DeleteParams = {
   data_sink_id?: string | null;
 };
 
+/**
+ * API request body for bulk deleting agent data by query
+ */
+export type DeleteRequest = {
+  /**
+   * The agent deployment's name to delete data for
+   */
+  deployment_name: string;
+  /**
+   * The logical agent data collection to delete from
+   */
+  collection?: string;
+  /**
+   * Optional filters to select which items to delete
+   */
+  filter?: {
+    [key: string]: FilterOperation;
+  } | null;
+};
+
+/**
+ * API response for bulk delete operation
+ */
+export type DeleteResponse = {
+  deleted_count: number;
+};
+
 export type DirectRetrievalParams = {
   /**
    * The mode of composite retrieval.
@@ -3408,6 +3420,10 @@ export type ExtractConfig = {
    */
   invalidate_cache?: boolean;
   /**
+   * Number of pages to pass as context on long document extraction.
+   */
+  num_pages_context?: number | null;
+  /**
    * Comma-separated list of page numbers or ranges to extract from (1-based, e.g., '1,3,5-7,9' or '1-3,8-10').
    */
   page_range?: string | null;
@@ -3533,6 +3549,7 @@ export type ExtractModels =
   | "openai-gpt-5-mini"
   | "gemini-2.0-flash"
   | "gemini-2.5-flash"
+  | "gemini-2.5-flash-lite"
   | "gemini-2.5-pro"
   | "openai-gpt-4o"
   | "openai-gpt-4o-mini";
@@ -3545,6 +3562,7 @@ export const ExtractModels = {
   OPENAI_GPT_5_MINI: "openai-gpt-5-mini",
   GEMINI_2_0_FLASH: "gemini-2.0-flash",
   GEMINI_2_5_FLASH: "gemini-2.5-flash",
+  GEMINI_2_5_FLASH_LITE: "gemini-2.5-flash-lite",
   GEMINI_2_5_PRO: "gemini-2.5-pro",
   OPENAI_GPT_4O: "openai-gpt-4o",
   OPENAI_GPT_4O_MINI: "openai-gpt-4o-mini",
@@ -3838,6 +3856,36 @@ export const ExtractTarget = {
   PER_DOC: "PER_DOC",
   PER_PAGE: "PER_PAGE",
 } as const;
+
+/**
+ * A single extracted table from a spreadsheet
+ */
+export type ExtractedTable = {
+  /**
+   * Unique identifier for this table within the file
+   */
+  table_id: number;
+  /**
+   * Worksheet name where table was found
+   */
+  sheet_name: string;
+  /**
+   * Number of rows in the table
+   */
+  row_span: number;
+  /**
+   * Number of columns in the table
+   */
+  col_span: number;
+  /**
+   * Whether the table has header rows
+   */
+  has_headers: boolean;
+  /**
+   * JSON metadata with detailed table information
+   */
+  metadata_json?: string | null;
+};
 
 /**
  * Enum for representing the different available page error handling modes
@@ -5100,55 +5148,6 @@ export type LegacyParseJobConfig = {
 };
 
 /**
- * All settings for the extraction agent. Only the settings in ExtractConfig
- * are exposed to the user.
- */
-export type LlamaExtractSettings = {
-  /**
-   * The maximum file size (in bytes) allowed for the document.
-   */
-  max_file_size?: number;
-  /**
-   * The maximum file size (in bytes) allowed for the document.
-   */
-  max_file_size_ui?: number;
-  /**
-   * The maximum number of pages allowed for the document.
-   */
-  max_pages?: number;
-  /**
-   * The mode to use for chunking the document.
-   */
-  chunk_mode?: ChunkMode;
-  /**
-   * The maximum size of the chunks (in tokens) to use for chunking the document.
-   */
-  max_chunk_size?: number;
-  /**
-   * The configuration for the extraction agent.
-   */
-  extraction_agent_config?: {
-    [key: string]: StructParseConf;
-  };
-  /**
-   * Whether to use experimental multimodal parsing.
-   */
-  use_multimodal_parsing?: boolean;
-  /**
-   * DEPRECATED: Whether to use extraction over pixels for multimodal mode.
-   */
-  use_pixel_extraction?: boolean;
-  /**
-   * LlamaParse related settings.
-   */
-  llama_parse_params?: LlamaParseParameters;
-  /**
-   * The resolution to use for multimodal parsing.
-   */
-  multimodal_parse_resolution?: MultimodalParseResolution;
-};
-
-/**
  * Settings that can be configured for how to use LlamaParse to parse files within a LlamaCloud pipeline.
  */
 export type LlamaParseParameters = {
@@ -5577,13 +5576,6 @@ export type MetronomeDashboardType = "invoices" | "usage";
 export const MetronomeDashboardType = {
   INVOICES: "invoices",
   USAGE: "usage",
-} as const;
-
-export type MultimodalParseResolution = "medium" | "high";
-
-export const MultimodalParseResolution = {
-  MEDIUM: "medium",
-  HIGH: "high",
 } as const;
 
 /**
@@ -6036,6 +6028,21 @@ export type PaginatedResponseQuotaConfiguration = {
   size: number;
   pages: number;
   items: Array<QuotaConfiguration>;
+};
+
+export type PaginatedResponseSpreadsheetJob = {
+  /**
+   * The list of items.
+   */
+  items: Array<SpreadsheetJob>;
+  /**
+   * A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.
+   */
+  next_page_token?: string | null;
+  /**
+   * The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.
+   */
+  total_size?: number | null;
 };
 
 /**
@@ -7954,35 +7961,6 @@ export type ProjectUpdate = {
   name: string;
 };
 
-export type PromptConf = {
-  /**
-   * The system prompt to use for the extraction.
-   */
-  system_prompt?: string;
-  /**
-   * The prompt to use for the extraction.
-   */
-  extraction_prompt?: string;
-  /**
-   * The prompt to use for error handling.
-   */
-  error_handling_prompt?: string;
-  /**
-   * The prompt to use for reasoning.
-   */
-  reasoning_prompt?: string;
-  /**
-   * The prompt to use for citing sources.
-   */
-  cite_sources_prompt?: {
-    [key: string]: string;
-  };
-  /**
-   * The prompt to use for scratchpad.
-   */
-  scratchpad_prompt?: string;
-};
-
 export type PublicModelName =
   | "openai-gpt-4o"
   | "openai-gpt-4o-mini"
@@ -8003,6 +7981,7 @@ export type PublicModelName =
   | "gemini-2.5-pro"
   | "gemini-2.0-flash"
   | "gemini-2.0-flash-lite"
+  | "gemini-2.5-flash-lite"
   | "gemini-1.5-flash"
   | "gemini-1.5-pro";
 
@@ -8026,6 +8005,7 @@ export const PublicModelName = {
   GEMINI_2_5_PRO: "gemini-2.5-pro",
   GEMINI_2_0_FLASH: "gemini-2.0-flash",
   GEMINI_2_0_FLASH_LITE: "gemini-2.0-flash-lite",
+  GEMINI_2_5_FLASH_LITE: "gemini-2.5-flash-lite",
   GEMINI_1_5_FLASH: "gemini-1.5-flash",
   GEMINI_1_5_PRO: "gemini-1.5-pro",
 } as const;
@@ -8404,14 +8384,6 @@ export type Role = {
   permissions: Array<Permission>;
 };
 
-export type SchemaRelaxMode = "FULL" | "TOP_LEVEL" | "LEAF";
-
-export const SchemaRelaxMode = {
-  FULL: "FULL",
-  TOP_LEVEL: "TOP_LEVEL",
-  LEAF: "LEAF",
-} as const;
-
 /**
  * API request body for searching agent data
  */
@@ -8503,6 +8475,80 @@ export const SparseModelType = {
 } as const;
 
 /**
+ * A spreadsheet parsing job
+ */
+export type SpreadsheetJob = {
+  /**
+   * The ID of the job
+   */
+  id: string;
+  /**
+   * The ID of the user
+   */
+  user_id: string;
+  /**
+   * The ID of the project
+   */
+  project_id: string;
+  /**
+   * The ID of the file to parse
+   */
+  file_id: string;
+  /**
+   * Configuration for the parsing job
+   */
+  config: SpreadsheetParsingConfig;
+  /**
+   * The status of the parsing job
+   */
+  status: StatusEnum;
+  /**
+   * When the job was created
+   */
+  created_at: string;
+  /**
+   * When the job was last updated
+   */
+  updated_at: string;
+  /**
+   * Whether the job completed successfully
+   */
+  success?: boolean | null;
+  /**
+   * All extracted tables (populated when job is complete)
+   */
+  tables?: Array<ExtractedTable>;
+  /**
+   * Any errors encountered
+   */
+  errors?: Array<string>;
+};
+
+/**
+ * Request to create a spreadsheet parsing job
+ */
+export type SpreadsheetJobCreate = {
+  /**
+   * The ID of the file to parse
+   */
+  file_id: string;
+  /**
+   * Configuration for the parsing job
+   */
+  config?: SpreadsheetParsingConfig;
+};
+
+/**
+ * Configuration for spreadsheet parsing
+ */
+export type SpreadsheetParsingConfig = {
+  /**
+   * The names of the sheets to parse. If empty, all sheets will be parsed.
+   */
+  sheet_names?: Array<string> | null;
+};
+
+/**
  * Enum for representing the status of a job
  */
 export type StatusEnum =
@@ -8522,63 +8568,6 @@ export const StatusEnum = {
   PARTIAL_SUCCESS: "PARTIAL_SUCCESS",
   CANCELLED: "CANCELLED",
 } as const;
-
-export type StructMode =
-  | "STRUCT_PARSE"
-  | "JSON_MODE"
-  | "FUNC_CALL"
-  | "STRUCT_RELAXED"
-  | "UNSTRUCTURED";
-
-export const StructMode = {
-  STRUCT_PARSE: "STRUCT_PARSE",
-  JSON_MODE: "JSON_MODE",
-  FUNC_CALL: "FUNC_CALL",
-  STRUCT_RELAXED: "STRUCT_RELAXED",
-  UNSTRUCTURED: "UNSTRUCTURED",
-} as const;
-
-/**
- * Configuration for the structured parsing agent.
- */
-export type StructParseConf = {
-  /**
-   * The model to use for the structured parsing.
-   */
-  model?: ExtractModels;
-  /**
-   * The temperature to use for the structured parsing.
-   */
-  temperature?: number;
-  /**
-   * The relaxation mode to use for the structured parsing.
-   */
-  relaxation_mode?: SchemaRelaxMode;
-  /**
-   * The struct mode to use for the structured parsing.
-   */
-  struct_mode?: StructMode;
-  /**
-   * Whether to fetch logprobs for the structured parsing.
-   */
-  fetch_logprobs?: boolean;
-  /**
-   * Whether to handle missing fields in the schema.
-   */
-  handle_missing?: boolean;
-  /**
-   * Whether to use reasoning for the structured extraction.
-   */
-  use_reasoning?: boolean;
-  /**
-   * Whether to cite sources for the structured extraction.
-   */
-  cite_sources?: boolean;
-  /**
-   * The prompt configuration for the structured parsing.
-   */
-  prompt_conf?: PromptConf;
-};
 
 /**
  * Response Schema for a supported eval LLM model.
@@ -12682,11 +12671,6 @@ export type GetJobsApiV1JobsGetData = {
     limit?: number;
     offset?: number;
     sort?: string | null;
-    /**
-     * Deprecated: This parameter is no longer supported as we've moved to usage v2. It will be removed in a future version.
-     * @deprecated
-     */
-    include_usage_metrics?: boolean;
     project_id?: string | null;
     organization_id?: string | null;
   };
@@ -13796,6 +13780,366 @@ export type GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponses = {
 export type GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse =
   GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponses[keyof GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponses];
 
+export type ListJobsApiV1ExtractionJobsGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    extraction_agent_id: string;
+  };
+  url: "/api/v1/extraction/jobs";
+};
+
+export type ListJobsApiV1ExtractionJobsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListJobsApiV1ExtractionJobsGetError =
+  ListJobsApiV1ExtractionJobsGetErrors[keyof ListJobsApiV1ExtractionJobsGetErrors];
+
+export type ListJobsApiV1ExtractionJobsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<ExtractJob>;
+};
+
+export type ListJobsApiV1ExtractionJobsGetResponse =
+  ListJobsApiV1ExtractionJobsGetResponses[keyof ListJobsApiV1ExtractionJobsGetResponses];
+
+export type RunJobApiV1ExtractionJobsPostData = {
+  body: ExtractJobCreate;
+  path?: never;
+  query?: {
+    from_ui?: boolean;
+  };
+  url: "/api/v1/extraction/jobs";
+};
+
+export type RunJobApiV1ExtractionJobsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RunJobApiV1ExtractionJobsPostError =
+  RunJobApiV1ExtractionJobsPostErrors[keyof RunJobApiV1ExtractionJobsPostErrors];
+
+export type RunJobApiV1ExtractionJobsPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractJob;
+};
+
+export type RunJobApiV1ExtractionJobsPostResponse =
+  RunJobApiV1ExtractionJobsPostResponses[keyof RunJobApiV1ExtractionJobsPostResponses];
+
+export type GetJobApiV1ExtractionJobsJobIdGetData = {
+  body?: never;
+  path: {
+    job_id: string;
+  };
+  query?: never;
+  url: "/api/v1/extraction/jobs/{job_id}";
+};
+
+export type GetJobApiV1ExtractionJobsJobIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetJobApiV1ExtractionJobsJobIdGetError =
+  GetJobApiV1ExtractionJobsJobIdGetErrors[keyof GetJobApiV1ExtractionJobsJobIdGetErrors];
+
+export type GetJobApiV1ExtractionJobsJobIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractJob;
+};
+
+export type GetJobApiV1ExtractionJobsJobIdGetResponse =
+  GetJobApiV1ExtractionJobsJobIdGetResponses[keyof GetJobApiV1ExtractionJobsJobIdGetResponses];
+
+export type RunJobOnFileApiV1ExtractionJobsFilePostData = {
+  body: BodyRunJobOnFileApiV1ExtractionJobsFilePost;
+  path?: never;
+  query?: {
+    from_ui?: boolean;
+  };
+  url: "/api/v1/extraction/jobs/file";
+};
+
+export type RunJobOnFileApiV1ExtractionJobsFilePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RunJobOnFileApiV1ExtractionJobsFilePostError =
+  RunJobOnFileApiV1ExtractionJobsFilePostErrors[keyof RunJobOnFileApiV1ExtractionJobsFilePostErrors];
+
+export type RunJobOnFileApiV1ExtractionJobsFilePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractJob;
+};
+
+export type RunJobOnFileApiV1ExtractionJobsFilePostResponse =
+  RunJobOnFileApiV1ExtractionJobsFilePostResponses[keyof RunJobOnFileApiV1ExtractionJobsFilePostResponses];
+
+export type RunBatchJobsApiV1ExtractionJobsBatchPostData = {
+  body: ExtractJobCreateBatch;
+  path?: never;
+  query?: {
+    from_ui?: boolean;
+  };
+  url: "/api/v1/extraction/jobs/batch";
+};
+
+export type RunBatchJobsApiV1ExtractionJobsBatchPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type RunBatchJobsApiV1ExtractionJobsBatchPostError =
+  RunBatchJobsApiV1ExtractionJobsBatchPostErrors[keyof RunBatchJobsApiV1ExtractionJobsBatchPostErrors];
+
+export type RunBatchJobsApiV1ExtractionJobsBatchPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: Array<ExtractJob>;
+};
+
+export type RunBatchJobsApiV1ExtractionJobsBatchPostResponse =
+  RunBatchJobsApiV1ExtractionJobsBatchPostResponses[keyof RunBatchJobsApiV1ExtractionJobsBatchPostResponses];
+
+export type GetJobResultApiV1ExtractionJobsJobIdResultGetData = {
+  body?: never;
+  path: {
+    job_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/extraction/jobs/{job_id}/result";
+};
+
+export type GetJobResultApiV1ExtractionJobsJobIdResultGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetJobResultApiV1ExtractionJobsJobIdResultGetError =
+  GetJobResultApiV1ExtractionJobsJobIdResultGetErrors[keyof GetJobResultApiV1ExtractionJobsJobIdResultGetErrors];
+
+export type GetJobResultApiV1ExtractionJobsJobIdResultGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractResultset;
+};
+
+export type GetJobResultApiV1ExtractionJobsJobIdResultGetResponse =
+  GetJobResultApiV1ExtractionJobsJobIdResultGetResponses[keyof GetJobResultApiV1ExtractionJobsJobIdResultGetResponses];
+
+export type ListExtractRunsApiV1ExtractionRunsGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    extraction_agent_id: string;
+    skip?: number;
+    limit?: number;
+  };
+  url: "/api/v1/extraction/runs";
+};
+
+export type ListExtractRunsApiV1ExtractionRunsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListExtractRunsApiV1ExtractionRunsGetError =
+  ListExtractRunsApiV1ExtractionRunsGetErrors[keyof ListExtractRunsApiV1ExtractionRunsGetErrors];
+
+export type ListExtractRunsApiV1ExtractionRunsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedExtractRunsResponse;
+};
+
+export type ListExtractRunsApiV1ExtractionRunsGetResponse =
+  ListExtractRunsApiV1ExtractionRunsGetResponses[keyof ListExtractRunsApiV1ExtractionRunsGetResponses];
+
+export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetData = {
+  body?: never;
+  path?: never;
+  query: {
+    extraction_agent_id: string;
+  };
+  url: "/api/v1/extraction/runs/latest-from-ui";
+};
+
+export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetError =
+  GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors[keyof GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors];
+
+export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractRun | null;
+};
+
+export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse =
+  GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses[keyof GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses];
+
+export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetData = {
+  body?: never;
+  path: {
+    job_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/extraction/runs/by-job/{job_id}";
+};
+
+export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetError =
+  GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors[keyof GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors];
+
+export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractRun;
+};
+
+export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse =
+  GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses[keyof GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses];
+
+export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteData = {
+  body?: never;
+  path: {
+    run_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/extraction/runs/{run_id}";
+};
+
+export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteError =
+  DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors[keyof DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors];
+
+export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown;
+};
+
+export type GetRunApiV1ExtractionRunsRunIdGetData = {
+  body?: never;
+  path: {
+    run_id: string;
+  };
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/extraction/runs/{run_id}";
+};
+
+export type GetRunApiV1ExtractionRunsRunIdGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type GetRunApiV1ExtractionRunsRunIdGetError =
+  GetRunApiV1ExtractionRunsRunIdGetErrors[keyof GetRunApiV1ExtractionRunsRunIdGetErrors];
+
+export type GetRunApiV1ExtractionRunsRunIdGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractRun;
+};
+
+export type GetRunApiV1ExtractionRunsRunIdGetResponse =
+  GetRunApiV1ExtractionRunsRunIdGetResponses[keyof GetRunApiV1ExtractionRunsRunIdGetResponses];
+
+export type ExtractStatelessApiV1ExtractionRunPostData = {
+  body: ExtractStatelessRequest;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/extraction/run";
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostError =
+  ExtractStatelessApiV1ExtractionRunPostErrors[keyof ExtractStatelessApiV1ExtractionRunPostErrors];
+
+export type ExtractStatelessApiV1ExtractionRunPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: ExtractJob;
+};
+
+export type ExtractStatelessApiV1ExtractionRunPostResponse =
+  ExtractStatelessApiV1ExtractionRunPostResponses[keyof ExtractStatelessApiV1ExtractionRunPostResponses];
+
 export type ListExtractionAgentsApiV1ExtractionExtractionAgentsGetData = {
   body?: never;
   path?: never;
@@ -14084,395 +14428,6 @@ export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentI
 
 export type UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses[keyof UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponses];
-
-export type ListJobsApiV1ExtractionJobsGetData = {
-  body?: never;
-  path?: never;
-  query: {
-    extraction_agent_id: string;
-  };
-  url: "/api/v1/extraction/jobs";
-};
-
-export type ListJobsApiV1ExtractionJobsGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type ListJobsApiV1ExtractionJobsGetError =
-  ListJobsApiV1ExtractionJobsGetErrors[keyof ListJobsApiV1ExtractionJobsGetErrors];
-
-export type ListJobsApiV1ExtractionJobsGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: Array<ExtractJob>;
-};
-
-export type ListJobsApiV1ExtractionJobsGetResponse =
-  ListJobsApiV1ExtractionJobsGetResponses[keyof ListJobsApiV1ExtractionJobsGetResponses];
-
-export type RunJobApiV1ExtractionJobsPostData = {
-  body: ExtractJobCreate;
-  path?: never;
-  query?: {
-    from_ui?: boolean;
-  };
-  url: "/api/v1/extraction/jobs";
-};
-
-export type RunJobApiV1ExtractionJobsPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RunJobApiV1ExtractionJobsPostError =
-  RunJobApiV1ExtractionJobsPostErrors[keyof RunJobApiV1ExtractionJobsPostErrors];
-
-export type RunJobApiV1ExtractionJobsPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type RunJobApiV1ExtractionJobsPostResponse =
-  RunJobApiV1ExtractionJobsPostResponses[keyof RunJobApiV1ExtractionJobsPostResponses];
-
-export type GetJobApiV1ExtractionJobsJobIdGetData = {
-  body?: never;
-  path: {
-    job_id: string;
-  };
-  query?: never;
-  url: "/api/v1/extraction/jobs/{job_id}";
-};
-
-export type GetJobApiV1ExtractionJobsJobIdGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetJobApiV1ExtractionJobsJobIdGetError =
-  GetJobApiV1ExtractionJobsJobIdGetErrors[keyof GetJobApiV1ExtractionJobsJobIdGetErrors];
-
-export type GetJobApiV1ExtractionJobsJobIdGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type GetJobApiV1ExtractionJobsJobIdGetResponse =
-  GetJobApiV1ExtractionJobsJobIdGetResponses[keyof GetJobApiV1ExtractionJobsJobIdGetResponses];
-
-export type RunJobTestUserApiV1ExtractionJobsTestPostData = {
-  body: BodyRunJobTestUserApiV1ExtractionJobsTestPost;
-  path?: never;
-  query?: {
-    from_ui?: boolean;
-  };
-  url: "/api/v1/extraction/jobs/test";
-};
-
-export type RunJobTestUserApiV1ExtractionJobsTestPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RunJobTestUserApiV1ExtractionJobsTestPostError =
-  RunJobTestUserApiV1ExtractionJobsTestPostErrors[keyof RunJobTestUserApiV1ExtractionJobsTestPostErrors];
-
-export type RunJobTestUserApiV1ExtractionJobsTestPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type RunJobTestUserApiV1ExtractionJobsTestPostResponse =
-  RunJobTestUserApiV1ExtractionJobsTestPostResponses[keyof RunJobTestUserApiV1ExtractionJobsTestPostResponses];
-
-export type RunJobOnFileApiV1ExtractionJobsFilePostData = {
-  body: BodyRunJobOnFileApiV1ExtractionJobsFilePost;
-  path?: never;
-  query?: {
-    from_ui?: boolean;
-  };
-  url: "/api/v1/extraction/jobs/file";
-};
-
-export type RunJobOnFileApiV1ExtractionJobsFilePostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RunJobOnFileApiV1ExtractionJobsFilePostError =
-  RunJobOnFileApiV1ExtractionJobsFilePostErrors[keyof RunJobOnFileApiV1ExtractionJobsFilePostErrors];
-
-export type RunJobOnFileApiV1ExtractionJobsFilePostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type RunJobOnFileApiV1ExtractionJobsFilePostResponse =
-  RunJobOnFileApiV1ExtractionJobsFilePostResponses[keyof RunJobOnFileApiV1ExtractionJobsFilePostResponses];
-
-export type RunBatchJobsApiV1ExtractionJobsBatchPostData = {
-  body: ExtractJobCreateBatch;
-  path?: never;
-  query?: {
-    from_ui?: boolean;
-  };
-  url: "/api/v1/extraction/jobs/batch";
-};
-
-export type RunBatchJobsApiV1ExtractionJobsBatchPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type RunBatchJobsApiV1ExtractionJobsBatchPostError =
-  RunBatchJobsApiV1ExtractionJobsBatchPostErrors[keyof RunBatchJobsApiV1ExtractionJobsBatchPostErrors];
-
-export type RunBatchJobsApiV1ExtractionJobsBatchPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: Array<ExtractJob>;
-};
-
-export type RunBatchJobsApiV1ExtractionJobsBatchPostResponse =
-  RunBatchJobsApiV1ExtractionJobsBatchPostResponses[keyof RunBatchJobsApiV1ExtractionJobsBatchPostResponses];
-
-export type GetJobResultApiV1ExtractionJobsJobIdResultGetData = {
-  body?: never;
-  path: {
-    job_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/extraction/jobs/{job_id}/result";
-};
-
-export type GetJobResultApiV1ExtractionJobsJobIdResultGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetJobResultApiV1ExtractionJobsJobIdResultGetError =
-  GetJobResultApiV1ExtractionJobsJobIdResultGetErrors[keyof GetJobResultApiV1ExtractionJobsJobIdResultGetErrors];
-
-export type GetJobResultApiV1ExtractionJobsJobIdResultGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractResultset;
-};
-
-export type GetJobResultApiV1ExtractionJobsJobIdResultGetResponse =
-  GetJobResultApiV1ExtractionJobsJobIdResultGetResponses[keyof GetJobResultApiV1ExtractionJobsJobIdResultGetResponses];
-
-export type ListExtractRunsApiV1ExtractionRunsGetData = {
-  body?: never;
-  path?: never;
-  query: {
-    extraction_agent_id: string;
-    skip?: number;
-    limit?: number;
-  };
-  url: "/api/v1/extraction/runs";
-};
-
-export type ListExtractRunsApiV1ExtractionRunsGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type ListExtractRunsApiV1ExtractionRunsGetError =
-  ListExtractRunsApiV1ExtractionRunsGetErrors[keyof ListExtractRunsApiV1ExtractionRunsGetErrors];
-
-export type ListExtractRunsApiV1ExtractionRunsGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: PaginatedExtractRunsResponse;
-};
-
-export type ListExtractRunsApiV1ExtractionRunsGetResponse =
-  ListExtractRunsApiV1ExtractionRunsGetResponses[keyof ListExtractRunsApiV1ExtractionRunsGetResponses];
-
-export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetData = {
-  body?: never;
-  path?: never;
-  query: {
-    extraction_agent_id: string;
-  };
-  url: "/api/v1/extraction/runs/latest-from-ui";
-};
-
-export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetError =
-  GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors[keyof GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetErrors];
-
-export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractRun | null;
-};
-
-export type GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse =
-  GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses[keyof GetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponses];
-
-export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetData = {
-  body?: never;
-  path: {
-    job_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/extraction/runs/by-job/{job_id}";
-};
-
-export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetError =
-  GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors[keyof GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetErrors];
-
-export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractRun;
-};
-
-export type GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse =
-  GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses[keyof GetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponses];
-
-export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteData = {
-  body?: never;
-  path: {
-    run_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/extraction/runs/{run_id}";
-};
-
-export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteError =
-  DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors[keyof DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteErrors];
-
-export type DeleteExtractionRunApiV1ExtractionRunsRunIdDeleteResponses = {
-  /**
-   * Successful Response
-   */
-  200: unknown;
-};
-
-export type GetRunApiV1ExtractionRunsRunIdGetData = {
-  body?: never;
-  path: {
-    run_id: string;
-  };
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/extraction/runs/{run_id}";
-};
-
-export type GetRunApiV1ExtractionRunsRunIdGetErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type GetRunApiV1ExtractionRunsRunIdGetError =
-  GetRunApiV1ExtractionRunsRunIdGetErrors[keyof GetRunApiV1ExtractionRunsRunIdGetErrors];
-
-export type GetRunApiV1ExtractionRunsRunIdGetResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractRun;
-};
-
-export type GetRunApiV1ExtractionRunsRunIdGetResponse =
-  GetRunApiV1ExtractionRunsRunIdGetResponses[keyof GetRunApiV1ExtractionRunsRunIdGetResponses];
-
-export type ExtractStatelessApiV1ExtractionRunPostData = {
-  body: ExtractStatelessRequest;
-  path?: never;
-  query?: {
-    project_id?: string | null;
-    organization_id?: string | null;
-  };
-  url: "/api/v1/extraction/run";
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostErrors = {
-  /**
-   * Validation Error
-   */
-  422: HttpValidationError;
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostError =
-  ExtractStatelessApiV1ExtractionRunPostErrors[keyof ExtractStatelessApiV1ExtractionRunPostErrors];
-
-export type ExtractStatelessApiV1ExtractionRunPostResponses = {
-  /**
-   * Successful Response
-   */
-  200: ExtractJob;
-};
-
-export type ExtractStatelessApiV1ExtractionRunPostResponse =
-  ExtractStatelessApiV1ExtractionRunPostResponses[keyof ExtractStatelessApiV1ExtractionRunPostResponses];
 
 export type ListApiKeysApiV1BetaApiKeysGetData = {
   body?: never;
@@ -14872,6 +14827,36 @@ export type AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses = {
 
 export type AggregateAgentDataApiV1BetaAgentDataAggregatePostResponse =
   AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses[keyof AggregateAgentDataApiV1BetaAgentDataAggregatePostResponses];
+
+export type DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostData = {
+  body: DeleteRequest;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/agent-data/:delete";
+};
+
+export type DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostError =
+  DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostErrors[keyof DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostErrors];
+
+export type DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponses = {
+  /**
+   * Successful Response
+   */
+  200: DeleteResponse;
+};
+
+export type DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse =
+  DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponses[keyof DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponses];
 
 export type ListQuotaConfigurationsApiV1BetaQuotaManagementGetData = {
   body?: never;
@@ -15294,8 +15279,143 @@ export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResp
 export type GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse =
   GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponses[keyof GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponses];
 
+export type ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetData = {
+  body?: never;
+  path?: never;
+  query?: {
+    include_results?: boolean;
+    project_id?: string | null;
+    organization_id?: string | null;
+    page_size?: number | null;
+    page_token?: string | null;
+  };
+  url: "/api/v1/beta/spreadsheet/jobs";
+};
+
+export type ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetError =
+  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetErrors[keyof ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetErrors];
+
+export type ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponses = {
+  /**
+   * Successful Response
+   */
+  200: PaginatedResponseSpreadsheetJob;
+};
+
+export type ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse =
+  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponses[keyof ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponses];
+
+export type CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostData = {
+  body: SpreadsheetJobCreate;
+  path?: never;
+  query?: {
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/spreadsheet/jobs";
+};
+
+export type CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError;
+};
+
+export type CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostError =
+  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostErrors[keyof CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostErrors];
+
+export type CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponses = {
+  /**
+   * Successful Response
+   */
+  200: SpreadsheetJob;
+};
+
+export type CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse =
+  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponses[keyof CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponses];
+
+export type GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetData = {
+  body?: never;
+  path: {
+    spreadsheet_job_id: string;
+  };
+  query?: {
+    include_results?: boolean;
+    project_id?: string | null;
+    organization_id?: string | null;
+  };
+  url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}";
+};
+
+export type GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetError =
+  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetErrors[keyof GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetErrors];
+
+export type GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: SpreadsheetJob;
+  };
+
+export type GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse =
+  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponses[keyof GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponses];
+
+export type GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetData =
+  {
+    body?: never;
+    path: {
+      spreadsheet_job_id: string;
+      table_id: number;
+    };
+    query?: {
+      expires_at_seconds?: number | null;
+      project_id?: string | null;
+      organization_id?: string | null;
+    };
+    url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}/tables/{table_id}/result";
+  };
+
+export type GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetErrors =
+  {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+  };
+
+export type GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetError =
+  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetErrors[keyof GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetErrors];
+
+export type GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponses =
+  {
+    /**
+     * Successful Response
+     */
+    200: PresignedUrl;
+  };
+
+export type GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse =
+  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponses[keyof GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponses];
+
 export type UploadFileV2ApiV2Alpha1ParseUploadPostData = {
-  body: BodyUploadFileV2ApiV2Alpha1ParseUploadPost;
+  body?: never;
   path?: never;
   query?: {
     project_id?: string | null;

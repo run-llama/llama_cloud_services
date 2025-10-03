@@ -1530,27 +1530,6 @@ export const Body_run_job_on_file_api_v1_extraction_jobs_file_postSchema = {
   title: "Body_run_job_on_file_api_v1_extraction_jobs_file_post",
 } as const;
 
-export const Body_run_job_test_user_api_v1_extraction_jobs_test_postSchema = {
-  properties: {
-    job_create: {
-      $ref: "#/components/schemas/ExtractJobCreate",
-    },
-    extract_settings: {
-      anyOf: [
-        {
-          $ref: "#/components/schemas/LlamaExtractSettings",
-        },
-        {
-          type: "null",
-        },
-      ],
-    },
-  },
-  type: "object",
-  required: ["job_create"],
-  title: "Body_run_job_test_user_api_v1_extraction_jobs_test_post",
-} as const;
-
 export const Body_screenshot_api_parsing_screenshot_postSchema = {
   properties: {
     file: {
@@ -2796,30 +2775,6 @@ export const Body_upload_file_api_v1_parsing_upload_postSchema = {
   title: "Body_upload_file_api_v1_parsing_upload_post",
 } as const;
 
-export const Body_upload_file_v2_api_v2alpha1_parse_upload_postSchema = {
-  properties: {
-    configuration: {
-      type: "string",
-      title: "Configuration",
-    },
-    file: {
-      anyOf: [
-        {
-          type: "string",
-          format: "binary",
-        },
-        {
-          type: "null",
-        },
-      ],
-      title: "File",
-    },
-  },
-  type: "object",
-  required: ["configuration"],
-  title: "Body_upload_file_v2_api_v2alpha1_parse_upload_post",
-} as const;
-
 export const BoxAuthMechanismSchema = {
   type: "string",
   enum: ["developer_token", "ccg"],
@@ -3178,12 +3133,6 @@ export const ChatMessageSchema = {
   type: "object",
   required: ["id", "index", "role"],
   title: "ChatMessage",
-} as const;
-
-export const ChunkModeSchema = {
-  type: "string",
-  enum: ["PAGE", "DOCUMENT", "SECTION", "GROUPED_PAGES"],
-  title: "ChunkMode",
 } as const;
 
 export const ClassificationResultSchema = {
@@ -5486,6 +5435,13 @@ export const CustomClaimsSchema = {
       description: "Whether the user is allowed to delete organizations.",
       default: false,
     },
+    allowed_spreadsheet: {
+      type: "boolean",
+      title: "Allowed Spreadsheet",
+      description:
+        "Whether the user is allowed to access the spreadsheet feature.",
+      default: false,
+    },
   },
   type: "object",
   title: "CustomClaims",
@@ -6211,6 +6167,54 @@ export const DeleteParamsSchema = {
   type: "object",
   title: "DeleteParams",
   description: "Schema for the parameters of a delete job.",
+} as const;
+
+export const DeleteRequestSchema = {
+  properties: {
+    deployment_name: {
+      type: "string",
+      title: "Deployment Name",
+      description: "The agent deployment's name to delete data for",
+    },
+    collection: {
+      type: "string",
+      title: "Collection",
+      description: "The logical agent data collection to delete from",
+      default: "default",
+    },
+    filter: {
+      anyOf: [
+        {
+          additionalProperties: {
+            $ref: "#/components/schemas/FilterOperation",
+          },
+          type: "object",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Filter",
+      description: "Optional filters to select which items to delete",
+    },
+  },
+  type: "object",
+  required: ["deployment_name"],
+  title: "DeleteRequest",
+  description: "API request body for bulk deleting agent data by query",
+} as const;
+
+export const DeleteResponseSchema = {
+  properties: {
+    deleted_count: {
+      type: "integer",
+      title: "Deleted Count",
+    },
+  },
+  type: "object",
+  required: ["deleted_count"],
+  title: "DeleteResponse",
+  description: "API response for bulk delete operation",
 } as const;
 
 export const DirectRetrievalParamsSchema = {
@@ -6946,6 +6950,20 @@ export const ExtractConfigSchema = {
       description: "Whether to invalidate the cache for the extraction.",
       default: false,
     },
+    num_pages_context: {
+      anyOf: [
+        {
+          type: "integer",
+          minimum: 1,
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Num Pages Context",
+      description:
+        "Number of pages to pass as context on long document extraction.",
+    },
     page_range: {
       anyOf: [
         {
@@ -7202,6 +7220,7 @@ export const ExtractModelsSchema = {
     "openai-gpt-5-mini",
     "gemini-2.0-flash",
     "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
     "gemini-2.5-pro",
     "openai-gpt-4o",
     "openai-gpt-4o-mini",
@@ -7847,6 +7866,52 @@ export const ExtractTargetSchema = {
   type: "string",
   enum: ["PER_DOC", "PER_PAGE"],
   title: "ExtractTarget",
+} as const;
+
+export const ExtractedTableSchema = {
+  properties: {
+    table_id: {
+      type: "integer",
+      title: "Table Id",
+      description: "Unique identifier for this table within the file",
+    },
+    sheet_name: {
+      type: "string",
+      title: "Sheet Name",
+      description: "Worksheet name where table was found",
+    },
+    row_span: {
+      type: "integer",
+      title: "Row Span",
+      description: "Number of rows in the table",
+    },
+    col_span: {
+      type: "integer",
+      title: "Col Span",
+      description: "Number of columns in the table",
+    },
+    has_headers: {
+      type: "boolean",
+      title: "Has Headers",
+      description: "Whether the table has header rows",
+    },
+    metadata_json: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Metadata Json",
+      description: "JSON metadata with detailed table information",
+    },
+  },
+  type: "object",
+  required: ["table_id", "sheet_name", "row_span", "col_span", "has_headers"],
+  title: "ExtractedTable",
+  description: "A single extracted table from a spreadsheet",
 } as const;
 
 export const FailPageModeSchema = {
@@ -10828,140 +10893,6 @@ export const LegacyParseJobConfigSchema = {
   description: "Configuration for llamaparse job",
 } as const;
 
-export const LlamaExtractSettingsSchema = {
-  properties: {
-    max_file_size: {
-      type: "integer",
-      title: "Max File Size",
-      description: "The maximum file size (in bytes) allowed for the document.",
-      default: 104857600,
-    },
-    max_file_size_ui: {
-      type: "integer",
-      title: "Max File Size Ui",
-      description: "The maximum file size (in bytes) allowed for the document.",
-      default: 31457280,
-    },
-    max_pages: {
-      type: "integer",
-      title: "Max Pages",
-      description: "The maximum number of pages allowed for the document.",
-      default: 500,
-    },
-    chunk_mode: {
-      $ref: "#/components/schemas/ChunkMode",
-      description: "The mode to use for chunking the document.",
-      default: "SECTION",
-    },
-    max_chunk_size: {
-      type: "integer",
-      title: "Max Chunk Size",
-      description:
-        "The maximum size of the chunks (in tokens) to use for chunking the document.",
-      default: 10000,
-    },
-    extraction_agent_config: {
-      additionalProperties: {
-        $ref: "#/components/schemas/StructParseConf",
-      },
-      type: "object",
-      title: "Extraction Agent Config",
-      description: "The configuration for the extraction agent.",
-    },
-    use_multimodal_parsing: {
-      type: "boolean",
-      title: "Use Multimodal Parsing",
-      description: "Whether to use experimental multimodal parsing.",
-      default: false,
-    },
-    use_pixel_extraction: {
-      type: "boolean",
-      title: "Use Pixel Extraction",
-      description:
-        "DEPRECATED: Whether to use extraction over pixels for multimodal mode.",
-      default: false,
-    },
-    llama_parse_params: {
-      $ref: "#/components/schemas/LlamaParseParameters",
-      description: "LlamaParse related settings.",
-      default: {
-        languages: ["en"],
-        parsing_instruction: "",
-        disable_ocr: false,
-        annotate_links: true,
-        adaptive_long_table: true,
-        compact_markdown_table: false,
-        disable_reconstruction: false,
-        disable_image_extraction: false,
-        invalidate_cache: false,
-        outlined_table_extraction: true,
-        merge_tables_across_pages_in_markdown: false,
-        output_pdf_of_document: false,
-        do_not_cache: false,
-        fast_mode: false,
-        skip_diagonal_text: false,
-        preserve_layout_alignment_across_pages: false,
-        preserve_very_small_text: false,
-        gpt4o_mode: false,
-        do_not_unroll_columns: false,
-        extract_layout: false,
-        high_res_ocr: false,
-        html_make_all_elements_visible: false,
-        layout_aware: false,
-        specialized_chart_parsing_agentic: false,
-        specialized_chart_parsing_plus: false,
-        specialized_chart_parsing_efficient: false,
-        specialized_image_parsing: false,
-        precise_bounding_box: false,
-        html_remove_navigation_elements: false,
-        html_remove_fixed_elements: false,
-        guess_xlsx_sheet_name: false,
-        use_vendor_multimodal_model: false,
-        page_prefix: `<<<PAGE:{pageNumber}>>>
-
-`,
-        page_suffix: `
-
-<<<END_PAGE>>>`,
-        take_screenshot: false,
-        is_formatting_instruction: true,
-        premium_mode: false,
-        continuous_mode: false,
-        auto_mode: false,
-        auto_mode_trigger_on_table_in_page: false,
-        auto_mode_trigger_on_image_in_page: false,
-        structured_output: false,
-        extract_charts: false,
-        spreadsheet_extract_sub_tables: false,
-        spreadsheet_force_formula_computation: false,
-        inline_images_in_markdown: false,
-        strict_mode_image_extraction: false,
-        strict_mode_image_ocr: false,
-        strict_mode_reconstruction: false,
-        strict_mode_buggy_font: false,
-        save_images: true,
-        hide_headers: false,
-        hide_footers: false,
-        ignore_document_elements_for_layout_detection: false,
-        output_tables_as_HTML: false,
-        internal_is_screenshot_job: false,
-        parse_mode: "parse_page_with_llm",
-        page_error_tolerance: 0.05,
-        replace_failed_page_mode: "raw_text",
-      },
-    },
-    multimodal_parse_resolution: {
-      $ref: "#/components/schemas/MultimodalParseResolution",
-      description: "The resolution to use for multimodal parsing.",
-      default: "medium",
-    },
-  },
-  type: "object",
-  title: "LlamaExtractSettings",
-  description: `All settings for the extraction agent. Only the settings in ExtractConfig
-are exposed to the user.`,
-} as const;
-
 export const LlamaParseParametersSchema = {
   properties: {
     webhook_configurations: {
@@ -12602,12 +12533,6 @@ export const MetronomeDashboardTypeSchema = {
   title: "MetronomeDashboardType",
 } as const;
 
-export const MultimodalParseResolutionSchema = {
-  type: "string",
-  enum: ["medium", "high"],
-  title: "MultimodalParseResolution",
-} as const;
-
 export const NodeRelationshipSchema = {
   type: "string",
   enum: ["1", "2", "3", "4", "5"],
@@ -13428,6 +13353,48 @@ export const PaginatedResponse_QuotaConfiguration_Schema = {
   type: "object",
   required: ["total", "page", "size", "pages", "items"],
   title: "PaginatedResponse[QuotaConfiguration]",
+} as const;
+
+export const PaginatedResponse_SpreadsheetJob_Schema = {
+  properties: {
+    items: {
+      items: {
+        $ref: "#/components/schemas/SpreadsheetJob",
+      },
+      type: "array",
+      title: "Items",
+      description: "The list of items.",
+    },
+    next_page_token: {
+      anyOf: [
+        {
+          type: "string",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Next Page Token",
+      description:
+        "A token, which can be sent as page_token to retrieve the next page. If this field is omitted, there are no subsequent pages.",
+    },
+    total_size: {
+      anyOf: [
+        {
+          type: "integer",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Total Size",
+      description:
+        "The total number of items available. This is only populated when specifically requested. The value may be an estimate and can be used for display purposes only.",
+    },
+  },
+  type: "object",
+  required: ["items"],
+  title: "PaginatedResponse[SpreadsheetJob]",
 } as const;
 
 export const ParseConfigurationSchema = {
@@ -17841,69 +17808,6 @@ export const ProjectUpdateSchema = {
   description: "Schema for updating a project.",
 } as const;
 
-export const PromptConfSchema = {
-  properties: {
-    system_prompt: {
-      type: "string",
-      title: "System Prompt",
-      description: "The system prompt to use for the extraction.",
-      default:
-        "Given a JSON schema, extract the data from the provided SOURCE TEXT according to the schema. Only output information that is explicitly stated or can be inferred from the SOURCE TEXT.",
-    },
-    extraction_prompt: {
-      type: "string",
-      title: "Extraction Prompt",
-      description: "The prompt to use for the extraction.",
-      default: "The extracted data using the given JSON schema.",
-    },
-    error_handling_prompt: {
-      type: "string",
-      title: "Error Handling Prompt",
-      description: "The prompt to use for error handling.",
-      default:
-        "If the source text does not contain enough information to extract the value, explain the reason very briefly. Else, output null and fill out the value__ field.",
-    },
-    reasoning_prompt: {
-      type: "string",
-      title: "Reasoning Prompt",
-      description: "The prompt to use for reasoning.",
-      default: `
-Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
-- For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
-- When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
-`,
-    },
-    cite_sources_prompt: {
-      additionalProperties: {
-        type: "string",
-      },
-      type: "object",
-      title: "Cite Sources Prompt",
-      description: "The prompt to use for citing sources.",
-      default: {
-        description: `
-### Citation Rules (read carefully):
-- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.
-- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'
-- If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.
-`,
-        page: "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
-        matching_text:
-          'Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis "...". Provide only the single most relevant citation.',
-      },
-    },
-    scratchpad_prompt: {
-      type: "string",
-      title: "Scratchpad Prompt",
-      description: "The prompt to use for scratchpad.",
-      default: "Use for intermediate step-by-step reasoning. Be concise.",
-    },
-  },
-  type: "object",
-  title: "PromptConf",
-} as const;
-
 export const PublicModelNameSchema = {
   type: "string",
   enum: [
@@ -17926,6 +17830,7 @@ export const PublicModelNameSchema = {
     "gemini-2.5-pro",
     "gemini-2.0-flash",
     "gemini-2.0-flash-lite",
+    "gemini-2.5-flash-lite",
     "gemini-1.5-flash",
     "gemini-1.5-pro",
   ],
@@ -18752,12 +18657,6 @@ export const RoleSchema = {
   description: "Schema for a role.",
 } as const;
 
-export const SchemaRelaxModeSchema = {
-  type: "string",
-  enum: ["FULL", "TOP_LEVEL", "LEAF"],
-  title: "SchemaRelaxMode",
-} as const;
-
 export const SearchRequestSchema = {
   properties: {
     page_size: {
@@ -18950,106 +18849,140 @@ BM25: Uses Qdrant's FastEmbed BM25 model for sparse embeddings
 AUTO: Automatically selects based on deployment mode (BYOC uses term frequency, Cloud uses Splade)`,
 } as const;
 
+export const SpreadsheetJobSchema = {
+  properties: {
+    id: {
+      type: "string",
+      title: "Id",
+      description: "The ID of the job",
+    },
+    user_id: {
+      type: "string",
+      title: "User Id",
+      description: "The ID of the user",
+    },
+    project_id: {
+      type: "string",
+      format: "uuid",
+      title: "Project Id",
+      description: "The ID of the project",
+    },
+    file_id: {
+      type: "string",
+      format: "uuid",
+      title: "File Id",
+      description: "The ID of the file to parse",
+    },
+    config: {
+      $ref: "#/components/schemas/SpreadsheetParsingConfig",
+      description: "Configuration for the parsing job",
+    },
+    status: {
+      $ref: "#/components/schemas/StatusEnum",
+      description: "The status of the parsing job",
+    },
+    created_at: {
+      type: "string",
+      title: "Created At",
+      description: "When the job was created",
+    },
+    updated_at: {
+      type: "string",
+      title: "Updated At",
+      description: "When the job was last updated",
+    },
+    success: {
+      anyOf: [
+        {
+          type: "boolean",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Success",
+      description: "Whether the job completed successfully",
+    },
+    tables: {
+      items: {
+        $ref: "#/components/schemas/ExtractedTable",
+      },
+      type: "array",
+      title: "Tables",
+      description: "All extracted tables (populated when job is complete)",
+    },
+    errors: {
+      items: {
+        type: "string",
+      },
+      type: "array",
+      title: "Errors",
+      description: "Any errors encountered",
+    },
+  },
+  type: "object",
+  required: [
+    "id",
+    "user_id",
+    "project_id",
+    "file_id",
+    "config",
+    "status",
+    "created_at",
+    "updated_at",
+  ],
+  title: "SpreadsheetJob",
+  description: "A spreadsheet parsing job",
+} as const;
+
+export const SpreadsheetJobCreateSchema = {
+  properties: {
+    file_id: {
+      type: "string",
+      format: "uuid",
+      title: "File Id",
+      description: "The ID of the file to parse",
+    },
+    config: {
+      $ref: "#/components/schemas/SpreadsheetParsingConfig",
+      description: "Configuration for the parsing job",
+    },
+  },
+  type: "object",
+  required: ["file_id"],
+  title: "SpreadsheetJobCreate",
+  description: "Request to create a spreadsheet parsing job",
+} as const;
+
+export const SpreadsheetParsingConfigSchema = {
+  properties: {
+    sheet_names: {
+      anyOf: [
+        {
+          items: {
+            type: "string",
+          },
+          type: "array",
+        },
+        {
+          type: "null",
+        },
+      ],
+      title: "Sheet Names",
+      description:
+        "The names of the sheets to parse. If empty, all sheets will be parsed.",
+    },
+  },
+  type: "object",
+  title: "SpreadsheetParsingConfig",
+  description: "Configuration for spreadsheet parsing",
+} as const;
+
 export const StatusEnumSchema = {
   type: "string",
   enum: ["PENDING", "SUCCESS", "ERROR", "PARTIAL_SUCCESS", "CANCELLED"],
   title: "StatusEnum",
   description: "Enum for representing the status of a job",
-} as const;
-
-export const StructModeSchema = {
-  type: "string",
-  enum: [
-    "STRUCT_PARSE",
-    "JSON_MODE",
-    "FUNC_CALL",
-    "STRUCT_RELAXED",
-    "UNSTRUCTURED",
-  ],
-  title: "StructMode",
-} as const;
-
-export const StructParseConfSchema = {
-  properties: {
-    model: {
-      $ref: "#/components/schemas/ExtractModels",
-      description: "The model to use for the structured parsing.",
-      default: "openai-gpt-4-1",
-    },
-    temperature: {
-      type: "number",
-      title: "Temperature",
-      description: "The temperature to use for the structured parsing.",
-      default: 0,
-    },
-    relaxation_mode: {
-      $ref: "#/components/schemas/SchemaRelaxMode",
-      description: "The relaxation mode to use for the structured parsing.",
-      default: "LEAF",
-    },
-    struct_mode: {
-      $ref: "#/components/schemas/StructMode",
-      description: "The struct mode to use for the structured parsing.",
-      default: "STRUCT_PARSE",
-    },
-    fetch_logprobs: {
-      type: "boolean",
-      title: "Fetch Logprobs",
-      description: "Whether to fetch logprobs for the structured parsing.",
-      default: false,
-    },
-    handle_missing: {
-      type: "boolean",
-      title: "Handle Missing",
-      description: "Whether to handle missing fields in the schema.",
-      default: false,
-    },
-    use_reasoning: {
-      type: "boolean",
-      title: "Use Reasoning",
-      description: "Whether to use reasoning for the structured extraction.",
-      default: false,
-    },
-    cite_sources: {
-      type: "boolean",
-      title: "Cite Sources",
-      description: "Whether to cite sources for the structured extraction.",
-      default: false,
-    },
-    prompt_conf: {
-      $ref: "#/components/schemas/PromptConf",
-      description: "The prompt configuration for the structured parsing.",
-      default: {
-        system_prompt:
-          "Given a JSON schema, extract the data from the provided SOURCE TEXT according to the schema. Only output information that is explicitly stated or can be inferred from the SOURCE TEXT.",
-        extraction_prompt: "The extracted data using the given JSON schema.",
-        error_handling_prompt:
-          "If the source text does not contain enough information to extract the value, explain the reason very briefly. Else, output null and fill out the value__ field.",
-        reasoning_prompt: `
-Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
-- For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
-- When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
-`,
-        cite_sources_prompt: {
-          description: `
-### Citation Rules (read carefully):
-- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.
-- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'
-- If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.
-`,
-          matching_text:
-            'Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis "...". Provide only the single most relevant citation.',
-          page: "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
-        },
-        scratchpad_prompt:
-          "Use for intermediate step-by-step reasoning. Be concise.",
-      },
-    },
-  },
-  type: "object",
-  title: "StructParseConf",
-  description: "Configuration for the structured parsing agent.",
 } as const;
 
 export const SupportedLLMModelSchema = {

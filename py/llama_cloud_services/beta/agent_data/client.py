@@ -195,6 +195,21 @@ class AsyncAgentDataClient(Generic[AgentDataT]):
         await self.client.beta.delete_agent_data(item_id=item_id)
 
     @agent_data_retry
+    async def delete(
+        self, filter: Optional[Dict[str, Dict[ComparisonOperator, Any]]] = None
+    ) -> int:
+        """
+        Delete agent data by query, similar to search.
+        Returns the number of deleted items.
+        """
+        response = await self.client.beta.delete_agent_data_by_query_api_v_1_beta_agent_data_delete_post(
+            deployment_name=self.deployment_name,
+            collection=self.collection,
+            filter=filter,
+        )
+        return response.deleted_count
+
+    @agent_data_retry
     async def search(
         self,
         filter: Optional[Dict[str, Dict[ComparisonOperator, Any]]] = None,

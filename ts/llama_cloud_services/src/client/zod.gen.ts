@@ -691,115 +691,6 @@ export const zBodyRunJobOnFileApiV1ExtractionJobsFilePost = z.object({
   config_override: z.union([z.string(), z.null()]).optional(),
 });
 
-export const zExtractTarget = z.enum(["PER_DOC", "PER_PAGE"]);
-
-export const zExtractMode = z.enum([
-  "FAST",
-  "BALANCED",
-  "PREMIUM",
-  "MULTIMODAL",
-]);
-
-export const zPublicModelName = z.enum([
-  "openai-gpt-4o",
-  "openai-gpt-4o-mini",
-  "openai-gpt-4-1",
-  "openai-gpt-4-1-mini",
-  "openai-gpt-4-1-nano",
-  "openai-gpt-5",
-  "openai-gpt-5-mini",
-  "openai-gpt-5-nano",
-  "openai-text-embedding-3-small",
-  "openai-text-embedding-3-large",
-  "openai-whisper-1",
-  "anthropic-sonnet-3.5",
-  "anthropic-sonnet-3.5-v2",
-  "anthropic-sonnet-3.7",
-  "anthropic-sonnet-4.0",
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
-  "gemini-2.0-flash",
-  "gemini-2.0-flash-lite",
-  "gemini-1.5-flash",
-  "gemini-1.5-pro",
-]);
-
-export const zExtractModels = z.enum([
-  "openai-gpt-4-1",
-  "openai-gpt-4-1-mini",
-  "openai-gpt-4-1-nano",
-  "openai-gpt-5",
-  "openai-gpt-5-mini",
-  "gemini-2.0-flash",
-  "gemini-2.5-flash",
-  "gemini-2.5-pro",
-  "openai-gpt-4o",
-  "openai-gpt-4o-mini",
-]);
-
-export const zDocumentChunkMode = z.enum(["PAGE", "SECTION"]);
-
-export const zExtractConfig = z.object({
-  priority: z
-    .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
-    .optional(),
-  extraction_target: zExtractTarget.optional(),
-  extraction_mode: zExtractMode.optional(),
-  parse_model: z.union([zPublicModelName, z.null()]).optional(),
-  extract_model: z.union([zExtractModels, z.null()]).optional(),
-  multimodal_fast_mode: z.boolean().optional().default(false),
-  system_prompt: z.union([z.string(), z.null()]).optional(),
-  use_reasoning: z.boolean().optional().default(false),
-  cite_sources: z.boolean().optional().default(false),
-  confidence_scores: z.boolean().optional().default(false),
-  chunk_mode: zDocumentChunkMode.optional(),
-  high_resolution_mode: z.boolean().optional().default(false),
-  invalidate_cache: z.boolean().optional().default(false),
-  page_range: z.union([z.string(), z.null()]).optional(),
-});
-
-export const zExtractJobCreate = z.object({
-  priority: z
-    .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
-    .optional(),
-  webhook_configurations: z
-    .union([z.array(zWebhookConfiguration), z.null()])
-    .optional(),
-  extraction_agent_id: z.string().uuid(),
-  file_id: z.string().uuid(),
-  data_schema_override: z
-    .union([z.object({}), z.string(), z.null()])
-    .optional(),
-  config_override: z.union([zExtractConfig, z.null()]).optional(),
-});
-
-export const zChunkMode = z.enum([
-  "PAGE",
-  "DOCUMENT",
-  "SECTION",
-  "GROUPED_PAGES",
-]);
-
-export const zMultimodalParseResolution = z.enum(["medium", "high"]);
-
-export const zLlamaExtractSettings = z.object({
-  max_file_size: z.number().int().optional().default(104857600),
-  max_file_size_ui: z.number().int().optional().default(31457280),
-  max_pages: z.number().int().optional().default(500),
-  chunk_mode: zChunkMode.optional(),
-  max_chunk_size: z.number().int().optional().default(10000),
-  extraction_agent_config: z.object({}).optional(),
-  use_multimodal_parsing: z.boolean().optional().default(false),
-  use_pixel_extraction: z.boolean().optional().default(false),
-  llama_parse_params: zLlamaParseParameters.optional(),
-  multimodal_parse_resolution: zMultimodalParseResolution.optional(),
-});
-
-export const zBodyRunJobTestUserApiV1ExtractionJobsTestPost = z.object({
-  job_create: zExtractJobCreate,
-  extract_settings: z.union([zLlamaExtractSettings, z.null()]).optional(),
-});
-
 export const zBodyScreenshotApiParsingScreenshotPost = z.object({
   file: z.union([z.string(), z.null()]).optional(),
   do_not_cache: z.boolean().optional().default(false),
@@ -1070,11 +961,6 @@ export const zBodyUploadFileApiV1ParsingUploadPost = z.object({
   page_header_suffix: z.string().optional(),
   page_footer_prefix: z.string().optional(),
   page_footer_suffix: z.string().optional(),
-});
-
-export const zBodyUploadFileV2ApiV2Alpha1ParseUploadPost = z.object({
-  configuration: z.string(),
-  file: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zBoxAuthMechanism = z.enum(["developer_token", "ccg"]);
@@ -1700,6 +1586,7 @@ export const zCustomClaims = z.object({
   allowed_classify: z.boolean().optional().default(true),
   api_datasource_access: z.boolean().optional().default(false),
   allow_org_deletion: z.boolean().optional().default(false),
+  allowed_spreadsheet: z.boolean().optional().default(false),
 });
 
 export const zCustomerPortalSessionCreatePayload = z.object({
@@ -1855,6 +1742,16 @@ export const zDefaultOrganizationUpdate = z.object({
   organization_id: z.string().uuid(),
 });
 
+export const zDeleteRequest = z.object({
+  deployment_name: z.string(),
+  collection: z.string().optional().default("default"),
+  filter: z.union([z.object({}), z.null()]).optional(),
+});
+
+export const zDeleteResponse = z.object({
+  deleted_count: z.number().int(),
+});
+
 export const zRetrieverPipeline = z.object({
   name: z.union([z.string().min(1).max(3000), z.null()]),
   description: z.union([z.string().max(15000), z.null()]),
@@ -1869,6 +1766,8 @@ export const zDirectRetrievalParams = z.object({
   query: z.string().min(1),
   pipelines: z.array(zRetrieverPipeline).optional(),
 });
+
+export const zDocumentChunkMode = z.enum(["PAGE", "SECTION"]);
 
 export const zDocumentIngestionJobParams = z.object({
   custom_metadata: z.union([z.object({}), z.null()]).optional(),
@@ -2122,6 +2021,74 @@ Query: {query_str}
 Answer: `),
 });
 
+export const zExtractTarget = z.enum(["PER_DOC", "PER_PAGE"]);
+
+export const zExtractMode = z.enum([
+  "FAST",
+  "BALANCED",
+  "PREMIUM",
+  "MULTIMODAL",
+]);
+
+export const zPublicModelName = z.enum([
+  "openai-gpt-4o",
+  "openai-gpt-4o-mini",
+  "openai-gpt-4-1",
+  "openai-gpt-4-1-mini",
+  "openai-gpt-4-1-nano",
+  "openai-gpt-5",
+  "openai-gpt-5-mini",
+  "openai-gpt-5-nano",
+  "openai-text-embedding-3-small",
+  "openai-text-embedding-3-large",
+  "openai-whisper-1",
+  "anthropic-sonnet-3.5",
+  "anthropic-sonnet-3.5-v2",
+  "anthropic-sonnet-3.7",
+  "anthropic-sonnet-4.0",
+  "gemini-2.5-flash",
+  "gemini-2.5-pro",
+  "gemini-2.0-flash",
+  "gemini-2.0-flash-lite",
+  "gemini-2.5-flash-lite",
+  "gemini-1.5-flash",
+  "gemini-1.5-pro",
+]);
+
+export const zExtractModels = z.enum([
+  "openai-gpt-4-1",
+  "openai-gpt-4-1-mini",
+  "openai-gpt-4-1-nano",
+  "openai-gpt-5",
+  "openai-gpt-5-mini",
+  "gemini-2.0-flash",
+  "gemini-2.5-flash",
+  "gemini-2.5-flash-lite",
+  "gemini-2.5-pro",
+  "openai-gpt-4o",
+  "openai-gpt-4o-mini",
+]);
+
+export const zExtractConfig = z.object({
+  priority: z
+    .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
+    .optional(),
+  extraction_target: zExtractTarget.optional(),
+  extraction_mode: zExtractMode.optional(),
+  parse_model: z.union([zPublicModelName, z.null()]).optional(),
+  extract_model: z.union([zExtractModels, z.null()]).optional(),
+  multimodal_fast_mode: z.boolean().optional().default(false),
+  system_prompt: z.union([z.string(), z.null()]).optional(),
+  use_reasoning: z.boolean().optional().default(false),
+  cite_sources: z.boolean().optional().default(false),
+  confidence_scores: z.boolean().optional().default(false),
+  chunk_mode: zDocumentChunkMode.optional(),
+  high_resolution_mode: z.boolean().optional().default(false),
+  invalidate_cache: z.boolean().optional().default(false),
+  num_pages_context: z.union([z.number().int().gte(1), z.null()]).optional(),
+  page_range: z.union([z.string(), z.null()]).optional(),
+});
+
 export const zExtractAgent = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -2165,6 +2132,21 @@ export const zExtractJob = z.object({
   status: zStatusEnum,
   error: z.union([z.string(), z.null()]).optional(),
   file: zFile,
+});
+
+export const zExtractJobCreate = z.object({
+  priority: z
+    .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
+    .optional(),
+  webhook_configurations: z
+    .union([z.array(zWebhookConfiguration), z.null()])
+    .optional(),
+  extraction_agent_id: z.string().uuid(),
+  file_id: z.string().uuid(),
+  data_schema_override: z
+    .union([z.object({}), z.string(), z.null()])
+    .optional(),
+  config_override: z.union([zExtractConfig, z.null()]).optional(),
 });
 
 export const zExtractJobCreateBatch = z.object({
@@ -2232,6 +2214,15 @@ export const zExtractStatelessRequest = z.object({
   file_id: z.union([z.string().uuid(), z.null()]).optional(),
   text: z.union([z.string(), z.null()]).optional(),
   file: z.union([zFileData, z.null()]).optional(),
+});
+
+export const zExtractedTable = z.object({
+  table_id: z.number().int(),
+  sheet_name: z.string(),
+  row_span: z.number().int(),
+  col_span: z.number().int(),
+  has_headers: z.boolean(),
+  metadata_json: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zFileCountByStatusResponse = z.object({
@@ -2987,6 +2978,30 @@ export const zPaginatedResponseQuotaConfiguration = z.object({
   items: z.array(zQuotaConfiguration),
 });
 
+export const zSpreadsheetParsingConfig = z.object({
+  sheet_names: z.union([z.array(z.string()), z.null()]).optional(),
+});
+
+export const zSpreadsheetJob = z.object({
+  id: z.string(),
+  user_id: z.string(),
+  project_id: z.string().uuid(),
+  file_id: z.string().uuid(),
+  config: zSpreadsheetParsingConfig,
+  status: zStatusEnum,
+  created_at: z.string(),
+  updated_at: z.string(),
+  success: z.union([z.boolean(), z.null()]).optional(),
+  tables: z.array(zExtractedTable).optional(),
+  errors: z.array(z.string()).optional(),
+});
+
+export const zPaginatedResponseSpreadsheetJob = z.object({
+  items: z.array(zSpreadsheetJob),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
 export const zParseConfiguration = z.object({
   id: z.string(),
   name: z.string(),
@@ -3400,49 +3415,6 @@ export const zProjectUpdate = z.object({
   name: z.string().min(1).max(3000),
 });
 
-export const zPromptConf = z.object({
-  system_prompt: z
-    .string()
-    .optional()
-    .default(
-      "Given a JSON schema, extract the data from the provided SOURCE TEXT according to the schema. Only output information that is explicitly stated or can be inferred from the SOURCE TEXT.",
-    ),
-  extraction_prompt: z
-    .string()
-    .optional()
-    .default("The extracted data using the given JSON schema."),
-  error_handling_prompt: z
-    .string()
-    .optional()
-    .default(
-      "If the source text does not contain enough information to extract the value, explain the reason very briefly. Else, output null and fill out the value__ field.",
-    ),
-  reasoning_prompt: z.string().optional().default(`
-Provide a brief explanation for how you arrived at the extracted value based on the source text provided.
-- For inferred values, explain the reasoning behind the extraction briefly.
-- For simple verbatim extraction, output 'VERBATIM EXTRACTION'.
-- When supporting data is not present in the source text, output 'INSUFFICIENT DATA' and emit blank or null values for the value__ field.
-`),
-  cite_sources_prompt: z
-    .object({})
-    .optional()
-    .default({
-      description: `
-### Citation Rules (read carefully):
-- You must ANNOTATE every value with the MOST RELEVANT short EXACT substring from the source text that supports it.
-- For inferred values, cite the text used to infer it in the matching_text field or output 'INFERRED FROM TEXT'
-- If no support exists, output 'INSUFFICIENT DATA' and leave value__ null or '', 0.0, False etc depending on the type of the field.
-`,
-      page: "Cite the page number of the source text that the extracted value is from. The page number is the integer that appears right after <<<PAGE:. If no page number is present in this format, use the default value of 1.",
-      matching_text:
-        'Cite the **MOST RELEVANT EXACT TEXT from the SOURCE TEXT** that supports the extracted value within 80 characters. If the exact substring is >80 chars, truncate with ellipsis "...". Provide only the single most relevant citation.',
-    }),
-  scratchpad_prompt: z
-    .string()
-    .optional()
-    .default("Use for intermediate step-by-step reasoning. Be concise."),
-});
-
 export const zRelatedNodeInfo = z.object({
   node_id: z.string(),
   node_type: z.union([zObjectType, z.string(), z.null()]).optional(),
@@ -3545,8 +3517,6 @@ export const zRole = z.object({
   permissions: z.array(zPermission),
 });
 
-export const zSchemaRelaxMode = z.enum(["FULL", "TOP_LEVEL", "LEAF"]);
-
 export const zSearchRequest = z.object({
   page_size: z.union([z.number().int(), z.null()]).optional(),
   page_token: z.union([z.string(), z.null()]).optional(),
@@ -3558,24 +3528,9 @@ export const zSearchRequest = z.object({
   offset: z.union([z.number().int().gte(0).lte(1000), z.null()]).optional(),
 });
 
-export const zStructMode = z.enum([
-  "STRUCT_PARSE",
-  "JSON_MODE",
-  "FUNC_CALL",
-  "STRUCT_RELAXED",
-  "UNSTRUCTURED",
-]);
-
-export const zStructParseConf = z.object({
-  model: zExtractModels.optional(),
-  temperature: z.number().optional().default(0),
-  relaxation_mode: zSchemaRelaxMode.optional(),
-  struct_mode: zStructMode.optional(),
-  fetch_logprobs: z.boolean().optional().default(false),
-  handle_missing: z.boolean().optional().default(false),
-  use_reasoning: z.boolean().optional().default(false),
-  cite_sources: z.boolean().optional().default(false),
-  prompt_conf: zPromptConf.optional(),
+export const zSpreadsheetJobCreate = z.object({
+  file_id: z.string().uuid(),
+  config: zSpreadsheetParsingConfig.optional(),
 });
 
 export const zSupportedLlmModel = z.object({
@@ -4017,6 +3972,33 @@ export const zCreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerS
 export const zGetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse =
   zMetronomeDashboardResponse;
 
+export const zListJobsApiV1ExtractionJobsGetResponse = z.array(zExtractJob);
+
+export const zRunJobApiV1ExtractionJobsPostResponse = zExtractJob;
+
+export const zGetJobApiV1ExtractionJobsJobIdGetResponse = zExtractJob;
+
+export const zRunJobOnFileApiV1ExtractionJobsFilePostResponse = zExtractJob;
+
+export const zRunBatchJobsApiV1ExtractionJobsBatchPostResponse =
+  z.array(zExtractJob);
+
+export const zGetJobResultApiV1ExtractionJobsJobIdResultGetResponse =
+  zExtractResultset;
+
+export const zListExtractRunsApiV1ExtractionRunsGetResponse =
+  zPaginatedExtractRunsResponse;
+
+export const zGetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse =
+  z.union([zExtractRun, z.null()]);
+
+export const zGetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse =
+  zExtractRun;
+
+export const zGetRunApiV1ExtractionRunsRunIdGetResponse = zExtractRun;
+
+export const zExtractStatelessApiV1ExtractionRunPostResponse = zExtractJob;
+
 export const zListExtractionAgentsApiV1ExtractionExtractionAgentsGetResponse =
   z.array(zExtractAgent);
 
@@ -4040,35 +4022,6 @@ export const zGetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentId
 
 export const zUpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   zExtractAgent;
-
-export const zListJobsApiV1ExtractionJobsGetResponse = z.array(zExtractJob);
-
-export const zRunJobApiV1ExtractionJobsPostResponse = zExtractJob;
-
-export const zGetJobApiV1ExtractionJobsJobIdGetResponse = zExtractJob;
-
-export const zRunJobTestUserApiV1ExtractionJobsTestPostResponse = zExtractJob;
-
-export const zRunJobOnFileApiV1ExtractionJobsFilePostResponse = zExtractJob;
-
-export const zRunBatchJobsApiV1ExtractionJobsBatchPostResponse =
-  z.array(zExtractJob);
-
-export const zGetJobResultApiV1ExtractionJobsJobIdResultGetResponse =
-  zExtractResultset;
-
-export const zListExtractRunsApiV1ExtractionRunsGetResponse =
-  zPaginatedExtractRunsResponse;
-
-export const zGetLatestRunFromUiApiV1ExtractionRunsLatestFromUiGetResponse =
-  z.union([zExtractRun, z.null()]);
-
-export const zGetRunByJobIdApiV1ExtractionRunsByJobJobIdGetResponse =
-  zExtractRun;
-
-export const zGetRunApiV1ExtractionRunsRunIdGetResponse = zExtractRun;
-
-export const zExtractStatelessApiV1ExtractionRunPostResponse = zExtractJob;
 
 export const zListApiKeysApiV1BetaApiKeysGetResponse = zApiKeyQueryResponse;
 
@@ -4099,6 +4052,9 @@ export const zSearchAgentDataApiV1BetaAgentDataSearchPostResponse =
 
 export const zAggregateAgentDataApiV1BetaAgentDataAggregatePostResponse =
   zPaginatedResponseAggregateGroup;
+
+export const zDeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse =
+  zDeleteResponse;
 
 export const zListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse =
   zPaginatedResponseQuotaConfiguration;
@@ -4134,6 +4090,18 @@ export const zQueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostRespo
 
 export const zGetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse =
   z.union([zParseConfiguration, z.null()]);
+
+export const zListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse =
+  zPaginatedResponseSpreadsheetJob;
+
+export const zCreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse =
+  zSpreadsheetJob;
+
+export const zGetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse =
+  zSpreadsheetJob;
+
+export const zGetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse =
+  zPresignedUrl;
 
 export const zUploadFileV2ApiV2Alpha1ParseUploadPostResponse = zParsingJob;
 
