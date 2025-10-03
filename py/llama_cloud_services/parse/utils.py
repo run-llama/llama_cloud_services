@@ -367,6 +367,7 @@ def is_jupyter() -> bool:
     except (ImportError, AttributeError):
         return False
 
+
 def extract_tables_from_json_results(
     json_results: List[dict], download_path: str
 ) -> List[str]:

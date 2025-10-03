@@ -277,7 +277,6 @@ class JobResult(BaseModel):
             """
             return text.replace("$", r"\$")
 
-
         return escape_dollar_signs(text)
 
     def get_markdown_documents(self, split_by_page: bool = False) -> List[Document]:
@@ -290,7 +289,9 @@ class JobResult(BaseModel):
         if split_by_page:
             return [
                 Document(
-                    text=self._format_markdown_for_notebook(page.md) if is_jupyter() else page.md,
+                    text=self._format_markdown_for_notebook(page.md)
+                    if is_jupyter()
+                    else page.md,
                     metadata={"page_number": page.page, "file_name": self.file_name},
                 )
                 for page in self.pages
@@ -301,7 +302,9 @@ class JobResult(BaseModel):
             )
             return [
                 Document(
-                    text=self._format_markdown_for_notebook(text) if is_jupyter() else text,
+                    text=self._format_markdown_for_notebook(text)
+                    if is_jupyter()
+                    else text,
                     metadata={"file_name": self.file_name},
                 )
             ]
@@ -352,7 +355,9 @@ class JobResult(BaseModel):
         url = f"{self._base_url}/api/v1/parsing/job/{self.job_id}/result/raw/markdown"
         response = await make_api_request(self._client, "GET", url)
         markdown = response.content.decode("utf-8")
-        return self._format_markdown_for_notebook(markdown) if is_jupyter() else markdown
+        return (
+            self._format_markdown_for_notebook(markdown) if is_jupyter() else markdown
+        )
 
     def get_text(self) -> str:
         """
