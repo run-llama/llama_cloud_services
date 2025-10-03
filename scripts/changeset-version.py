@@ -110,7 +110,8 @@ def version() -> None:
 
 @cli.command()
 @click.option("--tag", is_flag=True, help="Tag the packages after publishing")
-def publish(tag: bool) -> None:
+@click.option("--dry-run", is_flag=True, help="Dry run the publish")
+def publish(tag: bool, dry_run: bool) -> None:
     """Publish all packages."""
     # move to the root
     os.chdir(Path(__file__).parent.parent)
@@ -126,15 +127,21 @@ def publish(tag: bool) -> None:
         raise click.Abort("No token set")
 
     # not general script. Just checks each of the 2 packages to see if they need to be published.
-    maybe_publish_ts_package()
-    maybe_publish_py_packages()
+    maybe_publish_ts_package(dry_run)
+    maybe_publish_py_packages(dry_run)
 
     if tag:
-        _run_command(["npx", "@changesets/cli", "tag"], check=True, capture=True)
-        _run_command(["git", "push", "--tags"], check=True, capture=True)
+        if dry_run:
+            click.echo("Dry run, skipping tag. Would run:")
+            click.echo("  npx @changesets/cli tag")
+            click.echo("  git push --tags")
+            return
+        else:
+            _run_command(["npx", "@changesets/cli", "tag"], check=True, capture=True)
+            _run_command(["git", "push", "--tags"], check=True, capture=True)
 
 
-def maybe_publish_ts_package() -> None:
+def maybe_publish_ts_package(dry_run: bool) -> None:
     """Publish the ts package if it needs to be published."""
     target_dir = Path("ts/llama_cloud_services")
     ts_path_package = target_dir / "package.json"
@@ -152,23 +159,30 @@ def maybe_publish_ts_package() -> None:
     published_versions = json.loads(result.stdout)
     if version in published_versions:
         click.echo(
-            f"Version llama-cloud-services@{version} already published, skipping"
+            f"npm  package llama-cloud-services@{version} already published, skipping"
         )
         return
     click.echo(f"Publishing llama-cloud-services@{version}")
     # defer to the package.json publish script
-    output = _run_command(
-        ["pnpm", "run" "publish"], check=True, capture=True, cwd=target_dir
-    )
-    click.echo(output.stdout)
+    if dry_run:
+        click.echo("Dry run, skipping publish. Would run:")
+        click.echo("  pnpm run publish")
+        return
+    else:
+        output = _run_command(
+            ["pnpm", "runpublish"], check=True, capture=True, cwd=target_dir
+        )
+        click.echo(output.stdout)
 
 
-def maybe_publish_py_packages() -> None:
+def maybe_publish_py_packages(dry_run: bool) -> None:
     """Publish the py packages if they need to be published."""
-    for pyproject in Path("py").glob("**/pyproject.toml"):
+    for pyproject in list(Path("py").glob("*/pyproject.toml")) + [
+        Path("py/pyproject.toml")
+    ]:
         name, version = current_version(pyproject)
         if is_published(name, version):
-            click.echo(f"{name}@{version} already published, skipping")
+            click.echo(f"PyPI package {name}@{version} already published, skipping")
             continue
         click.echo(f"Publishing {name}@{version}")
 
@@ -181,15 +195,24 @@ def maybe_publish_py_packages() -> None:
             # llama-cloud-services uses the main PyPI token
             env["UV_PUBLISH_TOKEN"] = os.environ["UV_PUBLISH_TOKEN"]
 
-        result = subprocess.run(
-            ["uv", "publish"],
-            check=True,
-            capture_output=True,
-            text=True,
-            cwd=pyproject.parent,
-            env=env,
-        )
-        click.echo(result.stdout)
+        if dry_run:
+            token = env["UV_PUBLISH_TOKEN"]
+            summary = (token[:3] + "***") if len(token) <= 6 else token[:6] + "****"
+            click.echo(
+                f"Dry run, skipping publish. Would run with publish token {summary}:"
+            )
+            click.echo("  uv publish --dry-run")
+            return
+        else:
+            result = subprocess.run(
+                ["uv", "publish"],
+                check=True,
+                capture_output=True,
+                text=True,
+                cwd=pyproject.parent,
+                env=env,
+            )
+            click.echo(result.stdout)
 
 
 def current_version(pyproject: Path) -> tuple[str, str]:
