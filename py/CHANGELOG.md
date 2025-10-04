@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.72
+
+### Patch Changes
+
+- ad6734b: Fixup and test versioning
+
 ## 0.6.71
 
 ### Patch Changes
