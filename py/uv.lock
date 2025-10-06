@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 2
 requires-python = ">=3.9, <4.0"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -1596,7 +1596,7 @@ wheels = [
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.70"
+version = "0.6.72"
 source = { editable = "." }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
@@ -1633,7 +1633,7 @@ requires-dist = [
     { name = "eval-type-backport", marker = "python_full_version < '3.10'", specifier = ">=0.2.0,<0.3" },
     { name = "llama-cloud", specifier = "==0.1.43" },
     { name = "llama-index-core", specifier = ">=0.12.0" },
-    { name = "packaging", specifier = ">=25.0" },
+    { name = "packaging", specifier = ">=23.0" },
     { name = "platformdirs", specifier = ">=4.3.7,<5" },
     { name = "pydantic", specifier = ">=2.8,!=2.10" },
     { name = "python-dotenv", specifier = ">=1.0.1,<2" },
