@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.73
+
+### Patch Changes
+
+- e6a7939: Loosen packaging dep requirement
+
 ## 0.6.72
 
 ### Patch Changes
