@@ -6,6 +6,40 @@ from llama_cloud_services import LlamaParse
 from llama_cloud_services.parse.types import JobResult
 
 
+def test_format_parse_result_markdown_for_notebook():
+    """Test the _format_markdown_for_notebook function.
+    Right now, the only work it does is escape single dollar signs."""
+    result = JobResult(job_id="test", file_name="test.pdf", job_result={})
+
+    # Test None input
+    assert result._format_markdown_for_notebook(None) is None
+
+    # Test single dollar sign gets escaped
+    assert result._format_markdown_for_notebook("This costs $5") == "This costs \\$5"
+
+    # Test double dollar signs are preserved (LaTeX equations)
+    assert (
+        result._format_markdown_for_notebook("$$x^2 + y^2 = z^2$$")
+        == "$$x^2 + y^2 = z^2$$"
+    )
+
+    # Test mixed single and double dollar signs
+    text = "This costs $5, but $$E = mc^2$$ is priceless"
+    expected = "This costs \\$5, but $$E = mc^2$$ is priceless"
+    assert result._format_markdown_for_notebook(text) == expected
+
+    # Test multiple single dollar signs
+    assert result._format_markdown_for_notebook("$10 and $20") == "\\$10 and \\$20"
+
+    # Test three or more consecutive dollar signs (preserve them)
+    assert result._format_markdown_for_notebook("$$$") == "$$$"
+
+    # Test adjacent dollar signs with text in between
+    text = "$$inline$$ and $separate"
+    expected = "$$inline$$ and \\$separate"
+    assert result._format_markdown_for_notebook(text) == expected
+
+
 @pytest.fixture
 def file_path() -> str:
     return "tests/test_files/attention_is_all_you_need.pdf"
