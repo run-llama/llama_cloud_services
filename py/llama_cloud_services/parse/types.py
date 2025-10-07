@@ -266,18 +266,23 @@ class JobResult(BaseModel):
         if text is None:
             return None
 
-        def escape_dollar_signs(text: str) -> str:
-            """Escape dollar signs in text to prevent Jupyter from interpreting them as LaTeX.
+        def escape_single_dollar_signs(text: str) -> str:
+            """Escape single dollar signs in text to prevent Jupyter from interpreting them as LaTeX.
+
+            Preserves all strings of dollar signs greater than length 1,
+            especially preserving double dollar signs ($$) which denote LaTeX equations.
 
             Args:
                 text: The text to escape
 
             Returns:
-                Text with dollar signs escaped
+                Text with single dollar signs escaped
             """
-            return text.replace("$", r"\$")
+            # Replace single $ with \$, but preserve $$
+            # Use negative lookahead and lookbehind to match $ not preceded or followed by $
+            return re.sub(r"(?<!\$)\$(?!\$)", r"\$", text)
 
-        return escape_dollar_signs(text)
+        return escape_single_dollar_signs(text)
 
     def get_markdown_documents(self, split_by_page: bool = False) -> List[Document]:
         """
