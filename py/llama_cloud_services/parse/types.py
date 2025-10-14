@@ -30,10 +30,22 @@ class JobMetadata(BaseModel):
 class BBox(BaseModel):
     """A bounding box."""
 
-    x: float = Field(description="The x-coordinate of the bounding box.")
-    y: float = Field(description="The y-coordinate of the bounding box.")
-    w: float = Field(description="The width of the bounding box.")
-    h: float = Field(description="The height of the bounding box.")
+    x: Optional[float] = Field(
+        default=None,
+        description="The x-coordinate of the bounding box.",
+    )
+    y: Optional[float] = Field(
+        default=None,
+        description="The y-coordinate of the bounding box.",
+    )
+    w: Optional[float] = Field(
+        default=None,
+        description="The width of the bounding box.",
+    )
+    h: Optional[float] = Field(
+        default=None,
+        description="The height of the bounding box.",
+    )
 
 
 class PageItem(BaseModel):
@@ -88,12 +100,16 @@ class LayoutItem(BaseModel):
     """The layout of a page."""
 
     image: str = Field(description="The name of the image containing the layout item")
-    confidence: float = Field(description="The confidence of the layout item.")
+    confidence: float = Field(
+        default=0.0, description="The confidence of the layout item."
+    )
     label: str = Field(description="The label of the layout item.")
     bbox: Optional[BBox] = Field(
         default=None, description="The bounding box of the layout item."
     )
-    isLikelyNoise: bool = Field(description="Whether the layout item is likely noise.")
+    isLikelyNoise: bool = Field(
+        default=False, description="Whether the layout item is likely noise."
+    )
 
 
 class ChartItem(BaseModel):
