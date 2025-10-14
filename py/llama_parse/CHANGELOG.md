@@ -1,5 +1,13 @@
 # llama_parse
 
+## 0.6.74
+
+### Patch Changes
+
+- Updated dependencies [1bf5223]
+- Updated dependencies [24166dc]
+  - llama-cloud-services-py@0.6.74
+
 ## 0.6.73
 
 ### Patch Changes

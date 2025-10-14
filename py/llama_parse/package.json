@@ -1,6 +1,6 @@
 {
   "name": "llama_parse",
-  "version": "0.6.73",
+  "version": "0.6.74",
   "description": "",
   "main": "index.js",
   "private": false,
