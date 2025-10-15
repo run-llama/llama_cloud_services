@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.76
+
+### Patch Changes
+
+- 4f24f53: Add aggressive_table_extraction flag in python sdk
+
 ## 0.6.75
 
 ### Patch Changes
