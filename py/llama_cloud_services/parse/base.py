@@ -188,6 +188,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, LlamaParse will try to detect long table and adapt the output.",
     )
+    aggressive_table_extraction: Optional[bool] = Field(
+        default=False,
+        description="If set to true, LlamaParse will try to extract tables aggressively, may lead to false positives.",
+    )
     annotate_links: Optional[bool] = Field(
         default=False,
         description="Annotate links found in the document to extract their URL.",
@@ -712,6 +716,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.adaptive_long_table:
             data["adaptive_long_table"] = self.adaptive_long_table
+        
+        if self.aggressive_table_extraction:
+            data["aggressive_table_extraction"] = self.aggressive_table_extraction
 
         if self.annotate_links:
             data["annotate_links"] = self.annotate_links
