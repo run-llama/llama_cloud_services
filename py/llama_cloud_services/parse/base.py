@@ -716,7 +716,7 @@ class LlamaParse(BasePydanticReader):
 
         if self.adaptive_long_table:
             data["adaptive_long_table"] = self.adaptive_long_table
-        
+
         if self.aggressive_table_extraction:
             data["aggressive_table_extraction"] = self.aggressive_table_extraction
 
