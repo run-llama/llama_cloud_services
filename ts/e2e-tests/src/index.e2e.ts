@@ -9,10 +9,12 @@ test("LlamaIndex module resolution test", async (t) => {
     const index = new LlamaCloudIndex({
       name: "test-index",
       projectName: "Default",
+      apiKey: process.env.LLAMA_CLOUD_API_KEY || "test-key",
     });
     const reader = new LlamaParseReader({
       resultType: "markdown",
       verbose: false,
+      apiKey: process.env.LLAMA_CLOUD_API_KEY || "test-key",
     });
     ok(index !== undefined);
     ok(reader !== undefined);
@@ -24,6 +26,7 @@ test("LlamaIndex module resolution test", async (t) => {
     const index = new mod.LlamaCloudIndex({
       name: "test-index",
       projectName: "Default",
+      apiKey: process.env.LLAMA_CLOUD_API_KEY || "test-key",
     });
     ok(index !== undefined);
   });
