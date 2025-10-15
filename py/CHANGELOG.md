@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.75
+
+### Patch Changes
+
+- f81532e: Safest types possible for parse
+
 ## 0.6.74
 
 ### Patch Changes
