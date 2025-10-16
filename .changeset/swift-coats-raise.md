@@ -1,5 +1,5 @@
 ---
-"llama-cloud-services": minor
+"llama-cloud-services": patch
 ---
 
 Add ImageNode support in TypeScript
