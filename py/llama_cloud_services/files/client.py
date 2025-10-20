@@ -172,5 +172,5 @@ class FileClient:
         else:
             raise ValueError(
                 f"Unsupported file input type: {type(file_input)}. "
-                "Use SourceText for bytes or file-like objects."
+                f"Supported types: str, Path, SourceText, BufferedIOBase, or File."
             )

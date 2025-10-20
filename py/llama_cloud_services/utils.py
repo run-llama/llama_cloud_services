@@ -136,7 +136,7 @@ class SourceText:
         # Bytes with filename
         source = SourceText(file=b"...", filename="document.pdf")
 
-        # File-like object
+        # File-like object (will read from current position)
         with open("document.pdf", "rb") as f:
             source = SourceText(file=f)
     """
@@ -166,7 +166,7 @@ class SourceText:
         if isinstance(self.file, (bytes, BufferedIOBase, TextIOWrapper)):
             if not self.filename and hasattr(self.file, "name"):
                 self.filename = os.path.basename(str(self.file.name))
-            elif not hasattr(self.file, "name") and self.filename is None:
+            elif self.filename is None and not hasattr(self.file, "name"):
                 raise ValueError(
                     "filename must be provided when file is bytes or a file-like object without a name"
                 )
