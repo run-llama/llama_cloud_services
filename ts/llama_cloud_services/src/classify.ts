@@ -20,25 +20,25 @@ import { uploadFile } from "./fileUpload";
 import { File } from "buffer";
 
 async function createClassifyJob(
-  file_ids: string[],
+  fileIds: string[],
   rules: ClassifierRule[],
-  parsing_configuration: ClassifyParsingConfiguration,
-  organization_id: null | string,
-  project_id: null | string,
+  parsingConfiguration: ClassifyParsingConfiguration,
+  organizationId: null | string,
+  projectId: null | string,
   client: Client | undefined,
   maxRetriesOnError: number = 10,
   retryInterval: number = 0.5,
 ): Promise<string> {
   const rawData = {
-    file_ids: file_ids,
+    file_ids: fileIds,
     rules: rules,
-    parsing_configuration: parsing_configuration,
+    parsing_configuration: parsingConfiguration,
   } as ClassifyJobCreate;
   const data = {
     body: rawData,
     query: {
-      project_id: project_id,
-      organization_id: organization_id,
+      project_id: projectId,
+      organization_id: organizationId,
     },
   } as CreateClassifyJobApiV1ClassifierJobsPostData;
   const options = data as Options<CreateClassifyJobApiV1ClassifierJobsPostData>;
@@ -117,14 +117,14 @@ async function pollForJobCompletion(
 async function getJobResult(
   jobId: string,
   client: Client | undefined = undefined,
-  project_id: string | null = null,
-  organization_id: string | null = null,
+  projectId: string | null = null,
+  organizationId: string | null = null,
   maxRetriesOnError: number = 10,
   retryInterval: number = 0.5,
 ): Promise<ClassifyJobResults> {
   const jobData = {
     path: { classify_job_id: jobId },
-    query: { organization_id: organization_id, project_id: project_id },
+    query: { organization_id: organizationId, project_id: projectId },
   } as GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData;
   const jobOptions =
     jobData as Options<GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData>;
@@ -173,8 +173,8 @@ export async function classify(
     | string[]
     | undefined = undefined,
   filePaths: string[] | undefined = undefined,
-  project_id: string | null = null,
-  organization_id: string | null = null,
+  projectId: string | null = null,
+  organizationId: string | null = null,
   client: Client | undefined = undefined,
   pollingInterval: number = 1,
   maxPollingIterations: number = 1800,
@@ -182,103 +182,51 @@ export async function classify(
   retryInterval: number = 0.5,
 ): Promise<ClassifyJobResults> {
   const fileIds: string[] = [];
-  if (typeof fileContents == "undefined" && typeof filePaths == "undefined") {
+  if (!filePaths && !fileContents) {
     throw new Error(
       "At least one of fileContents and filePaths has to be provided",
     );
-  } else if (
-    typeof filePaths != "undefined" &&
-    typeof fileContents != "undefined"
-  ) {
+  }
+
+  if (filePaths) {
     for (const name of filePaths) {
       const fileId = await uploadFile(
         name,
         undefined,
         undefined,
-        project_id,
-        organization_id,
+        projectId,
+        organizationId,
         client,
         maxRetriesOnError,
         retryInterval,
       );
-      if (typeof fileId != "undefined") {
-        fileIds.push(fileId);
-      } else {
-        console.log(`Unable to upload ${name}, skipping...`);
-      }
+      if (fileId) fileIds.push(fileId);
+      else console.log(`Unable to upload ${name}, skipping...`);
     }
+  }
+
+  if (fileContents) {
     for (const content of fileContents) {
       const fileId = await uploadFile(
         undefined,
         content,
         undefined,
-        project_id,
-        organization_id,
+        projectId,
+        organizationId,
         client,
         maxRetriesOnError,
         retryInterval,
       );
-      if (typeof fileId != "undefined") {
-        fileIds.push(fileId);
-      } else {
-        console.log(
-          // TODO: improve error message
-          `Unable to upload file, skipping...`,
-        );
-      }
-    }
-  } else if (
-    typeof filePaths != "undefined" &&
-    typeof fileContents == "undefined"
-  ) {
-    for (const name of filePaths) {
-      const fileId = await uploadFile(
-        name,
-        undefined,
-        undefined,
-        project_id,
-        organization_id,
-        client,
-        maxRetriesOnError,
-        retryInterval,
-      );
-      if (typeof fileId != "undefined") {
-        fileIds.push(fileId);
-      } else {
-        console.log(`Unable to upload ${name}, skipping...`);
-      }
-    }
-  } else if (
-    typeof filePaths == "undefined" &&
-    typeof fileContents != "undefined"
-  ) {
-    for (const content of fileContents) {
-      const fileId = await uploadFile(
-        undefined,
-        content,
-        undefined,
-        project_id,
-        organization_id,
-        client,
-        maxRetriesOnError,
-        retryInterval,
-      );
-      if (typeof fileId != "undefined") {
-        fileIds.push(fileId);
-      } else {
-        console.log(
-          // TODO: improve error message
-          `Unable to upload file, skipping...`,
-        );
-      }
+      if (fileId) fileIds.push(fileId);
+      else console.log(`Unable to upload file (content), skipping...`);
     }
   }
   const jobId = await createClassifyJob(
     fileIds,
     rules,
     parsingConfiguration,
-    organization_id,
-    project_id,
+    organizationId,
+    projectId,
     client,
     maxRetriesOnError,
     retryInterval,
@@ -295,8 +243,8 @@ export async function classify(
     return (await getJobResult(
       jobId,
       client,
-      project_id,
-      organization_id,
+      projectId,
+      organizationId,
       maxRetriesOnError,
       retryInterval,
     )) as ClassifyJobResults;
