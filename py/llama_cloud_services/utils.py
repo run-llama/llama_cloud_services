@@ -3,11 +3,14 @@ import importlib.metadata
 from contextlib import contextmanager
 from typing import Generator
 import difflib
-from llama_cloud.types import StatusEnum
+from llama_cloud.types import StatusEnum, File
 import httpx
 import packaging.version
 from pydantic import BaseModel
-from typing import Any, Dict, List, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type, Union, Optional
+from io import BufferedIOBase, TextIOWrapper
+from pathlib import Path
+import secrets
 
 # Asyncio error messages
 nest_asyncio_err = "cannot be called from a running event loop"
@@ -104,3 +107,75 @@ def augment_async_errors() -> Generator[None, None, None]:
         if nest_asyncio_err in str(e):
             raise RuntimeError(nest_asyncio_msg)
         raise
+
+
+class SourceText:
+    """
+    A wrapper class for providing text or file input with optional filename specification.
+
+    This class allows you to provide input in multiple ways:
+    - Direct text content via text_content parameter
+    - File paths as strings or Path objects
+    - Raw bytes
+    - File-like objects (BufferedIOBase, TextIOWrapper)
+
+    Args:
+        file: The file input (bytes, file-like object, str path, or Path).
+              Mutually exclusive with text_content.
+        text_content: Raw text content to process. Mutually exclusive with file.
+        filename: Optional filename. Required for bytes/file-like objects without names.
+                  If not provided, will be auto-generated for text_content or inferred from paths.
+
+    Examples:
+        # Direct text input
+        source = SourceText(text_content="Hello world")
+
+        # File path
+        source = SourceText(file="document.pdf")
+
+        # Bytes with filename
+        source = SourceText(file=b"...", filename="document.pdf")
+
+        # File-like object
+        with open("document.pdf", "rb") as f:
+            source = SourceText(file=f)
+    """
+
+    def __init__(
+        self,
+        *,
+        file: Union[bytes, BufferedIOBase, TextIOWrapper, str, Path, None] = None,
+        text_content: Optional[str] = None,
+        filename: Optional[str] = None,
+    ):
+        self.file = file
+        self.filename = filename
+        self.text_content = text_content
+        self._validate()
+
+    def _validate(self) -> None:
+        """Ensure filename is provided when needed."""
+        if not ((self.file is None) ^ (self.text_content is None)):
+            raise ValueError("Either file or text_content must be provided.")
+        if self.text_content is not None:
+            if not self.filename:
+                random_hex = secrets.token_hex(4)
+                self.filename = f"text_input_{random_hex}.txt"
+            return
+
+        if isinstance(self.file, (bytes, BufferedIOBase, TextIOWrapper)):
+            if not self.filename and hasattr(self.file, "name"):
+                self.filename = os.path.basename(str(self.file.name))
+            elif not hasattr(self.file, "name") and self.filename is None:
+                raise ValueError(
+                    "filename must be provided when file is bytes or a file-like object without a name"
+                )
+        elif isinstance(self.file, (str, Path)):
+            if not self.filename:
+                self.filename = os.path.basename(str(self.file))
+        else:
+            raise ValueError(f"Unsupported file type: {type(self.file)}")
+
+
+# Type alias for file input that can be used across services
+FileInput = Union[str, Path, BufferedIOBase, SourceText, File]
