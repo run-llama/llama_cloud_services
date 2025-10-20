@@ -117,3 +117,25 @@ export function getSavePath(downloadPath: string, i: number): string {
 
   return savePath;
 }
+
+const URLS = {
+  us: "https://api.cloud.llamaindex.ai",
+  eu: "https://api.cloud.eu.llamaindex.ai",
+  "us-staging": "https://api.staging.llamaindex.ai",
+} as const;
+
+export function getUrl(
+  baseUrl: string | undefined,
+  region: string | undefined,
+) {
+  if (typeof baseUrl != "undefined") {
+    return baseUrl;
+  }
+  if (typeof region === "undefined") {
+    return URLS["us"];
+  } else if (region === "us" || region === "eu" || region === "us-staging") {
+    return URLS[region];
+  } else {
+    throw new Error(`Unsupported region: ${region}`);
+  }
+}

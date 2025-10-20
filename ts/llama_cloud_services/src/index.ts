@@ -8,3 +8,9 @@ export type { CloudConstructorParams } from "./type.js";
 export { LlamaParseReader } from "./reader.js";
 export { LlamaExtract, LlamaExtractAgent } from "./LlamaExtract.js";
 export type { ExtractConfig } from "./extract.js";
+export { LlamaClassify } from "./LlamaClassify.js";
+export type {
+  ClassifierRule,
+  ClassifyJobResults,
+  ClassifyParsingConfiguration,
+} from "./classify.js";

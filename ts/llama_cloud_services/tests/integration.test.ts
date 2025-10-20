@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { LlamaParseReader } from "../src/reader.js";
 import { LlamaCloudIndex } from "../src/LlamaCloudIndex.js";
 import { LlamaExtract, LlamaExtractAgent } from "../src/LlamaExtract.js";
+import { LlamaClassify } from "../src/LlamaClassify.js";
+import { ClassifierRule, ClassifyParsingConfiguration } from "../src/classify.js";
 import { Document } from "@llamaindex/core/schema";
 import { fs } from "@llamaindex/env";
 import { ExtractConfig } from "../src/api.js";
@@ -486,6 +488,59 @@ describe("Integration Tests", () => {
           expect(reader.backoffPattern).toBe(pattern);
         }
       },
+    );
+  });
+
+  describe("LlamaClassify Integration", () => {
+    it.skipIf(skipIfNoApiKey)(
+      "should classify data correctly (file paths and file contents) ",
+      async () => {
+        const classifyClient = new LlamaClassify(
+          process.env.LLAMA_CLOUD_API_KEY!,
+          "https://api.cloud.llamaindex.ai",
+        );
+        const testContent =
+          `A Fox one day spied a beautiful bunch of ripe grapes hanging from a vine trained along the branches of a tree. The grapes seemed ready to burst with juice, and the Fox's mouth watered as he gazed longingly at them. The bunch hung from a high branch, and the Fox had to jump for it. The first time he jumped he missed it by a long way. So he walked off a short distance and took a running leap at it, only to fall short once more. Again and again he tried, but in vain. Now he sat down and looked at the grapes in disgust. "What a fool I am," he said. "Here I am wearing myself out to get a bunch of sour grapes that are not worth gaping for." And off he walked very, very scornfully.There are many who pretend to despise and belittle that which is beyond their reach.`;
+        const testFilePath = "the_fox_and_the_grapes.md";
+
+        await fs.writeFile(testFilePath, new TextEncoder().encode(testContent));
+
+        const rules: ClassifierRule[] = [
+          {type: "fable", description: "A short story featuring animals whose aim is to teach the reader a lesson (the moral of the story)"},
+          {type: "fairy_tale", description: "A mid-to-long story featuring humans, magic creatures and other characters, whose main aim is to entertain the readers."}
+        ]
+
+        const parsingConfig: ClassifyParsingConfiguration = {lang: "en"}
+
+        const result = await classifyClient.classify(
+          rules,
+          parsingConfig,
+          undefined,
+          ["the_fox_and_the_grapes.md"]
+        );
+        expect("items" in result).toBeTruthy();
+        expect(result.items.length).toBeGreaterThan(0);
+        expect("result" in result.items[0]).toBeTruthy();
+        expect(result.items[0].result!.type === "fable").toBeTruthy();
+
+        const buffer = await fs.readFile("the_fox_and_the_grapes.md");
+        const resultBuffer = await classifyClient.classify(
+          rules,
+          parsingConfig,
+          [buffer],
+        );
+        expect("items" in resultBuffer).toBeTruthy();
+        expect(resultBuffer.items.length).toBeGreaterThan(0);
+        expect("result" in resultBuffer.items[0]).toBeTruthy();
+        expect(resultBuffer.items[0].result!.type === "fable").toBeTruthy();
+
+        try {
+          await fs.unlink("the_fox_and_the_grapes.md")
+        } catch(err) {
+          console.log(`Unable to delete file the_fox_and_the_grapes.md because of ${err}`)
+        }
+      },
+      60000,
     );
   });
 
