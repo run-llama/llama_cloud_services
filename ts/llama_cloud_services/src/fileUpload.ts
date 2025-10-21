@@ -98,7 +98,10 @@ export async function uploadFile(
       retries++;
       await sleep(retryInterval * 1000);
     }
-    if (typeof uploadResponse.data != "undefined") {
+    if (
+      uploadResponse.response.ok &&
+      typeof uploadResponse.data != "undefined"
+    ) {
       fileId = uploadResponse.data.id as string;
       return fileId;
     }

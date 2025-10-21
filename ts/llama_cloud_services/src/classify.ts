@@ -184,43 +184,74 @@ export async function classify(
   const fileIds: string[] = [];
   if (!filePaths && !fileContents) {
     throw new Error(
-      "At least one of fileContents and filePaths has to be provided",
+      "One between filePath and fileContent needs to be provided",
     );
   }
 
   if (filePaths) {
-    for (const name of filePaths) {
-      const fileId = await uploadFile(
-        name,
-        undefined,
-        undefined,
-        projectId,
-        organizationId,
-        client,
-        maxRetriesOnError,
-        retryInterval,
-      );
-      if (fileId) fileIds.push(fileId);
-      else console.log(`Unable to upload ${name}, skipping...`);
-    }
+    const uploadPromises = filePaths.map(async (name) => {
+      try {
+        const fileId = await uploadFile(
+          name,
+          undefined,
+          undefined,
+          projectId,
+          organizationId,
+          client,
+          maxRetriesOnError,
+          retryInterval,
+        );
+        if (fileId) {
+          return fileId;
+        } else {
+          console.error(`Unable to upload ${name}, skipping...`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`Error uploading ${name}:`, error);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(uploadPromises);
+    fileIds.push(...results.filter((id) => id !== null));
   }
 
   if (fileContents) {
-    for (const content of fileContents) {
-      const fileId = await uploadFile(
-        undefined,
-        content,
-        undefined,
-        projectId,
-        organizationId,
-        client,
-        maxRetriesOnError,
-        retryInterval,
-      );
-      if (fileId) fileIds.push(fileId);
-      else console.log(`Unable to upload file (content), skipping...`);
-    }
+    const uploadPromises = fileContents.map(async (content) => {
+      try {
+        const fileId = await uploadFile(
+          undefined,
+          content,
+          undefined,
+          projectId,
+          organizationId,
+          client,
+          maxRetriesOnError,
+          retryInterval,
+        );
+        if (fileId) {
+          return fileId;
+        } else {
+          console.error(`Unable to upload file (content), skipping...`);
+          return null;
+        }
+      } catch (error) {
+        console.error(`Error uploading file (content):`, error);
+        return null;
+      }
+    });
+
+    const results = await Promise.all(uploadPromises);
+    fileIds.push(...results.filter((id) => id !== null));
   }
+
+  if (fileIds.length == 0) {
+    throw new Error(
+      "None of the provided files was successfully uploaded, it is not possible to create a classification job.",
+    );
+  }
+
   const jobId = await createClassifyJob(
     fileIds,
     rules,
