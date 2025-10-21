@@ -330,11 +330,11 @@ class ExtractionAgent:
             ValueError: If filename is not provided for bytes input or for file-like objects
                        without a name attribute.
         """
-        return await self._file_client.upload_file_input(file_input)
+        return await self._file_client.upload_content(file_input)
 
     async def _upload_file(self, file_input: FileInput) -> File:
         """Upload a file from various input types using FileClient."""
-        return await self._file_client.upload_file_input(file_input)
+        return await self._file_client.upload_content(file_input)
 
     async def _wait_for_job_result(self, job_id: str) -> Optional[ExtractRun]:
         """Wait for and return the results of an extraction job."""

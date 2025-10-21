@@ -98,14 +98,14 @@ class FileClient:
                 organization_id=self.organization_id,
             )
 
-    async def upload_file_input(
+    async def upload_content(
         self, file_input: FileInput, external_file_id: Optional[str] = None
     ) -> File:
         """
-        Upload a file from various input types.
+        Upload content from various input types.
 
         Args:
-            file_input: The file to upload. Can be:
+            file_input: The content to upload. Can be:
                 - File: Already uploaded file (returned as-is)
                 - str/Path: Path to a file on disk
                 - SourceText: Text content or file with explicit filename

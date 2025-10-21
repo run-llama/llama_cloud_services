@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import Optional, List
+from typing import Optional, List, Union
 from pydantic import BaseModel
 from llama_cloud.client import AsyncLlamaCloud
 from llama_cloud.types import (
@@ -170,80 +170,21 @@ class ClassifyClient:
                 )
             )
 
-    async def aclassify_file_input(
+    async def aclassify(
         self,
         rules: list[ClassifierRule],
-        file_input: FileInput,
-        parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
-        raise_on_error: bool = True,
-    ) -> ClassifyJobResultsWithFiles:
-        """
-        Classify a single file from various input types.
-
-        Args:
-            rules: The rules to use for classification.
-            file_input: The file to classify. Can be:
-                - str/Path: File path
-                - SourceText: Text content or file with explicit filename
-                - File: Already uploaded file
-                - BufferedIOBase: File-like object
-            parsing_configuration: The parsing configuration to use for classification.
-            raise_on_error: Whether to raise an error if the classification job fails.
-
-        Returns:
-            The results of the classification job with file metadata.
-        """
-        file = await self.file_client.upload_file_input(file_input)
-        results = await self.aclassify_file_ids(
-            rules, [file.id], parsing_configuration, raise_on_error
-        )
-        return ClassifyJobResultsWithFiles.from_classify_job_results(results, [file])
-
-    def classify_file_input(
-        self,
-        rules: list[ClassifierRule],
-        file_input: FileInput,
-        parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
-        raise_on_error: bool = True,
-    ) -> ClassifyJobResultsWithFiles:
-        """
-        Classify a single file from various input types (synchronous version).
-
-        Args:
-            rules: The rules to use for classification.
-            file_input: The file to classify. Can be:
-                - str/Path: File path
-                - SourceText: Text content or file with explicit filename
-                - File: Already uploaded file
-                - BufferedIOBase: File-like object
-            parsing_configuration: The parsing configuration to use for classification.
-            raise_on_error: Whether to raise an error if the classification job fails.
-
-        Returns:
-            The results of the classification job with file metadata.
-        """
-        with augment_async_errors():
-            return asyncio.run(
-                self.aclassify_file_input(
-                    rules, file_input, parsing_configuration, raise_on_error
-                )
-            )
-
-    async def aclassify_file_inputs(
-        self,
-        rules: list[ClassifierRule],
-        file_inputs: List[FileInput],
+        files: Union[FileInput, List[FileInput]],
         parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
         raise_on_error: bool = True,
         workers: int = DEFAULT_NUM_WORKERS,
         show_progress: bool = False,
     ) -> ClassifyJobResultsWithFiles:
         """
-        Classify multiple files from various input types.
+        Classify one or more files from various input types.
 
         Args:
             rules: The rules to use for classification.
-            file_inputs: The files to classify. Each can be:
+            files: The file(s) to classify. Can be a single file or list of files. Each can be:
                 - str/Path: File path
                 - SourceText: Text content or file with explicit filename
                 - File: Already uploaded file
@@ -256,35 +197,47 @@ class ClassifyClient:
         Returns:
             The results of the classification job with file metadata.
         """
+        # Normalize to list
+        if not isinstance(files, list):
+            files = [files]
+
+        # Upload all files
         coroutines = [
-            self.file_client.upload_file_input(file_input) for file_input in file_inputs
+            self.file_client.upload_content(file_input) for file_input in files
         ]
-        files: List[File] = await run_jobs(
+        uploaded_files: List[File] = await run_jobs(
             coroutines,
             show_progress=show_progress,
             workers=workers,
             desc="Uploading files for classification",
         )
-        results = await self.aclassify_file_ids(
-            rules, [file.id for file in files], parsing_configuration, raise_on_error
-        )
-        return ClassifyJobResultsWithFiles.from_classify_job_results(results, files)
 
-    def classify_file_inputs(
+        # Classify
+        results = await self.aclassify_file_ids(
+            rules,
+            [file.id for file in uploaded_files],
+            parsing_configuration,
+            raise_on_error,
+        )
+        return ClassifyJobResultsWithFiles.from_classify_job_results(
+            results, uploaded_files
+        )
+
+    def classify(
         self,
         rules: list[ClassifierRule],
-        file_inputs: List[FileInput],
+        files: Union[FileInput, List[FileInput]],
         parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
         raise_on_error: bool = True,
         workers: int = DEFAULT_NUM_WORKERS,
         show_progress: bool = False,
     ) -> ClassifyJobResultsWithFiles:
         """
-        Classify multiple files from various input types (synchronous version).
+        Classify one or more files from various input types (synchronous version).
 
         Args:
             rules: The rules to use for classification.
-            file_inputs: The files to classify. Each can be:
+            files: The file(s) to classify. Can be a single file or list of files. Each can be:
                 - str/Path: File path
                 - SourceText: Text content or file with explicit filename
                 - File: Already uploaded file
@@ -299,9 +252,9 @@ class ClassifyClient:
         """
         with augment_async_errors():
             return asyncio.run(
-                self.aclassify_file_inputs(
+                self.aclassify(
                     rules,
-                    file_inputs,
+                    files,
                     parsing_configuration,
                     raise_on_error,
                     workers,
