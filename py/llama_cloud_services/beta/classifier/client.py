@@ -1,5 +1,6 @@
 import asyncio
 import time
+import warnings
 from typing import Optional, List, Union
 from pydantic import BaseModel
 from llama_cloud.client import AsyncLlamaCloud
@@ -269,11 +270,17 @@ class ClassifyClient:
         parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
         raise_on_error: bool = True,
     ) -> ClassifyJobResultsWithFiles:
-        file = await self.file_client.upload_file(file_input_path)
-        results = await self.aclassify_file_ids(
-            rules, [file.id], parsing_configuration, raise_on_error
+        """
+        Deprecated: Use aclassify() instead.
+        """
+        warnings.warn(
+            "aclassify_file_path is deprecated, use aclassify() instead",
+            DeprecationWarning,
+            stacklevel=2,
         )
-        return ClassifyJobResultsWithFiles.from_classify_job_results(results, [file])
+        return await self.aclassify(
+            rules, file_input_path, parsing_configuration, raise_on_error
+        )
 
     def classify_file_path(
         self,
@@ -282,12 +289,17 @@ class ClassifyClient:
         parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
         raise_on_error: bool = True,
     ) -> ClassifyJobResultsWithFiles:
-        with augment_async_errors():
-            return asyncio.run(
-                self.aclassify_file_path(
-                    rules, file_input_path, parsing_configuration, raise_on_error
-                )
-            )
+        """
+        Deprecated: Use classify() instead.
+        """
+        warnings.warn(
+            "classify_file_path is deprecated, use classify() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.classify(
+            rules, file_input_path, parsing_configuration, raise_on_error
+        )
 
     async def aclassify_file_paths(
         self,
@@ -298,17 +310,22 @@ class ClassifyClient:
         workers: int = DEFAULT_NUM_WORKERS,
         show_progress: bool = False,
     ) -> ClassifyJobResultsWithFiles:
-        coroutines = [self.file_client.upload_file(path) for path in file_input_paths]
-        files: list[File] = await run_jobs(
-            coroutines,
-            show_progress=show_progress,
-            workers=workers,
-            desc="Uploading files for classification",
+        """
+        Deprecated: Use aclassify() instead.
+        """
+        warnings.warn(
+            "aclassify_file_paths is deprecated, use aclassify() instead",
+            DeprecationWarning,
+            stacklevel=2,
         )
-        results = await self.aclassify_file_ids(
-            rules, [file.id for file in files], parsing_configuration, raise_on_error
+        return await self.aclassify(
+            rules,
+            file_input_paths,
+            parsing_configuration,
+            raise_on_error,
+            workers,
+            show_progress,
         )
-        return ClassifyJobResultsWithFiles.from_classify_job_results(results, files)
 
     def classify_file_paths(
         self,
@@ -317,12 +334,17 @@ class ClassifyClient:
         parsing_configuration: Optional[ClassifyParsingConfiguration] = None,
         raise_on_error: bool = True,
     ) -> ClassifyJobResultsWithFiles:
-        with augment_async_errors():
-            return asyncio.run(
-                self.aclassify_file_paths(
-                    rules, file_input_paths, parsing_configuration, raise_on_error
-                )
-            )
+        """
+        Deprecated: Use classify() instead.
+        """
+        warnings.warn(
+            "classify_file_paths is deprecated, use classify() instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.classify(
+            rules, file_input_paths, parsing_configuration, raise_on_error
+        )
 
     async def wait_for_job_completion(self, job_id: str) -> ClassifyJob:
         """

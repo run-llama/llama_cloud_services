@@ -118,11 +118,13 @@ class SourceText:
     - File paths as strings or Path objects
     - Raw bytes
     - File-like objects (BufferedIOBase, TextIOWrapper)
+    - Already-uploaded file ID via file_id parameter
 
     Args:
         file: The file input (bytes, file-like object, str path, or Path).
-              Mutually exclusive with text_content.
-        text_content: Raw text content to process. Mutually exclusive with file.
+              Mutually exclusive with text_content and file_id.
+        text_content: Raw text content to process. Mutually exclusive with file and file_id.
+        file_id: ID of an already-uploaded file. Mutually exclusive with file and text_content.
         filename: Optional filename. Required for bytes/file-like objects without names.
                   If not provided, will be auto-generated for text_content or inferred from paths.
 
@@ -139,6 +141,9 @@ class SourceText:
         # File-like object (will read from current position)
         with open("document.pdf", "rb") as f:
             source = SourceText(file=f)
+
+        # Already-uploaded file
+        source = SourceText(file_id="file_abc123")
     """
 
     def __init__(
@@ -146,17 +151,37 @@ class SourceText:
         *,
         file: Union[bytes, BufferedIOBase, TextIOWrapper, str, Path, None] = None,
         text_content: Optional[str] = None,
+        file_id: Optional[str] = None,
         filename: Optional[str] = None,
     ):
         self.file = file
         self.filename = filename
         self.text_content = text_content
+        self.file_id = file_id
         self._validate()
 
     def _validate(self) -> None:
         """Ensure filename is provided when needed."""
-        if not ((self.file is None) ^ (self.text_content is None)):
-            raise ValueError("Either file or text_content must be provided.")
+        # Check that exactly one of file, text_content, or file_id is provided
+        provided = sum(
+            [
+                self.file is not None,
+                self.text_content is not None,
+                self.file_id is not None,
+            ]
+        )
+
+        if provided == 0:
+            raise ValueError("One of file, text_content, or file_id must be provided.")
+        elif provided > 1:
+            raise ValueError(
+                "Only one of file, text_content, or file_id can be provided."
+            )
+
+        # If file_id is provided, we don't need filename validation
+        if self.file_id is not None:
+            return
+
         if self.text_content is not None:
             if not self.filename:
                 random_hex = secrets.token_hex(4)

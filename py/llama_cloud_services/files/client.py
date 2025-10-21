@@ -102,18 +102,18 @@ class FileClient:
         self, file_input: FileInput, external_file_id: Optional[str] = None
     ) -> File:
         """
-        Upload content from various input types.
+        Upload content from various input types or fetch an already-uploaded file.
 
         Args:
             file_input: The content to upload. Can be:
                 - File: Already uploaded file (returned as-is)
                 - str/Path: Path to a file on disk
-                - SourceText: Text content or file with explicit filename
+                - SourceText: Text content, file, or file_id with explicit filename
                 - BufferedIOBase: File-like binary object
             external_file_id: Optional external identifier for the file
 
         Returns:
-            File: The uploaded file object
+            File: The uploaded (or fetched) file object
 
         Raises:
             ValueError: If the input type is not supported or required info is missing
@@ -124,7 +124,10 @@ class FileClient:
 
         # Handle SourceText
         if isinstance(file_input, SourceText):
-            if file_input.text_content is not None:
+            # If file_id is provided, fetch the file object
+            if file_input.file_id is not None:
+                return await self.get_file(file_input.file_id)
+            elif file_input.text_content is not None:
                 # Handle direct text content
                 text_bytes = file_input.text_content.encode("utf-8")
                 return await self.upload_bytes(
