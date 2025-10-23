@@ -269,6 +269,13 @@ class JobResult(SafeBaseModel):
     error: Optional[str] = Field(
         default=None, description="The error message if the job failed."
     )
+    error_code: Optional[str] = Field(
+        default=None, description="The error code if the job failed."
+    )
+    status: Optional[str] = Field(
+        default=None,
+        description="The job status (e.g., PENDING, SUCCESS, ERROR, CANCELED).",
+    )
 
     def __init__(
         self,

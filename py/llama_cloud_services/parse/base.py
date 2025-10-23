@@ -1146,6 +1146,26 @@ class LlamaParse(BasePydanticReader):
                     )
                 current_interval = self._calculate_backoff(current_interval)
 
+    async def _get_job_result_with_error_handling(
+        self, job_id: str, result_type: str, verbose: bool = False
+    ) -> Dict[str, Any]:
+        """Get job result with error handling based on ignore_errors setting."""
+        try:
+            return await self._get_job_result(job_id, result_type, verbose=verbose)
+        except JobFailedException as e:
+            if self.ignore_errors:
+                # Return error information when ignore_errors is True
+                return {
+                    "pages": [],
+                    "job_metadata": {},
+                    "job_id": job_id,
+                    "error": f"{e.status}: {e.error_message or 'No error message'}",
+                    "error_code": e.error_code,
+                    "status": e.status,
+                }
+            else:
+                raise e
+
     async def _parse_one(
         self,
         file_path: FileInput,
@@ -1187,7 +1207,7 @@ class LlamaParse(BasePydanticReader):
         )
         if self.verbose:
             print("Started parsing the file under job_id %s" % job_id)
-        result = await self._get_job_result(
+        result = await self._get_job_result_with_error_handling(
             job_id, result_type or self.result_type.value, verbose=self.verbose
         )
         return job_id, result
@@ -1775,7 +1795,7 @@ class LlamaParse(BasePydanticReader):
             JobResult object or list of JobResult objects if multiple job IDs were provided.
         """
         if isinstance(job_id, str):
-            result = await self._get_job_result(
+            result = await self._get_job_result_with_error_handling(
                 job_id, ResultType.JSON.value, verbose=self.verbose
             )
             return JobResult(
@@ -1790,7 +1810,9 @@ class LlamaParse(BasePydanticReader):
         elif isinstance(job_id, list):
             results = []
             jobs = [
-                self._get_job_result(id_, ResultType.JSON.value, verbose=self.verbose)
+                self._get_job_result_with_error_handling(
+                    id_, ResultType.JSON.value, verbose=self.verbose
+                )
                 for id_ in job_id
             ]
             results = await run_jobs(
