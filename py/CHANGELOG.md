@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.77
+
+### Patch Changes
+
+- 407292b: Now return partial results on job failure
+
 ## 0.6.76
 
 ### Patch Changes
