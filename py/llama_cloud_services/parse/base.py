@@ -1158,7 +1158,6 @@ class LlamaParse(BasePydanticReader):
                 return {
                     "pages": [],
                     "job_metadata": {},
-                    "job_id": job_id,
                     "error": f"{e.status}: {e.error_message or 'No error message'}",
                     "error_code": e.error_code,
                     "status": e.status,
@@ -1270,6 +1269,15 @@ class LlamaParse(BasePydanticReader):
                     result_type=ResultType.JSON.value,
                     partition_target_pages=f"{total}-{total + size - 1}",
                 )
+                # Check if the result is an error result (when ignore_errors=True)
+                if json_result.get("error_code") == "NO_DATA_FOUND_IN_FILE":
+                    raise JobFailedException(
+                        job_id=job_id,
+                        status=json_result.get("status", "ERROR"),
+                        error_code=json_result.get("error_code"),
+                        error_message=json_result.get("error"),
+                    )
+
                 result_type = result_type or self.result_type.value
                 if result_type == ResultType.JSON.value:
                     job_result = json_result
