@@ -272,7 +272,7 @@ class LlamaSheets:
                     )
         except Exception as e:
             raise SpreadsheetAPIError(f"Failed to upload file: {e}") from e
-        raise RuntimeError("AsyncRetrying did not execute")
+        raise RuntimeError("Tenacity did not execute")
 
     async def acreate_job(
         self,
@@ -321,7 +321,7 @@ class LlamaSheets:
                     return SpreadsheetJob.model_validate(response.json())
         except Exception as e:
             raise SpreadsheetAPIError(f"Failed to create job: {e}") from e
-        raise RuntimeError("AsyncRetrying did not execute")
+        raise RuntimeError("Tenacity did not execute")
 
     async def aget_job(
         self, job_id: str, include_results_metadata: bool = True
@@ -353,7 +353,7 @@ class LlamaSheets:
                     return SpreadsheetJobResult.model_validate(response.json())
         except Exception as e:
             raise SpreadsheetAPIError(f"Failed to get job status: {e}") from e
-        raise RuntimeError("AsyncRetrying did not execute")
+        raise RuntimeError("Tenacity did not execute")
 
     async def await_for_completion(self, job_id: str) -> SpreadsheetJobResult:
         """Wait for a job to complete by polling.
@@ -448,7 +448,7 @@ class LlamaSheets:
                     return download_response.content
         except Exception as e:
             raise SpreadsheetAPIError(f"Failed to download result: {e}") from e
-        raise RuntimeError("AsyncRetrying did not execute")
+        raise RuntimeError("Tenacity did not execute")
 
     async def adownload_table_as_dataframe(
         self,
