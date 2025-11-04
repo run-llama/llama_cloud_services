@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.79
+
+### Patch Changes
+
+- e020e3e: Remove unneeded organization_id param from beta classifier client
+
 ## 0.6.78
 
 ### Patch Changes

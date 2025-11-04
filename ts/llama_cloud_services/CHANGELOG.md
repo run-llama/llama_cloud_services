@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.4.0
+
+### Minor Changes
+
+- f293547: Switch to keyword arguments rather than positional args
+
 ## 0.3.10
 
 ### Patch Changes
