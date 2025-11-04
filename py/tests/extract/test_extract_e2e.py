@@ -58,6 +58,8 @@ def get_test_cases():
         settings = [
             ExtractConfig(extraction_mode=ExtractMode.FAST),
             ExtractConfig(extraction_mode=ExtractMode.BALANCED),
+            ExtractConfig(extraction_mode=ExtractMode.MULTIMODAL),
+            ExtractConfig(extraction_mode=ExtractMode.PREMIUM),
         ]
 
         for input_file in sorted(input_files):
