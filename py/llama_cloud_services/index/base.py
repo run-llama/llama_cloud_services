@@ -333,7 +333,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         if file_ids:
             self._wait_for_resources(
                 file_ids,
-                lambda fid: self._client.pipelines.get_pipeline_file_status(
+                lambda fid: self._client.pipeline_files.get_pipeline_file_status(
                     pipeline_id=self.pipeline.id, file_id=fid
                 ),
                 resource_name="file",
@@ -420,7 +420,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         if file_ids:
             await self._await_for_resources(
                 file_ids,
-                lambda fid: self._aclient.pipelines.get_pipeline_file_status(
+                lambda fid: self._aclient.pipeline_files.get_pipeline_file_status(
                     pipeline_id=self.pipeline.id, file_id=fid
                 ),
                 resource_name="file",
@@ -919,7 +919,7 @@ class LlamaCloudIndex(BaseManagedIndex):
 
         # Add file to pipeline
         pipeline_file_create = PipelineFileCreate(file_id=file.id)
-        self._client.pipelines.add_files_to_pipeline_api(
+        self._client.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
 
@@ -946,7 +946,7 @@ class LlamaCloudIndex(BaseManagedIndex):
 
         # Add file to pipeline
         pipeline_file_create = PipelineFileCreate(file_id=file.id)
-        await self._aclient.pipelines.add_files_to_pipeline_api(
+        await self._aclient.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
 
@@ -984,7 +984,7 @@ class LlamaCloudIndex(BaseManagedIndex):
 
         # Add file to pipeline
         pipeline_file_create = PipelineFileCreate(file_id=file.id)
-        self._client.pipelines.add_files_to_pipeline_api(
+        self._client.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
 
@@ -1021,7 +1021,7 @@ class LlamaCloudIndex(BaseManagedIndex):
 
         # Add file to pipeline
         pipeline_file_create = PipelineFileCreate(file_id=file.id)
-        await self._aclient.pipelines.add_files_to_pipeline_api(
+        await self._aclient.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
 
