@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.78
+
+### Patch Changes
+
+- 9f1ef4e: Fix extract
+
 ## 0.6.77
 
 ### Patch Changes
