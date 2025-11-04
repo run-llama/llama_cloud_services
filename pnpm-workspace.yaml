@@ -2,4 +2,3 @@ packages:
   - "ts/*"
   - "py"
   - "py/*"
-  - "examples-ts/*"
