@@ -44,7 +44,6 @@ def classify_client(
     return ClassifyClient(
         async_llama_cloud_client,
         project_id=project.id,
-        organization_id=project.organization_id,
         polling_interval=1,
     )
 
@@ -56,7 +55,6 @@ def file_client(
     return FileClient(
         async_llama_cloud_client,
         project_id=project.id,
-        organization_id=project.organization_id,
         use_presigned_url=False,
     )
 
@@ -148,7 +146,6 @@ async def test_classify_file_ids_from_api_key(
         api_key=e2e_test_settings.LLAMA_CLOUD_API_KEY.get_secret_value(),
         base_url=e2e_test_settings.LLAMA_CLOUD_BASE_URL,
         project_id=pdf_file.project_id,
-        organization_id=e2e_test_settings.LLAMA_CLOUD_ORGANIZATION_ID,
     )
 
     # Classify the uploaded files

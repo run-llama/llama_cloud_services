@@ -39,7 +39,6 @@ class ClassifyClient:
     Args:
         client: The LlamaCloud client to use.
         project_id: The project ID to use.
-        organization_id: The organization ID to use.
         polling_interval: The interval to poll for job completion in seconds.
         polling_timeout: The timeout for the job to complete in seconds.
     """
@@ -48,15 +47,13 @@ class ClassifyClient:
         self,
         client: AsyncLlamaCloud,
         project_id: Optional[str] = None,
-        organization_id: Optional[str] = None,
         polling_interval: float = 1.0,
         polling_timeout: float = POLLING_TIMEOUT_SECONDS,
     ):
         self.client = client
         self.project_id = project_id
-        self.organization_id = organization_id
         self.polling_interval = polling_interval
-        self.file_client = FileClient(client, project_id, organization_id)
+        self.file_client = FileClient(client, project_id)
         self.polling_timeout = polling_timeout
 
     @classmethod
@@ -64,7 +61,6 @@ class ClassifyClient:
         cls,
         api_key: str,
         project_id: Optional[str] = None,
-        organization_id: Optional[str] = None,
         base_url: Optional[str] = None,
     ) -> "ClassifyClient":
         """
@@ -74,7 +70,6 @@ class ClassifyClient:
         return cls(
             client,
             project_id,
-            organization_id,
         )
 
     async def acreate_classify_job(
@@ -101,7 +96,6 @@ class ClassifyClient:
             file_ids=file_ids,
             parsing_configuration=parsing_configuration or OMIT,
             project_id=self.project_id,
-            organization_id=self.organization_id,
         )
 
     def create_classify_job(
@@ -152,7 +146,6 @@ class ClassifyClient:
         results = await self.client.classifier.get_classification_job_results(
             classify_job_with_status.id,
             project_id=self.project_id,
-            organization_id=self.organization_id,
         )
 
         return results
@@ -359,7 +352,7 @@ class ClassifyClient:
             The classify job with status.
         """
         job = await self.client.classifier.get_classify_job(
-            job_id, project_id=self.project_id, organization_id=self.organization_id
+            job_id, project_id=self.project_id
         )
         start_time = time.time()
         while not is_terminal_status(job.status):
@@ -370,6 +363,6 @@ class ClassifyClient:
                 )
             await asyncio.sleep(self.polling_interval)
             job = await self.client.classifier.get_classify_job(
-                job_id, project_id=self.project_id, organization_id=self.organization_id
+                job_id, project_id=self.project_id
             )
         return job
