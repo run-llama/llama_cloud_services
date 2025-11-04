@@ -435,7 +435,7 @@ def create_extract_run(
             "extraction_agent_id": "extraction-agent-123",
             "config": {},
             "status": "SUCCESS",
-            "project_id": uuid.uuid4(),
+            "project_id": str(uuid.uuid4()),
             "from_ui": False,
         }
     )
