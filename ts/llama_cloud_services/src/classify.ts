@@ -19,16 +19,23 @@ import { sleep } from "./utils";
 import { uploadFile } from "./fileUpload";
 import { File } from "buffer";
 
-async function createClassifyJob(
-  fileIds: string[],
-  rules: ClassifierRule[],
-  parsingConfiguration: ClassifyParsingConfiguration,
-  organizationId: null | string,
-  projectId: null | string,
-  client: Client | undefined,
-  maxRetriesOnError: number = 10,
-  retryInterval: number = 0.5,
-): Promise<string> {
+async function createClassifyJob({
+  fileIds,
+  rules,
+  parsingConfiguration,
+  projectId,
+  client,
+  maxRetriesOnError = 10,
+  retryInterval = 0.5,
+}: {
+  fileIds: string[];
+  rules: ClassifierRule[];
+  parsingConfiguration: ClassifyParsingConfiguration;
+  projectId?: string | undefined;
+  client?: Client | undefined;
+  maxRetriesOnError?: number;
+  retryInterval?: number;
+}): Promise<string> {
   const rawData = {
     file_ids: fileIds,
     rules: rules,
@@ -38,7 +45,6 @@ async function createClassifyJob(
     body: rawData,
     query: {
       project_id: projectId,
-      organization_id: organizationId,
     },
   } as CreateClassifyJobApiV1ClassifierJobsPostData;
   const options = data as Options<CreateClassifyJobApiV1ClassifierJobsPostData>;
@@ -75,12 +81,17 @@ async function createClassifyJob(
   }
 }
 
-async function pollForJobCompletion(
-  jobId: string,
-  interval: number = 1,
-  maxIterations: number = 1800,
-  client: Client | undefined = undefined,
-): Promise<boolean> {
+async function pollForJobCompletion({
+  jobId,
+  interval = 1,
+  maxIterations = 1800,
+  client,
+}: {
+  jobId: string;
+  interval?: number;
+  maxIterations?: number;
+  client?: Client | undefined;
+}): Promise<boolean> {
   let status: StatusEnum | undefined = undefined;
   const jobData = {
     path: { classify_job_id: jobId },
@@ -114,17 +125,22 @@ async function pollForJobCompletion(
   }
 }
 
-async function getJobResult(
-  jobId: string,
-  client: Client | undefined = undefined,
-  projectId: string | null = null,
-  organizationId: string | null = null,
-  maxRetriesOnError: number = 10,
-  retryInterval: number = 0.5,
-): Promise<ClassifyJobResults> {
+async function getJobResult({
+  jobId,
+  client,
+  projectId,
+  maxRetriesOnError = 10,
+  retryInterval = 0.5,
+}: {
+  jobId: string;
+  client?: Client | undefined;
+  projectId?: string | undefined;
+  maxRetriesOnError?: number;
+  retryInterval?: number;
+}): Promise<ClassifyJobResults> {
   const jobData = {
     path: { classify_job_id: jobId },
-    query: { organization_id: organizationId, project_id: projectId },
+    query: { project_id: projectId },
   } as GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData;
   const jobOptions =
     jobData as Options<GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData>;
@@ -163,24 +179,34 @@ async function getJobResult(
   }
 }
 
-export async function classify(
-  rules: ClassifierRule[],
-  parsingConfiguration: ClassifyParsingConfiguration,
-  fileContents:
+export async function classify({
+  rules,
+  parsingConfiguration,
+  fileContents,
+  filePaths,
+  projectId,
+  client,
+  pollingInterval = 1,
+  maxPollingIterations = 1800,
+  maxRetriesOnError = 10,
+  retryInterval = 0.5,
+}: {
+  rules: ClassifierRule[];
+  parsingConfiguration: ClassifyParsingConfiguration;
+  fileContents?:
     | Buffer<ArrayBufferLike>[]
     | File[]
     | Uint8Array<ArrayBuffer>[]
     | string[]
-    | undefined = undefined,
-  filePaths: string[] | undefined = undefined,
-  projectId: string | null = null,
-  organizationId: string | null = null,
-  client: Client | undefined = undefined,
-  pollingInterval: number = 1,
-  maxPollingIterations: number = 1800,
-  maxRetriesOnError: number = 10,
-  retryInterval: number = 0.5,
-): Promise<ClassifyJobResults> {
+    | undefined;
+  filePaths?: string[];
+  projectId?: string;
+  client?: Client;
+  pollingInterval?: number;
+  maxPollingIterations?: number;
+  maxRetriesOnError?: number;
+  retryInterval?: number;
+}): Promise<ClassifyJobResults> {
   const fileIds: string[] = [];
   if (!filePaths && !fileContents) {
     throw new Error(
@@ -191,16 +217,13 @@ export async function classify(
   if (filePaths) {
     const uploadPromises = filePaths.map(async (name) => {
       try {
-        const fileId = await uploadFile(
-          name,
-          undefined,
-          undefined,
-          projectId,
-          organizationId,
-          client,
+        const fileId = await uploadFile({
+          filePath: name,
           maxRetriesOnError,
-          retryInterval,
-        );
+          retryInterval: retryInterval,
+          project_id: projectId,
+          client: client,
+        });
         if (fileId) {
           return fileId;
         } else {
@@ -220,16 +243,13 @@ export async function classify(
   if (fileContents) {
     const uploadPromises = fileContents.map(async (content) => {
       try {
-        const fileId = await uploadFile(
-          undefined,
-          content,
-          undefined,
-          projectId,
-          organizationId,
-          client,
+        const fileId = await uploadFile({
+          fileContent: content,
+          ...(projectId ? { project_id: projectId } : {}),
+          ...(client ? { client: client } : {}),
           maxRetriesOnError,
           retryInterval,
-        );
+        });
         if (fileId) {
           return fileId;
         } else {
@@ -252,33 +272,31 @@ export async function classify(
     );
   }
 
-  const jobId = await createClassifyJob(
+  const jobId = await createClassifyJob({
     fileIds,
     rules,
     parsingConfiguration,
-    organizationId,
-    projectId,
-    client,
+    ...(projectId ? { projectId: projectId } : {}),
+    ...(client ? { client: client } : {}),
     maxRetriesOnError,
     retryInterval,
-  );
-  const success = await pollForJobCompletion(
+  });
+  const success = await pollForJobCompletion({
     jobId,
-    pollingInterval,
-    maxPollingIterations,
+    interval: pollingInterval,
+    maxIterations: maxPollingIterations,
     client,
-  );
+  });
   if (!success) {
     throw new Error("Your job is taking longer than 10 minutes, timing out...");
   } else {
-    return (await getJobResult(
+    return (await getJobResult({
       jobId,
       client,
       projectId,
-      organizationId,
       maxRetriesOnError,
       retryInterval,
-    )) as ClassifyJobResults;
+    })) as ClassifyJobResults;
   }
 }
 
