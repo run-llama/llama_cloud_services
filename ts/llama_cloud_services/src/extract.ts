@@ -378,16 +378,16 @@ export async function extract(
   maxRetriesOnError: number = 10,
   retryInterval: number = 0.5,
 ): Promise<ExtractResult | undefined> {
-  const fileId = (await uploadFile(
+  const fileId = (await uploadFile({
     filePath,
     fileContent,
     fileName,
-    project_id,
-    organization_id,
+    project_id: project_id ?? undefined,
+    organization_id: organization_id ?? undefined,
     client,
     maxRetriesOnError,
     retryInterval,
-  )) as string;
+  })) as string;
   const extractJobCreate = {
     extraction_agent_id: agentId,
     file_id: fileId,
@@ -457,16 +457,16 @@ export async function extractStateless(
   maxRetriesOnError: number = 10,
   retryInterval: number = 0.5,
 ): Promise<ExtractResult | undefined> {
-  const fileId = (await uploadFile(
+  const fileId = (await uploadFile({
     filePath,
     fileContent,
     fileName,
-    project_id,
-    organization_id,
+    project_id: project_id ?? undefined,
+    organization_id: organization_id ?? undefined,
     client,
     maxRetriesOnError,
     retryInterval,
-  )) as string;
+  })) as string;
   const extractStatetelessCreate = {
     data_schema: dataSchema,
     file_id: fileId,

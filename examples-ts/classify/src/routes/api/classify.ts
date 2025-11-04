@@ -15,7 +15,7 @@ export const Route = createFileRoute('/api/classify')({
           const rawRes = await classifier.classify(
             classificationRules,
             parsingConfig,
-            [new Uint8Array(buff)],
+            { fileContents: [new Uint8Array(buff)] },
           )
           const results = rawRes.items
           let classification = ""

@@ -36,34 +36,40 @@ export class LlamaClassify {
 
   async classify(
     rules: ClassifierRule[],
-    parsingConfiguration: ClassifyParsingConfiguration,
-    fileContents:
-      | Buffer<ArrayBufferLike>[]
-      | File[]
-      | Uint8Array<ArrayBuffer>[]
-      | string[]
-      | undefined = undefined,
-    filePaths: string[] | undefined = undefined,
-    projectId: string | null = null,
-    organizationId: string | null = null,
-    pollingInterval: number = 1,
-    maxPollingIterations: number = 1800,
-    maxRetriesOnError: number = 10,
-    retryInterval: number = 0.5,
-  ): Promise<ClassifyJobResults> {
-    const result = await classify(
-      rules,
-      parsingConfiguration,
+    configuration: ClassifyParsingConfiguration,
+    {
       fileContents,
       filePaths,
       projectId,
-      organizationId,
-      this.client,
+      pollingInterval = 1,
+      maxPollingIterations = 1800,
+      maxRetriesOnError = 10,
+      retryInterval = 0.5,
+    }: {
+      fileContents?:
+        | Buffer<ArrayBufferLike>[]
+        | File[]
+        | Uint8Array<ArrayBuffer>[]
+        | string[]
+        | undefined;
+      filePaths?: string[] | undefined;
+      projectId?: string;
+      pollingInterval?: number;
+      maxPollingIterations?: number;
+      maxRetriesOnError?: number;
+      retryInterval?: number;
+    },
+  ): Promise<ClassifyJobResults> {
+    const result = await classify(rules, configuration, {
+      fileContents,
+      filePaths,
+      projectId: projectId ?? undefined,
+      client: this.client,
       pollingInterval,
       maxPollingIterations,
       maxRetriesOnError,
       retryInterval,
-    );
+    });
     return result;
   }
 }

@@ -179,34 +179,34 @@ async function getJobResult({
   }
 }
 
-export async function classify({
-  rules,
-  parsingConfiguration,
-  fileContents,
-  filePaths,
-  projectId,
-  client,
-  pollingInterval = 1,
-  maxPollingIterations = 1800,
-  maxRetriesOnError = 10,
-  retryInterval = 0.5,
-}: {
-  rules: ClassifierRule[];
-  parsingConfiguration: ClassifyParsingConfiguration;
-  fileContents?:
-    | Buffer<ArrayBufferLike>[]
-    | File[]
-    | Uint8Array<ArrayBuffer>[]
-    | string[]
-    | undefined;
-  filePaths?: string[];
-  projectId?: string;
-  client?: Client;
-  pollingInterval?: number;
-  maxPollingIterations?: number;
-  maxRetriesOnError?: number;
-  retryInterval?: number;
-}): Promise<ClassifyJobResults> {
+export async function classify(
+  rules: ClassifierRule[],
+  parsingConfiguration: ClassifyParsingConfiguration,
+  {
+    fileContents,
+    filePaths,
+    projectId,
+    client,
+    pollingInterval = 1,
+    maxPollingIterations = 1800,
+    maxRetriesOnError = 10,
+    retryInterval = 0.5,
+  }: {
+    fileContents?:
+      | Buffer<ArrayBufferLike>[]
+      | File[]
+      | Uint8Array<ArrayBuffer>[]
+      | string[]
+      | undefined;
+    filePaths?: string[] | undefined;
+    projectId?: string | undefined;
+    client?: Client | undefined;
+    pollingInterval?: number;
+    maxPollingIterations?: number;
+    maxRetriesOnError?: number;
+    retryInterval?: number;
+  },
+): Promise<ClassifyJobResults> {
   const fileIds: string[] = [];
   if (!filePaths && !fileContents) {
     throw new Error(

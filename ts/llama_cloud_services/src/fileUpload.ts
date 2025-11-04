@@ -28,6 +28,7 @@ export async function uploadFile({
   fileContent,
   fileName,
   project_id,
+  organization_id,
   client,
   maxRetriesOnError = 10,
   retryInterval = 0.5,
@@ -41,6 +42,7 @@ export async function uploadFile({
     | undefined;
   fileName?: string | undefined;
   project_id?: string | undefined;
+  organization_id?: string | undefined;
   client?: Client | undefined;
   maxRetriesOnError?: number;
   retryInterval?: number;
@@ -86,7 +88,7 @@ export async function uploadFile({
   } as BodyUploadFileApiV1FilesPost;
   const uploadData = {
     body: fileToUpload,
-    query: { project_id: project_id },
+    query: { project_id: project_id, organization_id: organization_id },
   } as UploadFileApiV1FilesPostData;
   const uploadOptions = uploadData as Options<UploadFileApiV1FilesPostData>;
   if (typeof client != "undefined") {
@@ -102,6 +104,8 @@ export async function uploadFile({
     const uploadResponse = await uploadFileApiV1FilesPost(uploadOptions);
     let fileId: string | undefined = undefined;
     if (!uploadResponse.response.ok) {
+      const error = await uploadResponse.response.text();
+      console.error("Error while uploading file: ", error);
       retries++;
       await sleep(retryInterval * 1000);
     }
