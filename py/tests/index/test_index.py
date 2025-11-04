@@ -44,7 +44,7 @@ def index_name() -> Generator[str, None, None]:
         client = LlamaCloud(token=api_key, base_url=base_url)
         pipeline = client.pipelines.search_pipelines(project_name=name)
         if pipeline:
-            client.pipelines.delete(pipeline_id=pipeline[0].id)
+            client.pipelines.delete_pipeline(pipeline_id=pipeline[0].id)
 
 
 @pytest.fixture()
@@ -83,7 +83,7 @@ def _setup_index_with_file(
 
     # add file to pipeline
     pipeline_file_create = PipelineFileCreate(file_id=file.id)
-    client.pipelines.add_files_to_pipeline_api(
+    client.pipeline_files.add_files_to_pipeline_api(
         pipeline_id=pipeline.id, request=[pipeline_file_create]
     )
 
