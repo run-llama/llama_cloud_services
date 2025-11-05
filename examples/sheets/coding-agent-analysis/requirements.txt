@@ -1,0 +1,5 @@
+llama-cloud-services  # LlamaSheets SDK
+pandas>=2.0.0
+pyarrow>=12.0.0
+openpyxl>=3.0.0       # For Excel file support
+matplotlib>=3.7.0     # For visualizations (optional)
