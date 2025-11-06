@@ -8,6 +8,9 @@ class SpreadsheetResultType(str, Enum):
     TABLE = "table"
     CELL_METADATA = "cell_metadata"
 
+    def __str__(self) -> str:
+        return self.value
+
 
 class ExtractedTableSummary(BaseModel):
     """A summary of a single extracted table from a spreadsheet"""

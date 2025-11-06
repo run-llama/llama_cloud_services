@@ -22,6 +22,7 @@ from llama_cloud_services.beta.sheets.types import (
     SpreadsheetParsingConfig,
     SpreadsheetResultType,
 )
+from llama_cloud_services.constants import BASE_URL
 from llama_cloud_services.files.client import FileClient
 from llama_cloud_services.utils import (
     augment_async_errors,
@@ -63,7 +64,7 @@ class LlamaSheets:
     def __init__(
         self,
         api_key: str | None = None,
-        base_url: str = "https://api.cloud.llamaindex.ai",
+        base_url: str | None = None,
         max_timeout: int = 300,
         poll_interval: int = 5,
         max_retries: int = 3,
@@ -85,7 +86,9 @@ class LlamaSheets:
                 "An API key must be provided either as an argument or via the LLAMA_CLOUD_API_KEY environment variable."
             )
 
-        self.base_url = base_url.rstrip("/")
+        base_url = base_url or os.environ.get("LLAMA_CLOUD_BASE_URL", BASE_URL)
+        self.base_url = str(base_url).rstrip("/")
+
         self.max_timeout = max_timeout
         self.poll_interval = poll_interval
         self.max_retries = max_retries
@@ -411,6 +414,7 @@ class LlamaSheets:
         """
         # Get presigned URL
         presigned_response = None
+        result_type_str = str(result_type)
         try:
             async for attempt in AsyncRetrying(
                 stop=stop_after_attempt(self.max_retries),
@@ -421,7 +425,7 @@ class LlamaSheets:
                 with attempt:
                     client = self._get_async_client()
                     response = await client.get(
-                        f"{self.base_url}/api/v1/beta/spreadsheet/jobs/{job_id}/tables/{table_id}/result/{result_type}",
+                        f"{self.base_url}/api/v1/beta/spreadsheet/jobs/{job_id}/tables/{table_id}/result/{result_type_str}",
                         headers=self._get_headers(),
                     )
                     response.raise_for_status()
