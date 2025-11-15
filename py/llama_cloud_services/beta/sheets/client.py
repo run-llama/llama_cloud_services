@@ -183,49 +183,49 @@ class LlamaSheets:
         with augment_async_errors():
             return asyncio.run(self.await_for_completion(job_id))
 
-    def download_table_result(
+    def download_region_result(
         self,
         job_id: str,
-        table_id: str,
+        region_id: str,
         result_type: SpreadsheetResultType = SpreadsheetResultType.TABLE,
     ) -> bytes:
-        """Download a table result (either table data or cell metadata).
+        """Download a region result (either region data or cell metadata).
 
         Args:
             job_id: ID of the job
-            table_id: ID of the table
-            result_type: Type of result to download (table or cell_metadata)
+            region_id: ID of the region
+            result_type: Type of result to download (region or cell_metadata)
 
         Returns:
             Raw bytes of the parquet file
         """
         with augment_async_errors():
             return asyncio.run(
-                self.adownload_table_result(job_id, table_id, result_type)
+                self.adownload_region_result(job_id, region_id, result_type)
             )
 
-    def download_table_as_dataframe(
+    def download_region_as_dataframe(
         self,
         job_id: str,
-        table_id: str,
+        region_id: str,
         result_type: SpreadsheetResultType = SpreadsheetResultType.TABLE,
     ) -> "pd.DataFrame":
-        """Download a table result as a pandas DataFrame.
+        """Download a region result as a pandas DataFrame.
 
         Args:
             job_id: ID of the job
-            table_id: ID of the table
-            result_type: Type of result to download (table or cell_metadata)
+            region_id: ID of the region
+            result_type: Type of result to download (region or cell_metadata)
 
         Returns:
             pandas DataFrame
         """
         with augment_async_errors():
             return asyncio.run(
-                self.adownload_table_as_dataframe(job_id, table_id, result_type)
+                self.adownload_region_as_dataframe(job_id, region_id, result_type)
             )
 
-    def extract_tables(
+    def extract_regions(
         self,
         file_obj: FileInput,
         config: dict | SpreadsheetParsingConfig | None = None,
@@ -246,7 +246,7 @@ class LlamaSheets:
             SpreadsheetJobResult with parsing results
         """
         with augment_async_errors():
-            return asyncio.run(self.aextract_tables(file_obj, config))
+            return asyncio.run(self.aextract_regions(file_obj, config))
 
     # Async methods
 
@@ -316,7 +316,7 @@ class LlamaSheets:
                 with attempt:
                     client = self._get_async_client()
                     response = await client.post(
-                        f"{self.base_url}/api/v1/beta/spreadsheet/jobs",
+                        f"{self.base_url}/api/v1/beta/sheets/jobs",
                         headers=self._get_headers(),
                         json=payload,
                     )
@@ -348,7 +348,7 @@ class LlamaSheets:
                 with attempt:
                     client = self._get_async_client()
                     response = await client.get(
-                        f"{self.base_url}/api/v1/beta/spreadsheet/jobs/{job_id}",
+                        f"{self.base_url}/api/v1/beta/sheets/jobs/{job_id}",
                         headers=self._get_headers(),
                         params={"include_results": include_results_metadata},
                     )
@@ -396,18 +396,18 @@ class LlamaSheets:
             f"Job did not complete within {self.max_timeout} seconds"
         )
 
-    async def adownload_table_result(
+    async def adownload_region_result(
         self,
         job_id: str,
-        table_id: str,
+        region_id: str,
         result_type: SpreadsheetResultType = SpreadsheetResultType.TABLE,
     ) -> bytes:
-        """Download a table result (either table data or cell metadata).
+        """Download a region result (either region data or cell metadata).
 
         Args:
             job_id: ID of the job
-            table_id: ID of the table
-            result_type: Type of result to download (table or cell_metadata)
+            region_id: ID of the region
+            result_type: Type of result to download (region or cell_metadata)
 
         Returns:
             Raw bytes of the parquet file
@@ -425,7 +425,7 @@ class LlamaSheets:
                 with attempt:
                     client = self._get_async_client()
                     response = await client.get(
-                        f"{self.base_url}/api/v1/beta/spreadsheet/jobs/{job_id}/tables/{table_id}/result/{result_type_str}",
+                        f"{self.base_url}/api/v1/beta/sheets/jobs/{job_id}/regions/{region_id}/result/{result_type_str}",
                         headers=self._get_headers(),
                     )
                     response.raise_for_status()
@@ -454,28 +454,30 @@ class LlamaSheets:
             raise SpreadsheetAPIError(f"Failed to download result: {e}") from e
         raise RuntimeError("Tenacity did not execute")
 
-    async def adownload_table_as_dataframe(
+    async def adownload_region_as_dataframe(
         self,
         job_id: str,
-        table_id: str,
+        region_id: str,
         result_type: SpreadsheetResultType = SpreadsheetResultType.TABLE,
     ) -> "pd.DataFrame":
-        """Download a table result as a pandas DataFrame.
+        """Download a region result as a pandas DataFrame.
 
         Args:
             job_id: ID of the job
-            table_id: ID of the table
-            result_type: Type of result to download (table or cell_metadata)
+            region_id: ID of the region
+            result_type: Type of result to download (region or cell_metadata)
 
         Returns:
             pandas DataFrame
         """
         import pandas as pd
 
-        parquet_bytes = await self.adownload_table_result(job_id, table_id, result_type)
+        parquet_bytes = await self.adownload_region_result(
+            job_id, region_id, result_type
+        )
         return pd.read_parquet(io.BytesIO(parquet_bytes))
 
-    async def aextract_tables(
+    async def aextract_regions(
         self,
         file_obj: FileInput,
         config: dict | SpreadsheetParsingConfig | None = None,

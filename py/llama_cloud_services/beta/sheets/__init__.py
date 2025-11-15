@@ -10,7 +10,7 @@ from llama_cloud_services.beta.sheets.client import (
     SpreadsheetTimeoutError,
 )
 from llama_cloud_services.beta.sheets.types import (
-    ExtractedTableSummary,
+    ExtractedRegionSummary,
     FileUploadResponse,
     JobStatus,
     PresignedUrlResponse,
@@ -30,7 +30,7 @@ __all__ = [
     "SpreadsheetJobError",
     "SpreadsheetTimeoutError",
     # Types
-    "ExtractedTableSummary",
+    "ExtractedRegionSummary",
     "FileUploadResponse",
     "JobStatus",
     "PresignedUrlResponse",

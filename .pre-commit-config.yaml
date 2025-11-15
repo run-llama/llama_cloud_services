@@ -34,7 +34,7 @@ repos:
     rev: v1.0.1
     hooks:
       - id: mypy
-        exclude: ^py/tests|^py/unit_tests
+        exclude: ^py/tests|^py/unit_tests|^examples
         additional_dependencies:
           [
             "types-requests",

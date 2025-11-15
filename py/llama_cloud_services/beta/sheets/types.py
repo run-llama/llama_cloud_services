@@ -6,27 +6,28 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class SpreadsheetResultType(str, Enum):
     TABLE = "table"
+    EXTRA = "extra"
     CELL_METADATA = "cell_metadata"
 
     def __str__(self) -> str:
         return self.value
 
 
-class ExtractedTableSummary(BaseModel):
-    """A summary of a single extracted table from a spreadsheet"""
+class ExtractedRegionSummary(BaseModel):
+    """A summary of a single extracted region from a spreadsheet"""
 
-    table_id: str = Field(
+    region_id: str = Field(
         ...,
-        description="Unique identifier for this table within the file",
+        description="Unique identifier for this region within the file",
     )
-    sheet_name: str = Field(..., description="Worksheet name where table was found")
-    table_location: str = Field(
-        ..., description="Location of the table in the spreadsheet"
+    sheet_name: str = Field(..., description="Worksheet name where region was found")
+    location: str = Field(..., description="Location of the region in the spreadsheet")
+    title: str | None = Field(None, description="Generated title for the region")
+    description: str | None = Field(
+        None, description="Generated description of the region"
     )
-
-    # Optional detailed metadata for debugging/advanced use cases
-    metadata_json: str | None = Field(
-        None, description="JSON metadata with detailed table information"
+    region_type: SpreadsheetResultType = Field(
+        ..., description="Type of the extracted region"
     )
 
 
@@ -46,8 +47,8 @@ class SpreadsheetParseResult(BaseModel):
     success: bool = Field(..., description="Whether parsing was successful")
     file_name: str = Field(..., description="Original filename")
 
-    tables: list[ExtractedTableSummary] = Field(
-        default_factory=list, description="All successfully extracted tables"
+    regions: list[ExtractedRegionSummary] = Field(
+        default_factory=list, description="All successfully extracted regions"
     )
     worksheet_metadata: list[WorksheetMetadata] = Field(
         default_factory=list, description="Metadata for each processed worksheet"
@@ -60,25 +61,29 @@ class SpreadsheetParseResult(BaseModel):
 
 
 class SpreadsheetParsingConfig(BaseModel):
-    """Configuration for spreadsheet parsing and table extraction"""
+    """Configuration for spreadsheet parsing and region extraction"""
 
     model_config = ConfigDict(extra="forbid")
 
     sheet_names: list[str] | None = Field(
         default=None,
-        description="The names of the sheets to extract tables from. If empty, the default sheet is extracted.",
+        description="The names of the sheets to extract regions from. If empty, the default sheet is extracted.",
     )
     include_hidden_cells: bool = Field(
         default=True,
-        description="Whether to include hidden cells when extracting tables from the spreadsheet.",
+        description="Whether to include hidden cells when extracting regions from the spreadsheet.",
     )
     extraction_range: str | None = Field(
         default=None,
-        description="A1 notation of the range to extract a single table from. If None, the entire sheet is used.",
+        description="A1 notation of the range to extract a single region from. If None, the entire sheet is used.",
     )
     generate_additional_metadata: bool = Field(
+        default=True,
+        description="Whether to generate additional metadata (title, description) for each extracted region.",
+    )
+    use_experimental_processing: bool = Field(
         default=False,
-        description="Whether to generate additional metadata (title, description) for each extracted table. Set to False.",
+        description="Enables experimental processing. Accuracy may be impacted.",
     )
 
 
@@ -88,7 +93,7 @@ class SpreadsheetJob(BaseModel):
     id: str = Field(..., description="The ID of the job")
     user_id: str = Field(..., description="The ID of the user")
     project_id: str = Field(..., description="The ID of the project")
-    file_id: str = Field(..., description="The ID of the file to parse")
+    file: dict = Field(..., description="The file object being parsed")
     config: SpreadsheetParsingConfig = Field(
         ..., description="Configuration for the parsing job"
     )
@@ -112,9 +117,9 @@ class SpreadsheetJobResult(SpreadsheetJob):
     success: bool | None = Field(
         None, description="Whether the job completed successfully"
     )
-    tables: list[ExtractedTableSummary] = Field(
+    regions: list[ExtractedRegionSummary] = Field(
         default_factory=list,
-        description="All extracted tables (populated when job is complete)",
+        description="All extracted regions (populated when job is complete)",
     )
     worksheet_metadata: list[WorksheetMetadata] = Field(
         default_factory=list,

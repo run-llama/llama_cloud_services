@@ -27,7 +27,7 @@ When a spreadsheet is extracted, you'll find:
    - Content: `cell_value`, `raw_cell_value`
 
 3. **Job metadata JSON** (`job_metadata.json`): Overall extraction results
-   - `tables[]`: List of extracted tables with IDs and locations
+   - `regions[]`: List of extracted tables with IDs, locations, and titles/descriptions
    - `worksheet_metadata[]`: Generated titles and descriptions
    - `status`: Success/failure status
 
