@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.80
+
+### Patch Changes
+
+- 0506c88: Moved ClassifyClient to LlamaClassify (backward compatible)
+
 ## 0.6.79
 
 ### Patch Changes
