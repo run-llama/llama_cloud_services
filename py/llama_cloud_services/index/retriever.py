@@ -129,11 +129,12 @@ class LlamaCloudRetriever(BaseRetriever):
         )
 
     def _result_nodes_to_node_with_score(
-        self, result_nodes: List[TextNodeWithScore]
+        self, result_nodes: List[TextNodeWithScore], metadata: Optional[dict] = None
     ) -> List[NodeWithScore]:
         nodes = []
         for res in result_nodes:
-            text_node = TextNode.parse_obj(res.node.dict())
+            text_node = TextNode.model_validate(res.node.dict())
+            text_node.metadata.update(metadata or {})
             nodes.append(NodeWithScore(node=text_node, score=res.score))
 
         return nodes
@@ -161,17 +162,25 @@ class LlamaCloudRetriever(BaseRetriever):
             search_filters_inference_schema=search_filters_inference_schema,
         )
 
-        result_nodes = self._result_nodes_to_node_with_score(results.retrieval_nodes)
+        result_nodes = self._result_nodes_to_node_with_score(
+            results.retrieval_nodes, metadata=results.metadata
+        )
         if self._retrieve_page_screenshot_nodes:
             result_nodes.extend(
                 page_screenshot_nodes_to_node_with_score(
-                    self._client, results.image_nodes, self.project.id
+                    self._client,
+                    results.image_nodes,
+                    self.project.id,
+                    metadata=results.metadata,
                 )
             )
         if self._retrieve_page_figure_nodes:
             result_nodes.extend(
                 page_figure_nodes_to_node_with_score(
-                    self._client, results.page_figure_nodes, self.project.id
+                    self._client,
+                    results.page_figure_nodes,
+                    self.project.id,
+                    metadata=results.metadata,
                 )
             )
 
@@ -200,17 +209,25 @@ class LlamaCloudRetriever(BaseRetriever):
             search_filters_inference_schema=search_filters_inference_schema,
         )
 
-        result_nodes = self._result_nodes_to_node_with_score(results.retrieval_nodes)
+        result_nodes = self._result_nodes_to_node_with_score(
+            results.retrieval_nodes, metadata=results.metadata
+        )
         if self._retrieve_page_screenshot_nodes:
             result_nodes.extend(
                 await apage_screenshot_nodes_to_node_with_score(
-                    self._aclient, results.image_nodes, self.project.id
+                    self._aclient,
+                    results.image_nodes,
+                    self.project.id,
+                    metadata=results.metadata,
                 )
             )
         if self._retrieve_page_figure_nodes:
             result_nodes.extend(
                 await apage_figure_nodes_to_node_with_score(
-                    self._aclient, results.page_figure_nodes, self.project.id
+                    self._aclient,
+                    results.page_figure_nodes,
+                    self.project.id,
+                    metadata=results.metadata,
                 )
             )
 

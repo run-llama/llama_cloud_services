@@ -34,12 +34,15 @@ export class LlamaCloudRetriever extends BaseRetriever {
 
   private resultNodesToNodeWithScore(
     nodes: TextNodeWithScore[],
+    metadata: Record<string, string> | undefined,
   ): NodeWithScore[] {
     return nodes.map((node: TextNodeWithScore) => {
       const textNode = jsonToNode(node.node, ObjectType.TEXT);
+      const extra_metadata = metadata || {};
       textNode.metadata = {
         ...textNode.metadata,
         ...node.node.extra_info, // append LlamaCloud extra_info to node metadata (file_name, pipeline_id, etc.)
+        ...extra_metadata, // append retrieval-level metadata
       };
       return {
         // Currently LlamaCloud only supports text nodes
@@ -63,6 +66,7 @@ export class LlamaCloudRetriever extends BaseRetriever {
   private async pageScreenshotNodesToNodeWithScore(
     nodes: PageScreenshotNodeWithScore[] | undefined,
     projectId: string,
+    metadata: Record<string, string> | undefined,
   ): Promise<NodeWithScore[]> {
     if (!nodes || nodes.length === 0) return [];
 
@@ -87,6 +91,7 @@ export class LlamaCloudRetriever extends BaseRetriever {
           image: base64,
           metadata: {
             ...(n.node.metadata ?? {}),
+            ...(metadata || {}),
             file_id: n.node.file_id,
             page_index: n.node.page_index,
           },
@@ -101,6 +106,7 @@ export class LlamaCloudRetriever extends BaseRetriever {
   private async pageFigureNodesToNodeWithScore(
     nodes: PageFigureNodeWithScore[] | undefined,
     projectId: string,
+    metadata: Record<string, string> | undefined,
   ): Promise<NodeWithScore[]> {
     if (!nodes || nodes.length === 0) return [];
 
@@ -126,6 +132,7 @@ export class LlamaCloudRetriever extends BaseRetriever {
           image: base64,
           metadata: {
             ...(n.node.metadata ?? {}),
+            ...(metadata || {}),
             file_id: n.node.file_id,
             page_index: n.node.page_index,
             figure_name: n.node.figure_name,
@@ -222,7 +229,10 @@ export class LlamaCloudRetriever extends BaseRetriever {
         },
       });
 
-    const textNodes = this.resultNodesToNodeWithScore(results.retrieval_nodes);
+    const textNodes = this.resultNodesToNodeWithScore(
+      results.retrieval_nodes,
+      results.metadata,
+    );
 
     const needScreenshots = (this.retrieveParams as RetrievalParams)
       .retrieve_page_screenshot_nodes;
@@ -240,12 +250,14 @@ export class LlamaCloudRetriever extends BaseRetriever {
         ? this.pageScreenshotNodesToNodeWithScore(
             results.image_nodes,
             projectId,
+            results.metadata,
           )
         : Promise.resolve([] as NodeWithScore[]),
       needFigures
         ? this.pageFigureNodesToNodeWithScore(
             results.page_figure_nodes,
             projectId,
+            results.metadata,
           )
         : Promise.resolve([] as NodeWithScore[]),
     ]);

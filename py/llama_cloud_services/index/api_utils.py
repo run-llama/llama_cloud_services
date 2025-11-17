@@ -258,6 +258,7 @@ def page_screenshot_nodes_to_node_with_score(
     client: LlamaCloud,
     raw_image_nodes: Optional[List[PageScreenshotNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     if not raw_image_nodes:
         return []
@@ -273,6 +274,7 @@ def page_screenshot_nodes_to_node_with_score(
         image_base64 = base64.b64encode(image_bytes).decode("utf-8")
         image_node_metadata: Dict[str, Any] = {
             **(raw_image_node.node.metadata or {}),
+            **(metadata or {}),
             "file_id": raw_image_node.node.file_id,
             "page_index": raw_image_node.node.page_index,
         }
@@ -289,6 +291,7 @@ def image_nodes_to_node_with_score(
     client: LlamaCloud,
     raw_image_nodes: Optional[List[PageScreenshotNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     """
     Legacy method to alias page_screenshot_nodes_to_node_with_score.
@@ -297,7 +300,10 @@ def image_nodes_to_node_with_score(
         return []
 
     return page_screenshot_nodes_to_node_with_score(
-        client=client, raw_image_nodes=raw_image_nodes, project_id=project_id
+        client=client,
+        raw_image_nodes=raw_image_nodes,
+        project_id=project_id,
+        metadata=metadata,
     )
 
 
@@ -305,6 +311,7 @@ def page_figure_nodes_to_node_with_score(
     client: LlamaCloud,
     raw_figure_nodes: Optional[List[PageFigureNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     if not raw_figure_nodes:
         return []
@@ -321,6 +328,7 @@ def page_figure_nodes_to_node_with_score(
         figure_base64 = base64.b64encode(figure_bytes).decode("utf-8")
         figure_node_metadata: Dict[str, Any] = {
             **(raw_figure_node.node.metadata or {}),
+            **(metadata or {}),
             "file_id": raw_figure_node.node.file_id,
             "page_index": raw_figure_node.node.page_index,
             "figure_name": raw_figure_node.node.figure_name,
@@ -337,6 +345,7 @@ async def apage_screenshot_nodes_to_node_with_score(
     client: AsyncLlamaCloud,
     raw_image_nodes: Optional[List[PageScreenshotNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     if not raw_image_nodes:
         return []
@@ -357,6 +366,7 @@ async def apage_screenshot_nodes_to_node_with_score(
         image_base64 = base64.b64encode(image_bytes).decode("utf-8")
         image_node_metadata: Dict[str, Any] = {
             **(raw_image_node.node.metadata or {}),
+            **(metadata or {}),
             "file_id": raw_image_node.node.file_id,
             "page_index": raw_image_node.node.page_index,
         }
@@ -372,6 +382,7 @@ async def aimage_nodes_to_node_with_score(
     client: AsyncLlamaCloud,
     raw_image_nodes: Optional[List[PageScreenshotNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     """
     Legacy method to alias apage_screenshot_nodes_to_node_with_score.
@@ -380,7 +391,10 @@ async def aimage_nodes_to_node_with_score(
         return []
 
     return await apage_screenshot_nodes_to_node_with_score(
-        client=client, raw_image_nodes=raw_image_nodes, project_id=project_id
+        client=client,
+        raw_image_nodes=raw_image_nodes,
+        project_id=project_id,
+        metadata=metadata,
     )
 
 
@@ -388,6 +402,7 @@ async def apage_figure_nodes_to_node_with_score(
     client: AsyncLlamaCloud,
     raw_figure_nodes: Optional[List[PageFigureNodeWithScore]],
     project_id: str,
+    metadata: Optional[dict] = None,
 ) -> List[NodeWithScore]:
     if not raw_figure_nodes:
         return []
@@ -409,6 +424,7 @@ async def apage_figure_nodes_to_node_with_score(
         figure_base64 = base64.b64encode(figure_bytes).decode("utf-8")
         figure_node_metadata: Dict[str, Any] = {
             **(raw_figure_node.node.metadata or {}),
+            **(metadata or {}),
             "file_id": raw_figure_node.node.file_id,
             "page_index": raw_figure_node.node.page_index,
             "figure_name": raw_figure_node.node.figure_name,
