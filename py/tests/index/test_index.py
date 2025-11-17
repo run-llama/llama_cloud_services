@@ -173,6 +173,41 @@ def test_upload_file(index_name: str):
 @pytest.mark.skipif(
     not base_url or not api_key, reason="No platform base url or api key set"
 )
+def test_upload_file_with_custom_metadata(index_name: str):
+    index = LlamaCloudIndex.create_index(
+        name=index_name,
+        project_name=project_name,
+        organization_id=organization_id,
+        api_key=api_key,
+        base_url=base_url,
+    )
+
+    # Create a temporary file to upload
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".txt") as temp_file:
+        temp_file.write(b"Sample content for testing upload.")
+        temp_file_path = temp_file.name
+    custom_metadata = {"foo": "bar"}
+
+    try:
+        # Upload the file
+        file_id = index.upload_file(temp_file_path, custom_metadata=custom_metadata, verbose=True)
+        assert file_id is not None
+
+        # Verify the file is part of the index
+        docs = index.ref_doc_info
+        temp_file_name = os.path.basename(temp_file_path)
+        assert any(
+            temp_file_name == doc.metadata.get("file_name") for doc in docs.values()
+        )
+
+    finally:
+        # Clean up the temporary file
+        os.remove(temp_file_path)
+
+
+@pytest.mark.skipif(
+    not base_url or not api_key, reason="No platform base url or api key set"
+)
 def test_upload_file_from_url(remote_file: Tuple[str, str], index_name: str):
     index = LlamaCloudIndex.create_index(
         name=index_name,
@@ -188,6 +223,33 @@ def test_upload_file_from_url(remote_file: Tuple[str, str], index_name: str):
     # Upload the file from the URL
     file_id = index.upload_file_from_url(
         file_name=test_file_name, url=test_file_url, verbose=True
+    )
+    assert file_id is not None
+
+    # Verify the file is part of the index
+    docs = index.ref_doc_info
+    assert any(test_file_name == doc.metadata.get("file_name") for doc in docs.values())
+
+
+@pytest.mark.skipif(
+    not base_url or not api_key, reason="No platform base url or api key set"
+)
+def test_upload_file_from_url_with_custom_metadata(remote_file: Tuple[str, str], index_name: str):
+    index = LlamaCloudIndex.create_index(
+        name=index_name,
+        project_name=project_name,
+        organization_id=organization_id,
+        api_key=api_key,
+        base_url=base_url,
+    )
+
+    # Define a URL to a file for testing
+    custom_metadata = {"foo": "bar"}
+    test_file_url, test_file_name = remote_file
+
+    # Upload the file from the URL
+    file_id = index.upload_file_from_url(
+        file_name=test_file_name, url=test_file_url, custom_metadata=custom_metadata, verbose=True
     )
     assert file_id is not None
 
@@ -511,6 +573,30 @@ async def test_async_upload_file_from_url(
     not base_url or not api_key, reason="No platform base url or api key set"
 )
 @pytest.mark.asyncio
+async def test_async_upload_file_from_url_with_custom_metadata(
+    remote_file: Tuple[str, str], index_name: str
+):
+    index = await LlamaCloudIndex.acreate_index(
+        name=index_name,
+        project_name=project_name,
+        api_key=api_key,
+        base_url=base_url,
+    )
+
+    custom_metadata = {"foo": "bar"}
+    test_file_url, test_file_name = remote_file
+    file_id = await index.aupload_file_from_url(
+        file_name=test_file_name, url=test_file_url, custom_metadata=custom_metadata, verbose=True
+    )
+    assert file_id is not None
+
+    await index.await_for_completion()
+
+
+@pytest.mark.skipif(
+    not base_url or not api_key, reason="No platform base url or api key set"
+)
+@pytest.mark.asyncio
 async def test_async_index_from_file(index_name: str, local_file: str):
     index = await LlamaCloudIndex.acreate_index(
         name=index_name,
@@ -520,6 +606,25 @@ async def test_async_index_from_file(index_name: str, local_file: str):
     )
 
     file_id = await index.aupload_file(file_path=local_file, verbose=True)
+    assert file_id is not None
+
+    await index.await_for_completion()
+
+
+@pytest.mark.skipif(
+    not base_url or not api_key, reason="No platform base url or api key set"
+)
+@pytest.mark.asyncio
+async def test_async_index_from_file_with_custom_metadata(index_name: str, local_file: str):
+    index = await LlamaCloudIndex.acreate_index(
+        name=index_name,
+        project_name=project_name,
+        api_key=api_key,
+        base_url=base_url,
+    )
+
+    custom_metadata = {"foo": "bar"}
+    file_id = await index.aupload_file(file_path=local_file, custom_metadata=custom_metadata, verbose=True)
     assert file_id is not None
 
     await index.await_for_completion()

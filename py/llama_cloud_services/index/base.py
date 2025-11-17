@@ -19,6 +19,7 @@ from llama_cloud import (
     PipelineCreate,
     PipelineCreateEmbeddingConfig,
     PipelineCreateTransformConfig,
+    PipelineFileCreateCustomMetadataValue,
     PipelineType,
     ProjectCreate,
     ManagedIngestionStatus,
@@ -905,7 +906,7 @@ class LlamaCloudIndex(BaseManagedIndex):
     def upload_file(
         self,
         file_path: str,
-        verbose: bool = False,
+        custom_metadata: Optional[dict[str, Optional[PipelineFileCreateCustomMetadataValue]]] = None,        verbose: bool = False,
         wait_for_ingestion: bool = True,
         raise_on_error: bool = False,
     ) -> str:
@@ -918,7 +919,7 @@ class LlamaCloudIndex(BaseManagedIndex):
                 print(f"Uploaded file {file.id} with name {file.name}")
 
         # Add file to pipeline
-        pipeline_file_create = PipelineFileCreate(file_id=file.id)
+        pipeline_file_create = PipelineFileCreate(file_id=file.id, custom_metadata=custom_metadata)
         self._client.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
@@ -932,6 +933,7 @@ class LlamaCloudIndex(BaseManagedIndex):
     async def aupload_file(
         self,
         file_path: str,
+        custom_metadata: Optional[dict[str, Optional[PipelineFileCreateCustomMetadataValue]]] = None,
         verbose: bool = False,
         wait_for_ingestion: bool = True,
         raise_on_error: bool = False,
@@ -945,7 +947,7 @@ class LlamaCloudIndex(BaseManagedIndex):
                 print(f"Uploaded file {file.id} with name {file.name}")
 
         # Add file to pipeline
-        pipeline_file_create = PipelineFileCreate(file_id=file.id)
+        pipeline_file_create = PipelineFileCreate(file_id=file.id, custom_metadata=custom_metadata)
         await self._aclient.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
@@ -961,6 +963,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         self,
         file_name: str,
         url: str,
+        custom_metadata: Optional[dict[str, Optional[PipelineFileCreateCustomMetadataValue]]] = None,
         proxy_url: Optional[str] = None,
         request_headers: Optional[Dict[str, str]] = None,
         verify_ssl: bool = True,
@@ -983,7 +986,7 @@ class LlamaCloudIndex(BaseManagedIndex):
             print(f"Uploaded file {file.id} with ID {file.id}")
 
         # Add file to pipeline
-        pipeline_file_create = PipelineFileCreate(file_id=file.id)
+        pipeline_file_create = PipelineFileCreate(file_id=file.id, custom_metadata=custom_metadata)
         self._client.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
@@ -998,6 +1001,7 @@ class LlamaCloudIndex(BaseManagedIndex):
         self,
         file_name: str,
         url: str,
+        custom_metadata: Optional[dict[str, Optional[PipelineFileCreateCustomMetadataValue]]] = None,
         proxy_url: Optional[str] = None,
         request_headers: Optional[Dict[str, str]] = None,
         verify_ssl: bool = True,
@@ -1020,7 +1024,7 @@ class LlamaCloudIndex(BaseManagedIndex):
             print(f"Uploaded file {file.id} with ID {file.id}")
 
         # Add file to pipeline
-        pipeline_file_create = PipelineFileCreate(file_id=file.id)
+        pipeline_file_create = PipelineFileCreate(file_id=file.id, custom_metadata=custom_metadata)
         await self._aclient.pipeline_files.add_files_to_pipeline_api(
             pipeline_id=self.pipeline.id, request=[pipeline_file_create]
         )
