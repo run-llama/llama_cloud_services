@@ -31,7 +31,7 @@ class ClassificationOutput(BaseModel):
     classification: str
 
 
-class ClassifyClient:
+class LlamaClassify:
     """
     Experimental - Client for interacting with the LlamaCloud Classifier API.
     The Classification API is currently in beta and may change in the future without notice.
@@ -366,3 +366,6 @@ class ClassifyClient:
                 job_id, project_id=self.project_id
             )
         return job
+
+
+ClassifyClient = LlamaClassify
