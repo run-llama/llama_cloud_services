@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.81
+
+### Patch Changes
+
+- f3233de: Propagate retrieval metadata to retriever nodes
+
 ## 0.6.80
 
 ### Patch Changes

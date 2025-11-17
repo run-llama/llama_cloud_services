@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.4.1
+
+### Patch Changes
+
+- f3233de: Propagate retrieval metadata to retriever nodes
+
 ## 0.4.0
 
 ### Minor Changes
