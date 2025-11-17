@@ -3,7 +3,7 @@ This project uses LlamaSheets to extract data from spreadsheets for analysis.
 ## Current Project Structure
 
 - `data/` - Contains extracted parquet files from LlamaSheets
-  - `{name}_table_{N}.parquet` - Table data files
+  - `{name}_region_{N}.parquet` - Table data files
   - `{name}_metadata_{N}.parquet` - Cell metadata files
   - `{name}_job_metadata.json` - Extraction job information
 - `scripts/` - Analysis and helper scripts
@@ -15,7 +15,7 @@ This project uses LlamaSheets to extract data from spreadsheets for analysis.
 
 When a spreadsheet is extracted, you'll find:
 
-1. **Table parquet files** (`table_*.parquet`): The actual table data
+1. **Table parquet files** (`region_*.parquet`): The actual table data
    - Columns correspond to spreadsheet columns
    - Data types are preserved (dates, numbers, strings, booleans)
 
@@ -27,7 +27,7 @@ When a spreadsheet is extracted, you'll find:
    - Content: `cell_value`, `raw_cell_value`
 
 3. **Job metadata JSON** (`job_metadata.json`): Overall extraction results
-   - `regions[]`: List of extracted tables with IDs, locations, and titles/descriptions
+   - `regions[]`: List of extracted regions with IDs, locations, and titles/descriptions
    - `worksheet_metadata[]`: Generated titles and descriptions
    - `status`: Success/failure status
 
@@ -44,7 +44,7 @@ When a spreadsheet is extracted, you'll find:
 ```python
 import pandas as pd
 
-df = pd.read_parquet("data/table_1_Sheet1.parquet")
+df = pd.read_parquet("data/region_1_Sheet1.parquet")
 meta_df = pd.read_parquet("data/metadata_1_Sheet1.parquet")
 ```
 
