@@ -9,20 +9,20 @@ import httpx
 MatcherPredicate = Callable[[httpx.Request], bool]
 
 
-@dataclass(slots=True)
+@dataclass
 class FileMatcher:
     filename: Optional[str] = None
     sha256: Optional[str] = None
     file_id: Optional[str] = None
 
 
-@dataclass(slots=True)
+@dataclass
 class SchemaMatcher:
     model: Optional[type] = None
     schema_hash: Optional[str] = None
 
 
-@dataclass(slots=True)
+@dataclass
 class RequestMatcher:
     file: Optional[FileMatcher | MatcherPredicate] = None
     schema: Optional[SchemaMatcher] = None
@@ -32,7 +32,7 @@ class RequestMatcher:
     predicate: Optional[MatcherPredicate] = None
 
 
-@dataclass(slots=True)
+@dataclass
 class RequestContext:
     request: httpx.Request
     json: Optional[dict[str, Any]]
@@ -70,7 +70,10 @@ class RequestContext:
                     return False
 
         if matcher.schema:
-            if matcher.schema.schema_hash and matcher.schema.schema_hash != self.schema_hash:
+            if (
+                matcher.schema.schema_hash
+                and matcher.schema.schema_hash != self.schema_hash
+            ):
                 return False
             if matcher.schema.model and matcher.schema.schema_hash:
                 return matcher.schema.schema_hash == self.schema_hash
@@ -95,4 +98,3 @@ def _schema_hash_from_model(model: type) -> Optional[str]:
     from ._deterministic import hash_schema
 
     return hash_schema(schema)
-

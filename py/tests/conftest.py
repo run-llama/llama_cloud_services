@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import pytest
 from llama_index.core.constants import DEFAULT_BASE_URL
 from pydantic import Field, SecretStr

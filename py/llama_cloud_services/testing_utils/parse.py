@@ -10,13 +10,16 @@ from ._deterministic import generate_text_blob, hash_schema
 if TYPE_CHECKING:
     from .server import FakeLlamaCloudServer
 
-@dataclass(slots=True)
+
+@dataclass
 class ParseJobRecord:
     job_id: str
     file_name: str
     status: str
     result: Dict[str, Any]
     content: bytes
+
+
 class FakeParseNamespace:
     def __init__(self, *, server: "FakeLlamaCloudServer") -> None:
         self._server = server
@@ -47,9 +50,10 @@ class FakeParseNamespace:
     def _handle_upload(self, request: httpx.Request) -> httpx.Response:
         file_bytes, filename, form_data = self._split_multipart(request)
         job_id = self._server.new_id("parse-job")
-        seed = hash_schema({"filename": filename, "form": form_data})
+        seed_hash = hash_schema({"filename": filename, "form": form_data})
+        seed = int(seed_hash[:16], 16)
         page_text = generate_text_blob(seed, sentences=3)
-        pages = [
+        pages: list[Dict[str, Any]] = [
             {
                 "page": index + 1,
                 "text": f"{page_text} (page {index + 1})",
@@ -80,8 +84,8 @@ class FakeParseNamespace:
             "is_done": True,
             "pages": pages,
             "job_metadata": {"job_pages": len(pages)},
-            "text": "\n\n".join(page["text"] for page in pages),
-            "markdown": "\n\n".join(page["md"] for page in pages),
+            "text": "\n\n".join(str(page["text"]) for page in pages),
+            "markdown": "\n\n".join(str(page["md"]) for page in pages),
             "json": {"pages": pages},
         }
         record = ParseJobRecord(
@@ -98,14 +102,18 @@ class FakeParseNamespace:
         job_id = request.url.path.split("/")[-1]
         job = self._jobs.get(job_id)
         if not job:
-            return self._server.json_response({"detail": "Job not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Job not found"}, status_code=404
+            )
         return self._server.json_response({"id": job_id, "status": job.status})
 
     def _handle_job_result(self, request: httpx.Request) -> httpx.Response:
         job_id = request.url.path.split("/")[-3]
         job = self._jobs.get(job_id)
         if not job:
-            return self._server.json_response({"detail": "Result not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Result not found"}, status_code=404
+            )
         return self._server.json_response(job.result)
 
     def _split_multipart(
@@ -138,11 +146,7 @@ class FakeParseNamespace:
                 )
                 file_bytes = payload
             else:
-                name = (
-                    header_text.split('name="')[-1]
-                    .split('"')[0]
-                    .strip()
-                )
+                name = header_text.split('name="')[-1].split('"')[0].strip()
                 form_data[name] = payload.decode("utf-8", errors="ignore")
         if not file_bytes:
             raise ValueError("File part missing from multipart payload")

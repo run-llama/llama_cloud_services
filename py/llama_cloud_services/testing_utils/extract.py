@@ -15,7 +15,12 @@ from llama_cloud.types import (
     StatusEnum,
 )
 
-from ._deterministic import combined_seed, generate_data_from_schema, hash_schema, utcnow
+from ._deterministic import (
+    combined_seed,
+    generate_data_from_schema,
+    hash_schema,
+    utcnow,
+)
 from ._deterministic import fingerprint_file
 from .files import FakeFilesNamespace, StoredFile
 from .matchers import RequestContext, RequestMatcher
@@ -24,7 +29,7 @@ if TYPE_CHECKING:
     from .server import FakeLlamaCloudServer
 
 
-@dataclass(slots=True)
+@dataclass
 class ExtractRunStub:
     matcher: Optional[RequestMatcher]
     data: Optional[Any]
@@ -35,7 +40,7 @@ class ExtractRunStub:
     once: bool
 
 
-@dataclass(slots=True)
+@dataclass
 class AgentRunStub:
     agent_id: str
     matcher: Optional[RequestMatcher]
@@ -45,7 +50,7 @@ class AgentRunStub:
     once: bool
 
 
-@dataclass(slots=True)
+@dataclass
 class StoredRun:
     job: ExtractJob
     run: ExtractRun
@@ -236,7 +241,9 @@ class FakeExtractNamespace:
         schema_hash = hash_schema(data_schema)
 
         file_info = self._extract_file_info(payload, request)
-        agent = self._build_ephemeral_agent(config, data_schema, file_info.file.project_id)
+        agent = self._build_ephemeral_agent(
+            config, data_schema, file_info.file.project_id
+        )
 
         context = RequestContext(
             request=request,
@@ -296,7 +303,9 @@ class FakeExtractNamespace:
             name=name,
             config=config,
             data_schema=data_schema,
-            project_id=request.url.params.get("project_id", self._server.default_project_id),
+            project_id=request.url.params.get(
+                "project_id", self._server.default_project_id
+            ),
             created_at=utcnow(),
             updated_at=utcnow(),
             custom_configuration=None,
@@ -308,14 +317,18 @@ class FakeExtractNamespace:
     def _handle_update_agent(self, request: httpx.Request) -> httpx.Response:
         agent_id = request.url.path.split("/")[-1]
         if agent_id not in self._agents:
-            return self._server.json_response({"detail": "Agent not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Agent not found"}, status_code=404
+            )
         payload = self._server.json(request)
         agent = self._agents[agent_id]
         config = payload.get("config", agent.config)
         data_schema = payload.get("data_schema", agent.data_schema)
         updated = agent.copy(
             update={
-                "config": ExtractConfig.parse_obj(config) if isinstance(config, dict) else config,
+                "config": ExtractConfig.parse_obj(config)
+                if isinstance(config, dict)
+                else config,
                 "data_schema": data_schema,
                 "updated_at": utcnow(),
             }
@@ -327,18 +340,24 @@ class FakeExtractNamespace:
         agent_id = request.url.path.split("/")[-1]
         agent = self._agents.get(agent_id)
         if not agent:
-            return self._server.json_response({"detail": "Agent not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Agent not found"}, status_code=404
+            )
         return self._server.json_response(agent.dict())
 
     def _handle_get_agent_by_name(self, request: httpx.Request) -> httpx.Response:
         name = request.url.path.split("/")[-1]
         agent_id = self._agents_by_name.get(name)
         if not agent_id:
-            return self._server.json_response({"detail": "Agent not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Agent not found"}, status_code=404
+            )
         return self._server.json_response(self._agents[agent_id].dict())
 
     def _handle_list_agents(self, request: httpx.Request) -> httpx.Response:
-        include_default = request.url.params.get("include_default", "false").lower() == "true"
+        include_default = (
+            request.url.params.get("include_default", "false").lower() == "true"
+        )
         agents = list(self._agents.values())
         if include_default and not agents:
             default_agent = self._build_ephemeral_agent(
@@ -376,19 +395,28 @@ class FakeExtractNamespace:
         agent_id = payload["extraction_agent_id"]
         agent = self._agents.get(agent_id)
         if not agent:
-            return self._server.json_response({"detail": "Agent not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Agent not found"}, status_code=404
+            )
 
         file_id = payload["file_id"]
         stored_file = self._files._files.get(file_id)
         if not stored_file:
-            return self._server.json_response({"detail": "File not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "File not found"}, status_code=404
+            )
 
         schema = payload.get("data_schema_override", agent.data_schema)
         config_payload = payload.get("config_override", agent.config)
-        config = ExtractConfig.parse_obj(config_payload) if isinstance(config_payload, dict) else config_payload
-        schema_hash = hash_schema(schema)
+        config = (
+            ExtractConfig.parse_obj(config_payload)
+            if isinstance(config_payload, dict)
+            else config_payload
+        )
 
-        stub = self._pop_agent_stub(agent_id, RequestContext(request=request, json=payload))
+        stub = self._pop_agent_stub(
+            agent_id, RequestContext(request=request, json=payload)
+        )
         job_status = StatusEnum.SUCCESS
         run_status = ExtractState.SUCCESS
         error = None
@@ -442,27 +470,35 @@ class FakeExtractNamespace:
         job_id = request.url.path.split("/")[-1]
         stored = self._jobs.get(job_id)
         if not stored:
-            return self._server.json_response({"detail": "Job not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Job not found"}, status_code=404
+            )
         return self._server.json_response(stored.job.dict())
 
     def _handle_get_run_by_job(self, request: httpx.Request) -> httpx.Response:
         job_id = request.url.path.split("/")[-1]
         stored = self._jobs.get(job_id)
         if not stored:
-            return self._server.json_response({"detail": "Run not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Run not found"}, status_code=404
+            )
         return self._server.json_response(stored.run.dict())
 
     def _handle_get_run(self, request: httpx.Request) -> httpx.Response:
         run_id = request.url.path.split("/")[-1]
         run = self._runs.get(run_id)
         if not run:
-            return self._server.json_response({"detail": "Run not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Run not found"}, status_code=404
+            )
         return self._server.json_response(run.dict())
 
     def _handle_delete_run(self, request: httpx.Request) -> httpx.Response:
         run_id = request.url.path.split("/")[-1]
         self._runs.pop(run_id, None)
-        to_delete = [job_id for job_id, stored in self._jobs.items() if stored.run.id == run_id]
+        to_delete = [
+            job_id for job_id, stored in self._jobs.items() if stored.run.id == run_id
+        ]
         for job_id in to_delete:
             self._jobs.pop(job_id, None)
         return self._server.json_response({}, status_code=200)
@@ -486,7 +522,9 @@ class FakeExtractNamespace:
         return self._server.json_response(response.dict())
 
     # Internal helpers -----------------------------------------------
-    def _extract_file_info(self, payload: Dict[str, Any], request: httpx.Request) -> StoredFile:
+    def _extract_file_info(
+        self, payload: Dict[str, Any], request: httpx.Request
+    ) -> StoredFile:
         if "file_id" in payload:
             file_id = payload["file_id"]
             stored = self._files.get(file_id)
@@ -500,7 +538,9 @@ class FakeExtractNamespace:
                 file=CloudFile(
                     id=file_id,
                     name=filename or f"inline-{file_id}",
-                    project_id=request.url.params.get("project_id", self._server.default_project_id),
+                    project_id=request.url.params.get(
+                        "project_id", self._server.default_project_id
+                    ),
                     external_file_id=None,
                     file_size=len(content),
                     file_type=None,

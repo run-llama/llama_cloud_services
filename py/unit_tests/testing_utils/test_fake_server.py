@@ -34,10 +34,14 @@ def _write_sample_file(tmp_path: Path, name: str, content: str) -> Path:
     return target
 
 
-def test_stateless_extract_is_deterministic(fake_server: FakeLlamaCloudServer, tmp_path: Path) -> None:
+def test_stateless_extract_is_deterministic(
+    fake_server: FakeLlamaCloudServer, tmp_path: Path
+) -> None:
     extractor = LlamaExtract(api_key="unit-test-key", verify=False)
     config = ExtractConfig(extraction_mode=ExtractMode.FAST)
-    sample_path = _write_sample_file(tmp_path, "receipt.txt", "Merchant: Lunar Bistro\nTotal: 123.45")
+    sample_path = _write_sample_file(
+        tmp_path, "receipt.txt", "Merchant: Lunar Bistro\nTotal: 123.45"
+    )
 
     first_run = extractor.extract(Receipt, config, sample_path)
     second_run = extractor.extract(Receipt, config, sample_path)
@@ -48,12 +52,18 @@ def test_stateless_extract_is_deterministic(fake_server: FakeLlamaCloudServer, t
     assert fake_server.extract.stateless_run.called
 
 
-def test_agent_flow_uploads_and_processes_files(fake_server: FakeLlamaCloudServer, tmp_path: Path) -> None:
+def test_agent_flow_uploads_and_processes_files(
+    fake_server: FakeLlamaCloudServer, tmp_path: Path
+) -> None:
     extractor = LlamaExtract(api_key="unit-test-key", verify=False)
     config = ExtractConfig(extraction_mode=ExtractMode.FAST)
-    agent = extractor.create_agent(name="unit-test-agent", data_schema=Receipt, config=config)
+    agent = extractor.create_agent(
+        name="unit-test-agent", data_schema=Receipt, config=config
+    )
 
-    sample_path = _write_sample_file(tmp_path, "contract.pdf", "Agreement between parties.")
+    sample_path = _write_sample_file(
+        tmp_path, "contract.pdf", "Agreement between parties."
+    )
     run = agent.extract(sample_path)
 
     assert run.status.value == "SUCCESS"
@@ -65,9 +75,15 @@ def test_agent_flow_uploads_and_processes_files(fake_server: FakeLlamaCloudServe
     assert fake_server.extract.agent_run.called
 
 
-def test_parse_load_data_returns_documents(fake_server: FakeLlamaCloudServer, tmp_path: Path) -> None:
-    parser = LlamaParse(api_key="unit-test-key", base_url=FakeLlamaCloudServer.DEFAULT_BASE_URL)
-    sample_path = _write_sample_file(tmp_path, "report.pdf", "Executive summary of quarterly goals.")
+def test_parse_load_data_returns_documents(
+    fake_server: FakeLlamaCloudServer, tmp_path: Path
+) -> None:
+    parser = LlamaParse(
+        api_key="unit-test-key", base_url=FakeLlamaCloudServer.DEFAULT_BASE_URL
+    )
+    sample_path = _write_sample_file(
+        tmp_path, "report.pdf", "Executive summary of quarterly goals."
+    )
 
     documents = parser.load_data(sample_path)
 

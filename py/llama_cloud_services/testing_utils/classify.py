@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Dict, List
 
 import httpx
 from llama_cloud.types import (
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from .server import FakeLlamaCloudServer
 
 
-@dataclass(slots=True)
+@dataclass
 class ClassificationJobRecord:
     job: ClassifyJob
     results: ClassifyJobResults
@@ -28,7 +28,9 @@ class ClassificationJobRecord:
 
 
 class FakeClassifyNamespace:
-    def __init__(self, *, server: "FakeLlamaCloudServer", files: FakeFilesNamespace) -> None:
+    def __init__(
+        self, *, server: "FakeLlamaCloudServer", files: FakeFilesNamespace
+    ) -> None:
         self._server = server
         self._files = files
         self._jobs: Dict[str, ClassificationJobRecord] = {}
@@ -69,13 +71,17 @@ class FakeClassifyNamespace:
         for file_id in file_ids:
             stored = self._files.get(file_id)
             if not stored:
-                return self._server.json_response({"detail": f"File {file_id} not found"}, status_code=404)
+                return self._server.json_response(
+                    {"detail": f"File {file_id} not found"}, status_code=404
+                )
             stored_files.append(stored)
 
         job_id = self._server.new_id("classify-job")
         job = ClassifyJob(
             id=job_id,
-            project_id=request.url.params.get("project_id", self._server.default_project_id),
+            project_id=request.url.params.get(
+                "project_id", self._server.default_project_id
+            ),
             user_id="fake-user",
             rules=rules,
             parsing_configuration=None,
@@ -92,20 +98,26 @@ class FakeClassifyNamespace:
         return self._server.json_response(job.dict())
 
     def _handle_list_jobs(self, request: httpx.Request) -> httpx.Response:
-        return self._server.json_response([record.job.dict() for record in self._jobs.values()])
+        return self._server.json_response(
+            [record.job.dict() for record in self._jobs.values()]
+        )
 
     def _handle_get_job(self, request: httpx.Request) -> httpx.Response:
         job_id = request.url.path.split("/")[-1]
         record = self._jobs.get(job_id)
         if not record:
-            return self._server.json_response({"detail": "Job not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Job not found"}, status_code=404
+            )
         return self._server.json_response(record.job.dict())
 
     def _handle_get_results(self, request: httpx.Request) -> httpx.Response:
         job_id = request.url.path.split("/")[-2]
         record = self._jobs.get(job_id)
         if not record:
-            return self._server.json_response({"detail": "Results not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Results not found"}, status_code=404
+            )
         return self._server.json_response(record.results.dict())
 
     def _build_results(
@@ -120,7 +132,9 @@ class FakeClassifyNamespace:
             rule_index = seed % len(rules) if rules else 0
             predicted_type = rules[rule_index].type if rules else "unlabeled"
             confidence = 0.55 + (seed % 40) / 100
-            reasoning = f"Selected rule '{predicted_type}' using deterministic seed {seed}."
+            reasoning = (
+                f"Selected rule '{predicted_type}' using deterministic seed {seed}."
+            )
             classification = FileClassification(
                 id=self._server.new_id("classification"),
                 file_id=stored.file.id,
@@ -134,4 +148,6 @@ class FakeClassifyNamespace:
                 ),
             )
             items.append(classification)
-        return ClassifyJobResults(items=items, next_page_token=None, total_size=len(items))
+        return ClassifyJobResults(
+            items=items, next_page_token=None, total_size=len(items)
+        )

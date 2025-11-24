@@ -18,14 +18,14 @@ if TYPE_CHECKING:
     from .server import FakeLlamaCloudServer
 
 
-@dataclass(slots=True)
+@dataclass
 class StoredFile:
     file: CloudFile
     content: bytes
     sha256: str
 
 
-@dataclass(slots=True)
+@dataclass
 class PendingUpload:
     file_id: str
     filename: str
@@ -48,7 +48,9 @@ class FakeFilesNamespace:
         self._download_base_url = download_base_url.rstrip("/")
         self._files: Dict[str, StoredFile] = {}
         self._pending: Dict[str, PendingUpload] = {}
-        self._upload_stubs: List[tuple[RequestMatcher | None, int, Dict[str, Any], bool]] = []
+        self._upload_stubs: List[
+            tuple[RequestMatcher | None, int, Dict[str, Any], bool]
+        ] = []
         self.routes: Dict[str, respx.Route] = {}
 
     # Public helpers -------------------------------------------------
@@ -150,7 +152,9 @@ class FakeFilesNamespace:
         pending = PendingUpload(
             file_id=file_id,
             filename=name,
-            project_id=request.url.params.get("project_id", self._server.default_project_id),
+            project_id=request.url.params.get(
+                "project_id", self._server.default_project_id
+            ),
             organization_id=request.url.params.get(
                 "organization_id", self._server.default_organization_id
             ),
@@ -172,7 +176,9 @@ class FakeFilesNamespace:
         stored = self._build_file(
             file_id=file_id,
             name=filename or f"upload-{file_id}.bin",
-            project_id=request.url.params.get("project_id", self._server.default_project_id),
+            project_id=request.url.params.get(
+                "project_id", self._server.default_project_id
+            ),
             organization_id=request.url.params.get(
                 "organization_id", self._server.default_organization_id
             ),
@@ -185,7 +191,9 @@ class FakeFilesNamespace:
     def _handle_get_metadata(self, request: httpx.Request) -> httpx.Response:
         file_id = request.url.path.split("/")[-1]
         if file_id not in self._files:
-            return self._server.json_response({"detail": "File not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "File not found"}, status_code=404
+            )
         return self._server.json_response(self._files[file_id].file.dict())
 
     def _handle_delete(self, request: httpx.Request) -> httpx.Response:
@@ -197,7 +205,9 @@ class FakeFilesNamespace:
     def _handle_read_content(self, request: httpx.Request) -> httpx.Response:
         file_id = request.url.path.split("/")[-2]
         if file_id not in self._files:
-            return self._server.json_response({"detail": "File not found"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "File not found"}, status_code=404
+            )
         presigned = PresignedUrl(
             url=f"{self._download_base_url}/files/{file_id}?{urlencode({'token': 'fake'})}",
             expires_at=utcnow(),
@@ -224,7 +234,9 @@ class FakeFilesNamespace:
                 return self._server.json_response(body, status_code=status)
 
         if pending is None:
-            return self._server.json_response({"detail": "Unknown file"}, status_code=404)
+            return self._server.json_response(
+                {"detail": "Unknown file"}, status_code=404
+            )
 
         stored = self._build_file(
             file_id=file_id,
@@ -274,7 +286,9 @@ class FakeFilesNamespace:
         )
         return StoredFile(file=cloud_file, content=content, sha256=sha256)
 
-    def _extract_multipart_file(self, request: httpx.Request) -> tuple[bytes, Optional[str]]:
+    def _extract_multipart_file(
+        self, request: httpx.Request
+    ) -> tuple[bytes, Optional[str]]:
         content_type = request.headers.get("content-type", "")
         if "multipart/form-data" not in content_type:
             raise ValueError("Expected multipart upload")
@@ -283,7 +297,11 @@ class FakeFilesNamespace:
         boundary_bytes = boundary.encode("utf-8")
         body = request.content
         delimiter = b"--" + boundary_bytes
-        parts = [part for part in body.split(delimiter) if part.strip(b"\r\n") and part.strip(b"\r\n") != b"--"]
+        parts = [
+            part
+            for part in body.split(delimiter)
+            if part.strip(b"\r\n") and part.strip(b"\r\n") != b"--"
+        ]
         for part in parts:
             headers, _, payload = part.partition(b"\r\n\r\n")
             header_text = headers.decode("utf-8", errors="ignore")
@@ -291,10 +309,7 @@ class FakeFilesNamespace:
                 filename = None
                 if "filename=" in header_text:
                     filename = (
-                        header_text.split("filename=")[-1]
-                        .strip()
-                        .strip('"')
-                        .strip("'")
+                        header_text.split("filename=")[-1].strip().strip('"').strip("'")
                     )
                 return payload.rstrip(b"\r\n"), filename
         raise ValueError("upload file part not found")

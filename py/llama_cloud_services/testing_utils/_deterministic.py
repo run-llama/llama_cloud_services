@@ -144,7 +144,9 @@ def _generate_value(schema: Any, rng: random.Random, depth: int) -> Any:
             min_items = schema.get("minItems", 1)
             max_items = schema.get("maxItems", max(3, min_items))
             length = rng.randint(min_items, min(min_items + 2, max_items))
-            return [_generate_value(items_schema, rng, depth + 1) for _ in range(length)]
+            return [
+                _generate_value(items_schema, rng, depth + 1) for _ in range(length)
+            ]
 
         if schema_type == "integer":
             minimum = schema.get("minimum", 0)
@@ -172,7 +174,9 @@ def _generate_value(schema: Any, rng: random.Random, depth: int) -> Any:
             min_length = schema.get("minLength", 5)
             max_length = schema.get("maxLength", max(10, min_length))
             length = rng.randint(min_length, min(min_length + 5, max_length))
-            return generate_text_blob(rng.randint(0, 1_000_000), sentences=max(1, length // 5))
+            return generate_text_blob(
+                rng.randint(0, 1_000_000), sentences=max(1, length // 5)
+            )
 
         if "oneOf" in schema:
             option = rng.choice(schema["oneOf"])
@@ -183,4 +187,3 @@ def _generate_value(schema: Any, rng: random.Random, depth: int) -> Any:
             return _generate_value(option, rng, depth + 1)
 
     return generate_text_blob(rng.randint(0, 1_000_000), sentences=1)
-
