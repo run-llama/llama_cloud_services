@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.4.2
+
+### Patch Changes
+
+- bfaec79: Update for new page number params
+
 ## 0.4.1
 
 ### Patch Changes

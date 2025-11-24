@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.82
+
+### Patch Changes
+
+- bfaec79: Update for new page number params
+
 ## 0.6.81
 
 ### Patch Changes
