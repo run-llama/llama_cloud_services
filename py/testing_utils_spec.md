@@ -55,13 +55,18 @@ with FakeLlamaCloudServer() as fake:
     parser = LlamaParse(api_key="test-key")
     classifier = LlamaClassify(api_key="test-key")
 
-    run = extractor.extract(Receipt, config, "noisebridge.pdf")  # reuse quick-start schema/config
+    run = extractor.extract(
+        Receipt, config, "noisebridge.pdf"
+    )  # reuse quick-start schema/config
     parse_result = parser.parse("noisebridge.pdf")
     classification = classifier.classify({"text": "foo"})
 
     assert run.status.value == "SUCCESS"
     assert parse_result.documents[0].text  # deterministically generated
-    assert classification.prediction in {"A", "B"}  # stable RNG driven by payload
+    assert classification.prediction in {
+        "A",
+        "B",
+    }  # stable RNG driven by payload
 ```
 
 Every namespace uses its own deterministic generator (schema-driven for extract, layout-driven for parse, label-driven for classify) but shares the same matcher/override system described below.
@@ -90,7 +95,11 @@ from fastapi import FastAPI
 
 fake = FakeLlamaCloudServer(
     namespaces=["extract"],
-    base_urls=[os.environ.get("LLAMA_CLOUD_BASE_URL", "https://api.cloud.llamaindex.ai")],
+    base_urls=[
+        os.environ.get(
+            "LLAMA_CLOUD_BASE_URL", "https://api.cloud.llamaindex.ai"
+        )
+    ],
 )
 
 
@@ -181,7 +190,7 @@ Every callable matcher receives the raw `httpx.Request` object that respx captur
 fake.extract.stub_run(
     matcher=RequestMatcher(file=FileMatcher(filename="noisebridge.pdf")),
     data={"merchant": "Noisebridge", "total": 42.0},
-    status="SUCCESS",          # defaults to deterministic timeline when omitted
+    status="SUCCESS",  # defaults to deterministic timeline when omitted
     metadata={"source": "unit-test"},
     once=True,
 )
@@ -195,13 +204,15 @@ assert run.data["merchant"] == "Noisebridge"
 #### Agent extraction example
 
 ```python
-agent = extractor.create_agent(name="tests", data_schema=Receipt, config=config)
+agent = extractor.create_agent(
+    name="tests", data_schema=Receipt, config=config
+)
 
 fake.extract.stub_agent_run(
     agent_id=agent.id,
     matcher=RequestMatcher(file=FileMatcher(filename="bad.pdf")),
-    job_status="FAILED",       # overrides POST /extraction/jobs
-    run_status="FAILED",       # overrides GET /runs/by-job
+    job_status="FAILED",  # overrides POST /extraction/jobs
+    run_status="FAILED",  # overrides GET /runs/by-job
     error={"message": "Schema mismatch"},
 )
 
@@ -266,7 +277,9 @@ route.mock(side_effect=lambda request: (418, {"detail": "I'm a teapot"}))
 Or use the attribute shortcuts:
 
 ```python
-fake.extract.stateless_run.mock(side_effect=lambda request: (500, {"detail": "boom"}))
+fake.extract.stateless_run.mock(
+    side_effect=lambda request: (500, {"detail": "boom"})
+)
 ```
 
 Either way you're dealing with the canonical respx objects, so regex paths, call assertions, and other ecosystem tools keep working. The only convention is that handlers should return `(status_code, json_body | bytes)` so logging and deterministic fallbacks remain consistent.
@@ -307,4 +320,3 @@ The current Python SDK (`py/llama_cloud_services/extract/extract.py`) is a thin 
 - **Error simulation hooks**: overrides should let us short-circuit any endpoint (jobs, runs, schema validation) without changing SDK code, mirroring how the real API might fail.
 
 This map should serve as the checklist when we implement the mock: if an SDK method calls a certain path, our fake server must expose the same path with compatible request/response bodies so we can eventually lift these utilities into a standalone package.
-
