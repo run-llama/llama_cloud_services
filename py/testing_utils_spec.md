@@ -320,3 +320,10 @@ The current Python SDK (`py/llama_cloud_services/extract/extract.py`) is a thin 
 - **Error simulation hooks**: overrides should let us short-circuit any endpoint (jobs, runs, schema validation) without changing SDK code, mirroring how the real API might fail.
 
 This map should serve as the checklist when we implement the mock: if an SDK method calls a certain path, our fake server must expose the same path with compatible request/response bodies so we can eventually lift these utilities into a standalone package.
+
+## Implementation status
+
+- `FakeLlamaCloudServer` now lives in `llama_cloud_services.testing_utils` and registers the files, extract, parse, and classify namespaces by default. It can be used as `with FakeLlamaCloudServer(): ...` or by calling `install()` / `uninstall()` explicitly.
+- Deterministic payloads derive from file fingerprints plus schema hashes for extraction, seeded layout information for parse, and rule/file hashes for classification. The helper exposes matcher-driven overrides (`stub_run`, `stub_agent_run`, `files.stub_upload`) so tests can simulate errors.
+- Common `respx.Route` handles are exposed via namespaces (`fake.extract.stateless_run`, `fake.extract.agent_job`, `fake.files.routes["upload"]`, etc.) for assertions that mirror the examples in this spec.
+- End-to-end usage is covered in `py/unit_tests/testing_utils/test_fake_server.py`, which exercises stateless extraction, agent-backed uploads, and LlamaParse readers entirely against the fake server without external network calls.
