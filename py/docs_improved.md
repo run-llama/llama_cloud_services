@@ -3,7 +3,7 @@
 Offline testing should feel identical to calling the public LlamaCloud API. The new utilities center a single `FakeLlamaCloudServer` that intercepts HTTP traffic at the API boundary, deterministically generates responses from real files + schemas, and only requires overrides when a test needs to exercise edge cases.
 
 ### Design goals
-- **Everything mocked by default**: selecting namespaces (`FakeLlamaCloudServer(namespaces=["extract", ...])`) automatically registers every route under `/api/v1/<namespace>/*` plus supporting file uploads. Deterministic runs are returned without any additional wiring.
+- **Everything mocked by default**: instantiating `FakeLlamaCloudServer()` wires up every public LlamaCloud namespace (extract, parse, classify, files, etc.) so the SDK behaves as if it were talking to production. Deterministic responses are returned without any additional wiring.
 - **Context manager optional**: `FakeLlamaCloudServer` still supports `with ...` for pytest isolation, but you can call `install()` / `uninstall()` to keep the mock server active inside a long-running process (e.g., a FastAPI dev server that proxies to the fake).
 - **Pydantic-first ergonomics**: all documentation and helpers assume schemas are declared as `BaseModel` subclasses. JSON Schema dictionaries are still accepted for compatibility.
 - **API-only contract**: handlers talk raw HTTP (request dicts, status codes, JSON payloads) so we can reuse the mock in future SDKs or other languages without depending on `LlamaExtract`.
@@ -27,7 +27,7 @@ config = ExtractConfig(extraction_mode=ExtractMode.FAST)
 pdf_path = Path("tests/fixtures/receipt.pdf")
 
 
-with FakeLlamaCloudServer(namespaces=["extract"]) as fake:
+with FakeLlamaCloudServer() as fake:
     extractor = LlamaExtract(
         api_key="test-key",
         verify=False,
@@ -41,7 +41,7 @@ Key points:
 - No manual stubbing required. The fake server hashes the uploaded file bytes + schema JSON to derive a deterministic seed and walks the schema to produce stable mock data.
 - `FakeLlamaCloudServer` automatically intercepts the default SaaS URL (`https://api.cloud.llamaindex.ai`). If your tests point at another host (e.g., BYOC), pass it via `FakeLlamaCloudServer(base_urls=["https://byoc.dev/api"])`; otherwise, keep using your normal SDK base URL.
 
-### Multi-namespace interception (extract + parse + classify)
+### Works across extract, parse, classify
 
 ```python
 from llama_cloud_services.testing_utils import FakeLlamaCloudServer
@@ -50,12 +50,7 @@ from llama_cloud_services.parse import LlamaParse
 from llama_cloud_services.classify import LlamaClassify
 
 
-fake = FakeLlamaCloudServer(
-    namespaces=["extract", "parse", "classify"],
-    base_urls=["https://api.cloud.llamaindex.ai"],  # or custom deployment URL
-)
-
-with fake:
+with FakeLlamaCloudServer() as fake:
     extractor = LlamaExtract(api_key="test-key")
     parser = LlamaParse(api_key="test-key")
     classifier = LlamaClassify(api_key="test-key")
@@ -70,6 +65,21 @@ with fake:
 ```
 
 Every namespace uses its own deterministic generator (schema-driven for extract, layout-driven for parse, label-driven for classify) but shares the same matcher/override system described below.
+
+### Limiting intercepted APIs
+
+If you only need a subset of APIs (e.g., extract + files during early bring-up), pass `namespaces` explicitly. Anything omitted will fall through to the real network, which is handy for hybrid tests.
+
+```python
+fake = FakeLlamaCloudServer(
+    namespaces=["extract", "files"],
+    base_urls=["https://api.cloud.llamaindex.ai"],  # optionally point at BYOC
+)
+
+with fake:
+    extractor = LlamaExtract(api_key="test-key")
+    extractor.extract(Receipt, config, "noisebridge.pdf")
+```
 
 ### Long-lived install for iterative development
 
@@ -102,6 +112,25 @@ app = FastAPI(lifespan=lifespan)
 
 `install()`/`uninstall()` simply wrap the respx router lifecycle so you can keep the mock server hot for REPLs, background workers, or manual QA sessions without relying on a context manager.
 
+### Files API behavior
+
+`FakeLlamaCloudServer` ships with a first-class fake for `/api/v1/files/*` because uploads sit on the critical path for both extract and downstream workflows that pre-stage files.
+
+- Every call to `POST /files/generate-presigned-url`, the subsequent `PUT` upload, and the follow-up `GET /files/{file_id}` is intercepted and stored in-memory. The response objects mirror the real API so `FileClient` keeps working unchanged.
+- `fake.files.preload(path="tests/fixtures/plan.pdf", filename="plan.pdf")` ingests local fixtures ahead of time and returns a reusable `file_id`, which is useful when tests pass `SourceText(file_id=...)`.
+- `fake.files.stub_upload(...)` lets you simulate storage failures (e.g., 413 "file too large") using the same matcher system as extract.
+- You can download what the SDK uploaded via `fake.files.read(file_id)` to assert on the bytes or to feed downstream mocks.
+
+```python
+from llama_cloud_services.extract import SourceText
+
+with FakeLlamaCloudServer() as fake:
+    file_id = fake.files.preload(path="tests/fixtures/noisebridge.pdf")
+    extractor = LlamaExtract(api_key="test-key")
+    run = extractor.extract(Receipt, config, SourceText(file_id=file_id))
+    assert fake.files.read(file_id).startswith(b"%PDF")
+```
+
 ### Deterministic response generation
 1. Files uploaded via `/api/v1/files` (or inlined via `extract_stateless`) are fingerprinted using SHA256 (file content bytes + filename).
 2. Schemas are normalized (Pydantic `model_json_schema()` plus sorted keys) and hashed.
@@ -110,20 +139,137 @@ app = FastAPI(lifespan=lifespan)
 
 Because the seed is stable, rerunning the same schema/file pair yields identical mock payloads without stubbing.
 
-### Optional overrides
-When a test needs to simulate failures, schema mismatches, or bespoke payloads, the per-namespace override helpers (e.g., `fake.extract.stub_run`) still provide targeted hooks—but they are no longer required for happy paths.
+### Stubbing, spying, and assertions
+Most tests only need the deterministic defaults, but the fake server provides a layered set of helpers for overriding responses, asserting call counts, and finally dropping down to raw `respx` when necessary.
+
+#### Matcher API
 
 ```python
-from llama_cloud_services.testing_utils import FileMatcher, RequestMatcher
+from dataclasses import dataclass
+from typing import Callable, Optional
+from httpx import Request
 
+
+@dataclass
+class FileMatcher:
+    filename: str | None = None
+    sha256: str | None = None
+    file_id: str | None = None
+
+
+@dataclass
+class SchemaMatcher:
+    model: type[BaseModel] | None = None
+    schema_hash: str | None = None
+
+
+@dataclass
+class RequestMatcher:
+    file: FileMatcher | Callable[[Request], bool] | None = None
+    schema: SchemaMatcher | None = None
+    agent_id: str | None = None
+    project_id: str | None = None
+    organization_id: str | None = None
+    predicate: Callable[[Request], bool] | None = None
+```
+
+Every callable matcher receives the raw `httpx.Request` object that respx captured, so you can inspect headers, cookies, bodies, etc., without learning another wrapper type. The helper dataclasses (`FileMatcher`, `SchemaMatcher`) just cover the common cases; mix and match as needed. Stubs are evaluated in registration order, and `once=True` removes the stub after the first match.
+
+#### Stateless extraction example
+
+```python
 fake.extract.stub_run(
     matcher=RequestMatcher(file=FileMatcher(filename="noisebridge.pdf")),
     data={"merchant": "Noisebridge", "total": 42.0},
-    run_status="FAILED",  # optional override of status timeline
+    status="SUCCESS",          # defaults to deterministic timeline when omitted
+    metadata={"source": "unit-test"},
+    once=True,
 )
+
+run = extractor.extract(Receipt, config, "noisebridge.pdf")
+assert run.data["merchant"] == "Noisebridge"
 ```
 
-Matchers compose across file metadata (filename, SHA256), schema hashes, and arbitrary predicates so overrides stay precise even when multiple tests share the same fake server.
+`data` accepts dictionaries, Pydantic models, or callables (`Callable[[Request], dict]`). If you omit `status`, the stub only replaces the payload while preserving the deterministic job/run lifecycle.
+
+#### Agent extraction example
+
+```python
+agent = extractor.create_agent(name="tests", data_schema=Receipt, config=config)
+
+fake.extract.stub_agent_run(
+    agent_id=agent.id,
+    matcher=RequestMatcher(file=FileMatcher(filename="bad.pdf")),
+    job_status="FAILED",       # overrides POST /extraction/jobs
+    run_status="FAILED",       # overrides GET /runs/by-job
+    error={"message": "Schema mismatch"},
+)
+
+with pytest.raises(ApiError):
+    agent.extract("bad.pdf")
+```
+
+`stub_agent_run` targets the stateful job pipeline (`/extraction/jobs`, `/extraction/jobs/{id}`, `/extraction/runs/by-job/{id}`) so you can mimic long-running failures, retries, or partial completions without hand-writing multiple HTTP handlers.
+
+#### Parse, classify, and files stubs
+
+- `fake.parse.stub_parse(...)` lets you override document splits, token counts, or even return structured HTML for specific file IDs.
+- `fake.classify.stub_prediction(...)` accepts label sets and score distributions so you can test downstream logic that inspects confidences.
+- `fake.files.stub_upload(...)` / `fake.files.stub_download(...)` simulate storage edge cases such as timeouts or corrupted content.
+
+Because every namespace uses the same matcher primitives, you can coordinate multi-API scenarios (e.g., stub the file upload and the subsequent extract run) without duplicating predicates.
+
+#### Assertions without extra abstractions
+
+Since everything runs through the same `respx.MockRouter` you already use elsewhere, assertions stay lightweight:
+
+```python
+with FakeLlamaCloudServer() as fake:
+    route = fake.router["POST", "/api/v1/extraction/run"]
+    extractor = LlamaExtract(api_key="test-key")
+    extractor.extract(Receipt, config, "noisebridge.pdf")
+
+assert route.called
+assert route.call_count == 1
+req = route.calls[0].request  # this is httpx.Request
+assert req.headers["authorization"].startswith("Bearer ")
+```
+
+For friendlier names, every frequently used route is also pinned to a stable attribute:
+
+- `fake.extract.stateless_run` (alias: `fake.extract_run`) → `POST /api/v1/extraction/run`
+- `fake.extract.agent_job` → `POST /api/v1/extraction/jobs`
+- `fake.extract.agent_run` → `GET /api/v1/extraction/runs/by-job/{job_id}`
+- `fake.files.upload` → `POST /api/v1/files/upload` (or the presigned PUT hop, depending on mode)
+- `fake.files.get` → `GET /api/v1/files/{file_id}`
+
+Each attribute is the underlying `respx.Route`, so assertions feel natural:
+
+```python
+assert fake.extract.stateless_run.called
+fake.extract.stateless_run.assert_called_once()
+assert fake.files.upload.call_count == 1
+assert fake.extract_run.called  # global alias for the same route
+```
+
+If you ever need the full mapping, `fake.extract.routes["stateless_run"] is fake.extract.stateless_run`.
+
+#### Advanced (respx-level) overrides
+
+When you need total control, drop straight into respx:
+
+```python
+route = fake.router["POST", "/api/v1/extraction/run"]
+route.mock(side_effect=lambda request: (418, {"detail": "I'm a teapot"}))
+```
+
+Or use the attribute shortcuts:
+
+```python
+fake.extract.stateless_run.mock(side_effect=lambda request: (500, {"detail": "boom"}))
+```
+
+Either way you're dealing with the canonical respx objects, so regex paths, call assertions, and other ecosystem tools keep working. The only convention is that handlers should return `(status_code, json_body | bytes)` so logging and deterministic fallbacks remain consistent.
 
 ### API-layer implementation hints
 - Route decorators such as `server.add_handler("POST", "/api/v1/extraction/run")` install handlers for **every** registered base URL declared in the constructor, keeping the mock independent of SDK client classes.
