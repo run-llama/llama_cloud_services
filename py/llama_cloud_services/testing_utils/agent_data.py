@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import httpx
+import re
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Dict
-import httpx
 from ._deterministic import utcnow, hash_schema
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ class StoredAgentData:
         return self.data.get(name)
 
     def __setattr__(self, name: str, value: Any) -> None:
-        if name == "data":
+        if name in ("data", "id", "collection", "deployment_name"):
             super().__setattr__(name, value)
         else:
             self.data[name] = value
@@ -78,14 +79,15 @@ class FakeAgentDataNamespace:
 
     def _create_data(self, request: httpx.Request) -> httpx.Response:
         payload = self._server.json(request=request)
-        self.stored.append(StoredAgentData.from_request_data(payload))
+        data = StoredAgentData.from_request_data(payload)
+        self.stored.append(data)
         response = {
-            "data": payload.get("data", {}),
-            "collection": payload.get("collection", "default"),
-            "deployment_name": payload.get("deployment_name", ""),
+            "data": data.data,
+            "collection": data.collection,
+            "deployment_name": data.deployment_name,
             "created_at": utcnow().isoformat(),
             "updated_at": None,
-            "id": hash_schema(payload)[:7],
+            "id": data.id,
             "project_id": None,
             "organization_id": None,
         }
@@ -110,7 +112,7 @@ class FakeAgentDataNamespace:
         )
 
     def _delete_data_by_id(self, request: httpx.Request) -> httpx.Response:
-        item_id = request.url.params.get("item_id", None)
+        item_id = self._find_item_id(request=request)
         if not item_id:
             return self._server.json_response(
                 {
@@ -118,12 +120,15 @@ class FakeAgentDataNamespace:
                 },
                 status_code=400,
             )
+        if not any(data.id == item_id for data in self.stored):
+            return self._server.json_response(
+                {"detail": f"No data with ID: {item_id}"}, status_code=404
+            )
         self.stored = [data for data in self.stored if data.id != item_id]
         return self._server.json_response({}, status_code=200)
 
     def _get_data_by_id(self, request: httpx.Request) -> httpx.Response:
-        item_id = request.url.params.get("item_id", None)
-        payload = self._server.json(request=request)
+        item_id = self._find_item_id(request=request)
         if not item_id:
             return self._server.json_response(
                 {
@@ -135,11 +140,11 @@ class FakeAgentDataNamespace:
         if data:
             response = {
                 "data": data[0].data,
-                "collection": payload.get("collection", "default"),
-                "deployment_name": payload.get("deployment_name", ""),
+                "collection": data[0].collection,
+                "deployment_name": data[0].deployment_name,
                 "created_at": utcnow().isoformat(),
                 "updated_at": None,
-                "id": hash_schema(payload)[:7],
+                "id": data[0].id,
                 "project_id": None,
                 "organization_id": None,
             }
@@ -170,13 +175,30 @@ class FakeAgentDataNamespace:
                                 "organization_id": None,
                             }
                         )
+        else:
+            for data in self.stored:
+                if data.collection == payload.get(
+                    "collection", "default"
+                ) and data.deployment_name == payload.get("deployment_name"):
+                    found.append(
+                        {
+                            "data": data.data,
+                            "collection": data.collection,
+                            "deployment_name": data.deployment_name,
+                            "created_at": utcnow().isoformat(),
+                            "updated_at": None,
+                            "id": data.id,
+                            "project_id": None,
+                            "organization_id": None,
+                        }
+                    )
         return self._server.json_response(
             {"items": found, "next_page_token": None, "total_size": len(found)},
             status_code=200,
         )
 
     def _update_data(self, request: httpx.Request) -> httpx.Response:
-        item_id = request.url.params.get("item_id", None)
+        item_id = self._find_item_id(request=request)
         payload = self._server.json(request=request)
         if not item_id:
             return self._server.json_response(
@@ -185,27 +207,35 @@ class FakeAgentDataNamespace:
                 },
                 status_code=400,
             )
+        updated = None
         for i, data in enumerate(self.stored):
             if data.id == item_id:
-                data.data = payload.get("data", data.data)
-                self.stored[i] = data
-        response = {
-            "data": payload.get("data", {}),
-            "collection": payload.get("collection", "default"),
-            "deployment_name": payload.get("deployment_name", ""),
-            "created_at": utcnow().isoformat(),
-            "updated_at": None,
-            "id": item_id,
-            "project_id": None,
-            "organization_id": None,
-        }
-        return self._server.json_response(response, status_code=200)
+                updated = data
+                updated.data = payload.get("data", data.data)
+                self.stored[i] = updated
+        print(updated)
+        if updated is not None:
+            response = {
+                "data": updated.data,
+                "collection": updated.collection,
+                "deployment_name": updated.deployment_name,
+                "created_at": None,
+                "updated_at": utcnow().isoformat(),
+                "id": updated.id,
+                "project_id": None,
+                "organization_id": None,
+            }
+            status_code = 200
+        else:
+            response = {"detail": f"Record with id {item_id} not found"}
+            status_code = 404
+        return self._server.json_response(response, status_code=status_code)
 
     def _aggregate_data(self, request: httpx.Request) -> httpx.Response:
         payload = self._server.json(request=request)
         add_count = payload.get("count", False)
         group_bys: list[str] = payload.get("group_by", [])
-        groups: dict[str, list[dict[str, Any]]] = {key: [] for key in group_bys}
+        groups: dict[str, dict[str, list[dict]]] = {key: {} for key in group_bys}
         if (filters := payload.get("filter")) is not None:
             for data in self.stored:
                 if data.collection == payload.get(
@@ -213,27 +243,46 @@ class FakeAgentDataNamespace:
                 ) and data.deployment_name == payload.get("deployment_name"):
                     if apply_filter(data.data, filters):
                         for key in group_bys:
-                            if key in data.data:
-                                groups[key].append(data.data)
+                            if key in data.data and data.data[key] in groups[key]:
+                                groups[key][data.data[key]].append(data.data)
+                            elif key in data.data and data.data[key] not in groups[key]:
+                                groups[key][data.data[key]] = [data.data]
+        else:
+            for data in self.stored:
+                if data.collection == payload.get(
+                    "collection", "default"
+                ) and data.deployment_name == payload.get("deployment_name"):
+                    for key in group_bys:
+                        if key in data.data and data.data[key] in groups[key]:
+                            groups[key][data.data[key]].append(data.data)
+                        elif key in data.data and data.data[key] not in groups[key]:
+                            groups[key][data.data[key]] = [data.data]
+
         response: dict[str, Any] = {
             "items": [],
             "next_page_token": None,
             "total_size": 0,
         }
         for k in groups:
-            if groups[k]:
-                first_item = groups[k][0]
-            else:
-                first_item = None
-            response["items"].append(
-                {
-                    "group_key": k,
-                    "first_item": first_item,
-                    "count": len(groups[k]) if add_count else None,
-                }
-            )
+            if len(groups[k]) > 0:
+                for v in groups[k]:
+                    if groups[k][v]:
+                        first_element = groups[k][v][0]
+                    else:
+                        first_element = None
+                    response["items"].append(
+                        {
+                            "first_item": first_element,
+                            "count": len(groups[k][v]) if add_count else None,
+                            "group_key": {k: v},
+                        }
+                    )
         response["total_size"] = len(response["items"])
         return self._server.json_response(response, status_code=200)
+
+    def _find_item_id(self, request: httpx.Request) -> str | None:
+        matchgroups = re.search(r"/agent-data\/([^\/]+)$", request.url.path)
+        return matchgroups.group(1) if matchgroups is not None else None
 
     def register(self) -> None:
         server = self._server
@@ -267,20 +316,20 @@ class FakeAgentDataNamespace:
         )
         server.add_route(
             "DELETE",
-            "/api/v1/beta/agent-data/:item_id",
+            "/api/v1/beta/agent-data/{item_id}",
             self._delete_data_by_id,
             namespace="delete_item",
         )
         server.add_route(
             "GET",
-            "/api/v1/beta/agent-data/:item_id",
+            "/api/v1/beta/agent-data/{item_id}",
             self._get_data_by_id,
             namespace="untyped_get_item",
             alias="get_item",
         )
         server.add_route(
             "PUT",
-            "/api/v1/beta/agent-data/:item_id",
+            "/api/v1/beta/agent-data/{item_id}",
             self._update_data,
             namespace="update_item",
         )
