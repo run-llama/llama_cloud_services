@@ -623,7 +623,6 @@ class LlamaParse(BasePydanticReader):
             if "guess_xlsx_sheet_name" not in data:
                 data["guess_xlsx_sheet_name"] = data["guess_xlsx_sheet_names"]
             del data["guess_xlsx_sheet_names"]
-        
         return data
 
     @model_validator(mode="before")
