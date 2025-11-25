@@ -178,6 +178,9 @@ def _generate_value(schema: Any, rng: random.Random, depth: int) -> Any:
                 rng.randint(0, 1_000_000), sentences=max(1, length // 5)
             )
 
+        if schema_type == "null":
+            return None
+
         if "oneOf" in schema:
             option = rng.choice(schema["oneOf"])
             return _generate_value(option, rng, depth + 1)
