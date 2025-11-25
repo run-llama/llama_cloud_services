@@ -285,7 +285,7 @@ class LlamaParse(BasePydanticReader):
         description="Note: Non compatible with gpt-4o. If set to true, the parser will use a faster mode to extract text from documents. This mode will skip OCR of images, and table/heading reconstruction.",
     )
 
-    guess_xlsx_sheet_names: Optional[bool] = Field(
+    guess_xlsx_sheet_name: Optional[bool] = Field(
         default=False,
         description="Whether to guess the sheet names of the xlsx file.",
     )
@@ -313,6 +313,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will ignore document elements for layout detection and only rely on a vision model.",
     )
+    inline_images_in_markdown: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will inline images in the markdown output.",
+    )
     input_s3_region: Optional[str] = Field(
         default=None,
         description="The region of the input S3 bucket if input_s3_path is specified.",
@@ -328,6 +332,10 @@ class LlamaParse(BasePydanticReader):
     job_timeout_in_seconds: Optional[float] = Field(
         default=None,
         description="The maximum timeout in seconds to wait for the parsing to finish. Override default timeout of 30 minutes. Minimum is 120 seconds.",
+    )
+    keep_page_separator_when_merging_tables: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will keep the page separator when merging tables across pages.",
     )
     language: Optional[str] = Field(
         default="en", description="The language of the text to parse."
@@ -400,6 +408,10 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set, the parser will try to preserve very small text lines. This can be useful for documents containing vector graphics with very small text lines that may not be recognized by OCR or a vision model (such as in CAD drawings).",
     )
+    presentation_out_of_bounds_content: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will include out-of-bounds content in presentation files.",
+    )
     precise_bounding_box: Optional[bool] = Field(
         default=False,
         description="If set to true, the parser will use a more precise bounding box to extract text from documents. This will increase the accuracy of the parsing job, but reduce the speed.",
@@ -415,6 +427,14 @@ class LlamaParse(BasePydanticReader):
     replace_failed_page_with_error_message_suffix: Optional[str] = Field(
         default=None,
         description="A suffix to add after error message in failed pages. If not set, no suffix will be used.",
+    )
+    remove_hidden_text: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will remove hidden text from the document.",
+    )
+    save_images: Optional[bool] = Field(
+        default=True,
+        description="If set to true, the parser will save images extracted from the document.",
     )
     skip_diagonal_text: Optional[bool] = Field(
         default=False,
@@ -439,6 +459,10 @@ class LlamaParse(BasePydanticReader):
     specialized_chart_parsing_plus: Optional[bool] = Field(
         default=False,
         description="If set to true, the parser will use a specialized one-shot chart parsing model to extract data from charts. This model is able to understand the chart type and extract the data accordingly. It is more accurate than the efficient model, but also more expensive.",
+    )
+    specialized_image_parsing: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will use a specialized image parsing model to extract data from images.",
     )
     strict_mode_buggy_font: Optional[bool] = Field(
         default=False,
@@ -583,6 +607,24 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="Automatically check for Python SDK updates.",
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def handle_deprecated_params(cls, data: Dict[str, Any]) -> Dict[str, Any]:
+        # Handle deprecated guess_xlsx_sheet_names -> guess_xlsx_sheet_name
+        if "guess_xlsx_sheet_names" in data:
+            warnings.warn(
+                "The parameter 'guess_xlsx_sheet_names' is deprecated and will be removed in a future release. "
+                "Use 'guess_xlsx_sheet_name' instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            # Only set the new parameter if it's not already explicitly set
+            if "guess_xlsx_sheet_name" not in data:
+                data["guess_xlsx_sheet_name"] = data["guess_xlsx_sheet_names"]
+            del data["guess_xlsx_sheet_names"]
+        
+        return data
 
     @model_validator(mode="before")
     @classmethod
@@ -824,8 +866,8 @@ class LlamaParse(BasePydanticReader):
             )
             data["formatting_instruction"] = self.formatting_instruction
 
-        if self.guess_xlsx_sheet_names:
-            data["guess_xlsx_sheet_names"] = self.guess_xlsx_sheet_names
+        if self.guess_xlsx_sheet_name:
+            data["guess_xlsx_sheet_name"] = self.guess_xlsx_sheet_name
 
         if self.html_make_all_elements_visible:
             data["html_make_all_elements_visible"] = self.html_make_all_elements_visible
@@ -848,6 +890,9 @@ class LlamaParse(BasePydanticReader):
             data[
                 "ignore_document_elements_for_layout_detection"
             ] = self.ignore_document_elements_for_layout_detection
+
+        if self.inline_images_in_markdown:
+            data["inline_images_in_markdown"] = self.inline_images_in_markdown
 
         if input_url is not None:
             files = None
@@ -876,6 +921,11 @@ class LlamaParse(BasePydanticReader):
 
         if self.job_timeout_in_seconds is not None:
             data["job_timeout_in_seconds"] = self.job_timeout_in_seconds
+
+        if self.keep_page_separator_when_merging_tables:
+            data[
+                "keep_page_separator_when_merging_tables"
+            ] = self.keep_page_separator_when_merging_tables
 
         if self.language:
             data["language"] = self.language
@@ -955,6 +1005,11 @@ class LlamaParse(BasePydanticReader):
         if self.preserve_very_small_text:
             data["preserve_very_small_text"] = self.preserve_very_small_text
 
+        if self.presentation_out_of_bounds_content:
+            data[
+                "presentation_out_of_bounds_content"
+            ] = self.presentation_out_of_bounds_content
+
         if self.preset is not None:
             data["preset"] = self.preset
 
@@ -973,6 +1028,12 @@ class LlamaParse(BasePydanticReader):
             data[
                 "replace_failed_page_with_error_message_suffix"
             ] = self.replace_failed_page_with_error_message_suffix
+
+        if self.remove_hidden_text:
+            data["remove_hidden_text"] = self.remove_hidden_text
+
+        if self.save_images:
+            data["save_images"] = self.save_images
 
         if self.skip_diagonal_text:
             data["skip_diagonal_text"] = self.skip_diagonal_text
@@ -997,6 +1058,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.specialized_chart_parsing_plus:
             data["specialized_chart_parsing_plus"] = self.specialized_chart_parsing_plus
+
+        if self.specialized_image_parsing:
+            data["specialized_image_parsing"] = self.specialized_image_parsing
 
         if self.strict_mode_buggy_font:
             data["strict_mode_buggy_font"] = self.strict_mode_buggy_font
