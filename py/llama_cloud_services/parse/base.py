@@ -1032,8 +1032,7 @@ class LlamaParse(BasePydanticReader):
         if self.remove_hidden_text:
             data["remove_hidden_text"] = self.remove_hidden_text
 
-        if self.save_images:
-            data["save_images"] = self.save_images
+        data["save_images"] = self.save_images
 
         if self.skip_diagonal_text:
             data["skip_diagonal_text"] = self.skip_diagonal_text
