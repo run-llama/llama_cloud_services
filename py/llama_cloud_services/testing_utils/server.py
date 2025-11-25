@@ -12,7 +12,7 @@ from .classify import FakeClassifyNamespace
 from .extract import FakeExtractNamespace
 from .files import FakeFilesNamespace
 from .parse import FakeParseNamespace
-
+from .agent_data import FakeAgentDataNamespace
 
 Handler = Callable[[httpx.Request], httpx.Response]
 
@@ -33,7 +33,7 @@ class FakeLlamaCloudServer:
         default_organization_id: str = "org-test",
     ) -> None:
         self.base_urls = tuple(base_urls or (self.DEFAULT_BASE_URL,))
-        selected = namespaces or ("files", "extract", "parse", "classify")
+        selected = namespaces or ("files", "extract", "parse", "classify", "agent_data")
         self._namespace_names = {name.lower() for name in selected}
         self._upload_base_url = upload_base_url or self.DEFAULT_UPLOAD_BASE
         self._download_base_url = download_base_url or self.DEFAULT_DOWNLOAD_BASE
@@ -51,6 +51,7 @@ class FakeLlamaCloudServer:
         self.extract = FakeExtractNamespace(server=self, files=self.files)
         self.parse = FakeParseNamespace(server=self)
         self.classify = FakeClassifyNamespace(server=self, files=self.files)
+        self.agent_data = FakeAgentDataNamespace(server=self)
 
     # Context management ----------------------------------------------
     def install(self) -> "FakeLlamaCloudServer":
@@ -164,6 +165,8 @@ class FakeLlamaCloudServer:
             self.parse.register()
         if "classify" in self._namespace_names:
             self.classify.register()
+        if "agent_data" in self._namespace_names:
+            self.agent_data.register()
         self._registered = True
 
 
