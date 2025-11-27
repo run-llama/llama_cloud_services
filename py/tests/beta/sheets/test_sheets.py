@@ -14,12 +14,14 @@ def sheets_client():
         "LLAMA_CLOUD_API_KEY", "llx-3AEorIw5v0lnJPzEOI9xSl0N8yFx3fguw0Zn8QJHzGWmwg5r"
     )
     base_url = os.getenv("LLAMA_CLOUD_BASE_URL", "https://api.staging.llamaindex.ai")
+    project_id = os.getenv("LLAMA_CLOUD_PROJECT_ID")
 
     client = LlamaSheets(
         api_key=api_key,
         base_url=base_url,
         max_timeout=300,
         poll_interval=2,
+        project_id=project_id,
     )
     return client
 
