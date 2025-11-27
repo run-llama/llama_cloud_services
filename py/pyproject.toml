@@ -7,6 +7,7 @@ dev = [
   "pytest>=8.0.0,<9",
   "pytest-xdist>=3.6.1,<4",
   "pytest-asyncio",
+  "pytest-timeout>=2.3.1",
   "ipykernel>=6.29.0,<7",
   "pre-commit==3.2.0",
   "autoevals>=0.0.114,<0.0.115",

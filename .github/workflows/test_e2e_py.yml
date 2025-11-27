@@ -12,6 +12,7 @@ env:
 jobs:
   test_e2e:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     strategy:
       # You can use PyPy versions in python-version.
       # For example, pypy-2.7 and pypy-3.8

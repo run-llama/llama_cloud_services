@@ -15,4 +15,4 @@ test:	## Run unit tests via pytest
 
 .PHONY: e2e
 e2e:	## Run all tests. Run with high parallelism using xdist since tests are bottlenecked bound by the slow backend parsing
-	uv run pytest -v -n 32 tests/
+	uv run pytest -v -n 32 --timeout=300 tests/
