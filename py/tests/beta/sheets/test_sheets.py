@@ -10,9 +10,7 @@ from llama_cloud_services.beta.sheets.types import SpreadsheetParsingConfig
 @pytest.fixture
 def sheets_client():
     """Create a LlamaSheets client for testing."""
-    api_key = os.getenv(
-        "LLAMA_CLOUD_API_KEY", "llx-3AEorIw5v0lnJPzEOI9xSl0N8yFx3fguw0Zn8QJHzGWmwg5r"
-    )
+    api_key = os.getenv("LLAMA_CLOUD_API_KEY")
     base_url = os.getenv("LLAMA_CLOUD_BASE_URL", "https://api.staging.llamaindex.ai")
     project_id = os.getenv("LLAMA_CLOUD_PROJECT_ID")
 
@@ -53,10 +51,7 @@ def sample_excel_file():
 
 
 @pytest.mark.skipif(
-    os.environ.get(
-        "LLAMA_CLOUD_API_KEY", "llx-3AEorIw5v0lnJPzEOI9xSl0N8yFx3fguw0Zn8QJHzGWmwg5r"
-    )
-    == "",
+    os.environ.get("LLAMA_CLOUD_API_KEY", "") == "",
     reason="LLAMA_CLOUD_API_KEY not set",
 )
 @pytest.mark.asyncio
@@ -136,10 +131,7 @@ async def test_spreadsheet_extraction_e2e(
 
 
 @pytest.mark.skipif(
-    os.environ.get(
-        "LLAMA_CLOUD_API_KEY", "llx-3AEorIw5v0lnJPzEOI9xSl0N8yFx3fguw0Zn8QJHzGWmwg5r"
-    )
-    == "",
+    os.environ.get("LLAMA_CLOUD_API_KEY", "") == "",
     reason="LLAMA_CLOUD_API_KEY not set",
 )
 @pytest.mark.asyncio
