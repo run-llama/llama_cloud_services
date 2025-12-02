@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.84
+
+### Patch Changes
+
+- 0a110de: Release to re-align versions
+
 ## 0.6.83
 
 ### Patch Changes
