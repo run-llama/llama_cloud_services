@@ -11,7 +11,7 @@ from llama_cloud_services.utils import SourceText, FileInput
 class FileClient:
     """
     Higher-level client for interacting with the LlamaCloud Files API.
-    Uses presigned URLs for uploads by default.
+    Optionally uses presigned URLs for uploads.
 
     Args:
         client: The LlamaCloud client to use.
@@ -25,7 +25,7 @@ class FileClient:
         client: AsyncLlamaCloud,
         project_id: Optional[str] = None,
         organization_id: Optional[str] = None,
-        use_presigned_url: bool = True,
+        use_presigned_url: bool = False,
     ):
         self.client = client
         self.project_id = project_id
