@@ -564,6 +564,10 @@ class LlamaParse(BasePydanticReader):
         default=None,
         description="Whether to extract the printed page numbers from pages in the document.",
     )
+    line_level_bounding_box: Optional[bool] = Field(
+        default=False,
+        description="If set to true, the parser will include line-level bounding boxes in the result.",
+    )
 
     # Deprecated
     bounding_box: Optional[str] = Field(
@@ -1117,6 +1121,9 @@ class LlamaParse(BasePydanticReader):
 
         if self.extract_printed_page_number is not None:
             data["extract_printed_page_number"] = self.extract_printed_page_number
+
+        if self.line_level_bounding_box is not None:
+            data["line_level_bounding_box"] = self.line_level_bounding_box
 
         # Deprecated
         if self.bounding_box is not None:

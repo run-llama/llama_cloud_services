@@ -115,6 +115,26 @@ class BBox(SafeBaseModel):
     )
 
 
+class LineLevelBboxItem(SafeBaseModel):
+    """A line-level bounding box item."""
+
+    md: Optional[str] = Field(
+        default=None, description="The markdown-formatted content of the line."
+    )
+    text: Optional[str] = Field(
+        default=None, description="The text content of the line."
+    )
+    bBox: Optional[BBox] = Field(
+        default=None, description="The bounding box of the line."
+    )
+    startIndex: Optional[int] = Field(
+        default=None, description="The start index of the line in the page text."
+    )
+    endIndex: Optional[int] = Field(
+        default=None, description="The end index of the line in the page text."
+    )
+
+
 class PageItem(SafeBaseModel):
     """An item in a page."""
 
@@ -137,6 +157,9 @@ class PageItem(SafeBaseModel):
     html: Optional[str] = Field(
         default=None,
         description="The HTML-formatted content of the item. Only applicable for table items when output_tables_as_HTML=True.",
+    )
+    lines: Optional[List[LineLevelBboxItem]] = Field(
+        default=None, description="The line-level bounding box items of the item."
     )
 
 
