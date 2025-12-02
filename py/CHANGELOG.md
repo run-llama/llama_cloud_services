@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.85
+
+### Patch Changes
+
+- ae30990: Add line-level bbox support
+
 ## 0.6.84
 
 ### Patch Changes
