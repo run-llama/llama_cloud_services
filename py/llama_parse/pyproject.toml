@@ -17,7 +17,7 @@ authors = [{name = "Logan Markewich", email = "logan@llamaindex.ai"}]
 requires-python = ">=3.9,<4.0"
 readme = "README.md"
 license = "MIT"
-dependencies = ["llama-cloud-services>=0.6.82"]
+dependencies = ["llama-cloud-services>=0.6.83"]
 
 [project.scripts]
 llama-parse = "llama_parse.cli.main:parse"

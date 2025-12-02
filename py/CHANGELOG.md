@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.83
+
+### Patch Changes
+
+- ca78113: Do not use presigned URLs by default in files client
+
 ## 0.6.82
 
 ### Patch Changes
