@@ -654,6 +654,9 @@ class LlamaCloudIndex(BaseManagedIndex):
             ],
         )
 
+        # Trigger a sync
+        client.pipelines.sync_pipeline(pipeline_id=index.pipeline.id)
+
         doc_ids = [doc.id for doc in upserted_documents]
         index.wait_for_completion(
             doc_ids=doc_ids, verbose=verbose, raise_on_error=raise_on_error
@@ -738,6 +741,10 @@ class LlamaCloudIndex(BaseManagedIndex):
                     )
                 ],
             )
+
+            # Trigger a sync
+            self._client.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             upserted_document = upserted_documents[0]
             self.wait_for_completion(
                 doc_ids=[upserted_document.id], verbose=verbose, raise_on_error=True
@@ -760,6 +767,9 @@ class LlamaCloudIndex(BaseManagedIndex):
                     )
                 ],
             )
+            # Trigger a sync
+            await self._aclient.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             upserted_document = upserted_documents[0]
             await self.await_for_completion(
                 doc_ids=[upserted_document.id], verbose=verbose, raise_on_error=True
@@ -782,6 +792,9 @@ class LlamaCloudIndex(BaseManagedIndex):
                     )
                 ],
             )
+            # Trigger a sync
+            self._client.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             upserted_document = upserted_documents[0]
             self.wait_for_completion(
                 doc_ids=[upserted_document.id], verbose=verbose, raise_on_error=True
@@ -804,6 +817,9 @@ class LlamaCloudIndex(BaseManagedIndex):
                     )
                 ],
             )
+            # Trigger a sync
+            await self._aclient.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             upserted_document = upserted_documents[0]
             await self.await_for_completion(
                 doc_ids=[upserted_document.id], verbose=verbose, raise_on_error=True
@@ -827,6 +843,9 @@ class LlamaCloudIndex(BaseManagedIndex):
                     for doc in documents
                 ],
             )
+            # Trigger a sync
+            self._client.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             doc_ids = [doc.id for doc in upserted_documents]
             self.wait_for_completion(doc_ids=doc_ids, verbose=True, raise_on_error=True)
             return [True] * len(doc_ids)
@@ -849,6 +868,9 @@ class LlamaCloudIndex(BaseManagedIndex):
                     for doc in documents
                 ],
             )
+            # Trigger a sync
+            await self._aclient.pipelines.sync_pipeline(pipeline_id=self.pipeline.id)
+
             doc_ids = [doc.id for doc in upserted_documents]
             await self.await_for_completion(
                 doc_ids=doc_ids, verbose=True, raise_on_error=True
