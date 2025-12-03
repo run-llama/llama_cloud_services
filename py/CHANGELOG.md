@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.87
+
+### Patch Changes
+
+- 06c3c55: Update spreadsheet parsing config
+
 ## 0.6.86
 
 ### Patch Changes
