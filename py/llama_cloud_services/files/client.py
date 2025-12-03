@@ -57,9 +57,7 @@ class FileClient:
             return await self.upload_buffer(file, external_file_id, file_size)
 
     async def upload_bytes(self, bytes: bytes, external_file_id: str) -> File:
-        buffer = BytesIO(bytes)
-        buffer.name = external_file_id  # Set name for file type detection
-        return await self.upload_buffer(buffer, external_file_id, len(bytes))
+        return await self.upload_buffer(BytesIO(bytes), external_file_id, len(bytes))
 
     async def upload_buffer(
         self,
@@ -93,6 +91,10 @@ class FileClient:
                 organization_id=self.organization_id,
             )
         else:
+            # Set buffer.name if not already set, so the upload uses external_file_id
+            # for file type detection
+            if not getattr(buffer, "name", None):
+                setattr(buffer, "name", external_file_id)
             return await self.client.files.upload_file(
                 upload_file=buffer,
                 external_file_id=external_file_id,
