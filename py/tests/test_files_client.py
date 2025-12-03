@@ -78,7 +78,7 @@ async def test_upload_bytes(
     uploaded_file = await file_client.upload_bytes(file_bytes, external_file_id)
 
     assert isinstance(uploaded_file, File)
-    expected_name = external_file_id if use_presigned_url else "upload"
+    expected_name = external_file_id
     assert uploaded_file.name == expected_name
     assert uploaded_file.external_file_id == external_file_id
 
@@ -100,7 +100,7 @@ async def test_upload_buffer(
     uploaded_file = await file_client.upload_buffer(buffer, external_file_id, file_size)
 
     assert isinstance(uploaded_file, File)
-    expected_name = external_file_id if use_presigned_url else "upload"
+    expected_name = external_file_id
     assert uploaded_file.name == expected_name
     assert uploaded_file.external_file_id == external_file_id
 
