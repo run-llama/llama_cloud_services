@@ -2,9 +2,43 @@ import os
 import tempfile
 import pytest
 import pandas as pd
+from pydantic import ValidationError
 
 from llama_cloud_services.beta.sheets import LlamaSheets
 from llama_cloud_services.beta.sheets.types import SpreadsheetParsingConfig
+
+
+class TestSpreadsheetParsingConfig:
+    """Unit tests for SpreadsheetParsingConfig."""
+
+    def test_default_values(self):
+        """Test that default values are set correctly."""
+        config = SpreadsheetParsingConfig()
+        assert config.flatten_hierarchical_tables is False
+        assert config.table_merge_sensitivity == "strong"
+
+    def test_custom_values(self):
+        """Test setting custom values for new fields."""
+        config = SpreadsheetParsingConfig(
+            flatten_hierarchical_tables=True,
+            table_merge_sensitivity="weak",
+        )
+        assert config.flatten_hierarchical_tables is True
+        assert config.table_merge_sensitivity == "weak"
+
+    def test_table_merge_sensitivity_validation(self):
+        """Test that invalid table_merge_sensitivity values are rejected."""
+        with pytest.raises(ValidationError):
+            SpreadsheetParsingConfig(table_merge_sensitivity="invalid")
+
+    def test_unknown_fields_ignored(self):
+        """Test that unknown fields are silently ignored."""
+        config = SpreadsheetParsingConfig(
+            unknown_field="test",
+            another_unknown=123,
+        )
+        assert not hasattr(config, "unknown_field")
+        assert not hasattr(config, "another_unknown")
 
 
 @pytest.fixture

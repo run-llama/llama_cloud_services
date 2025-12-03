@@ -1,5 +1,6 @@
 from datetime import datetime
 from enum import Enum
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -63,7 +64,7 @@ class SpreadsheetParseResult(BaseModel):
 class SpreadsheetParsingConfig(BaseModel):
     """Configuration for spreadsheet parsing and region extraction"""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     sheet_names: list[str] | None = Field(
         default=None,
@@ -84,6 +85,16 @@ class SpreadsheetParsingConfig(BaseModel):
     use_experimental_processing: bool = Field(
         default=False,
         description="Enables experimental processing. Accuracy may be impacted.",
+    )
+
+    flatten_hierarchical_tables: bool = Field(
+        default=False,
+        description="Return a flattened dataframe when a detected table is recognized as hierarchical.",
+    )
+
+    table_merge_sensitivity: Literal["strong", "weak"] = Field(
+        default="strong",
+        description="Influences how likely similar-looking regions are merged into a single table. Useful for spreadsheets that either have sparse tables (strong merging) or many distinct tables close together (weak merging).",
     )
 
 
