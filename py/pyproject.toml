@@ -31,7 +31,7 @@ readme = "README.md"
 license = "MIT"
 dependencies = [
   "llama-index-core>=0.12.0",
-  "llama-cloud==0.1.44",
+  "llama-cloud==0.1.45",
   "pydantic>=2.8,!=2.10",
   "click>=8.1.7,<9",
   "python-dotenv>=1.0.1,<2",

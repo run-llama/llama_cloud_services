@@ -240,11 +240,6 @@ def _extraction_config_warning(config: ExtractConfig) -> None:
             raise ValueError(
                 "`cite_sources` is only supported with MULTIMODAL or PREMIUM extraction modes."
             )
-    if config.confidence_scores:
-        if config.extraction_mode in (ExtractMode.FAST, ExtractMode.BALANCED):
-            raise ValueError(
-                "`confidence_scores` is only supported with MULTIMODAL or PREMIUM extraction modes."
-            )
 
 
 class ExtractionAgent:
