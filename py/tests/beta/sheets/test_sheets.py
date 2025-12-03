@@ -11,7 +11,7 @@ from llama_cloud_services.beta.sheets.types import SpreadsheetParsingConfig
 def sheets_client():
     """Create a LlamaSheets client for testing."""
     api_key = os.getenv("LLAMA_CLOUD_API_KEY")
-    base_url = os.getenv("LLAMA_CLOUD_BASE_URL", "https://api.staging.llamaindex.ai")
+    base_url = os.getenv("LLAMA_CLOUD_BASE_URL", "https://api.cloud.llamaindex.ai")
     project_id = os.getenv("LLAMA_CLOUD_PROJECT_ID")
 
     client = LlamaSheets(
