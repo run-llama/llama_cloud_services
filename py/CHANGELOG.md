@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.86
+
+### Patch Changes
+
+- 1b7198d: Update extract to have confidence scores available in all modes
+
 ## 0.6.85
 
 ### Patch Changes
