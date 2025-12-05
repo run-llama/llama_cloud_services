@@ -568,6 +568,13 @@ class LlamaParse(BasePydanticReader):
         default=False,
         description="If set to true, the parser will include line-level bounding boxes in the result.",
     )
+    tier: Optional[str] = Field(
+        default=None, description="The tier to use for the parsing job."
+    )
+    version: Optional[str] = Field(
+        default=None,
+        description="The version of the parser to use at the specified tier.",
+    )
 
     # Deprecated
     bounding_box: Optional[str] = Field(
@@ -1124,6 +1131,12 @@ class LlamaParse(BasePydanticReader):
 
         if self.line_level_bounding_box is not None:
             data["line_level_bounding_box"] = self.line_level_bounding_box
+
+        if self.tier is not None:
+            data["tier"] = self.tier
+
+        if self.version is not None:
+            data["version"] = self.version
 
         # Deprecated
         if self.bounding_box is not None:

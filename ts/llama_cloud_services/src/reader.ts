@@ -186,6 +186,8 @@ export class LlamaParseReader extends FileReader {
   page_footer_suffix?: string | undefined;
   merge_tables_across_pages_in_markdown?: boolean | undefined;
   extract_printed_page_number?: boolean | undefined;
+  tier?: string | undefined;
+  version?: string | undefined;
 
   constructor(
     params: Partial<Omit<LlamaParseReader, "language" | "apiKey">> & {
@@ -383,6 +385,8 @@ export class LlamaParseReader extends FileReader {
       merge_tables_across_pages_in_markdown:
         this.merge_tables_across_pages_in_markdown,
       extract_printed_page_number: this.extract_printed_page_number,
+      tier: this.tier,
+      version: this.version,
     } satisfies {
       [Key in keyof BodyUploadFileApiParsingUploadPost]-?:
         | BodyUploadFileApiParsingUploadPost[Key]
