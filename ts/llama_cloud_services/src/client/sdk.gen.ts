@@ -7,39 +7,12 @@ import {
   formDataBodySerializer,
 } from "@hey-api/client-fetch";
 import type {
-  ListDeploymentsApiV1ProjectsProjectIdAgentsGetData,
-  ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponse,
-  ListDeploymentsApiV1ProjectsProjectIdAgentsGetError,
-  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostData,
-  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponse,
-  SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostError,
-  ListKeysApiV1ApiKeysGetData,
-  ListKeysApiV1ApiKeysGetResponse,
-  ListKeysApiV1ApiKeysGetError,
-  GenerateKeyApiV1ApiKeysPostData,
-  GenerateKeyApiV1ApiKeysPostResponse,
-  GenerateKeyApiV1ApiKeysPostError,
-  DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteData,
-  DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponse,
-  DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteError,
-  ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostData,
-  ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostResponse,
-  ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostError,
-  ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostData,
-  ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostResponse,
-  ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostError,
-  ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostData,
-  ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostResponse,
-  ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostError,
   ListDataSinksApiV1DataSinksGetData,
   ListDataSinksApiV1DataSinksGetResponse,
   ListDataSinksApiV1DataSinksGetError,
   CreateDataSinkApiV1DataSinksPostData,
   CreateDataSinkApiV1DataSinksPostResponse,
   CreateDataSinkApiV1DataSinksPostError,
-  UpsertDataSinkApiV1DataSinksPutData,
-  UpsertDataSinkApiV1DataSinksPutResponse,
-  UpsertDataSinkApiV1DataSinksPutError,
   DeleteDataSinkApiV1DataSinksDataSinkIdDeleteData,
   DeleteDataSinkApiV1DataSinksDataSinkIdDeleteResponse,
   DeleteDataSinkApiV1DataSinksDataSinkIdDeleteError,
@@ -55,9 +28,6 @@ import type {
   CreateDataSourceApiV1DataSourcesPostData,
   CreateDataSourceApiV1DataSourcesPostResponse,
   CreateDataSourceApiV1DataSourcesPostError,
-  UpsertDataSourceApiV1DataSourcesPutData,
-  UpsertDataSourceApiV1DataSourcesPutResponse,
-  UpsertDataSourceApiV1DataSourcesPutError,
   DeleteDataSourceApiV1DataSourcesDataSourceIdDeleteData,
   DeleteDataSourceApiV1DataSourcesDataSourceIdDeleteResponse,
   DeleteDataSourceApiV1DataSourcesDataSourceIdDeleteError,
@@ -73,9 +43,6 @@ import type {
   CreateEmbeddingModelConfigApiV1EmbeddingModelConfigsPostData,
   CreateEmbeddingModelConfigApiV1EmbeddingModelConfigsPostResponse,
   CreateEmbeddingModelConfigApiV1EmbeddingModelConfigsPostError,
-  UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutData,
-  UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutResponse,
-  UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutError,
   DeleteEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelConfigIdDeleteData,
   DeleteEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelConfigIdDeleteResponse,
   DeleteEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelConfigIdDeleteError,
@@ -85,111 +52,23 @@ import type {
   ListOrganizationsApiV1OrganizationsGetData,
   ListOrganizationsApiV1OrganizationsGetResponse,
   ListOrganizationsApiV1OrganizationsGetError,
-  CreateOrganizationApiV1OrganizationsPostData,
-  CreateOrganizationApiV1OrganizationsPostResponse,
-  CreateOrganizationApiV1OrganizationsPostError,
-  UpsertOrganizationApiV1OrganizationsPutData,
-  UpsertOrganizationApiV1OrganizationsPutResponse,
-  UpsertOrganizationApiV1OrganizationsPutError,
-  GetDefaultOrganizationApiV1OrganizationsDefaultGetData,
-  GetDefaultOrganizationApiV1OrganizationsDefaultGetResponse,
-  GetDefaultOrganizationApiV1OrganizationsDefaultGetError,
-  SetDefaultOrganizationApiV1OrganizationsDefaultPutData,
-  SetDefaultOrganizationApiV1OrganizationsDefaultPutResponse,
-  SetDefaultOrganizationApiV1OrganizationsDefaultPutError,
-  DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteData,
-  DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteResponse,
-  DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteError,
   GetOrganizationApiV1OrganizationsOrganizationIdGetData,
   GetOrganizationApiV1OrganizationsOrganizationIdGetResponse,
   GetOrganizationApiV1OrganizationsOrganizationIdGetError,
-  UpdateOrganizationApiV1OrganizationsOrganizationIdPutData,
-  UpdateOrganizationApiV1OrganizationsOrganizationIdPutResponse,
-  UpdateOrganizationApiV1OrganizationsOrganizationIdPutError,
-  GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetData,
-  GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetResponse,
-  GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetError,
-  ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetData,
-  ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetResponse,
-  ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetError,
-  AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutData,
-  AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutResponse,
-  AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutError,
-  RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteData,
-  RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteResponse,
-  RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteError,
-  BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutData,
-  BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutResponse,
-  BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutError,
-  ListRolesApiV1OrganizationsOrganizationIdRolesGetData,
-  ListRolesApiV1OrganizationsOrganizationIdRolesGetResponse,
-  ListRolesApiV1OrganizationsOrganizationIdRolesGetError,
-  GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetData,
-  GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetResponse,
-  GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetError,
-  AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutData,
-  AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutResponse,
-  AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutError,
-  ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetData,
-  ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetResponse,
-  ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetError,
-  AddUserToProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsPutData,
-  AddUserToProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsPutError,
-  RemoveUserFromProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsProjectIdDeleteData,
-  RemoveUserFromProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsProjectIdDeleteError,
   ListProjectsApiV1ProjectsGetData,
   ListProjectsApiV1ProjectsGetResponse,
   ListProjectsApiV1ProjectsGetError,
-  CreateProjectApiV1ProjectsPostData,
-  CreateProjectApiV1ProjectsPostResponse,
-  CreateProjectApiV1ProjectsPostError,
-  UpsertProjectApiV1ProjectsPutData,
-  UpsertProjectApiV1ProjectsPutResponse,
-  UpsertProjectApiV1ProjectsPutError,
-  DeleteProjectApiV1ProjectsProjectIdDeleteData,
-  DeleteProjectApiV1ProjectsProjectIdDeleteResponse,
-  DeleteProjectApiV1ProjectsProjectIdDeleteError,
   GetProjectApiV1ProjectsProjectIdGetData,
   GetProjectApiV1ProjectsProjectIdGetResponse,
   GetProjectApiV1ProjectsProjectIdGetError,
-  UpdateExistingProjectApiV1ProjectsProjectIdPutData,
-  UpdateExistingProjectApiV1ProjectsProjectIdPutResponse,
-  UpdateExistingProjectApiV1ProjectsProjectIdPutError,
-  GetCurrentProjectApiV1ProjectsCurrentGetData,
-  GetCurrentProjectApiV1ProjectsCurrentGetResponse,
-  GetCurrentProjectApiV1ProjectsCurrentGetError,
-  GetProjectUsageApiV1ProjectsProjectIdUsageGetData,
-  GetProjectUsageApiV1ProjectsProjectIdUsageGetResponse,
-  GetProjectUsageApiV1ProjectsProjectIdUsageGetError,
-  DeleteFileApiV1FilesIdDeleteData,
-  DeleteFileApiV1FilesIdDeleteResponse,
-  DeleteFileApiV1FilesIdDeleteError,
-  GetFileApiV1FilesIdGetData,
-  GetFileApiV1FilesIdGetResponse,
-  GetFileApiV1FilesIdGetError,
-  ListFilesApiV1FilesGetData,
-  ListFilesApiV1FilesGetResponse,
-  ListFilesApiV1FilesGetError,
-  UploadFileApiV1FilesPostData,
-  UploadFileApiV1FilesPostResponse,
-  UploadFileApiV1FilesPostError,
-  GeneratePresignedUrlApiV1FilesPutData,
-  GeneratePresignedUrlApiV1FilesPutResponse,
-  GeneratePresignedUrlApiV1FilesPutError,
-  SyncFilesApiV1FilesSyncPutData,
-  SyncFilesApiV1FilesSyncPutResponse,
-  SyncFilesApiV1FilesSyncPutError,
-  UploadFileFromUrlApiV1FilesUploadFromUrlPutData,
-  UploadFileFromUrlApiV1FilesUploadFromUrlPutResponse,
-  UploadFileFromUrlApiV1FilesUploadFromUrlPutError,
-  ReadFileContentApiV1FilesIdContentGetData,
-  ReadFileContentApiV1FilesIdContentGetResponse,
-  ReadFileContentApiV1FilesIdContentGetError,
   ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetData,
   ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetResponse,
   ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetError,
   GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetData,
   GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetError,
+  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostData,
+  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse,
+  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostError,
   ListFilePagesFiguresApiV1FilesIdPageFiguresGetData,
   ListFilePagesFiguresApiV1FilesIdPageFiguresGetResponse,
   ListFilePagesFiguresApiV1FilesIdPageFiguresGetError,
@@ -198,12 +77,27 @@ import type {
   ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetError,
   GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetData,
   GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetError,
-  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostData,
-  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse,
-  GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostError,
   GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostData,
   GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponse,
   GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostError,
+  DeleteFileApiV1FilesIdDeleteData,
+  DeleteFileApiV1FilesIdDeleteResponse,
+  DeleteFileApiV1FilesIdDeleteError,
+  GetFileApiV1FilesIdGetData,
+  GetFileApiV1FilesIdGetResponse,
+  GetFileApiV1FilesIdGetError,
+  UploadFileApiV1FilesPostData,
+  UploadFileApiV1FilesPostResponse,
+  UploadFileApiV1FilesPostError,
+  GeneratePresignedUrlApiV1FilesPutData,
+  GeneratePresignedUrlApiV1FilesPutResponse,
+  GeneratePresignedUrlApiV1FilesPutError,
+  UploadFileFromUrlApiV1FilesUploadFromUrlPutData,
+  UploadFileFromUrlApiV1FilesUploadFromUrlPutResponse,
+  UploadFileFromUrlApiV1FilesUploadFromUrlPutError,
+  ReadFileContentApiV1FilesIdContentGetData,
+  ReadFileContentApiV1FilesIdContentGetResponse,
+  ReadFileContentApiV1FilesIdContentGetError,
   SearchPipelinesApiV1PipelinesGetData,
   SearchPipelinesApiV1PipelinesGetResponse,
   SearchPipelinesApiV1PipelinesGetError,
@@ -237,12 +131,29 @@ import type {
   CopyPipelineApiV1PipelinesPipelineIdCopyPostData,
   CopyPipelineApiV1PipelinesPipelineIdCopyPostResponse,
   CopyPipelineApiV1PipelinesPipelineIdCopyPostError,
-  ListPipelineFilesApiV1PipelinesPipelineIdFilesGetData,
-  ListPipelineFilesApiV1PipelinesPipelineIdFilesGetResponse,
-  ListPipelineFilesApiV1PipelinesPipelineIdFilesGetError,
-  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutData,
-  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse,
-  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutError,
+  RunSearchApiV1PipelinesPipelineIdRetrievePostData,
+  RunSearchApiV1PipelinesPipelineIdRetrievePostResponse,
+  RunSearchApiV1PipelinesPipelineIdRetrievePostError,
+  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetData,
+  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse,
+  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetError,
+  ChatApiV1PipelinesPipelineIdChatPostData,
+  ChatApiV1PipelinesPipelineIdChatPostError,
+  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetData,
+  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse,
+  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetError,
+  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutData,
+  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse,
+  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutError,
+  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutData,
+  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse,
+  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutError,
+  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostData,
+  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse,
+  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostError,
+  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetData,
+  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse,
+  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetError,
   ListPipelineFiles2ApiV1PipelinesPipelineIdFiles2GetData,
   ListPipelineFiles2ApiV1PipelinesPipelineIdFiles2GetResponse,
   ListPipelineFiles2ApiV1PipelinesPipelineIdFiles2GetError,
@@ -252,6 +163,9 @@ import type {
   GetPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGetData,
   GetPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGetResponse,
   GetPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGetError,
+  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutData,
+  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse,
+  AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutError,
   DeletePipelineFileApiV1PipelinesPipelineIdFilesFileIdDeleteData,
   DeletePipelineFileApiV1PipelinesPipelineIdFilesFileIdDeleteResponse,
   DeletePipelineFileApiV1PipelinesPipelineIdFilesFileIdDeleteError,
@@ -264,38 +178,6 @@ import type {
   ImportPipelineMetadataApiV1PipelinesPipelineIdMetadataPutData,
   ImportPipelineMetadataApiV1PipelinesPipelineIdMetadataPutResponse,
   ImportPipelineMetadataApiV1PipelinesPipelineIdMetadataPutError,
-  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetData,
-  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse,
-  ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetError,
-  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutData,
-  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse,
-  AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutError,
-  DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteData,
-  DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteResponse,
-  DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteError,
-  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutData,
-  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse,
-  UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutError,
-  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostData,
-  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse,
-  SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostError,
-  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetData,
-  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse,
-  GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetError,
-  RunSearchApiV1PipelinesPipelineIdRetrievePostData,
-  RunSearchApiV1PipelinesPipelineIdRetrievePostResponse,
-  RunSearchApiV1PipelinesPipelineIdRetrievePostError,
-  ListPipelineJobsApiV1PipelinesPipelineIdJobsGetData,
-  ListPipelineJobsApiV1PipelinesPipelineIdJobsGetResponse,
-  ListPipelineJobsApiV1PipelinesPipelineIdJobsGetError,
-  GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetData,
-  GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetResponse,
-  GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetError,
-  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetData,
-  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse,
-  GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetError,
-  ChatApiV1PipelinesPipelineIdChatPostData,
-  ChatApiV1PipelinesPipelineIdChatPostError,
   ListPipelineDocumentsApiV1PipelinesPipelineIdDocumentsGetData,
   ListPipelineDocumentsApiV1PipelinesPipelineIdDocumentsGetResponse,
   ListPipelineDocumentsApiV1PipelinesPipelineIdDocumentsGetError,
@@ -348,12 +230,6 @@ import type {
   DirectRetrieveApiV1RetrieversRetrievePostData,
   DirectRetrieveApiV1RetrieversRetrievePostResponse,
   DirectRetrieveApiV1RetrieversRetrievePostError,
-  GetJobsApiV1JobsGetData,
-  GetJobsApiV1JobsGetResponse,
-  GetJobsApiV1JobsGetError,
-  ListSupportedModelsApiV1EvalsModelsGetData,
-  ListSupportedModelsApiV1EvalsModelsGetResponse,
-  ListSupportedModelsApiV1EvalsModelsGetError,
   GetJobImageResultApiV1ParsingJobJobIdResultImageNameGetData,
   GetJobImageResultApiV1ParsingJobJobIdResultImageNameGetError,
   GetSupportedFileExtensionsApiV1ParsingSupportedFileExtensionsGetData,
@@ -374,53 +250,22 @@ import type {
   GetJobTextResultApiV1ParsingJobJobIdResultTextGetData,
   GetJobTextResultApiV1ParsingJobJobIdResultTextGetResponse,
   GetJobTextResultApiV1ParsingJobJobIdResultTextGetError,
-  GetJobRawTextResultRawApiV1ParsingJobJobIdResultRawTextGetData,
-  GetJobRawTextResultRawApiV1ParsingJobJobIdResultRawTextGetError,
   GetJobRawTextResultApiV1ParsingJobJobIdResultPdfGetData,
   GetJobRawTextResultApiV1ParsingJobJobIdResultPdfGetError,
-  GetJobRawTextResultRawPdfApiV1ParsingJobJobIdResultRawPdfGetData,
-  GetJobRawTextResultRawPdfApiV1ParsingJobJobIdResultRawPdfGetError,
   GetJobStructuredResultApiV1ParsingJobJobIdResultStructuredGetData,
   GetJobStructuredResultApiV1ParsingJobJobIdResultStructuredGetResponse,
   GetJobStructuredResultApiV1ParsingJobJobIdResultStructuredGetError,
-  GetJobRawStructuredResultApiV1ParsingJobJobIdResultRawStructuredGetData,
-  GetJobRawStructuredResultApiV1ParsingJobJobIdResultRawStructuredGetError,
   GetJobRawXlsxResultApiV1ParsingJobJobIdResultXlsxGetData,
   GetJobRawXlsxResultApiV1ParsingJobJobIdResultXlsxGetError,
-  GetJobRawXlsxResultRawApiV1ParsingJobJobIdResultRawXlsxGetData,
-  GetJobRawXlsxResultRawApiV1ParsingJobJobIdResultRawXlsxGetError,
   GetJobResultApiV1ParsingJobJobIdResultMarkdownGetData,
   GetJobResultApiV1ParsingJobJobIdResultMarkdownGetResponse,
   GetJobResultApiV1ParsingJobJobIdResultMarkdownGetError,
-  GetJobRawMdResultApiV1ParsingJobJobIdResultRawMarkdownGetData,
-  GetJobRawMdResultApiV1ParsingJobJobIdResultRawMarkdownGetError,
   GetJobJsonResultApiV1ParsingJobJobIdResultJsonGetData,
   GetJobJsonResultApiV1ParsingJobJobIdResultJsonGetResponse,
   GetJobJsonResultApiV1ParsingJobJobIdResultJsonGetError,
-  GetJobJsonRawResultApiV1ParsingJobJobIdResultRawJsonGetData,
-  GetJobJsonRawResultApiV1ParsingJobJobIdResultRawJsonGetError,
-  GetParsingHistoryResultApiV1ParsingHistoryGetData,
-  GetParsingHistoryResultApiV1ParsingHistoryGetResponse,
-  GetParsingHistoryResultApiV1ParsingHistoryGetError,
   GeneratePresignedUrlApiV1ParsingJobJobIdReadFilenameGetData,
   GeneratePresignedUrlApiV1ParsingJobJobIdReadFilenameGetResponse,
   GeneratePresignedUrlApiV1ParsingJobJobIdReadFilenameGetError,
-  GetChatAppsApiV1AppsGetData,
-  GetChatAppsApiV1AppsGetResponse,
-  GetChatAppsApiV1AppsGetError,
-  CreateChatAppApiV1AppsPostData,
-  CreateChatAppApiV1AppsPostResponse,
-  CreateChatAppApiV1AppsPostError,
-  DeleteChatAppApiV1AppsIdDeleteData,
-  DeleteChatAppApiV1AppsIdDeleteError,
-  GetChatAppApiV1AppsIdGetData,
-  GetChatAppApiV1AppsIdGetResponse,
-  GetChatAppApiV1AppsIdGetError,
-  UpdateChatAppApiV1AppsIdPutData,
-  UpdateChatAppApiV1AppsIdPutResponse,
-  UpdateChatAppApiV1AppsIdPutError,
-  ChatWithChatAppApiV1AppsIdChatPostData,
-  ChatWithChatAppApiV1AppsIdChatPostError,
   ListClassifyJobsApiV1ClassifierJobsGetData,
   ListClassifyJobsApiV1ClassifierJobsGetResponse,
   ListClassifyJobsApiV1ClassifierJobsGetError,
@@ -433,21 +278,6 @@ import type {
   GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetData,
   GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponse,
   GetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetError,
-  ReadSelfApiV1AuthMeGetData,
-  ReadSelfApiV1AuthMeGetResponse,
-  ReadSelfApiV1AuthMeGetError,
-  CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostData,
-  CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostResponse,
-  CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostError,
-  DowngradePlanApiV1BillingDowngradePlanPostData,
-  DowngradePlanApiV1BillingDowngradePlanPostResponse,
-  DowngradePlanApiV1BillingDowngradePlanPostError,
-  CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostData,
-  CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostResponse,
-  CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostError,
-  GetMetronomeDashboardApiV1BillingMetronomeDashboardGetData,
-  GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse,
-  GetMetronomeDashboardApiV1BillingMetronomeDashboardGetError,
   ListJobsApiV1ExtractionJobsGetData,
   ListJobsApiV1ExtractionJobsGetResponse,
   ListJobsApiV1ExtractionJobsGetError,
@@ -509,27 +339,9 @@ import type {
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutData,
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse,
   UpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutError,
-  ListApiKeysApiV1BetaApiKeysGetData,
-  ListApiKeysApiV1BetaApiKeysGetResponse,
-  ListApiKeysApiV1BetaApiKeysGetError,
-  CreateApiKeyApiV1BetaApiKeysPostData,
-  CreateApiKeyApiV1BetaApiKeysPostResponse,
-  CreateApiKeyApiV1BetaApiKeysPostError,
-  DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteData,
-  DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponse,
-  DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteError,
-  GetApiKeyApiV1BetaApiKeysApiKeyIdGetData,
-  GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponse,
-  GetApiKeyApiV1BetaApiKeysApiKeyIdGetError,
-  ListBatchesApiV1BetaBatchesGetData,
-  ListBatchesApiV1BetaBatchesGetResponse,
-  ListBatchesApiV1BetaBatchesGetError,
-  CreateBatchApiV1BetaBatchesPostData,
-  CreateBatchApiV1BetaBatchesPostResponse,
-  CreateBatchApiV1BetaBatchesPostError,
-  GetBatchApiV1BetaBatchesBatchIdGetData,
-  GetBatchApiV1BetaBatchesBatchIdGetResponse,
-  GetBatchApiV1BetaBatchesBatchIdGetError,
+  ListUsageMetricsApiV1BetaUsageMetricsGetData,
+  ListUsageMetricsApiV1BetaUsageMetricsGetResponse,
+  ListUsageMetricsApiV1BetaUsageMetricsGetError,
   DeleteAgentDataApiV1BetaAgentDataItemIdDeleteData,
   DeleteAgentDataApiV1BetaAgentDataItemIdDeleteResponse,
   DeleteAgentDataApiV1BetaAgentDataItemIdDeleteError,
@@ -551,9 +363,6 @@ import type {
   DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostData,
   DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse,
   DeleteAgentDataByQueryApiV1BetaAgentDataDeletePostError,
-  ListQuotaConfigurationsApiV1BetaQuotaManagementGetData,
-  ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse,
-  ListQuotaConfigurationsApiV1BetaQuotaManagementGetError,
   CreateFileApiV1BetaFilesPostData,
   CreateFileApiV1BetaFilesPostResponse,
   CreateFileApiV1BetaFilesPostError,
@@ -572,9 +381,6 @@ import type {
   CreateParseConfigurationApiV1BetaParseConfigurationsPostData,
   CreateParseConfigurationApiV1BetaParseConfigurationsPostResponse,
   CreateParseConfigurationApiV1BetaParseConfigurationsPostError,
-  UpsertParseConfigurationApiV1BetaParseConfigurationsPutData,
-  UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponse,
-  UpsertParseConfigurationApiV1BetaParseConfigurationsPutError,
   DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteData,
   DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponse,
   DeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteError,
@@ -584,78 +390,104 @@ import type {
   UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutData,
   UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponse,
   UpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutError,
-  QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostData,
-  QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponse,
-  QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostError,
-  GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetData,
-  GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse,
-  GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetError,
-  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetData,
-  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse,
-  ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetError,
-  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostData,
-  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse,
-  CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostError,
-  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetData,
-  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse,
-  GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetError,
-  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetData,
-  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse,
-  GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetError,
-  UploadFileV2ApiV2Alpha1ParseUploadPostData,
-  UploadFileV2ApiV2Alpha1ParseUploadPostResponse,
-  UploadFileV2ApiV2Alpha1ParseUploadPostError,
-  GetJobImageResultApiParsingJobJobIdResultImageNameGetData,
-  GetJobImageResultApiParsingJobJobIdResultImageNameGetError,
-  GetSupportedFileExtensionsApiParsingSupportedFileExtensionsGetData,
-  GetSupportedFileExtensionsApiParsingSupportedFileExtensionsGetResponse,
-  ScreenshotApiParsingScreenshotPostData,
-  ScreenshotApiParsingScreenshotPostResponse,
-  ScreenshotApiParsingScreenshotPostError,
-  UploadFileApiParsingUploadPostData,
-  UploadFileApiParsingUploadPostResponse,
-  UploadFileApiParsingUploadPostError,
-  GetJobApiParsingJobJobIdGetData,
-  GetJobApiParsingJobJobIdGetResponse,
-  GetJobApiParsingJobJobIdGetError,
-  GetJobParametersApiParsingJobJobIdParametersGetData,
-  GetJobParametersApiParsingJobJobIdParametersGetError,
-  GetParsingJobDetailsApiParsingJobJobIdDetailsGetData,
-  GetParsingJobDetailsApiParsingJobJobIdDetailsGetError,
-  GetJobTextResultApiParsingJobJobIdResultTextGetData,
-  GetJobTextResultApiParsingJobJobIdResultTextGetResponse,
-  GetJobTextResultApiParsingJobJobIdResultTextGetError,
-  GetJobRawTextResultRawApiParsingJobJobIdResultRawTextGetData,
-  GetJobRawTextResultRawApiParsingJobJobIdResultRawTextGetError,
-  GetJobRawTextResultApiParsingJobJobIdResultPdfGetData,
-  GetJobRawTextResultApiParsingJobJobIdResultPdfGetError,
-  GetJobRawTextResultRawPdfApiParsingJobJobIdResultRawPdfGetData,
-  GetJobRawTextResultRawPdfApiParsingJobJobIdResultRawPdfGetError,
-  GetJobStructuredResultApiParsingJobJobIdResultStructuredGetData,
-  GetJobStructuredResultApiParsingJobJobIdResultStructuredGetResponse,
-  GetJobStructuredResultApiParsingJobJobIdResultStructuredGetError,
-  GetJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGetData,
-  GetJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGetError,
-  GetJobRawXlsxResultApiParsingJobJobIdResultXlsxGetData,
-  GetJobRawXlsxResultApiParsingJobJobIdResultXlsxGetError,
-  GetJobRawXlsxResultRawApiParsingJobJobIdResultRawXlsxGetData,
-  GetJobRawXlsxResultRawApiParsingJobJobIdResultRawXlsxGetError,
-  GetJobResultApiParsingJobJobIdResultMarkdownGetData,
-  GetJobResultApiParsingJobJobIdResultMarkdownGetResponse,
-  GetJobResultApiParsingJobJobIdResultMarkdownGetError,
-  GetJobRawMdResultApiParsingJobJobIdResultRawMarkdownGetData,
-  GetJobRawMdResultApiParsingJobJobIdResultRawMarkdownGetError,
-  GetJobJsonResultApiParsingJobJobIdResultJsonGetData,
-  GetJobJsonResultApiParsingJobJobIdResultJsonGetResponse,
-  GetJobJsonResultApiParsingJobJobIdResultJsonGetError,
-  GetJobJsonRawResultApiParsingJobJobIdResultRawJsonGetData,
-  GetJobJsonRawResultApiParsingJobJobIdResultRawJsonGetError,
-  GetParsingHistoryResultApiParsingHistoryGetData,
-  GetParsingHistoryResultApiParsingHistoryGetResponse,
-  GetParsingHistoryResultApiParsingHistoryGetError,
-  GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetData,
-  GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetResponse,
-  GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetError,
+  ListSpreadsheetJobsApiV1BetaSheetsJobsGetData,
+  ListSpreadsheetJobsApiV1BetaSheetsJobsGetResponse,
+  ListSpreadsheetJobsApiV1BetaSheetsJobsGetError,
+  CreateSpreadsheetJobApiV1BetaSheetsJobsPostData,
+  CreateSpreadsheetJobApiV1BetaSheetsJobsPostResponse,
+  CreateSpreadsheetJobApiV1BetaSheetsJobsPostError,
+  DeleteSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdDeleteData,
+  DeleteSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdDeleteError,
+  GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetData,
+  GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetResponse,
+  GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetError,
+  GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetData,
+  GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetResponse,
+  GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetError,
+  ListDirectoriesApiV1BetaDirectoriesGetData,
+  ListDirectoriesApiV1BetaDirectoriesGetResponse,
+  ListDirectoriesApiV1BetaDirectoriesGetError,
+  CreateDirectoryApiV1BetaDirectoriesPostData,
+  CreateDirectoryApiV1BetaDirectoriesPostResponse,
+  CreateDirectoryApiV1BetaDirectoriesPostError,
+  DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteData,
+  DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteResponse,
+  DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteError,
+  GetDirectoryApiV1BetaDirectoriesDirectoryIdGetData,
+  GetDirectoryApiV1BetaDirectoriesDirectoryIdGetResponse,
+  GetDirectoryApiV1BetaDirectoriesDirectoryIdGetError,
+  UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchData,
+  UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchResponse,
+  UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchError,
+  CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostData,
+  CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostResponse,
+  CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostError,
+  GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetData,
+  GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetResponse,
+  GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetError,
+  ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetData,
+  ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetResponse,
+  ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetError,
+  AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostData,
+  AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostResponse,
+  AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostError,
+  UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostData,
+  UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostResponse,
+  UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostError,
+  DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteData,
+  DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteResponse,
+  DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteError,
+  GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetData,
+  GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetResponse,
+  GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetError,
+  UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchData,
+  UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchResponse,
+  UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchError,
+  ListSplitJobsApiV1BetaSplitJobsGetData,
+  ListSplitJobsApiV1BetaSplitJobsGetResponse,
+  ListSplitJobsApiV1BetaSplitJobsGetError,
+  CreateSplitJobApiV1BetaSplitJobsPostData,
+  CreateSplitJobApiV1BetaSplitJobsPostResponse,
+  CreateSplitJobApiV1BetaSplitJobsPostError,
+  GetSplitJobApiV1BetaSplitJobsSplitJobIdGetData,
+  GetSplitJobApiV1BetaSplitJobsSplitJobIdGetResponse,
+  GetSplitJobApiV1BetaSplitJobsSplitJobIdGetError,
+  ListBatchJobsApiV1BetaBatchProcessingGetData,
+  ListBatchJobsApiV1BetaBatchProcessingGetResponse,
+  ListBatchJobsApiV1BetaBatchProcessingGetError,
+  CreateBatchJobApiV1BetaBatchProcessingPostData,
+  CreateBatchJobApiV1BetaBatchProcessingPostResponse,
+  CreateBatchJobApiV1BetaBatchProcessingPostError,
+  GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetData,
+  GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetResponse,
+  GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetError,
+  ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetData,
+  ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetResponse,
+  ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetError,
+  CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostData,
+  CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostResponse,
+  CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostError,
+  GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetData,
+  GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetResponse,
+  GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetError,
+  UploadFileMultipartApiV2Alpha1ParseUploadPostData,
+  UploadFileMultipartApiV2Alpha1ParseUploadPostResponse,
+  UploadFileMultipartApiV2Alpha1ParseUploadPostError,
+  UploadFileByIdApiV2Alpha1ParsePostData,
+  UploadFileByIdApiV2Alpha1ParsePostResponse,
+  UploadFileByIdApiV2Alpha1ParsePostError,
+  UploadFileByUrlApiV2Alpha1ParseUrlPostData,
+  UploadFileByUrlApiV2Alpha1ParseUrlPostResponse,
+  UploadFileByUrlApiV2Alpha1ParseUrlPostError,
+  GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetData,
+  GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetResponse,
+  GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetError,
+  GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetData,
+  GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetResponse,
+  GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetError,
+  GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetData,
+  GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetResponse,
+  GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetError,
 } from "./types.gen";
 import { client as _heyApiClient } from "./client.gen";
 
@@ -677,241 +509,6 @@ export type Options<
 };
 
 /**
- * List Deployments
- * List all deployments for a project.
- */
-export const listDeploymentsApiV1ProjectsProjectIdAgentsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListDeploymentsApiV1ProjectsProjectIdAgentsGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListDeploymentsApiV1ProjectsProjectIdAgentsGetResponse,
-    ListDeploymentsApiV1ProjectsProjectIdAgentsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects/{project_id}/agents",
-    ...options,
-  });
-};
-
-/**
- * Sync Deployments
- * Sync deployments for a project.
- */
-export const syncDeploymentsApiV1ProjectsProjectIdAgentsSyncPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponse,
-    SyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects/{project_id}/agents:sync",
-    ...options,
-  });
-};
-
-/**
- * List Keys
- * List API Keys for a user, filtered by type.
- */
-export const listKeysApiV1ApiKeysGet = <ThrowOnError extends boolean = false>(
-  options?: Options<ListKeysApiV1ApiKeysGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ListKeysApiV1ApiKeysGetResponse,
-    ListKeysApiV1ApiKeysGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/api-keys",
-    ...options,
-  });
-};
-
-/**
- * Generate Key
- * Generate a new API Key.
- */
-export const generateKeyApiV1ApiKeysPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GenerateKeyApiV1ApiKeysPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    GenerateKeyApiV1ApiKeysPostResponse,
-    GenerateKeyApiV1ApiKeysPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/api-keys",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Api Key
- * Delete an API Key by ID.
- */
-export const deleteApiKeyApiV1ApiKeysApiKeyIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponse,
-    DeleteApiKeyApiV1ApiKeysApiKeyIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/api-keys/{api_key_id}",
-    ...options,
-  });
-};
-
-/**
- * Validate Embedding Connection
- * Validate an embedding connection.
- *
- * Args:
- * embedding_config: The embedding configuration to validate.
- * pipeline_id: If provided, the embedding connection will be validated for the pipeline.
- * user: The user to validate the embedding connection for.
- * db: The database session.
- *
- * Returns:
- * A BaseConnectionValidation object indicating the result of the validation.
- */
-export const validateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostResponse,
-      ValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/validate-integrations/validate-embedding-connection",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * Validate Data Source Connection
- * Validate a data source connection.
- */
-export const validateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostResponse,
-      ValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/validate-integrations/validate-data-source-connection",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * Validate Data Sink Connection
- * Validate a data sink connection.
- */
-export const validateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostResponse,
-      ValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/validate-integrations/validate-data-sink-connection",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
  * List Data Sinks
  * List data sinks for a given project.
  */
@@ -926,10 +523,6 @@ export const listDataSinksApiV1DataSinksGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -955,44 +548,6 @@ export const createDataSinkApiV1DataSinksPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/data-sinks",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Data Sink
- * Upserts a data sink.
- * Updates if a data sink with the same name and project_id already exists. Otherwise, creates a new data sink.
- */
-export const upsertDataSinkApiV1DataSinksPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<UpsertDataSinkApiV1DataSinksPutData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertDataSinkApiV1DataSinksPutResponse,
-    UpsertDataSinkApiV1DataSinksPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -1109,10 +664,6 @@ export const listDataSourcesApiV1DataSourcesGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/data-sources",
     ...options,
@@ -1134,44 +685,6 @@ export const createDataSourceApiV1DataSourcesPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/data-sources",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Data Source
- * Upserts a data source.
- * Updates if a data source with the same name and project_id already exists. Otherwise, creates a new data source.
- */
-export const upsertDataSourceApiV1DataSourcesPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<UpsertDataSourceApiV1DataSourcesPutData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertDataSourceApiV1DataSourcesPutResponse,
-    UpsertDataSourceApiV1DataSourcesPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -1295,10 +808,6 @@ export const listEmbeddingModelConfigsApiV1EmbeddingModelConfigsGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/embedding-model-configs",
     ...options,
@@ -1323,47 +832,6 @@ export const createEmbeddingModelConfigApiV1EmbeddingModelConfigsPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/embedding-model-configs",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Embedding Model Config
- * Upserts an embedding model config.
- * Updates if an embedding model config with the same name and project_id already exists. Otherwise, creates a new embedding model config.
- */
-export const upsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutResponse,
-    UpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -1399,10 +867,6 @@ export const deleteEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelC
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/embedding-model-configs/{embedding_model_config_id}",
       ...options,
@@ -1426,10 +890,6 @@ export const updateEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelC
       ThrowOnError
     >({
       security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
         {
           scheme: "bearer",
           type: "http",
@@ -1470,152 +930,6 @@ export const listOrganizationsApiV1OrganizationsGet = <
 };
 
 /**
- * Create Organization
- * Create a new organization.
- */
-export const createOrganizationApiV1OrganizationsPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CreateOrganizationApiV1OrganizationsPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateOrganizationApiV1OrganizationsPostResponse,
-    CreateOrganizationApiV1OrganizationsPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Organization
- * Upsert a new organization.
- */
-export const upsertOrganizationApiV1OrganizationsPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<UpsertOrganizationApiV1OrganizationsPutData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertOrganizationApiV1OrganizationsPutResponse,
-    UpsertOrganizationApiV1OrganizationsPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Default Organization
- * Get the default organization for the user.
- */
-export const getDefaultOrganizationApiV1OrganizationsDefaultGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    GetDefaultOrganizationApiV1OrganizationsDefaultGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetDefaultOrganizationApiV1OrganizationsDefaultGetResponse,
-    GetDefaultOrganizationApiV1OrganizationsDefaultGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/default",
-    ...options,
-  });
-};
-
-/**
- * Set Default Organization
- * Set the default organization for the user.
- */
-export const setDefaultOrganizationApiV1OrganizationsDefaultPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    SetDefaultOrganizationApiV1OrganizationsDefaultPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    SetDefaultOrganizationApiV1OrganizationsDefaultPutResponse,
-    SetDefaultOrganizationApiV1OrganizationsDefaultPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/default",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Organization
- * Delete an organization by ID.
- */
-export const deleteOrganizationApiV1OrganizationsOrganizationIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteResponse,
-    DeleteOrganizationApiV1OrganizationsOrganizationIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}",
-    ...options,
-  });
-};
-
-/**
  * Get Organization
  * Get an organization by ID.
  */
@@ -1644,361 +958,6 @@ export const getOrganizationApiV1OrganizationsOrganizationIdGet = <
 };
 
 /**
- * Update Organization
- * Update an existing organization.
- */
-export const updateOrganizationApiV1OrganizationsOrganizationIdPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    UpdateOrganizationApiV1OrganizationsOrganizationIdPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpdateOrganizationApiV1OrganizationsOrganizationIdPutResponse,
-    UpdateOrganizationApiV1OrganizationsOrganizationIdPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Organization Usage
- * Get usage for a specific organization.
- */
-export const getOrganizationUsageApiV1OrganizationsOrganizationIdUsageGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetResponse,
-    GetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}/usage",
-    ...options,
-  });
-};
-
-/**
- * List Organization Users
- * Get all users in an organization.
- */
-export const listOrganizationUsersApiV1OrganizationsOrganizationIdUsersGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetResponse,
-    ListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}/users",
-    ...options,
-  });
-};
-
-/**
- * Add Users To Organization
- * Add a user to an organization.
- */
-export const addUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutResponse,
-    AddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}/users",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Remove Users From Organization
- * Remove users from an organization.
- */
-export const removeUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDelete =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).delete<
-      RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteResponse,
-      RemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/{member_user_id}",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * @deprecated
- * Batch Remove Users From Organization
- * Remove a batch of users from an organization.
- */
-export const batchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePut =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).put<
-      BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutResponse,
-      BatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/remove",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * List Roles
- * List all roles in an organization.
- */
-export const listRolesApiV1OrganizationsOrganizationIdRolesGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListRolesApiV1OrganizationsOrganizationIdRolesGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListRolesApiV1OrganizationsOrganizationIdRolesGetResponse,
-    ListRolesApiV1OrganizationsOrganizationIdRolesGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}/roles",
-    ...options,
-  });
-};
-
-/**
- * Get User Role
- * Get the role of a user in an organization.
- */
-export const getUserRoleApiV1OrganizationsOrganizationIdUsersRolesGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetResponse,
-    GetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/organizations/{organization_id}/users/roles",
-    ...options,
-  });
-};
-
-/**
- * Assign Role To User In Organization
- * Assign a role to a user in an organization.
- */
-export const assignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPut =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).put<
-      AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutResponse,
-      AssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/roles",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * List Projects By User
- * List all projects for a user in an organization.
- */
-export const listProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGet =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).get<
-      ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetResponse,
-      ListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/{user_id}/projects",
-      ...options,
-    });
-  };
-
-/**
- * Add User To Project
- * Add a user to a project.
- */
-export const addUserToProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsPut =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      AddUserToProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsPutData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).put<
-      unknown,
-      AddUserToProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsPutError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/{user_id}/projects",
-      ...options,
-    });
-  };
-
-/**
- * Remove User From Project
- * Remove a user from a project.
- */
-export const removeUserFromProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsProjectIdDelete =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      RemoveUserFromProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsProjectIdDeleteData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).delete<
-      unknown,
-      RemoveUserFromProjectApiV1OrganizationsOrganizationIdUsersUserIdProjectsProjectIdDeleteError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/organizations/{organization_id}/users/{user_id}/projects/{project_id}",
-      ...options,
-    });
-  };
-
-/**
  * List Projects
  * List projects or get one by name
  */
@@ -2024,94 +983,6 @@ export const listProjectsApiV1ProjectsGet = <
 };
 
 /**
- * Create Project
- * Create a new project.
- */
-export const createProjectApiV1ProjectsPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CreateProjectApiV1ProjectsPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateProjectApiV1ProjectsPostResponse,
-    CreateProjectApiV1ProjectsPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Project
- * Upsert a project.
- * Updates if a project with the same name already exists. Otherwise, creates a new project.
- */
-export const upsertProjectApiV1ProjectsPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<UpsertProjectApiV1ProjectsPutData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertProjectApiV1ProjectsPutResponse,
-    UpsertProjectApiV1ProjectsPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Project
- * Delete a project by ID.
- */
-export const deleteProjectApiV1ProjectsProjectIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<DeleteProjectApiV1ProjectsProjectIdDeleteData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    DeleteProjectApiV1ProjectsProjectIdDeleteResponse,
-    DeleteProjectApiV1ProjectsProjectIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects/{project_id}",
-    ...options,
-  });
-};
-
-/**
  * Get Project
  * Get a project by ID.
  */
@@ -2130,10 +1001,6 @@ export const getProjectApiV1ProjectsProjectIdGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/projects/{project_id}",
     ...options,
@@ -2141,85 +1008,20 @@ export const getProjectApiV1ProjectsProjectIdGet = <
 };
 
 /**
- * Update Existing Project
- * Update an existing project.
+ * List File Page Screenshots
+ * List metadata for all screenshots of pages from a file.
  */
-export const updateExistingProjectApiV1ProjectsProjectIdPut = <
+export const listFilePageScreenshotsApiV1FilesIdPageScreenshotsGet = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    UpdateExistingProjectApiV1ProjectsProjectIdPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpdateExistingProjectApiV1ProjectsProjectIdPutResponse,
-    UpdateExistingProjectApiV1ProjectsProjectIdPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects/{project_id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Current Project
- * Get the current project.
- */
-export const getCurrentProjectApiV1ProjectsCurrentGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<GetCurrentProjectApiV1ProjectsCurrentGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetCurrentProjectApiV1ProjectsCurrentGetResponse,
-    GetCurrentProjectApiV1ProjectsCurrentGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/projects/current",
-    ...options,
-  });
-};
-
-/**
- * Get Project Usage
- * Get usage for a project
- */
-export const getProjectUsageApiV1ProjectsProjectIdUsageGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetProjectUsageApiV1ProjectsProjectIdUsageGetData,
+    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetData,
     ThrowOnError
   >,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    GetProjectUsageApiV1ProjectsProjectIdUsageGetResponse,
-    GetProjectUsageApiV1ProjectsProjectIdUsageGetError,
+    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetResponse,
+    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetError,
     ThrowOnError
   >({
     security: [
@@ -2227,15 +1029,183 @@ export const getProjectUsageApiV1ProjectsProjectIdUsageGet = <
         scheme: "bearer",
         type: "http",
       },
+    ],
+    url: "/api/v1/files/{id}/page_screenshots",
+    ...options,
+  });
+};
+
+/**
+ * Get File Page Screenshot
+ * Get screenshot of a page from a file.
+ */
+export const getFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetError,
+    ThrowOnError
+  >({
+    security: [
       {
         scheme: "bearer",
         type: "http",
       },
     ],
-    url: "/api/v1/projects/{project_id}/usage",
+    url: "/api/v1/files/{id}/page_screenshots/{page_index}",
     ...options,
   });
 };
+
+/**
+ * Generate File Page Screenshot Presigned Url
+ * Returns a presigned url to read a page screenshot.
+ *
+ * The presigned url is valid for a limited time period, after which it will expire.
+ * Be careful on accidental exposure of the presigned url, as it may allow unauthorized access to the file before the expiration.
+ */
+export const generateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).post<
+      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse,
+      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/files/{id}/page_screenshots/{page_index}/presigned_url",
+      ...options,
+    });
+  };
+
+/**
+ * List File Pages Figures
+ * List metadata for all figures from all pages of a file.
+ */
+export const listFilePagesFiguresApiV1FilesIdPageFiguresGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ListFilePagesFiguresApiV1FilesIdPageFiguresGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListFilePagesFiguresApiV1FilesIdPageFiguresGetResponse,
+    ListFilePagesFiguresApiV1FilesIdPageFiguresGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/files/{id}/page-figures",
+    ...options,
+  });
+};
+
+/**
+ * List File Page Figures
+ * List metadata for figures from a specific page of a file.
+ */
+export const listFilePageFiguresApiV1FilesIdPageFiguresPageIndexGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetResponse,
+    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/files/{id}/page-figures/{page_index}",
+    ...options,
+  });
+};
+
+/**
+ * Get File Page Figure
+ * Get a specific figure from a page of a file.
+ */
+export const getFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    unknown,
+    GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/files/{id}/page-figures/{page_index}/{figure_name}",
+    ...options,
+  });
+};
+
+/**
+ * Generate File Page Figure Presigned Url
+ * Returns a presigned url to read a page figure.
+ *
+ * The presigned url is valid for a limited time period, after which it will expire.
+ * Be careful on accidental exposure of the presigned url, as it may allow unauthorized access to the file before the expiration.
+ */
+export const generateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).post<
+      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponse,
+      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/files/{id}/page-figures/{page_index}/{figure_name}/presigned_url",
+      ...options,
+    });
+  };
 
 /**
  * Delete File
@@ -2252,10 +1222,6 @@ export const deleteFileApiV1FilesIdDelete = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -2283,39 +1249,8 @@ export const getFileApiV1FilesIdGet = <ThrowOnError extends boolean = false>(
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/files/{id}",
-    ...options,
-  });
-};
-
-/**
- * List Files
- * Read File metadata objects.
- */
-export const listFilesApiV1FilesGet = <ThrowOnError extends boolean = false>(
-  options?: Options<ListFilesApiV1FilesGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ListFilesApiV1FilesGetResponse,
-    ListFilesApiV1FilesGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files",
     ...options,
   });
 };
@@ -2334,10 +1269,6 @@ export const uploadFileApiV1FilesPost = <ThrowOnError extends boolean = false>(
   >({
     ...formDataBodySerializer,
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -2374,10 +1305,6 @@ export const generatePresignedUrlApiV1FilesPut = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/files",
     ...options,
@@ -2385,35 +1312,6 @@ export const generatePresignedUrlApiV1FilesPut = <
       "Content-Type": "application/json",
       ...options?.headers,
     },
-  });
-};
-
-/**
- * Sync Files
- * Sync Files API against file contents uploaded via S3 presigned urls.
- */
-export const syncFilesApiV1FilesSyncPut = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<SyncFilesApiV1FilesSyncPutData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).put<
-    SyncFilesApiV1FilesSyncPutResponse,
-    SyncFilesApiV1FilesSyncPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/sync",
-    ...options,
   });
 };
 
@@ -2442,10 +1340,6 @@ export const uploadFileFromUrlApiV1FilesUploadFromUrlPut = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -2479,240 +1373,11 @@ export const readFileContentApiV1FilesIdContentGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/files/{id}/content",
     ...options,
   });
 };
-
-/**
- * List File Page Screenshots
- * List metadata for all screenshots of pages from a file.
- */
-export const listFilePageScreenshotsApiV1FilesIdPageScreenshotsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetResponse,
-    ListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/{id}/page_screenshots",
-    ...options,
-  });
-};
-
-/**
- * Get File Page Screenshot
- * Get screenshot of a page from a file.
- */
-export const getFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetFilePageScreenshotApiV1FilesIdPageScreenshotsPageIndexGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/{id}/page_screenshots/{page_index}",
-    ...options,
-  });
-};
-
-/**
- * List File Pages Figures
- */
-export const listFilePagesFiguresApiV1FilesIdPageFiguresGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListFilePagesFiguresApiV1FilesIdPageFiguresGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListFilePagesFiguresApiV1FilesIdPageFiguresGetResponse,
-    ListFilePagesFiguresApiV1FilesIdPageFiguresGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/{id}/page-figures",
-    ...options,
-  });
-};
-
-/**
- * List File Page Figures
- */
-export const listFilePageFiguresApiV1FilesIdPageFiguresPageIndexGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetResponse,
-    ListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/{id}/page-figures/{page_index}",
-    ...options,
-  });
-};
-
-/**
- * Get File Page Figure
- */
-export const getFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetFilePageFigureApiV1FilesIdPageFiguresPageIndexFigureNameGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/files/{id}/page-figures/{page_index}/{figure_name}",
-    ...options,
-  });
-};
-
-/**
- * Generate File Page Screenshot Presigned Url
- * Returns a presigned url to read a page screenshot.
- *
- * The presigned url is valid for a limited time period, after which it will expire.
- * Be careful on accidental exposure of the presigned url, as it may allow unauthorized access to the file before the expiration.
- */
-export const generateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse,
-      GenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/files/{id}/page_screenshots/{page_index}/presigned_url",
-      ...options,
-    });
-  };
-
-/**
- * Generate File Page Figure Presigned Url
- * Returns a presigned url to read a page figure.
- *
- * The presigned url is valid for a limited time period, after which it will expire.
- * Be careful on accidental exposure of the presigned url, as it may allow unauthorized access to the file before the expiration.
- */
-export const generateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponse,
-      GenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/files/{id}/page-figures/{page_index}/{figure_name}/presigned_url",
-      ...options,
-    });
-  };
 
 /**
  * Search Pipelines
@@ -2729,10 +1394,6 @@ export const searchPipelinesApiV1PipelinesGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -2758,10 +1419,6 @@ export const createPipelineApiV1PipelinesPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -2792,10 +1449,6 @@ export const upsertPipelineApiV1PipelinesPut = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -3034,21 +1687,20 @@ export const copyPipelineApiV1PipelinesPipelineIdCopyPost = <
 };
 
 /**
- * @deprecated
- * List Pipeline Files
- * Get files for a pipeline.
+ * Run Search
+ * Get retrieval results for a managed pipeline and a query
  */
-export const listPipelineFilesApiV1PipelinesPipelineIdFilesGet = <
+export const runSearchApiV1PipelinesPipelineIdRetrievePost = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    ListPipelineFilesApiV1PipelinesPipelineIdFilesGetData,
+    RunSearchApiV1PipelinesPipelineIdRetrievePostData,
     ThrowOnError
   >,
 ) => {
-  return (options.client ?? _heyApiClient).get<
-    ListPipelineFilesApiV1PipelinesPipelineIdFilesGetResponse,
-    ListPipelineFilesApiV1PipelinesPipelineIdFilesGetError,
+  return (options.client ?? _heyApiClient).post<
+    RunSearchApiV1PipelinesPipelineIdRetrievePostResponse,
+    RunSearchApiV1PipelinesPipelineIdRetrievePostError,
     ThrowOnError
   >({
     security: [
@@ -3057,35 +1709,7 @@ export const listPipelineFilesApiV1PipelinesPipelineIdFilesGet = <
         type: "http",
       },
     ],
-    url: "/api/v1/pipelines/{pipeline_id}/files",
-    ...options,
-  });
-};
-
-/**
- * Add Files To Pipeline Api
- * Add files to a pipeline.
- */
-export const addFilesToPipelineApiApiV1PipelinesPipelineIdFilesPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse,
-    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/files",
+    url: "/api/v1/pipelines/{pipeline_id}/retrieve",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -3093,6 +1717,211 @@ export const addFilesToPipelineApiApiV1PipelinesPipelineIdFilesPut = <
     },
   });
 };
+
+/**
+ * Get Playground Session
+ * Get a playground session for a user and pipeline.
+ */
+export const getPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse,
+      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/pipelines/{pipeline_id}/playground-session",
+      ...options,
+    });
+  };
+
+/**
+ * Chat
+ * Make a retrieval query + chat completion for a managed pipeline.
+ */
+export const chatApiV1PipelinesPipelineIdChatPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<ChatApiV1PipelinesPipelineIdChatPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    unknown,
+    ChatApiV1PipelinesPipelineIdChatPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/pipelines/{pipeline_id}/chat",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * List Pipeline Data Sources
+ * Get data sources for a pipeline.
+ */
+export const listPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse,
+    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/pipelines/{pipeline_id}/data-sources",
+    ...options,
+  });
+};
+
+/**
+ * Add Data Sources To Pipeline
+ * Add data sources to a pipeline.
+ */
+export const addDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).put<
+    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse,
+    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/pipelines/{pipeline_id}/data-sources",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Update Pipeline Data Source
+ * Update the configuration of a data source in a pipeline.
+ */
+export const updatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPut =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).put<
+      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse,
+      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
+  };
+
+/**
+ * Sync Pipeline Data Source
+ * Run ingestion for the pipeline data source by incrementally updating the data-sink with upstream changes from data-source.
+ */
+export const syncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).post<
+      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse,
+      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}/sync",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
+  };
+
+/**
+ * Get Pipeline Data Source Status
+ * Get the status of a data source for a pipeline.
+ */
+export const getPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse,
+      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}/status",
+      ...options,
+    });
+  };
 
 /**
  * @deprecated
@@ -3185,6 +2014,38 @@ export const getPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGet =
       ...options,
     });
   };
+
+/**
+ * Add Files To Pipeline Api
+ * Add files to a pipeline.
+ */
+export const addFilesToPipelineApiApiV1PipelinesPipelineIdFilesPut = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).put<
+    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse,
+    AddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/pipelines/{pipeline_id}/files",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
 
 /**
  * Delete Pipeline File
@@ -3301,326 +2162,6 @@ export const importPipelineMetadataApiV1PipelinesPipelineIdMetadataPut = <
     ...options,
     headers: {
       "Content-Type": null,
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * List Pipeline Data Sources
- * Get data sources for a pipeline.
- */
-export const listPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse,
-    ListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/data-sources",
-    ...options,
-  });
-};
-
-/**
- * Add Data Sources To Pipeline
- * Add data sources to a pipeline.
- */
-export const addDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse,
-    AddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/data-sources",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Pipeline Data Source
- * Delete a data source from a pipeline.
- */
-export const deletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDelete =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).delete<
-      DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteResponse,
-      DeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}",
-      ...options,
-    });
-  };
-
-/**
- * Update Pipeline Data Source
- * Update the configuration of a data source in a pipeline.
- */
-export const updatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPut =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).put<
-      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse,
-      UpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * Sync Pipeline Data Source
- * Run ingestion for the pipeline data source by incrementally updating the data-sink with upstream changes from data-source.
- */
-export const syncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse,
-      SyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}/sync",
-      ...options,
-    });
-  };
-
-/**
- * Get Pipeline Data Source Status
- * Get the status of a data source for a pipeline.
- */
-export const getPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGet =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).get<
-      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse,
-      GetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/pipelines/{pipeline_id}/data-sources/{data_source_id}/status",
-      ...options,
-    });
-  };
-
-/**
- * Run Search
- * Get retrieval results for a managed pipeline and a query
- */
-export const runSearchApiV1PipelinesPipelineIdRetrievePost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    RunSearchApiV1PipelinesPipelineIdRetrievePostData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    RunSearchApiV1PipelinesPipelineIdRetrievePostResponse,
-    RunSearchApiV1PipelinesPipelineIdRetrievePostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/retrieve",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * List Pipeline Jobs
- * Get jobs for a pipeline.
- */
-export const listPipelineJobsApiV1PipelinesPipelineIdJobsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListPipelineJobsApiV1PipelinesPipelineIdJobsGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListPipelineJobsApiV1PipelinesPipelineIdJobsGetResponse,
-    ListPipelineJobsApiV1PipelinesPipelineIdJobsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/jobs",
-    ...options,
-  });
-};
-
-/**
- * Get Pipeline Job
- * Get a job for a pipeline.
- */
-export const getPipelineJobApiV1PipelinesPipelineIdJobsJobIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetResponse,
-    GetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/jobs/{job_id}",
-    ...options,
-  });
-};
-
-/**
- * Get Playground Session
- * Get a playground session for a user and pipeline.
- */
-export const getPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGet =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).get<
-      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse,
-      GetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/pipelines/{pipeline_id}/playground-session",
-      ...options,
-    });
-  };
-
-/**
- * Chat
- * Make a retrieval query + chat completion for a managed pipeline.
- */
-export const chatApiV1PipelinesPipelineIdChatPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<ChatApiV1PipelinesPipelineIdChatPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    unknown,
-    ChatApiV1PipelinesPipelineIdChatPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/pipelines/{pipeline_id}/chat",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
@@ -3930,10 +2471,6 @@ export const listRetrieversApiV1RetrieversGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/retrievers",
     ...options,
@@ -3955,10 +2492,6 @@ export const createRetrieverApiV1RetrieversPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -3988,10 +2521,6 @@ export const upsertRetrieverApiV1RetrieversPut = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -4049,10 +2578,6 @@ export const getRetrieverApiV1RetrieversRetrieverIdGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -4117,10 +2642,6 @@ export const retrieveApiV1RetrieversRetrieverIdRetrievePost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/retrievers/{retriever_id}/retrieve",
     ...options,
@@ -4150,10 +2671,6 @@ export const directRetrieveApiV1RetrieversRetrievePost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/retrievers/retrieve",
     ...options,
@@ -4161,62 +2678,6 @@ export const directRetrieveApiV1RetrieversRetrievePost = <
       "Content-Type": "application/json",
       ...options?.headers,
     },
-  });
-};
-
-/**
- * Get Jobs
- * Get jobs for a project.
- *
- * Note:
- * The include_usage_metrics parameter is deprecated and will be removed in a future version.
- * We've moved to usage v2 and this parameter will no longer return meaningful data.
- */
-export const getJobsApiV1JobsGet = <ThrowOnError extends boolean = false>(
-  options?: Options<GetJobsApiV1JobsGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetJobsApiV1JobsGetResponse,
-    GetJobsApiV1JobsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/jobs",
-    ...options,
-  });
-};
-
-/**
- * List Supported Models
- * List supported models.
- */
-export const listSupportedModelsApiV1EvalsModelsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<ListSupportedModelsApiV1EvalsModelsGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ListSupportedModelsApiV1EvalsModelsGetResponse,
-    ListSupportedModelsApiV1EvalsModelsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/evals/models",
-    ...options,
   });
 };
 
@@ -4288,10 +2749,6 @@ export const screenshotApiV1ParsingScreenshotPost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/parsing/screenshot",
     ...options,
@@ -4317,10 +2774,6 @@ export const uploadFileApiV1ParsingUploadPost = <
   >({
     ...formDataBodySerializer,
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -4448,34 +2901,6 @@ export const getJobTextResultApiV1ParsingJobJobIdResultTextGet = <
 };
 
 /**
- * Get Job Raw Text Result Raw
- * Get a job by id
- */
-export const getJobRawTextResultRawApiV1ParsingJobJobIdResultRawTextGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawTextResultRawApiV1ParsingJobJobIdResultRawTextGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawTextResultRawApiV1ParsingJobJobIdResultRawTextGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/job/{job_id}/result/raw/text",
-    ...options,
-  });
-};
-
-/**
  * Get Job Raw Text Result
  * Get a job by id
  */
@@ -4499,34 +2924,6 @@ export const getJobRawTextResultApiV1ParsingJobJobIdResultPdfGet = <
       },
     ],
     url: "/api/v1/parsing/job/{job_id}/result/pdf",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Text Result Raw Pdf
- * Get a job by id
- */
-export const getJobRawTextResultRawPdfApiV1ParsingJobJobIdResultRawPdfGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawTextResultRawPdfApiV1ParsingJobJobIdResultRawPdfGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawTextResultRawPdfApiV1ParsingJobJobIdResultRawPdfGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/job/{job_id}/result/raw/pdf",
     ...options,
   });
 };
@@ -4563,33 +2960,6 @@ export const getJobStructuredResultApiV1ParsingJobJobIdResultStructuredGet = <
 };
 
 /**
- * Get Job Raw Structured Result
- * Get a job by id
- */
-export const getJobRawStructuredResultApiV1ParsingJobJobIdResultRawStructuredGet =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      GetJobRawStructuredResultApiV1ParsingJobJobIdResultRawStructuredGetData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).get<
-      unknown,
-      GetJobRawStructuredResultApiV1ParsingJobJobIdResultRawStructuredGetError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/parsing/job/{job_id}/result/raw/structured",
-      ...options,
-    });
-  };
-
-/**
  * Get Job Raw Xlsx Result
  * Get a job by id
  */
@@ -4613,34 +2983,6 @@ export const getJobRawXlsxResultApiV1ParsingJobJobIdResultXlsxGet = <
       },
     ],
     url: "/api/v1/parsing/job/{job_id}/result/xlsx",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Xlsx Result Raw
- * Get a job by id
- */
-export const getJobRawXlsxResultRawApiV1ParsingJobJobIdResultRawXlsxGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawXlsxResultRawApiV1ParsingJobJobIdResultRawXlsxGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawXlsxResultRawApiV1ParsingJobJobIdResultRawXlsxGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/job/{job_id}/result/raw/xlsx",
     ...options,
   });
 };
@@ -4677,34 +3019,6 @@ export const getJobResultApiV1ParsingJobJobIdResultMarkdownGet = <
 };
 
 /**
- * Get Job Raw Md Result
- * Get a job by id
- */
-export const getJobRawMdResultApiV1ParsingJobJobIdResultRawMarkdownGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawMdResultApiV1ParsingJobJobIdResultRawMarkdownGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawMdResultApiV1ParsingJobJobIdResultRawMarkdownGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/job/{job_id}/result/raw/markdown",
-    ...options,
-  });
-};
-
-/**
  * Get Job Json Result
  * Get a job by id
  *
@@ -4731,66 +3045,6 @@ export const getJobJsonResultApiV1ParsingJobJobIdResultJsonGet = <
       },
     ],
     url: "/api/v1/parsing/job/{job_id}/result/json",
-    ...options,
-  });
-};
-
-/**
- * Get Job Json Raw Result
- * Get a job by id
- */
-export const getJobJsonRawResultApiV1ParsingJobJobIdResultRawJsonGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobJsonRawResultApiV1ParsingJobJobIdResultRawJsonGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobJsonRawResultApiV1ParsingJobJobIdResultRawJsonGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/job/{job_id}/result/raw/json",
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Get Parsing History Result
- * Get parsing history for user
- *
- * This endpoint is deprecated.
- * Use /api/v1/jobs/?job_name=parsing&project_id=YOUR_PROJECT_ID instead.
- */
-export const getParsingHistoryResultApiV1ParsingHistoryGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    GetParsingHistoryResultApiV1ParsingHistoryGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetParsingHistoryResultApiV1ParsingHistoryGetResponse,
-    GetParsingHistoryResultApiV1ParsingHistoryGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/parsing/history",
     ...options,
   });
 };
@@ -4824,174 +3078,6 @@ export const generatePresignedUrlApiV1ParsingJobJobIdReadFilenameGet = <
 };
 
 /**
- * Get Chat Apps
- */
-export const getChatAppsApiV1AppsGet = <ThrowOnError extends boolean = false>(
-  options?: Options<GetChatAppsApiV1AppsGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetChatAppsApiV1AppsGetResponse,
-    GetChatAppsApiV1AppsGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/",
-    ...options,
-  });
-};
-
-/**
- * Create Chat App
- * Create a new chat app.
- */
-export const createChatAppApiV1AppsPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CreateChatAppApiV1AppsPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateChatAppApiV1AppsPostResponse,
-    CreateChatAppApiV1AppsPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Chat App
- */
-export const deleteChatAppApiV1AppsIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<DeleteChatAppApiV1AppsIdDeleteData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    unknown,
-    DeleteChatAppApiV1AppsIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/{id}",
-    ...options,
-  });
-};
-
-/**
- * Get Chat App
- * Get a chat app by ID.
- */
-export const getChatAppApiV1AppsIdGet = <ThrowOnError extends boolean = false>(
-  options: Options<GetChatAppApiV1AppsIdGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetChatAppApiV1AppsIdGetResponse,
-    GetChatAppApiV1AppsIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/{id}",
-    ...options,
-  });
-};
-
-/**
- * Update Chat App
- * Update a chat app.
- */
-export const updateChatAppApiV1AppsIdPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<UpdateChatAppApiV1AppsIdPutData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpdateChatAppApiV1AppsIdPutResponse,
-    UpdateChatAppApiV1AppsIdPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/{id}",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Chat With Chat App
- * Chat with a chat app.
- */
-export const chatWithChatAppApiV1AppsIdChatPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<ChatWithChatAppApiV1AppsIdChatPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    unknown,
-    ChatWithChatAppApiV1AppsIdChatPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/apps/{id}/chat",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
  * List Classify Jobs
  * List classify jobs.
  * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
@@ -5007,10 +3093,6 @@ export const listClassifyJobsApiV1ClassifierJobsGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5037,10 +3119,6 @@ export const createClassifyJobApiV1ClassifierJobsPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5078,10 +3156,6 @@ export const getClassifyJobApiV1ClassifierJobsClassifyJobIdGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/classifier/jobs/{classify_job_id}",
     ...options,
@@ -5110,152 +3184,11 @@ export const getClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsG
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/classifier/jobs/{classify_job_id}/results",
       ...options,
     });
   };
-
-/**
- * Read Self
- */
-export const readSelfApiV1AuthMeGet = <ThrowOnError extends boolean = false>(
-  options?: Options<ReadSelfApiV1AuthMeGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ReadSelfApiV1AuthMeGetResponse,
-    ReadSelfApiV1AuthMeGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/auth/me",
-    ...options,
-  });
-};
-
-/**
- * Create Customer Portal Session
- * Create a new customer portal session.
- */
-export const createCustomerPortalSessionApiV1BillingCustomerPortalSessionPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostResponse,
-      CreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/billing/customer-portal-session",
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
-    });
-  };
-
-/**
- * Downgrade Plan
- */
-export const downgradePlanApiV1BillingDowngradePlanPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    DowngradePlanApiV1BillingDowngradePlanPostData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    DowngradePlanApiV1BillingDowngradePlanPostResponse,
-    DowngradePlanApiV1BillingDowngradePlanPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/billing/downgrade-plan",
-    ...options,
-  });
-};
-
-/**
- * Create Intent And Customer Session
- * Create a new setup intent and and a customer session.
- *
- * See https://docs.stripe.com/payments/existing-customers?platform=web&ui=elements
- */
-export const createIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPost =
-  <ThrowOnError extends boolean = false>(
-    options: Options<
-      CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options.client ?? _heyApiClient).post<
-      CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostResponse,
-      CreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/billing/create-intent-and-customer-session",
-      ...options,
-    });
-  };
-
-/**
- * Get Metronome Dashboard
- * Get the invoices for a given organization.
- */
-export const getMetronomeDashboardApiV1BillingMetronomeDashboardGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetMetronomeDashboardApiV1BillingMetronomeDashboardGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse,
-    GetMetronomeDashboardApiV1BillingMetronomeDashboardGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/billing/metronome/dashboard",
-    ...options,
-  });
-};
 
 /**
  * List Jobs
@@ -5271,10 +3204,6 @@ export const listJobsApiV1ExtractionJobsGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5299,10 +3228,6 @@ export const runJobApiV1ExtractionJobsPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5360,10 +3285,6 @@ export const runJobOnFileApiV1ExtractionJobsFilePost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/extraction/jobs/file",
     ...options,
@@ -5388,10 +3309,6 @@ export const runBatchJobsApiV1ExtractionJobsBatchPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5423,10 +3340,6 @@ export const getJobResultApiV1ExtractionJobsJobIdResultGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5509,10 +3422,6 @@ export const getRunByJobIdApiV1ExtractionRunsByJobJobIdGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/extraction/runs/by-job/{job_id}",
     ...options,
@@ -5536,10 +3445,6 @@ export const deleteExtractionRunApiV1ExtractionRunsRunIdDelete = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5568,10 +3473,6 @@ export const getRunApiV1ExtractionRunsRunIdGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/extraction/runs/{run_id}",
     ...options,
@@ -5594,10 +3495,6 @@ export const extractStatelessApiV1ExtractionRunPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5633,10 +3530,6 @@ export const listExtractionAgentsApiV1ExtractionExtractionAgentsGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/extraction/extraction-agents",
     ...options,
@@ -5660,10 +3553,6 @@ export const createExtractionAgentApiV1ExtractionExtractionAgentsPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -5712,7 +3601,8 @@ export const validateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaValida
 
 /**
  * Generate Extraction Schema
- * Generates an extraction agent's schema definition from a file and/or natural language prompt.
+ * Generates or refines an extraction agent's schema definition from a file, natural language prompt,
+ * or existing schema.
  */
 export const generateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGeneratePost =
   <ThrowOnError extends boolean = false>(
@@ -5731,10 +3621,6 @@ export const generateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGenera
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/extraction/extraction-agents/schema/generate",
       ...options,
@@ -5746,6 +3632,7 @@ export const generateExtractionSchemaApiV1ExtractionExtractionAgentsSchemaGenera
   };
 
 /**
+ * @deprecated
  * Get Extraction Agent By Name
  */
 export const getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGet =
@@ -5761,10 +3648,6 @@ export const getExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGe
       ThrowOnError
     >({
       security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
         {
           scheme: "bearer",
           type: "http",
@@ -5797,10 +3680,6 @@ export const getOrCreateDefaultExtractionAgentApiV1ExtractionExtractionAgentsDef
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/extraction/extraction-agents/default",
       ...options,
@@ -5823,10 +3702,6 @@ export const deleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgent
       ThrowOnError
     >({
       security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
         {
           scheme: "bearer",
           type: "http",
@@ -5857,10 +3732,6 @@ export const getExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdG
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/extraction/extraction-agents/{extraction_agent_id}",
       ...options,
@@ -5887,10 +3758,6 @@ export const updateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgent
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/extraction/extraction-agents/{extraction_agent_id}",
       ...options,
@@ -5902,140 +3769,17 @@ export const updateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgent
   };
 
 /**
- * List Api Keys
- * List API keys.
- *
- * If project_id is provided, validates user has access to that project.
- * If project_id is not provided, scopes results to the current user.
- *
- * Args:
- * user: Current user
- * db: Database session
- * page_size: Number of items per page
- * page_token: Token for pagination
- * name: Filter by API key name
- * project_id: Filter by project ID
- * key_type: Filter by key type
- *
- * Returns:
- * Paginated response with API keys
+ * List Usage Metrics
+ * List usage metrics with filtering and pagination.
  */
-export const listApiKeysApiV1BetaApiKeysGet = <
+export const listUsageMetricsApiV1BetaUsageMetricsGet = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<ListApiKeysApiV1BetaApiKeysGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ListApiKeysApiV1BetaApiKeysGetResponse,
-    ListApiKeysApiV1BetaApiKeysGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/api-keys",
-    ...options,
-  });
-};
-
-/**
- * Create Api Key
- * Create a new API key.
- *
- * If project_id is specified, validates user has admin permissions for that project.
- *
- * Args:
- * api_key_create: API key creation data
- * user: Current user
- * db: Database session
- *
- * Returns:
- * The created API key with the secret key visible in redacted_api_key field
- */
-export const createApiKeyApiV1BetaApiKeysPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CreateApiKeyApiV1BetaApiKeysPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateApiKeyApiV1BetaApiKeysPostResponse,
-    CreateApiKeyApiV1BetaApiKeysPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/api-keys",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Delete Api Key
- * Delete an API key.
- *
- * If the API key belongs to a project, validates user has admin permissions for that project.
- * If the API key has no project, validates it belongs to the current user.
- *
- * Args:
- * api_key_id: The ID of the API key to delete
- * user: Current user
- * db: Database session
- */
-export const deleteApiKeyApiV1BetaApiKeysApiKeyIdDelete = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).delete<
-    DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponse,
-    DeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/api-keys/{api_key_id}",
-    ...options,
-  });
-};
-
-/**
- * Get Api Key
- * Get an API key by ID.
- *
- * Args:
- * api_key_id: The ID of the API key
- * user: Current user
- * db: Database session
- *
- * Returns:
- * The API key
- */
-export const getApiKeyApiV1BetaApiKeysApiKeyIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetApiKeyApiV1BetaApiKeysApiKeyIdGetData, ThrowOnError>,
+  options: Options<ListUsageMetricsApiV1BetaUsageMetricsGetData, ThrowOnError>,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    GetApiKeyApiV1BetaApiKeysApiKeyIdGetResponse,
-    GetApiKeyApiV1BetaApiKeysApiKeyIdGetError,
+    ListUsageMetricsApiV1BetaUsageMetricsGetResponse,
+    ListUsageMetricsApiV1BetaUsageMetricsGetError,
     ThrowOnError
   >({
     security: [
@@ -6044,91 +3788,7 @@ export const getApiKeyApiV1BetaApiKeysApiKeyIdGet = <
         type: "http",
       },
     ],
-    url: "/api/v1/beta/api-keys/{api_key_id}",
-    ...options,
-  });
-};
-
-/**
- * List Batches
- */
-export const listBatchesApiV1BetaBatchesGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<ListBatchesApiV1BetaBatchesGetData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    ListBatchesApiV1BetaBatchesGetResponse,
-    ListBatchesApiV1BetaBatchesGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/batches",
-    ...options,
-  });
-};
-
-/**
- * Create Batch
- */
-export const createBatchApiV1BetaBatchesPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<CreateBatchApiV1BetaBatchesPostData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    CreateBatchApiV1BetaBatchesPostResponse,
-    CreateBatchApiV1BetaBatchesPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/batches",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Batch
- */
-export const getBatchApiV1BetaBatchesBatchIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetBatchApiV1BetaBatchesBatchIdGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetBatchApiV1BetaBatchesBatchIdGetResponse,
-    GetBatchApiV1BetaBatchesBatchIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/batches/{batch_id}",
+    url: "/api/v1/beta/usage-metrics",
     ...options,
   });
 };
@@ -6155,10 +3815,6 @@ export const deleteAgentDataApiV1BetaAgentDataItemIdDelete = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/agent-data/{item_id}",
     ...options,
@@ -6180,10 +3836,6 @@ export const getAgentDataApiV1BetaAgentDataItemIdGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6216,10 +3868,6 @@ export const updateAgentDataApiV1BetaAgentDataItemIdPut = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/agent-data/{item_id}",
     ...options,
@@ -6245,10 +3893,6 @@ export const createAgentDataApiV1BetaAgentDataPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6285,10 +3929,6 @@ export const searchAgentDataApiV1BetaAgentDataSearchPost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/agent-data/:search",
     ...options,
@@ -6317,10 +3957,6 @@ export const aggregateAgentDataApiV1BetaAgentDataAggregatePost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6357,10 +3993,6 @@ export const deleteAgentDataByQueryApiV1BetaAgentDataDeletePost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/agent-data/:delete",
     ...options,
@@ -6368,34 +4000,6 @@ export const deleteAgentDataByQueryApiV1BetaAgentDataDeletePost = <
       "Content-Type": "application/json",
       ...options?.headers,
     },
-  });
-};
-
-/**
- * List quota configurations
- * Retrieve a paginated list of quota configurations with optional filtering.
- */
-export const listQuotaConfigurationsApiV1BetaQuotaManagementGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    ListQuotaConfigurationsApiV1BetaQuotaManagementGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    ListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse,
-    ListQuotaConfigurationsApiV1BetaQuotaManagementGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/quota-management",
-    ...options,
   });
 };
 
@@ -6422,10 +4026,6 @@ export const createFileApiV1BetaFilesPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6467,10 +4067,6 @@ export const upsertFileApiV1BetaFilesPut = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/files",
     ...options,
@@ -6508,10 +4104,6 @@ export const queryFilesApiV1BetaFilesQueryPost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/files/query",
     ...options,
@@ -6545,10 +4137,6 @@ export const deleteFileApiV1BetaFilesFileIdDelete = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6594,10 +4182,6 @@ export const listParseConfigurationsApiV1BetaParseConfigurationsGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/parse-configurations",
     ...options,
@@ -6631,55 +4215,6 @@ export const createParseConfigurationApiV1BetaParseConfigurationsPost = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/parse-configurations",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Upsert Parse Configuration
- * Create or update a parse configuration by name.
- *
- * Args:
- * config_create: Parse configuration creation data
- * project: Validated project from dependency
- * user: Current user
- * db: Database session
- *
- * Returns:
- * The created or updated parse configuration
- */
-export const upsertParseConfigurationApiV1BetaParseConfigurationsPut = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    UpsertParseConfigurationApiV1BetaParseConfigurationsPutData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).put<
-    UpsertParseConfigurationApiV1BetaParseConfigurationsPutResponse,
-    UpsertParseConfigurationApiV1BetaParseConfigurationsPutError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6721,10 +4256,6 @@ export const deleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDelete 
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
       url: "/api/v1/beta/parse-configurations/{config_id}",
       ...options,
@@ -6758,10 +4289,6 @@ export const getParseConfigurationApiV1BetaParseConfigurationsConfigIdGet = <
     ThrowOnError
   >({
     security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
       {
         scheme: "bearer",
         type: "http",
@@ -6804,10 +4331,6 @@ export const updateParseConfigurationApiV1BetaParseConfigurationsConfigIdPut = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
     url: "/api/v1/beta/parse-configurations/{config_id}",
     ...options,
@@ -6819,106 +4342,21 @@ export const updateParseConfigurationApiV1BetaParseConfigurationsConfigIdPut = <
 };
 
 /**
- * Query Parse Configurations
- * Query parse configurations with filtering and pagination.
- *
- * Args:
- * query_request: Query request with filters and pagination
- * project: Validated project from dependency
- * user: Current user
- * db: Database session
- *
- * Returns:
- * Paginated response with parse configurations
- */
-export const queryParseConfigurationsApiV1BetaParseConfigurationsQueryPost = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).post<
-    QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponse,
-    QueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/v1/beta/parse-configurations/query",
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
-  });
-};
-
-/**
- * Get Latest Parse Configuration
- * Get the latest parse configuration for the current project.
- *
- * Args:
- * project: Validated project from dependency
- * user: Current user
- * db: Database session
- * creator: Optional creator filter
- *
- * Returns:
- * The latest parse configuration or None if not found
- */
-export const getLatestParseConfigurationApiV1BetaParseConfigurationsLatestGet =
-  <ThrowOnError extends boolean = false>(
-    options?: Options<
-      GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetData,
-      ThrowOnError
-    >,
-  ) => {
-    return (options?.client ?? _heyApiClient).get<
-      GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse,
-      GetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
-      ],
-      url: "/api/v1/beta/parse-configurations/latest",
-      ...options,
-    });
-  };
-
-/**
  * List Spreadsheet Jobs
  * List spreadsheet parsing jobs.
  * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
  */
-export const listSpreadsheetJobsApiV1BetaSpreadsheetJobsGet = <
+export const listSpreadsheetJobsApiV1BetaSheetsJobsGet = <
   ThrowOnError extends boolean = false,
 >(
   options?: Options<
-    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetData,
+    ListSpreadsheetJobsApiV1BetaSheetsJobsGetData,
     ThrowOnError
   >,
 ) => {
   return (options?.client ?? _heyApiClient).get<
-    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse,
-    ListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetError,
+    ListSpreadsheetJobsApiV1BetaSheetsJobsGetResponse,
+    ListSpreadsheetJobsApiV1BetaSheetsJobsGetError,
     ThrowOnError
   >({
     security: [
@@ -6926,12 +4364,8 @@ export const listSpreadsheetJobsApiV1BetaSpreadsheetJobsGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
-    url: "/api/v1/beta/spreadsheet/jobs",
+    url: "/api/v1/beta/sheets/jobs",
     ...options,
   });
 };
@@ -6941,17 +4375,17 @@ export const listSpreadsheetJobsApiV1BetaSpreadsheetJobsGet = <
  * Create a spreadsheet parsing job.
  * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
  */
-export const createSpreadsheetJobApiV1BetaSpreadsheetJobsPost = <
+export const createSpreadsheetJobApiV1BetaSheetsJobsPost = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostData,
+    CreateSpreadsheetJobApiV1BetaSheetsJobsPostData,
     ThrowOnError
   >,
 ) => {
   return (options.client ?? _heyApiClient).post<
-    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse,
-    CreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostError,
+    CreateSpreadsheetJobApiV1BetaSheetsJobsPostResponse,
+    CreateSpreadsheetJobApiV1BetaSheetsJobsPostError,
     ThrowOnError
   >({
     security: [
@@ -6959,12 +4393,8 @@ export const createSpreadsheetJobApiV1BetaSpreadsheetJobsPost = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
-    url: "/api/v1/beta/spreadsheet/jobs",
+    url: "/api/v1/beta/sheets/jobs",
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -6974,25 +4404,21 @@ export const createSpreadsheetJobApiV1BetaSpreadsheetJobsPost = <
 };
 
 /**
- * Get Spreadsheet Job
- * Get a spreadsheet parsing job.
- *
- * When include_results=True (default), the response will include extracted tables and results
- * if the job is complete, eliminating the need for a separate /results call.
- *
+ * Delete Spreadsheet Job
+ * Delete a spreadsheet parsing job and its associated data.
  * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
  */
-export const getSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGet = <
+export const deleteSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdDelete = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetData,
+    DeleteSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdDeleteData,
     ThrowOnError
   >,
 ) => {
-  return (options.client ?? _heyApiClient).get<
-    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse,
-    GetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetError,
+  return (options.client ?? _heyApiClient).delete<
+    unknown,
+    DeleteSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdDeleteError,
     ThrowOnError
   >({
     security: [
@@ -7000,31 +4426,60 @@ export const getSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGet = <
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
-    url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}",
+    url: "/api/v1/beta/sheets/jobs/{spreadsheet_job_id}",
     ...options,
   });
 };
 
 /**
- * Get Table Download Presigned Url
- * Generate a presigned URL to download a specific extracted table.
+ * Get Spreadsheet Job
+ * Get a spreadsheet parsing job.
+ *
+ * When include_results=True (default), the response will include extracted regions and results
+ * if the job is complete, eliminating the need for a separate /results call.
+ *
  * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
  */
-export const getTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGet =
+export const getSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetResponse,
+    GetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/sheets/jobs/{spreadsheet_job_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Result Region
+ * Generate a presigned URL to download a specific extracted region.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const getResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGet =
   <ThrowOnError extends boolean = false>(
     options: Options<
-      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetData,
+      GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetData,
       ThrowOnError
     >,
   ) => {
     return (options.client ?? _heyApiClient).get<
-      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse,
-      GetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetError,
+      GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetResponse,
+      GetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetError,
       ThrowOnError
     >({
       security: [
@@ -7032,27 +4487,23 @@ export const getTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobI
           scheme: "bearer",
           type: "http",
         },
-        {
-          scheme: "bearer",
-          type: "http",
-        },
       ],
-      url: "/api/v1/beta/spreadsheet/jobs/{spreadsheet_job_id}/tables/{table_id}/result",
+      url: "/api/v1/beta/sheets/jobs/{spreadsheet_job_id}/regions/{region_id}/result/{region_type}",
       ...options,
     });
   };
 
 /**
- * Upload File V2
+ * List Directories
  */
-export const uploadFileV2ApiV2Alpha1ParseUploadPost = <
+export const listDirectoriesApiV1BetaDirectoriesGet = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<UploadFileV2ApiV2Alpha1ParseUploadPostData, ThrowOnError>,
+  options?: Options<ListDirectoriesApiV1BetaDirectoriesGetData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).post<
-    UploadFileV2ApiV2Alpha1ParseUploadPostResponse,
-    UploadFileV2ApiV2Alpha1ParseUploadPostError,
+  return (options?.client ?? _heyApiClient).get<
+    ListDirectoriesApiV1BetaDirectoriesGetResponse,
+    ListDirectoriesApiV1BetaDirectoriesGetError,
     ThrowOnError
   >({
     security: [
@@ -7060,6 +4511,673 @@ export const uploadFileV2ApiV2Alpha1ParseUploadPost = <
         scheme: "bearer",
         type: "http",
       },
+    ],
+    url: "/api/v1/beta/directories",
+    ...options,
+  });
+};
+
+/**
+ * Create Directory
+ * Create a new directory within the specified project.
+ *
+ * If data_source_id is provided, validates that the data source exists
+ * and belongs to the same project.
+ */
+export const createDirectoryApiV1BetaDirectoriesPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateDirectoryApiV1BetaDirectoriesPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateDirectoryApiV1BetaDirectoriesPostResponse,
+    CreateDirectoryApiV1BetaDirectoriesPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Delete Directory
+ * Permanently delete a directory.
+ */
+export const deleteDirectoryApiV1BetaDirectoriesDirectoryIdDelete = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).delete<
+    DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteResponse,
+    DeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories/{directory_id}",
+    ...options,
+  });
+};
+
+/**
+ * Get Directory
+ * Retrieve a directory by its identifier.
+ */
+export const getDirectoryApiV1BetaDirectoriesDirectoryIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetDirectoryApiV1BetaDirectoriesDirectoryIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetDirectoryApiV1BetaDirectoriesDirectoryIdGetResponse,
+    GetDirectoryApiV1BetaDirectoriesDirectoryIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories/{directory_id}",
+    ...options,
+  });
+};
+
+/**
+ * Update Directory
+ * Update directory metadata.
+ */
+export const updateDirectoryApiV1BetaDirectoriesDirectoryIdPatch = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).patch<
+    UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchResponse,
+    UpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories/{directory_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Create Directory Sync Job
+ * Create a new directory sync job.
+ */
+export const createDirectorySyncJobApiV1BetaDirectorySyncJobsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostResponse,
+    CreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directory-sync-jobs/",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Directory Sync Job
+ * Get a directory sync job by ID.
+ */
+export const getDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetResponse,
+    GetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directory-sync-jobs/{job_id}",
+    ...options,
+  });
+};
+
+/**
+ * List Directory Files
+ * List all files within the specified directory with optional filtering and pagination.
+ */
+export const listDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetResponse,
+    ListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories/{directory_id}/files",
+    ...options,
+  });
+};
+
+/**
+ * Add Directory File
+ * Create a new file within the specified directory.
+ *
+ * The directory must exist and belong to the project passed in.
+ * The file_id must be provided and exist in the project.
+ */
+export const addDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostResponse,
+    AddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/directories/{directory_id}/files",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Upload File To Directory
+ * Upload a file directly to a directory.
+ *
+ * Uploads a file and creates a directory file entry in a single operation.
+ * If unique_id or display_name are not provided, they will be derived from the file metadata.
+ */
+export const uploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPost =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).post<
+      UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostResponse,
+      UploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostError,
+      ThrowOnError
+    >({
+      ...formDataBodySerializer,
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/directories/{directory_id}/files/upload",
+      ...options,
+      headers: {
+        "Content-Type": null,
+        ...options?.headers,
+      },
+    });
+  };
+
+/**
+ * Delete Directory File
+ * Delete a file from the specified directory.
+ *
+ * Note: This endpoint uses directory_file_id (the internal ID). If you're trying to delete a file by its unique_id, use the list endpoint with a filter to find the directory_file_id first.
+ */
+export const deleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDelete =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteResponse,
+      DeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/directories/{directory_id}/files/{directory_file_id}",
+      ...options,
+    });
+  };
+
+/**
+ * Get Directory File
+ * Get a file by its directory_file_id within the specified directory. If you're trying to get a file by its unique_id, use the list endpoint with a filter instead.
+ */
+export const getDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetResponse,
+      GetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/directories/{directory_id}/files/{directory_file_id}",
+      ...options,
+    });
+  };
+
+/**
+ * Update Directory File
+ * Update file metadata within the specified directory.
+ *
+ * Note: This endpoint uses directory_file_id (the internal ID). If you're trying to update a file by its unique_id, use the list endpoint with a filter to find the directory_file_id first.
+ */
+export const updateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatch =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchResponse,
+      UpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/directories/{directory_id}/files/{directory_file_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+      },
+    });
+  };
+
+/**
+ * List Split Jobs
+ * List document split jobs.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const listSplitJobsApiV1BetaSplitJobsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListSplitJobsApiV1BetaSplitJobsGetData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    ListSplitJobsApiV1BetaSplitJobsGetResponse,
+    ListSplitJobsApiV1BetaSplitJobsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/split/jobs",
+    ...options,
+  });
+};
+
+/**
+ * Create Split Job
+ * Create a document split job.
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const createSplitJobApiV1BetaSplitJobsPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<CreateSplitJobApiV1BetaSplitJobsPostData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateSplitJobApiV1BetaSplitJobsPostResponse,
+    CreateSplitJobApiV1BetaSplitJobsPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/split/jobs",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Split Job
+ * Get a document split job.
+ *
+ * Experimental: This endpoint is not yet ready for production use and is subject to change at any time.
+ */
+export const getSplitJobApiV1BetaSplitJobsSplitJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetSplitJobApiV1BetaSplitJobsSplitJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetSplitJobApiV1BetaSplitJobsSplitJobIdGetResponse,
+    GetSplitJobApiV1BetaSplitJobsSplitJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/split/jobs/{split_job_id}",
+    ...options,
+  });
+};
+
+/**
+ * List Batch Jobs
+ * List all batch processing jobs for a project with optional filtering.
+ *
+ * Returns a paginated list of batch jobs with filters for directory, job type, and status.
+ * Useful for viewing job history, monitoring progress, and finding specific jobs.
+ */
+export const listBatchJobsApiV1BetaBatchProcessingGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<ListBatchJobsApiV1BetaBatchProcessingGetData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    ListBatchJobsApiV1BetaBatchProcessingGetResponse,
+    ListBatchJobsApiV1BetaBatchProcessingGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/batch-processing",
+    ...options,
+  });
+};
+
+/**
+ * Create Batch Job
+ * Create a new batch processing job for a directory.
+ *
+ * Processes all files in the specified directory according to the job configuration.
+ * The job runs asynchronously and you can monitor progress using the job status endpoint.
+ */
+export const createBatchJobApiV1BetaBatchProcessingPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CreateBatchJobApiV1BetaBatchProcessingPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CreateBatchJobApiV1BetaBatchProcessingPostResponse,
+    CreateBatchJobApiV1BetaBatchProcessingPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/batch-processing",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Batch Job Status
+ * Get detailed status of a batch processing job.
+ *
+ * Returns current progress, file counts, and estimated completion time.
+ */
+export const getBatchJobStatusApiV1BetaBatchProcessingJobIdGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetResponse,
+    GetBatchJobStatusApiV1BetaBatchProcessingJobIdGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/batch-processing/{job_id}",
+    ...options,
+  });
+};
+
+/**
+ * List Batch Job Items
+ * List items in a batch job with optional status filtering.
+ *
+ * Useful for finding failed items, viewing completed items, or debugging issues.
+ * Results are paginated for performance with configurable limit and offset parameters.
+ */
+export const listBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGet = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).get<
+    ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetResponse,
+    ListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/batch-processing/{job_id}/items",
+    ...options,
+  });
+};
+
+/**
+ * Cancel Batch Job
+ * Cancel a running batch processing job.
+ *
+ * Stops processing and marks all pending items as cancelled. Items currently
+ * being processed may complete depending on their state.
+ */
+export const cancelBatchJobApiV1BetaBatchProcessingJobIdCancelPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options: Options<
+    CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostResponse,
+    CancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostError,
+    ThrowOnError
+  >({
+    security: [
+      {
+        scheme: "bearer",
+        type: "http",
+      },
+    ],
+    url: "/api/v1/beta/batch-processing/{job_id}/cancel",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options?.headers,
+    },
+  });
+};
+
+/**
+ * Get Item Processing Results
+ * Get all processing results for a specific item (lineage query).
+ *
+ * Shows complete processing history including what operations have been performed,
+ * with what parameters, and where outputs are stored. Useful for understanding
+ * what processing has already been done to avoid redundant work. Optionally filter
+ * by job type to see only specific processing operations.
+ */
+export const getItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGet =
+  <ThrowOnError extends boolean = false>(
+    options: Options<
+      GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetData,
+      ThrowOnError
+    >,
+  ) => {
+    return (options.client ?? _heyApiClient).get<
+      GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetResponse,
+      GetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: "bearer",
+          type: "http",
+        },
+      ],
+      url: "/api/v1/beta/batch-processing/items/{item_id}/processing-results",
+      ...options,
+    });
+  };
+
+/**
+ * Upload File Multipart
+ */
+export const uploadFileMultipartApiV2Alpha1ParseUploadPost = <
+  ThrowOnError extends boolean = false,
+>(
+  options?: Options<
+    UploadFileMultipartApiV2Alpha1ParseUploadPostData,
+    ThrowOnError
+  >,
+) => {
+  return (options?.client ?? _heyApiClient).post<
+    UploadFileMultipartApiV2Alpha1ParseUploadPostResponse,
+    UploadFileMultipartApiV2Alpha1ParseUploadPostError,
+    ThrowOnError
+  >({
+    security: [
       {
         scheme: "bearer",
         type: "http",
@@ -7071,20 +5189,17 @@ export const uploadFileV2ApiV2Alpha1ParseUploadPost = <
 };
 
 /**
- * Get Job Image Result
- * Get a job by id
+ * Upload File By Id
+ * Parse an already uploaded file by file ID.
  */
-export const getJobImageResultApiParsingJobJobIdResultImageNameGet = <
+export const uploadFileByIdApiV2Alpha1ParsePost = <
   ThrowOnError extends boolean = false,
 >(
-  options: Options<
-    GetJobImageResultApiParsingJobJobIdResultImageNameGetData,
-    ThrowOnError
-  >,
+  options: Options<UploadFileByIdApiV2Alpha1ParsePostData, ThrowOnError>,
 ) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobImageResultApiParsingJobJobIdResultImageNameGetError,
+  return (options.client ?? _heyApiClient).post<
+    UploadFileByIdApiV2Alpha1ParsePostResponse,
+    UploadFileByIdApiV2Alpha1ParsePostError,
     ThrowOnError
   >({
     security: [
@@ -7093,139 +5208,59 @@ export const getJobImageResultApiParsingJobJobIdResultImageNameGet = <
         type: "http",
       },
     ],
-    url: "/api/parsing/job/{job_id}/result/image/{name}",
-    ...options,
-  });
-};
-
-/**
- * Get Supported File Extensions
- * Get a list of supported file extensions
- */
-export const getSupportedFileExtensionsApiParsingSupportedFileExtensionsGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    GetSupportedFileExtensionsApiParsingSupportedFileExtensionsGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetSupportedFileExtensionsApiParsingSupportedFileExtensionsGetResponse,
-    unknown,
-    ThrowOnError
-  >({
-    url: "/api/parsing/supported_file_extensions",
-    ...options,
-  });
-};
-
-/**
- * Screenshot
- */
-export const screenshotApiParsingScreenshotPost = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<ScreenshotApiParsingScreenshotPostData, ThrowOnError>,
-) => {
-  return (options?.client ?? _heyApiClient).post<
-    ScreenshotApiParsingScreenshotPostResponse,
-    ScreenshotApiParsingScreenshotPostError,
-    ThrowOnError
-  >({
-    ...formDataBodySerializer,
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/screenshot",
+    url: "/api/v2alpha1/parse/",
     ...options,
     headers: {
-      "Content-Type": null,
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
 };
 
 /**
- * Upload File
+ * Upload File By Url
+ * Parse a document from a URL.
  */
-export const uploadFileApiParsingUploadPost = <
+export const uploadFileByUrlApiV2Alpha1ParseUrlPost = <
   ThrowOnError extends boolean = false,
 >(
-  options?: Options<UploadFileApiParsingUploadPostData, ThrowOnError>,
+  options: Options<UploadFileByUrlApiV2Alpha1ParseUrlPostData, ThrowOnError>,
 ) => {
-  return (options?.client ?? _heyApiClient).post<
-    UploadFileApiParsingUploadPostResponse,
-    UploadFileApiParsingUploadPostError,
+  return (options.client ?? _heyApiClient).post<
+    UploadFileByUrlApiV2Alpha1ParseUrlPostResponse,
+    UploadFileByUrlApiV2Alpha1ParseUrlPostError,
     ThrowOnError
   >({
-    ...formDataBodySerializer,
     security: [
       {
         scheme: "bearer",
         type: "http",
       },
-      {
-        scheme: "bearer",
-        type: "http",
-      },
     ],
-    url: "/api/parsing/upload",
+    url: "/api/v2alpha1/parse/url",
     ...options,
     headers: {
-      "Content-Type": null,
+      "Content-Type": "application/json",
       ...options?.headers,
     },
   });
 };
 
 /**
- * Get Job
- * Get a job by id
+ * Get Markdown Template
+ * Get a job's markdown result by id
  */
-export const getJobApiParsingJobJobIdGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<GetJobApiParsingJobJobIdGetData, ThrowOnError>,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobApiParsingJobJobIdGetResponse,
-    GetJobApiParsingJobJobIdGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}",
-    ...options,
-  });
-};
-
-/**
- * Get Job Parameters
- * Get a job by id
- */
-export const getJobParametersApiParsingJobJobIdParametersGet = <
+export const getMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGet = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    GetJobParametersApiParsingJobJobIdParametersGetData,
+    GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetData,
     ThrowOnError
   >,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobParametersApiParsingJobJobIdParametersGetError,
+    GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetResponse,
+    GetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetError,
     ThrowOnError
   >({
     security: [
@@ -7234,26 +5269,26 @@ export const getJobParametersApiParsingJobJobIdParametersGet = <
         type: "http",
       },
     ],
-    url: "/api/parsing/job/{job_id}/parameters",
+    url: "/api/v2alpha1/parse/job/{job_id}/result/markdown",
     ...options,
   });
 };
 
 /**
- * Get Parsing Job Details
- * Get a job by id
+ * Get Text Template
+ * Get a job's text result by id
  */
-export const getParsingJobDetailsApiParsingJobJobIdDetailsGet = <
+export const getTextTemplateApiV2Alpha1ParseJobJobIdResultTextGet = <
   ThrowOnError extends boolean = false,
 >(
   options: Options<
-    GetParsingJobDetailsApiParsingJobJobIdDetailsGetData,
+    GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetData,
     ThrowOnError
   >,
 ) => {
   return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetParsingJobDetailsApiParsingJobJobIdDetailsGetError,
+    GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetResponse,
+    GetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetError,
     ThrowOnError
   >({
     security: [
@@ -7262,171 +5297,25 @@ export const getParsingJobDetailsApiParsingJobJobIdDetailsGet = <
         type: "http",
       },
     ],
-    url: "/api/parsing/job/{job_id}/details",
+    url: "/api/v2alpha1/parse/job/{job_id}/result/text",
     ...options,
   });
 };
 
 /**
- * Get Job Text Result
- * Get a job by id
- *
- * Note: The 'credits_used' and 'job_credits_usage' fields in the response metadata are deprecated
- * and will be removed in a future release.
+ * Get Structured Template
+ * Get a job's structured result by id
  */
-export const getJobTextResultApiParsingJobJobIdResultTextGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobTextResultApiParsingJobJobIdResultTextGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobTextResultApiParsingJobJobIdResultTextGetResponse,
-    GetJobTextResultApiParsingJobJobIdResultTextGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/text",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Text Result Raw
- * Get a job by id
- */
-export const getJobRawTextResultRawApiParsingJobJobIdResultRawTextGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawTextResultRawApiParsingJobJobIdResultRawTextGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawTextResultRawApiParsingJobJobIdResultRawTextGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/raw/text",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Text Result
- * Get a job by id
- */
-export const getJobRawTextResultApiParsingJobJobIdResultPdfGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawTextResultApiParsingJobJobIdResultPdfGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawTextResultApiParsingJobJobIdResultPdfGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/pdf",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Text Result Raw Pdf
- * Get a job by id
- */
-export const getJobRawTextResultRawPdfApiParsingJobJobIdResultRawPdfGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawTextResultRawPdfApiParsingJobJobIdResultRawPdfGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawTextResultRawPdfApiParsingJobJobIdResultRawPdfGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/raw/pdf",
-    ...options,
-  });
-};
-
-/**
- * Get Job Structured Result
- * Get a job by id
- *
- * Note: The 'credits_used' and 'job_credits_usage' fields in the response metadata are deprecated
- * and will be removed in a future release.
- */
-export const getJobStructuredResultApiParsingJobJobIdResultStructuredGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobStructuredResultApiParsingJobJobIdResultStructuredGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobStructuredResultApiParsingJobJobIdResultStructuredGetResponse,
-    GetJobStructuredResultApiParsingJobJobIdResultStructuredGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/structured",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Structured Result
- * Get a job by id
- */
-export const getJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGet =
+export const getStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGet =
   <ThrowOnError extends boolean = false>(
     options: Options<
-      GetJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGetData,
+      GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetData,
       ThrowOnError
     >,
   ) => {
     return (options.client ?? _heyApiClient).get<
-      unknown,
-      GetJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGetError,
+      GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetResponse,
+      GetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetError,
       ThrowOnError
     >({
       security: [
@@ -7435,241 +5324,7 @@ export const getJobRawStructuredResultApiParsingJobJobIdResultRawStructuredGet =
           type: "http",
         },
       ],
-      url: "/api/parsing/job/{job_id}/result/raw/structured",
+      url: "/api/v2alpha1/parse/job/{job_id}/result/structured",
       ...options,
     });
   };
-
-/**
- * Get Job Raw Xlsx Result
- * Get a job by id
- */
-export const getJobRawXlsxResultApiParsingJobJobIdResultXlsxGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawXlsxResultApiParsingJobJobIdResultXlsxGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawXlsxResultApiParsingJobJobIdResultXlsxGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/xlsx",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Xlsx Result Raw
- * Get a job by id
- */
-export const getJobRawXlsxResultRawApiParsingJobJobIdResultRawXlsxGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawXlsxResultRawApiParsingJobJobIdResultRawXlsxGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawXlsxResultRawApiParsingJobJobIdResultRawXlsxGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/raw/xlsx",
-    ...options,
-  });
-};
-
-/**
- * Get Job Result
- * Get a job by id
- *
- * Note: The 'credits_used' and 'job_credits_usage' fields in the response metadata are deprecated
- * and will be removed in a future release.
- */
-export const getJobResultApiParsingJobJobIdResultMarkdownGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobResultApiParsingJobJobIdResultMarkdownGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobResultApiParsingJobJobIdResultMarkdownGetResponse,
-    GetJobResultApiParsingJobJobIdResultMarkdownGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/markdown",
-    ...options,
-  });
-};
-
-/**
- * Get Job Raw Md Result
- * Get a job by id
- */
-export const getJobRawMdResultApiParsingJobJobIdResultRawMarkdownGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobRawMdResultApiParsingJobJobIdResultRawMarkdownGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobRawMdResultApiParsingJobJobIdResultRawMarkdownGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/raw/markdown",
-    ...options,
-  });
-};
-
-/**
- * Get Job Json Result
- * Get a job by id
- *
- * Note: The 'credits_used' and 'job_credits_usage' fields in the response metadata are deprecated
- * and will be removed in a future release.
- */
-export const getJobJsonResultApiParsingJobJobIdResultJsonGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobJsonResultApiParsingJobJobIdResultJsonGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GetJobJsonResultApiParsingJobJobIdResultJsonGetResponse,
-    GetJobJsonResultApiParsingJobJobIdResultJsonGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/json",
-    ...options,
-  });
-};
-
-/**
- * Get Job Json Raw Result
- * Get a job by id
- */
-export const getJobJsonRawResultApiParsingJobJobIdResultRawJsonGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GetJobJsonRawResultApiParsingJobJobIdResultRawJsonGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    unknown,
-    GetJobJsonRawResultApiParsingJobJobIdResultRawJsonGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/result/raw/json",
-    ...options,
-  });
-};
-
-/**
- * @deprecated
- * Get Parsing History Result
- * Get parsing history for user
- *
- * This endpoint is deprecated.
- * Use /api/v1/jobs/?job_name=parsing&project_id=YOUR_PROJECT_ID instead.
- */
-export const getParsingHistoryResultApiParsingHistoryGet = <
-  ThrowOnError extends boolean = false,
->(
-  options?: Options<
-    GetParsingHistoryResultApiParsingHistoryGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options?.client ?? _heyApiClient).get<
-    GetParsingHistoryResultApiParsingHistoryGetResponse,
-    GetParsingHistoryResultApiParsingHistoryGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/history",
-    ...options,
-  });
-};
-
-/**
- * Generate Presigned Url
- * Generate a presigned URL for a job
- */
-export const generatePresignedUrlApiParsingJobJobIdReadFilenameGet = <
-  ThrowOnError extends boolean = false,
->(
-  options: Options<
-    GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetData,
-    ThrowOnError
-  >,
-) => {
-  return (options.client ?? _heyApiClient).get<
-    GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetResponse,
-    GeneratePresignedUrlApiParsingJobJobIdReadFilenameGetError,
-    ThrowOnError
-  >({
-    security: [
-      {
-        scheme: "bearer",
-        type: "http",
-      },
-    ],
-    url: "/api/parsing/job/{job_id}/read/{filename}",
-    ...options,
-  });
-};

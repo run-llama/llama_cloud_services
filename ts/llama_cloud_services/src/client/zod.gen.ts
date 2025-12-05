@@ -2,31 +2,6 @@
 
 import { z } from "zod";
 
-export const zApiKeyType = z.enum(["user", "agent"]);
-
-export const zApiKey = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  name: z.union([z.string().min(0).max(3000), z.null()]).optional(),
-  project_id: z.union([z.string().uuid(), z.null()]).optional(),
-  key_type: zApiKeyType.optional(),
-  user_id: z.string(),
-  redacted_api_key: z.string(),
-});
-
-export const zApiKeyCreate = z.object({
-  name: z.union([z.string().min(0).max(3000), z.null()]).optional(),
-  project_id: z.union([z.string().uuid(), z.null()]).optional(),
-  key_type: zApiKeyType.optional(),
-});
-
-export const zApiKeyQueryResponse = z.object({
-  items: z.array(zApiKey),
-  next_page_token: z.union([z.string(), z.null()]).optional(),
-  total_size: z.union([z.number().int(), z.null()]).optional(),
-});
-
 export const zNoneSegmentationConfig = z.object({
   mode: z.literal("none").optional().default("none"),
 });
@@ -99,6 +74,7 @@ export const zAdvancedModeTransformConfig = z.object({
 export const zAgentData = z.object({
   id: z.union([z.string(), z.null()]).optional(),
   deployment_name: z.string(),
+  project_id: z.union([z.string(), z.null()]).optional(),
   collection: z.string().optional().default("default"),
   data: z.object({}),
   created_at: z.union([z.string().datetime(), z.null()]).optional(),
@@ -113,21 +89,6 @@ export const zAgentDataCreate = z.object({
 
 export const zAgentDataUpdate = z.object({
   data: z.object({}),
-});
-
-export const zAgentDeploymentSummary = z.object({
-  id: z.string(),
-  project_id: z.string().uuid(),
-  deployment_name: z.string(),
-  thumbnail_url: z.union([z.string(), z.null()]).optional(),
-  base_url: z.string(),
-  created_at: z.string().datetime(),
-  updated_at: z.string().datetime(),
-  api_key_id: z.union([z.string().uuid(), z.null()]).optional(),
-});
-
-export const zAgentDeploymentList = z.object({
-  deployments: z.array(zAgentDeploymentSummary),
 });
 
 export const zAggregateGroup = z.object({
@@ -149,27 +110,11 @@ export const zAggregateRequest = z.object({
   offset: z.union([z.number().int().gte(0).lte(1000), z.null()]).optional(),
 });
 
-export const zMessageRole = z.enum([
-  "system",
-  "developer",
-  "user",
-  "assistant",
-  "function",
-  "tool",
-  "chatbot",
-  "model",
-]);
-
-export const zInputMessage = z.object({
-  id: z.string().uuid().optional(),
-  role: zMessageRole,
-  content: z.string(),
-  data: z.union([z.object({}), z.null()]).optional(),
-  class_name: z.string().optional().default("base_component"),
-});
-
-export const zAppChatInputParams = z.object({
-  messages: z.array(zInputMessage).optional(),
+export const zApplyStatusDetails = z.object({
+  status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zAutoTransformConfig = z.object({
@@ -201,113 +146,52 @@ export const zAzureOpenAiEmbeddingConfig = z.object({
   component: zAzureOpenAiEmbedding.optional(),
 });
 
-export const zBaseConnectionValidation = z.object({
-  success: z.boolean(),
+export const zBatchFileStatus = z.enum([
+  "pending",
+  "processing",
+  "completed",
+  "failed",
+  "skipped",
+  "cancelled",
+]);
+
+export const zBatchItemDetail = z.object({
+  status: zBatchFileStatus,
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
+  item_id: z.string(),
+  item_name: z.string(),
+  job_id: z.union([z.string(), z.null()]).optional(),
+  skip_reason: z.union([z.string(), z.null()]).optional(),
+  started_at: z.union([z.string().datetime(), z.null()]).optional(),
+  completed_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
+export const zBatchItemListResponse = z.object({
+  items: z.array(zBatchItemDetail).optional(),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
+export const zBatchJobCancelRequest = z.object({
+  reason: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zBatchJobStatus = z.enum([
+  "pending",
+  "running",
+  "dispatched",
+  "completed",
+  "failed",
+  "cancelled",
+]);
+
+export const zBatchJobCancelResponse = z.object({
+  job_id: z.string(),
+  status: zBatchJobStatus,
+  processed_items: z.number().int(),
   message: z.string(),
-});
-
-export const zPlanLimits = z.object({
-  allow_pay_as_you_go: z.boolean(),
-  subscription_cost_usd: z.number().int(),
-  max_monthly_invoice_total_usd: z.union([z.number().int(), z.null()]),
-  spending_soft_alerts_usd_cents: z
-    .union([z.array(z.number().int()), z.null()])
-    .optional(),
-  max_concurrent_parse_jobs_premium: z.union([z.number().int(), z.null()]),
-  max_concurrent_parse_jobs_other: z.union([z.number().int(), z.null()]),
-  max_extraction_agents: z.union([z.number().int(), z.null()]),
-  max_extraction_runs: z.union([z.number().int(), z.null()]),
-  max_extraction_jobs: z.union([z.number().int(), z.null()]),
-  max_pages_per_index: z.union([z.number().int(), z.null()]),
-  max_files_per_index: z.union([z.number().int(), z.null()]),
-  max_indexes: z.union([z.number().int(), z.null()]),
-  max_concurrent_index_jobs: z.union([z.number().int(), z.null()]),
-  max_data_sources: z.union([z.number().int(), z.null()]),
-  max_embedding_models: z.union([z.number().int(), z.null()]),
-  max_data_sinks: z.union([z.number().int(), z.null()]),
-  max_published_agents: z.union([z.number().int(), z.null()]),
-  max_report_agent_sessions: z.union([z.number().int(), z.null()]),
-  max_users: z.union([z.number().int(), z.null()]),
-  max_organizations: z.union([z.number().int(), z.null()]),
-  max_projects: z.union([z.number().int(), z.null()]),
-  mfa_enabled: z.boolean(),
-  sso_enabled: z.boolean(),
-});
-
-export const zCreditType = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-
-export const zRecurringCreditGrant = z.object({
-  name: z.string(),
-  credit_amount: z.number().int(),
-  credit_type: zCreditType,
-  product_id: z.string(),
-  priority: z.number(),
-  rollover_fraction: z.number(),
-  periods_duration: z.number().optional().default(1),
-});
-
-export const zBillingPeriod = z.object({
-  start_date: z.string().datetime(),
-  end_date: z.string().datetime(),
-});
-
-export const zBasePlan = z.object({
-  id: z.union([z.string(), z.null()]).optional(),
-  name: z.enum([
-    "free",
-    "llama_parse",
-    "enterprise",
-    "unknown",
-    "free_contract",
-    "pro",
-    "enterprise_contract",
-    "enterprise_poc",
-    "free_v1",
-    "starter_v1",
-    "pro_v1",
-  ]),
-  metronome_plan_type: z.enum(["plan", "contract"]),
-  metronome_rate_card_alias: z.union([z.string(), z.null()]),
-  limits: zPlanLimits,
-  recurring_credits: z
-    .union([z.array(zRecurringCreditGrant), z.null()])
-    .optional(),
-  plan_frequency: z.enum(["MONTHLY", "QUARTERLY", "ANNUAL"]),
-  metronome_customer_id: z.union([z.string(), z.null()]).optional(),
-  starting_on: z.union([z.string().datetime(), z.null()]).optional(),
-  ending_before: z.union([z.string().datetime(), z.null()]).optional(),
-  current_billing_period: z.union([zBillingPeriod, z.null()]).optional(),
-  is_payment_failed: z.boolean().optional().default(false),
-  failure_count: z.number().int().optional().default(0),
-});
-
-export const zWebhookConfiguration = z.object({
-  webhook_url: z.union([z.string(), z.null()]).optional(),
-  webhook_headers: z.union([z.object({}), z.null()]).optional(),
-  webhook_events: z
-    .union([
-      z.array(
-        z.enum([
-          "extract.pending",
-          "extract.success",
-          "extract.error",
-          "extract.partial_success",
-          "extract.cancelled",
-          "parse.pending",
-          "parse.success",
-          "parse.error",
-          "parse.partial_success",
-          "parse.cancelled",
-          "unmapped_event",
-        ]),
-      ),
-      z.null(),
-    ])
-    .optional(),
-  webhook_output_format: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zParserLanguages = z.enum([
@@ -416,13 +300,12 @@ export const zFailPageMode = z.enum([
   "error_message",
 ]);
 
-export const zLlamaParseParameters = z.object({
-  webhook_configurations: z
-    .union([z.array(zWebhookConfiguration), z.null()])
-    .optional(),
+export const zBatchParseJobConfig = z.object({
   priority: z
     .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
     .optional(),
+  custom_metadata: z.union([z.object({}), z.null()]).optional(),
+  resource_info: z.union([z.object({}), z.null()]).optional(),
   languages: z.array(zParserLanguages).min(1).optional(),
   parsing_instruction: z.union([z.string(), z.null()]).optional(),
   disable_ocr: z.union([z.boolean(), z.null()]).optional(),
@@ -433,6 +316,7 @@ export const zLlamaParseParameters = z.object({
   disable_image_extraction: z.union([z.boolean(), z.null()]).optional(),
   invalidate_cache: z.union([z.boolean(), z.null()]).optional(),
   outlined_table_extraction: z.union([z.boolean(), z.null()]).optional(),
+  aggressive_table_extraction: z.union([z.boolean(), z.null()]).optional(),
   merge_tables_across_pages_in_markdown: z
     .union([z.boolean(), z.null()])
     .optional(),
@@ -460,6 +344,7 @@ export const zLlamaParseParameters = z.object({
     .optional(),
   specialized_image_parsing: z.union([z.boolean(), z.null()]).optional(),
   precise_bounding_box: z.union([z.boolean(), z.null()]).optional(),
+  line_level_bounding_box: z.union([z.boolean(), z.null()]).optional(),
   html_remove_navigation_elements: z.union([z.boolean(), z.null()]).optional(),
   html_remove_fixed_elements: z.union([z.boolean(), z.null()]).optional(),
   guess_xlsx_sheet_name: z.union([z.boolean(), z.null()]).optional(),
@@ -538,6 +423,9 @@ export const zLlamaParseParameters = z.object({
   page_header_suffix: z.union([z.string(), z.null()]).optional(),
   page_footer_prefix: z.union([z.string(), z.null()]).optional(),
   page_footer_suffix: z.union([z.string(), z.null()]).optional(),
+  keep_page_separator_when_merging_tables: z
+    .union([z.boolean(), z.null()])
+    .optional(),
   ignore_document_elements_for_layout_detection: z
     .union([z.boolean(), z.null()])
     .optional(),
@@ -558,105 +446,104 @@ export const zLlamaParseParameters = z.object({
   markdown_table_multiline_header_separator: z
     .union([z.string(), z.null()])
     .optional(),
+  tier: z.union([z.string(), z.null()]).optional(),
+  version: z.union([z.string(), z.null()]).optional(),
+  extract_printed_page_number: z.union([z.boolean(), z.null()]).optional(),
+  type: z.literal("parse").optional().default("parse"),
+  lang: z.string().optional().default("en"),
+  outputBucket: z.union([z.string(), z.null()]).optional(),
+  pipeline_id: z.union([z.string(), z.null()]).optional(),
 });
 
-export const zBatch = z.object({
-  tool: z.string(),
-  tool_data: z.union([zLlamaParseParameters, z.null()]).optional(),
-  input_type: z.string(),
-  input_id: z.string(),
-  output_type: z.union([z.string(), z.null()]).optional(),
-  output_id: z.union([z.string(), z.null()]).optional(),
-  id: z.string(),
-  project_id: z.string(),
-  organization_id: z.string(),
-  user_id: z.string(),
-  external_id: z.union([z.string(), z.null()]).optional(),
-  completion_window: z.number().int(),
-  pipeline_id: z.string(),
-  status: z.string(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+export const zBatchParseJobRecordCreate = z.object({
+  job_name: z
+    .literal("parse_raw_file_job")
+    .optional()
+    .default("parse_raw_file_job"),
+  partitions: z.object({}).optional(),
+  parameters: z.union([zBatchParseJobConfig, z.null()]).optional(),
+  session_id: z.union([z.string().uuid(), z.null()]).optional(),
+  correlation_id: z.union([z.string().uuid(), z.null()]).optional(),
+  parent_job_execution_id: z.union([z.string().uuid(), z.null()]).optional(),
+  user_id: z.union([z.string(), z.null()]).optional(),
+  project_id: z.union([z.string().uuid(), z.null()]).optional(),
+  webhook_url: z.union([z.string(), z.null()]).optional(),
 });
 
-export const zBatchCreate = z.object({
-  tool: z.string(),
-  tool_data: z.union([zLlamaParseParameters, z.null()]).optional(),
-  input_type: z.string(),
-  input_id: z.string(),
-  output_type: z.union([z.string(), z.null()]).optional(),
-  output_id: z.union([z.string(), z.null()]).optional(),
-  project_id: z.string().uuid(),
-  external_id: z.string(),
-  completion_window: z.number().int().optional().default(86400),
-});
-
-export const zFileParsePublic = z.object({
-  created_at: z.string().datetime(),
-  status: z.string(),
-  started_at: z.union([z.string().datetime(), z.null()]).optional(),
-  ended_at: z.union([z.string().datetime(), z.null()]).optional(),
-  input_path: z.string(),
-  data_path: z.string(),
-});
-
-export const zBatchItem = z.object({
-  id: z.string(),
-  batch_id: z.string(),
-  status: z.string(),
-  status_updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  input_file: z.string(),
-  output_file: z.union([z.string(), z.null()]).optional(),
-  task: z.union([zFileParsePublic, z.null()]).optional(),
-});
-
-export const zBatchPaginatedList = z.object({
-  data: z.array(zBatch),
-  limit: z.number().int(),
-  offset: z.number().int(),
-  total_count: z.number().int(),
-});
-
-export const zManagedIngestionStatus = z.enum([
-  "NOT_STARTED",
-  "IN_PROGRESS",
+export const zStatusEnum = z.enum([
+  "PENDING",
   "SUCCESS",
   "ERROR",
   "PARTIAL_SUCCESS",
   "CANCELLED",
 ]);
 
-export const zJobNameMapping = z.enum([
-  "MANAGED_INGESTION",
-  "DATA_SOURCE",
-  "FILES_UPDATE",
-  "FILE_UPDATER",
-  "PARSE",
-  "TRANSFORM",
-  "INGESTION",
-  "METADATA_UPDATE",
-]);
-
-export const zIngestionErrorResponse = z.object({
-  job_id: z.string().uuid(),
-  message: z.string(),
-  step: zJobNameMapping,
+export const zClassifierRule = z.object({
+  type: z.string().min(1).max(50),
+  description: z.string().min(10).max(500),
 });
 
-export const zManagedIngestionStatusResponse = z.object({
-  job_id: z.union([z.string().uuid(), z.null()]).optional(),
-  deployment_date: z.union([z.string().datetime(), z.null()]).optional(),
-  status: zManagedIngestionStatus,
-  error: z.union([z.array(zIngestionErrorResponse), z.null()]).optional(),
-  effective_at: z.union([z.string().datetime(), z.null()]).optional(),
+export const zClassifyParsingConfiguration = z.object({
+  lang: zParserLanguages.optional(),
+  max_pages: z.union([z.number().int(), z.null()]).optional(),
+  target_pages: z
+    .union([z.array(z.number().int()).min(1), z.null()])
+    .optional(),
 });
 
-export const zBatchPublicOutput = z.object({
-  batch: zBatch,
-  batch_items: z.array(zBatchItem),
-  ingestion_status: zManagedIngestionStatusResponse,
+export const zClassifyJob = z.object({
+  status: zStatusEnum,
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
+  id: z.string().uuid(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  rules: z.array(zClassifierRule).min(1),
+  user_id: z.string(),
+  project_id: z.string().uuid(),
+  parsing_configuration: zClassifyParsingConfiguration.optional(),
+});
+
+export const zBatchJobCreateRequest = z.object({
+  directory_id: z.union([z.string(), z.null()]).optional(),
+  item_ids: z.union([z.array(z.string()), z.null()]).optional(),
+  job_config: z.union([zBatchParseJobRecordCreate, zClassifyJob]),
+  page_size: z.number().int().gte(1).lte(1000).optional().default(100),
+  continue_as_new_threshold: z.union([z.number().int(), z.null()]).optional(),
+});
+
+export const zBatchJobType = z.enum(["parse", "extract", "classify"]);
+
+export const zBatchJobResponse = z.object({
+  status: zBatchJobStatus,
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
+  id: z.string(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string(),
+  directory_id: z.union([z.string(), z.null()]).optional(),
+  job_type: zBatchJobType,
+  total_items: z.number().int(),
+  processed_items: z.number().int().optional().default(0),
+  failed_items: z.number().int().optional().default(0),
+  skipped_items: z.number().int().optional().default(0),
+  workflow_id: z.union([z.string(), z.null()]).optional(),
+  started_at: z.union([z.string().datetime(), z.null()]).optional(),
+  completed_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
+export const zBatchJobQueryResponse = z.object({
+  items: z.array(zBatchJobResponse),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
+export const zBatchJobStatusResponse = z.object({
+  job: zBatchJobResponse,
+  progress_percentage: z.number().gte(0).lte(100),
 });
 
 export const zBedrockEmbedding = z.object({
@@ -691,24 +578,6 @@ export const zBodyRunJobOnFileApiV1ExtractionJobsFilePost = z.object({
   config_override: z.union([z.string(), z.null()]).optional(),
 });
 
-export const zBodyScreenshotApiParsingScreenshotPost = z.object({
-  file: z.union([z.string(), z.null()]).optional(),
-  do_not_cache: z.boolean().optional().default(false),
-  http_proxy: z.string().optional(),
-  input_s3_path: z.string().optional().default(""),
-  input_s3_region: z.string().optional().default(""),
-  input_url: z.string().optional(),
-  invalidate_cache: z.boolean().optional().default(false),
-  max_pages: z.union([z.number().int(), z.null()]).optional(),
-  output_s3_path_prefix: z.string().optional().default(""),
-  output_s3_region: z.string().optional().default(""),
-  target_pages: z.string().optional().default(""),
-  webhook_url: z.string().optional().default(""),
-  webhook_configurations: z.string().optional().default(""),
-  job_timeout_in_seconds: z.number().optional(),
-  job_timeout_extra_time_per_page_in_seconds: z.number().optional(),
-});
-
 export const zBodyScreenshotApiV1ParsingScreenshotPost = z.object({
   file: z.union([z.string(), z.null()]).optional(),
   do_not_cache: z.boolean().optional().default(false),
@@ -725,122 +594,6 @@ export const zBodyScreenshotApiV1ParsingScreenshotPost = z.object({
   webhook_configurations: z.string().optional().default(""),
   job_timeout_in_seconds: z.number().optional(),
   job_timeout_extra_time_per_page_in_seconds: z.number().optional(),
-});
-
-export const zBodyUploadFileApiParsingUploadPost = z.object({
-  file: z.union([z.string(), z.null()]).optional(),
-  adaptive_long_table: z.boolean().optional().default(false),
-  annotate_links: z.boolean().optional().default(false),
-  auto_mode: z.boolean().optional().default(false),
-  auto_mode_trigger_on_image_in_page: z.boolean().optional().default(false),
-  auto_mode_trigger_on_table_in_page: z.boolean().optional().default(false),
-  auto_mode_trigger_on_text_in_page: z.string().optional(),
-  auto_mode_trigger_on_regexp_in_page: z.string().optional(),
-  auto_mode_configuration_json: z.string().optional(),
-  azure_openai_api_version: z.string().optional(),
-  azure_openai_deployment_name: z.string().optional(),
-  azure_openai_endpoint: z.string().optional(),
-  azure_openai_key: z.string().optional(),
-  bbox_bottom: z.number().optional(),
-  bbox_left: z.number().optional(),
-  bbox_right: z.number().optional(),
-  bbox_top: z.number().optional(),
-  compact_markdown_table: z.boolean().optional().default(false),
-  disable_ocr: z.boolean().optional().default(false),
-  disable_reconstruction: z.boolean().optional().default(false),
-  disable_image_extraction: z.boolean().optional().default(false),
-  do_not_cache: z.boolean().optional().default(false),
-  do_not_unroll_columns: z.boolean().optional().default(false),
-  extract_charts: z.boolean().optional().default(false),
-  guess_xlsx_sheet_name: z.boolean().optional().default(false),
-  high_res_ocr: z.boolean().optional().default(false),
-  html_make_all_elements_visible: z.boolean().optional().default(false),
-  layout_aware: z.boolean().optional().default(false),
-  specialized_chart_parsing_agentic: z.boolean().optional().default(false),
-  specialized_chart_parsing_plus: z.boolean().optional().default(false),
-  specialized_chart_parsing_efficient: z.boolean().optional().default(false),
-  specialized_image_parsing: z.boolean().optional().default(false),
-  precise_bounding_box: z.boolean().optional().default(false),
-  html_remove_fixed_elements: z.boolean().optional().default(false),
-  html_remove_navigation_elements: z.boolean().optional().default(false),
-  http_proxy: z.string().optional(),
-  input_s3_path: z.string().optional().default(""),
-  input_s3_region: z.string().optional().default(""),
-  input_url: z.string().optional(),
-  invalidate_cache: z.boolean().optional().default(false),
-  language: z.array(zParserLanguages).optional().default(["en"]),
-  extract_layout: z.boolean().optional().default(false),
-  max_pages: z.union([z.number().int(), z.null()]).optional(),
-  merge_tables_across_pages_in_markdown: z.boolean().optional().default(false),
-  outlined_table_extraction: z.boolean().optional().default(false),
-  output_pdf_of_document: z.boolean().optional().default(false),
-  output_s3_path_prefix: z.string().optional().default(""),
-  output_s3_region: z.string().optional().default(""),
-  page_prefix: z.string().optional().default(""),
-  page_separator: z.string().optional(),
-  page_suffix: z.string().optional().default(""),
-  preserve_layout_alignment_across_pages: z.boolean().optional().default(false),
-  preserve_very_small_text: z.boolean().optional().default(false),
-  skip_diagonal_text: z.boolean().optional().default(false),
-  spreadsheet_extract_sub_tables: z.boolean().optional().default(true),
-  spreadsheet_force_formula_computation: z.boolean().optional().default(false),
-  inline_images_in_markdown: z.boolean().optional().default(false),
-  structured_output: z.boolean().optional().default(false),
-  structured_output_json_schema: z.string().optional(),
-  structured_output_json_schema_name: z.string().optional(),
-  take_screenshot: z.boolean().optional().default(false),
-  target_pages: z.string().optional().default(""),
-  vendor_multimodal_api_key: z.string().optional().default(""),
-  vendor_multimodal_model_name: z.string().optional(),
-  model: z.string().optional(),
-  webhook_url: z.string().optional().default(""),
-  webhook_configurations: z.string().optional().default(""),
-  preset: z.string().optional().default(""),
-  parse_mode: z.union([zParsingMode, z.null()]).optional(),
-  page_error_tolerance: z.number().optional().default(0.05),
-  replace_failed_page_mode: z.union([zFailPageMode, z.null()]).optional(),
-  replace_failed_page_with_error_message_prefix: z
-    .string()
-    .optional()
-    .default(""),
-  replace_failed_page_with_error_message_suffix: z
-    .string()
-    .optional()
-    .default(""),
-  system_prompt: z.string().optional().default(""),
-  system_prompt_append: z.string().optional().default(""),
-  user_prompt: z.string().optional().default(""),
-  job_timeout_in_seconds: z.number().optional(),
-  job_timeout_extra_time_per_page_in_seconds: z.number().optional(),
-  strict_mode_image_extraction: z.boolean().optional().default(false),
-  strict_mode_image_ocr: z.boolean().optional().default(false),
-  strict_mode_reconstruction: z.boolean().optional().default(false),
-  strict_mode_buggy_font: z.boolean().optional().default(false),
-  save_images: z.boolean().optional().default(true),
-  ignore_document_elements_for_layout_detection: z
-    .boolean()
-    .optional()
-    .default(false),
-  output_tables_as_HTML: z.boolean().optional().default(false),
-  markdown_table_multiline_header_separator: z.string().optional(),
-  use_vendor_multimodal_model: z.boolean().optional().default(false),
-  bounding_box: z.string().optional().default(""),
-  gpt4o_mode: z.boolean().optional().default(false),
-  gpt4o_api_key: z.string().optional().default(""),
-  complemental_formatting_instruction: z.string().optional(),
-  content_guideline_instruction: z.string().optional(),
-  premium_mode: z.boolean().optional().default(false),
-  is_formatting_instruction: z.boolean().optional().default(true),
-  continuous_mode: z.boolean().optional().default(false),
-  parsing_instruction: z.string().optional().default(""),
-  fast_mode: z.boolean().optional().default(false),
-  formatting_instruction: z.string().optional(),
-  hide_headers: z.boolean().optional().default(false),
-  hide_footers: z.boolean().optional().default(false),
-  page_header_prefix: z.string().optional(),
-  page_header_suffix: z.string().optional(),
-  page_footer_prefix: z.string().optional(),
-  page_footer_suffix: z.string().optional(),
 });
 
 export const zBodyUploadFileApiV1FilesPost = z.object({
@@ -881,6 +634,7 @@ export const zBodyUploadFileApiV1ParsingUploadPost = z.object({
   specialized_chart_parsing_efficient: z.boolean().optional().default(false),
   specialized_image_parsing: z.boolean().optional().default(false),
   precise_bounding_box: z.boolean().optional().default(false),
+  line_level_bounding_box: z.boolean().optional().default(false),
   html_remove_fixed_elements: z.boolean().optional().default(false),
   html_remove_navigation_elements: z.boolean().optional().default(false),
   http_proxy: z.string().optional(),
@@ -893,6 +647,7 @@ export const zBodyUploadFileApiV1ParsingUploadPost = z.object({
   max_pages: z.union([z.number().int(), z.null()]).optional(),
   merge_tables_across_pages_in_markdown: z.boolean().optional().default(false),
   outlined_table_extraction: z.boolean().optional().default(false),
+  aggressive_table_extraction: z.boolean().optional().default(false),
   output_pdf_of_document: z.boolean().optional().default(false),
   output_s3_path_prefix: z.string().optional().default(""),
   output_s3_region: z.string().optional().default(""),
@@ -941,6 +696,10 @@ export const zBodyUploadFileApiV1ParsingUploadPost = z.object({
     .boolean()
     .optional()
     .default(false),
+  keep_page_separator_when_merging_tables: z
+    .boolean()
+    .optional()
+    .default(false),
   output_tables_as_HTML: z.boolean().optional().default(false),
   markdown_table_multiline_header_separator: z.string().optional(),
   use_vendor_multimodal_model: z.boolean().optional().default(false),
@@ -961,95 +720,22 @@ export const zBodyUploadFileApiV1ParsingUploadPost = z.object({
   page_header_suffix: z.string().optional(),
   page_footer_prefix: z.string().optional(),
   page_footer_suffix: z.string().optional(),
+  remove_hidden_text: z.boolean().optional().default(false),
+  presentation_out_of_bounds_content: z.boolean().optional().default(false),
+  extract_printed_page_number: z.boolean().optional().default(false),
+  tier: z.string().optional(),
+  version: z.string().optional(),
 });
+
+export const zBodyUploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPost =
+  z.object({
+    upload_file: z.string(),
+    unique_id: z.union([z.string(), z.null()]).optional(),
+    display_name: z.union([z.string(), z.null()]).optional(),
+    external_file_id: z.union([z.string(), z.null()]).optional(),
+  });
 
 export const zBoxAuthMechanism = z.enum(["developer_token", "ccg"]);
-
-export const zSupportedLlmModelNames = z.enum([
-  "GPT_4O",
-  "GPT_4O_MINI",
-  "GPT_4_1",
-  "GPT_4_1_NANO",
-  "GPT_4_1_MINI",
-  "AZURE_OPENAI_GPT_4O",
-  "AZURE_OPENAI_GPT_4O_MINI",
-  "AZURE_OPENAI_GPT_4_1",
-  "AZURE_OPENAI_GPT_4_1_MINI",
-  "AZURE_OPENAI_GPT_4_1_NANO",
-  "CLAUDE_3_5_SONNET",
-  "BEDROCK_CLAUDE_3_5_SONNET_V1",
-  "BEDROCK_CLAUDE_3_5_SONNET_V2",
-  "VERTEX_AI_CLAUDE_3_5_SONNET_V2",
-]);
-
-export const zLlmParameters = z.object({
-  model_name: zSupportedLlmModelNames.optional(),
-  system_prompt: z.union([z.string().max(3000), z.null()]).optional(),
-  temperature: z.union([z.number(), z.null()]).optional(),
-  use_chain_of_thought_reasoning: z.union([z.boolean(), z.null()]).optional(),
-  use_citation: z.union([z.boolean(), z.null()]).optional(),
-  class_name: z.string().optional().default("base_component"),
-});
-
-export const zCompositeRetrievalMode = z.enum(["routing", "full"]);
-
-export const zReRankerType = z.enum([
-  "system_default",
-  "llm",
-  "cohere",
-  "bedrock",
-  "score",
-  "disabled",
-]);
-
-export const zReRankConfig = z.object({
-  top_n: z.number().int().optional().default(6),
-  type: zReRankerType.optional(),
-});
-
-export const zPresetCompositeRetrievalParams = z.object({
-  mode: zCompositeRetrievalMode.optional(),
-  rerank_top_n: z.union([z.number().int(), z.null()]).optional(),
-  rerank_config: zReRankConfig.optional(),
-});
-
-export const zChatApp = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  name: z.string().min(1).max(3000),
-  retriever_id: z.string().uuid(),
-  llm_config: zLlmParameters,
-  retrieval_config: zPresetCompositeRetrievalParams,
-  project_id: z.string().uuid(),
-});
-
-export const zChatAppCreate = z.object({
-  name: z.string().min(1).max(3000),
-  retriever_id: z.string().uuid(),
-  llm_config: zLlmParameters,
-  retrieval_config: zPresetCompositeRetrievalParams,
-});
-
-export const zChatAppResponse = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  name: z.string().min(1).max(3000),
-  retriever_id: z.string().uuid(),
-  llm_config: zLlmParameters,
-  retrieval_config: zPresetCompositeRetrievalParams,
-  project_id: z.string().uuid(),
-  retriever_name: z.string(),
-});
-
-export const zChatAppUpdate = z.object({
-  name: z.union([z.string(), z.null()]).optional(),
-  llm_config: z.union([zLlmParameters, z.null()]).optional(),
-  retrieval_config: z
-    .union([zPresetCompositeRetrievalParams, z.null()])
-    .optional(),
-});
 
 export const zFilterOperator = z.enum([
   "==",
@@ -1121,9 +807,55 @@ export const zPresetRetrievalParams: z.AnyZodObject = z.object({
   class_name: z.string().optional().default("base_component"),
 });
 
+export const zSupportedLlmModelNames: z.ZodTypeAny = z.enum([
+  "GPT_4O",
+  "GPT_4O_MINI",
+  "GPT_4_1",
+  "GPT_4_1_NANO",
+  "GPT_4_1_MINI",
+  "AZURE_OPENAI_GPT_4O",
+  "AZURE_OPENAI_GPT_4O_MINI",
+  "AZURE_OPENAI_GPT_4_1",
+  "AZURE_OPENAI_GPT_4_1_MINI",
+  "AZURE_OPENAI_GPT_4_1_NANO",
+  "CLAUDE_3_5_SONNET",
+  "CLAUDE_4_5_SONNET",
+  "BEDROCK_CLAUDE_3_5_SONNET_V1",
+  "BEDROCK_CLAUDE_3_5_SONNET_V2",
+  "VERTEX_AI_CLAUDE_3_5_SONNET_V2",
+]);
+
+export const zLlmParameters: z.AnyZodObject = z.object({
+  model_name: zSupportedLlmModelNames.optional(),
+  system_prompt: z.union([z.string().max(3000), z.null()]).optional(),
+  temperature: z.union([z.number(), z.null()]).optional(),
+  use_chain_of_thought_reasoning: z.union([z.boolean(), z.null()]).optional(),
+  use_citation: z.union([z.boolean(), z.null()]).optional(),
+  class_name: z.string().optional().default("base_component"),
+});
+
 export const zChatData: z.AnyZodObject = z.object({
   retrieval_parameters: zPresetRetrievalParams.optional(),
   llm_parameters: z.union([zLlmParameters, z.null()]).optional(),
+  class_name: z.string().optional().default("base_component"),
+});
+
+export const zMessageRole = z.enum([
+  "system",
+  "developer",
+  "user",
+  "assistant",
+  "function",
+  "tool",
+  "chatbot",
+  "model",
+]);
+
+export const zInputMessage = z.object({
+  id: z.string().uuid().optional(),
+  role: zMessageRole,
+  content: z.string(),
+  data: z.union([z.object({}), z.null()]).optional(),
   class_name: z.string().optional().default("base_component"),
 });
 
@@ -1153,38 +885,6 @@ export const zClassificationResult = z.object({
   reasoning: z.string(),
   confidence: z.number().gte(0).lte(1),
   type: z.union([z.string(), z.null()]),
-});
-
-export const zClassifierRule = z.object({
-  type: z.string().min(1).max(50),
-  description: z.string().min(10).max(500),
-});
-
-export const zStatusEnum = z.enum([
-  "PENDING",
-  "SUCCESS",
-  "ERROR",
-  "PARTIAL_SUCCESS",
-  "CANCELLED",
-]);
-
-export const zClassifyParsingConfiguration = z.object({
-  lang: zParserLanguages.optional(),
-  max_pages: z.union([z.number().int(), z.null()]).optional(),
-  target_pages: z
-    .union([z.array(z.number().int()).min(1), z.null()])
-    .optional(),
-});
-
-export const zClassifyJob = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  rules: z.array(zClassifierRule).min(1),
-  user_id: z.string(),
-  project_id: z.string().uuid(),
-  status: zStatusEnum,
-  parsing_configuration: zClassifyParsingConfiguration.optional(),
 });
 
 export const zClassifyJobCreate = z.object({
@@ -1285,6 +985,7 @@ export const zCloudDocument = z.object({
   excluded_llm_metadata_keys: z.array(z.string()).optional().default([]),
   page_positions: z.union([z.array(z.number().int()), z.null()]).optional(),
   id: z.string(),
+  status_metadata: z.union([z.object({}), z.null()]).optional(),
 });
 
 export const zCloudDocumentCreate = z.object({
@@ -1445,6 +1146,8 @@ export const zCloudSharepointDataSource = z.object({
   tenant_id: z.string(),
   required_exts: z.union([z.array(z.string()), z.null()]).optional(),
   get_permissions: z.union([z.boolean(), z.null()]).optional(),
+  include_path_patterns: z.union([z.array(z.string()), z.null()]).optional(),
+  exclude_path_patterns: z.union([z.array(z.string()), z.null()]).optional(),
   class_name: z.string().optional().default("CloudSharepointDataSource"),
 });
 
@@ -1458,6 +1161,13 @@ export const zCloudSlackDataSource = z.object({
   latest_date_timestamp: z.union([z.number(), z.null()]).optional(),
   channel_patterns: z.union([z.string(), z.null()]).optional(),
   class_name: z.string().optional().default("CloudSlackDataSource"),
+});
+
+export const zCodeItem = z.object({
+  type: z.literal("code").optional().default("code"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  value: z.string(),
+  language: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zCohereEmbedding = z.object({
@@ -1474,6 +1184,22 @@ export const zCohereEmbedding = z.object({
 export const zCohereEmbeddingConfig = z.object({
   type: z.literal("COHERE_EMBEDDING").optional().default("COHERE_EMBEDDING"),
   component: zCohereEmbedding.optional(),
+});
+
+export const zCompositeRetrievalMode = z.enum(["routing", "full"]);
+
+export const zReRankerType = z.enum([
+  "system_default",
+  "llm",
+  "cohere",
+  "bedrock",
+  "score",
+  "disabled",
+]);
+
+export const zReRankConfig = z.object({
+  top_n: z.number().int().optional().default(6),
+  type: zReRankerType.optional(),
 });
 
 export const zCompositeRetrievalParams = z.object({
@@ -1561,37 +1287,6 @@ export const zConfigurableDataSourceNames = z.enum([
   "JIRA_V2",
   "BOX",
 ]);
-
-export const zCreateIntentAndCustomerSessionResponse = z.object({
-  client_secret: z.string(),
-  customer_session_client_secret: z.union([z.string(), z.null()]),
-});
-
-export const zCustomClaims = z.object({
-  allowed_org_creation: z.boolean().optional().default(false),
-  max_jobs_in_execution_per_job_type: z.number().int().optional().default(10),
-  max_document_ingestion_jobs_in_execution: z
-    .number()
-    .int()
-    .optional()
-    .default(2),
-  max_metadata_update_jobs_in_execution: z
-    .number()
-    .int()
-    .optional()
-    .default(10),
-  extraction_test_user: z.boolean().optional().default(false),
-  allowed_report: z.boolean().optional().default(false),
-  allowed_app: z.boolean().optional().default(false),
-  allowed_classify: z.boolean().optional().default(true),
-  api_datasource_access: z.boolean().optional().default(false),
-  allow_org_deletion: z.boolean().optional().default(false),
-  allowed_spreadsheet: z.boolean().optional().default(false),
-});
-
-export const zCustomerPortalSessionCreatePayload = z.object({
-  return_url: z.string().url().min(1),
-});
 
 export const zDataSink = z.object({
   id: z.string().uuid(),
@@ -1694,6 +1389,10 @@ export const zDataSourceCreate = z.object({
   ]),
 });
 
+export const zDataSourceSyncRequest = z.object({
+  pipeline_file_ids: z.union([z.array(z.string().uuid()), z.null()]).optional(),
+});
+
 export const zDataSourceUpdate = z.object({
   name: z.union([z.string(), z.null()]).optional(),
   source_type: zConfigurableDataSourceNames,
@@ -1716,32 +1415,6 @@ export const zDataSourceUpdate = z.object({
     .optional(),
 });
 
-export const zDeleteParams = z.object({
-  document_ids_to_delete: z.union([z.array(z.string()), z.null()]).optional(),
-  files_ids_to_delete: z
-    .union([z.array(z.string().uuid()), z.null()])
-    .optional(),
-  data_sources_ids_to_delete: z
-    .union([z.array(z.string().uuid()), z.null()])
-    .optional(),
-  embed_collection_name: z.union([z.string(), z.null()]).optional(),
-  data_sink_id: z.union([z.string().uuid(), z.null()]).optional(),
-});
-
-export const zDataSourceUpdateDispatcherConfig = z.object({
-  type: z
-    .literal("data_source_update_dispatcher")
-    .optional()
-    .default("data_source_update_dispatcher"),
-  should_delete: z.union([z.boolean(), z.null()]).optional(),
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  delete_info: z.union([zDeleteParams, z.null()]).optional(),
-});
-
-export const zDefaultOrganizationUpdate = z.object({
-  organization_id: z.string().uuid(),
-});
-
 export const zDeleteRequest = z.object({
   deployment_name: z.string(),
   collection: z.string().optional().default("default"),
@@ -1750,6 +1423,13 @@ export const zDeleteRequest = z.object({
 
 export const zDeleteResponse = z.object({
   deleted_count: z.number().int(),
+});
+
+export const zDiffingStatusDetails = z.object({
+  status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zRetrieverPipeline = z.object({
@@ -1767,22 +1447,89 @@ export const zDirectRetrievalParams = z.object({
   pipelines: z.array(zRetrieverPipeline).optional(),
 });
 
-export const zDocumentChunkMode = z.enum(["PAGE", "SECTION"]);
-
-export const zDocumentIngestionJobParams = z.object({
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  resource_info: z.union([z.object({}), z.null()]).optional(),
-  type: z
-    .literal("document_ingestion")
-    .optional()
-    .default("document_ingestion"),
-  should_delete: z.union([z.boolean(), z.null()]).optional(),
-  document_ids: z.union([z.array(z.string()), z.null()]).optional(),
-  pipeline_file_id: z.union([z.string().uuid(), z.null()]).optional(),
-  delete_info: z.union([zDeleteParams, z.null()]).optional(),
-  is_new_file: z.boolean().optional().default(false),
-  page_count: z.union([z.number().int(), z.null()]).optional(),
+export const zDirectoryCreateRequest = z.object({
+  name: z.string().min(1),
+  description: z.union([z.string(), z.null()]).optional(),
+  data_source_id: z.union([z.string(), z.null()]).optional(),
 });
+
+export const zDirectoryFileCreateRequest = z.object({
+  file_id: z.string(),
+  unique_id: z.union([z.string(), z.null()]).optional(),
+  display_name: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zDirectoryFileResponse = z.object({
+  id: z.string(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string(),
+  directory_id: z.string(),
+  unique_id: z.string().min(1),
+  display_name: z.string().min(1),
+  data_source_id: z.union([z.string(), z.null()]).optional(),
+  file_id: z.union([z.string(), z.null()]).optional(),
+  deleted_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
+export const zDirectoryFileQueryResponse = z.object({
+  items: z.array(zDirectoryFileResponse),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
+export const zDirectoryFileUpdateRequest = z.object({
+  unique_id: z.union([z.string().min(1), z.null()]).optional(),
+  display_name: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zDirectoryResponse = z.object({
+  id: z.string(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string(),
+  name: z.string().min(1),
+  description: z.union([z.string(), z.null()]).optional(),
+  data_source_id: z.union([z.string(), z.null()]).optional(),
+  deleted_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
+export const zDirectoryQueryResponse = z.object({
+  items: z.array(zDirectoryResponse),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
+export const zDirectorySyncJobCreateRequest = z.object({
+  directory_id: z.string(),
+});
+
+export const zListingStatusDetails = z.object({
+  status: z.enum(["pending", "processing", "completed", "failed"]).optional(),
+  effective_at: z.string().datetime().optional(),
+  job_record_id: z.union([z.string(), z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zDirectorySyncJobResponse = z.object({
+  id: z.string(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string(),
+  directory_id: z.string(),
+  listing_status_details: zListingStatusDetails,
+  diffing_status_details: zDiffingStatusDetails,
+  apply_status_details: zApplyStatusDetails,
+  started_at: z.union([z.string().datetime(), z.null()]).optional(),
+  completed_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
+export const zDirectoryUpdateRequest = z.object({
+  name: z.union([z.string().min(1), z.null()]).optional(),
+  description: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zDocumentChunkMode = z.enum(["PAGE", "SECTION"]);
 
 export const zGeminiEmbedding = z.object({
   model_name: z.string().optional().default("models/embedding-001"),
@@ -2010,18 +1757,7 @@ export const zEmbeddingModelConfigUpdate = z.object({
     .optional(),
 });
 
-export const zEvalExecutionParams = z.object({
-  llm_model: zSupportedLlmModelNames.optional(),
-  qa_prompt_tmpl: z.string().optional().default(`Context information is below.
----------------------
-{context_str}
----------------------
-Given the context information and not prior knowledge, answer the query.
-Query: {query_str}
-Answer: `),
-});
-
-export const zExtractTarget = z.enum(["PER_DOC", "PER_PAGE"]);
+export const zExtractTarget = z.enum(["PER_DOC", "PER_PAGE", "PER_TABLE_ROW"]);
 
 export const zExtractMode = z.enum([
   "FAST",
@@ -2039,14 +1775,18 @@ export const zPublicModelName = z.enum([
   "openai-gpt-5",
   "openai-gpt-5-mini",
   "openai-gpt-5-nano",
-  "openai-text-embedding-3-small",
   "openai-text-embedding-3-large",
+  "openai-text-embedding-3-small",
   "openai-whisper-1",
   "anthropic-sonnet-3.5",
   "anthropic-sonnet-3.5-v2",
   "anthropic-sonnet-3.7",
   "anthropic-sonnet-4.0",
+  "anthropic-sonnet-4.5",
+  "anthropic-haiku-3.5",
+  "anthropic-haiku-4.5",
   "gemini-2.5-flash",
+  "gemini-3.0-pro",
   "gemini-2.5-pro",
   "gemini-2.0-flash",
   "gemini-2.0-flash-lite",
@@ -2081,6 +1821,7 @@ export const zExtractConfig = z.object({
   system_prompt: z.union([z.string(), z.null()]).optional(),
   use_reasoning: z.boolean().optional().default(false),
   cite_sources: z.boolean().optional().default(false),
+  citation_bbox: z.boolean().optional().default(false),
   confidence_scores: z.boolean().optional().default(false),
   chunk_mode: zDocumentChunkMode.optional(),
   high_resolution_mode: z.boolean().optional().default(false),
@@ -2131,7 +1872,34 @@ export const zExtractJob = z.object({
   extraction_agent: zExtractAgent,
   status: zStatusEnum,
   error: z.union([z.string(), z.null()]).optional(),
-  file: zFile,
+  file_id: z.union([z.string().uuid(), z.null()]).optional(),
+  file: z.union([zFile, z.null()]).optional(),
+});
+
+export const zWebhookConfiguration = z.object({
+  webhook_url: z.union([z.string(), z.null()]).optional(),
+  webhook_headers: z.union([z.object({}), z.null()]).optional(),
+  webhook_events: z
+    .union([
+      z.array(
+        z.enum([
+          "extract.pending",
+          "extract.success",
+          "extract.error",
+          "extract.partial_success",
+          "extract.cancelled",
+          "parse.pending",
+          "parse.success",
+          "parse.error",
+          "parse.partial_success",
+          "parse.cancelled",
+          "unmapped_event",
+        ]),
+      ),
+      z.null(),
+    ])
+    .optional(),
+  webhook_output_format: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zExtractJobCreate = z.object({
@@ -2150,6 +1918,9 @@ export const zExtractJobCreate = z.object({
 });
 
 export const zExtractJobCreateBatch = z.object({
+  webhook_configurations: z
+    .union([z.array(zWebhookConfiguration), z.null()])
+    .optional(),
   extraction_agent_id: z.string().uuid(),
   file_ids: z.array(z.string().uuid()).min(1),
   data_schema_override: z
@@ -2171,10 +1942,12 @@ export const zExtractRun = z.object({
   id: z.string().uuid(),
   created_at: z.union([z.string().datetime(), z.null()]).optional(),
   updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string().uuid(),
   extraction_agent_id: z.string().uuid(),
   data_schema: z.object({}),
   config: zExtractConfig,
-  file: zFile,
+  file_id: z.union([z.string().uuid(), z.null()]).optional(),
+  file: z.union([zFile, z.null()]).optional(),
   status: zExtractState,
   error: z.union([z.string(), z.null()]).optional(),
   job_id: z.union([z.string().uuid(), z.null()]).optional(),
@@ -2186,6 +1959,7 @@ export const zExtractRun = z.object({
 export const zExtractSchemaGenerateRequest = z.object({
   prompt: z.union([z.string(), z.null()]).optional(),
   file_id: z.union([z.string().uuid(), z.null()]).optional(),
+  data_schema: z.union([z.object({}), z.string(), z.null()]).optional(),
 });
 
 export const zExtractSchemaGenerateResponse = z.object({
@@ -2216,13 +1990,25 @@ export const zExtractStatelessRequest = z.object({
   file: z.union([zFileData, z.null()]).optional(),
 });
 
-export const zExtractedTable = z.object({
-  table_id: z.number().int(),
+export const zExtractedRegionSummary = z.object({
+  region_id: z.string().optional(),
   sheet_name: z.string(),
-  row_span: z.number().int(),
-  col_span: z.number().int(),
-  has_headers: z.boolean(),
-  metadata_json: z.union([z.string(), z.null()]).optional(),
+  location: z.string(),
+  region_type: z.string(),
+  title: z.union([z.string(), z.null()]).optional(),
+  description: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zFailedMarkdownPage = z.object({
+  page_number: z.number().int(),
+  error: z.string(),
+  success: z.literal(false).optional().default(false),
+});
+
+export const zFailedStructuredPage = z.object({
+  page_number: z.number().int(),
+  error: z.string(),
+  success: z.literal(false).optional().default(false),
 });
 
 export const zFileCountByStatusResponse = z.object({
@@ -2291,13 +2077,6 @@ export const zFilterOperation = z.object({
   includes: z.array(z.unknown()).optional(),
 });
 
-export const zFreeCreditsUsage = z.object({
-  starting_balance: z.number().int(),
-  remaining_balance: z.number().int(),
-  grant_name: z.string(),
-  expires_at: z.string().datetime(),
-});
-
 export const zValidationError = z.object({
   loc: z.array(z.unknown()),
   msg: z.string(),
@@ -2308,34 +2087,246 @@ export const zHttpValidationError = z.object({
   detail: z.array(zValidationError).optional(),
 });
 
-export const zJobNames = z.enum([
-  "load_documents_job",
-  "load_files_job",
-  "playground_job",
-  "pipeline_managed_ingestion_job",
-  "data_source_update_dispatcher_job",
-  "pipeline_file_update_dispatcher_job",
-  "pipeline_file_updater_job",
-  "file_managed_ingestion_job",
-  "document_ingestion_job",
-  "metadata_update_job",
-  "parse_raw_file_job_cached",
-  "extraction_job",
-  "extract_job",
-  "asyncio_test_job",
-  "parse_raw_file_job",
-  "llama_parse_transform_job",
+export const zHeadingItem = z.object({
+  type: z.literal("heading").optional().default("heading"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  level: z.number().int(),
+  value: z.string(),
+});
+
+export const zImageItem = z.object({
+  type: z.literal("image").optional().default("image"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  name: z.string(),
+});
+
+export const zJobNameMapping = z.enum([
+  "MANAGED_INGESTION",
+  "DATA_SOURCE",
+  "FILE_UPDATER",
+  "PARSE",
+  "TRANSFORM",
+  "INGESTION",
+  "METADATA_UPDATE",
 ]);
 
-export const zParseJobConfig = z.object({
+export const zIngestionErrorResponse = z.object({
+  job_id: z.string().uuid(),
+  message: z.string(),
+  step: zJobNameMapping,
+});
+
+export const zProcessingResultMetadata = z.object({});
+
+export const zProcessingResult = z.object({
+  result_id: z.string(),
+  item_id: z.string(),
+  job_type: zBatchJobType,
+  job_config: z.union([zBatchParseJobRecordCreate, zClassifyJob]),
+  parameters_hash: z.string(),
+  output_s3_path: z.string(),
+  output_metadata: z.union([zProcessingResultMetadata, z.null()]).optional(),
+  processed_at: z.string().datetime(),
+});
+
+export const zItemProcessingResultsResponse = z.object({
+  item_id: z.string(),
+  item_name: z.string(),
+  processing_results: z.array(zProcessingResult).optional(),
+});
+
+export const zTextItem = z.object({
+  type: z.literal("text").optional().default("text"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  value: z.string(),
+});
+
+export const zListItem: z.AnyZodObject = z.object({
+  type: z.literal("list").optional().default("list"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  items: z.array(z.unknown()),
+  ordered: z.boolean(),
+});
+
+export const zLlamaParseIgnoreOptions = z.object({
+  ignore_diagonal_text: z.union([z.boolean(), z.null()]).optional(),
+  ignore_strikethrough_text: z.union([z.boolean(), z.null()]).optional(),
+  ignore_text_in_image: z.union([z.boolean(), z.null()]).optional(),
+  ignore_hidden_text: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseOcrParameters = z.object({
+  languages: z.union([z.array(zParserLanguages), z.null()]).optional(),
+});
+
+export const zLlamaParseAgenticOptions = z.object({
+  ignore: zLlamaParseIgnoreOptions.optional(),
+  ocr_parameters: zLlamaParseOcrParameters.optional(),
+  aggressive_table_extraction: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseCropBox = z.object({
+  bottom: z.union([z.number().gte(0).lte(1), z.null()]).optional(),
+  left: z.union([z.number().gte(0).lte(1), z.null()]).optional(),
+  right: z.union([z.number().gte(0).lte(1), z.null()]).optional(),
+  top: z.union([z.number().gte(0).lte(1), z.null()]).optional(),
+});
+
+export const zLlamaParseEmbeddedImagesOptions = z.object({
+  enable: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseExportPdfOptions = z.object({
+  enable: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseFastOptions = z.object({
+  ignore: zLlamaParseIgnoreOptions.optional(),
+  ocr_parameters: zLlamaParseOcrParameters.optional(),
+  aggressive_table_extraction: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zTierName = z.enum([
+  "fast",
+  "cost_effective",
+  "agentic",
+  "agentic_plus",
+]);
+
+export const zLlamaParseTierOptions = z.object({
+  tier: zTierName,
+  version: z.enum(["2025-11-18", "latest"]).optional(),
+  fast_options: z.union([zLlamaParseFastOptions, z.null()]).optional(),
+  agentic_options: z.union([zLlamaParseAgenticOptions, z.null()]).optional(),
+});
+
+export const zLlamaParseWebhookConfiguration = z.object({
+  webhook_url: z.union([z.string().regex(/^https?:/), z.null()]).optional(),
+  webhook_headers: z.union([z.object({}), z.null()]).optional(),
+  webhook_events: z.union([z.array(z.string()), z.null()]).optional(),
+});
+
+export const zLlamaParseHtmlOptions = z.object({
+  make_all_elements_visible: z.union([z.boolean(), z.null()]).optional(),
+  remove_fixed_elements: z.union([z.boolean(), z.null()]).optional(),
+  remove_navigation_elements: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParsePdfOptions = z.object({});
+
+export const zLlamaParseSpreadsheetOptions = z.object({
+  detect_sub_tables_in_sheets: z.union([z.boolean(), z.null()]).optional(),
+  force_formula_computation_in_sheets: z
+    .union([z.boolean(), z.null()])
+    .optional(),
+});
+
+export const zLlamaParsePresentationOptions = z.object({
+  out_of_bounds_content: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseInputOptions = z.object({
+  html: zLlamaParseHtmlOptions.optional(),
+  pdf: zLlamaParsePdfOptions.optional(),
+  spreadsheet: zLlamaParseSpreadsheetOptions.optional(),
+  presentation: zLlamaParsePresentationOptions.optional(),
+});
+
+export const zLlamaParsePageRanges = z.object({
+  max_pages: z.union([z.number().int().gte(1), z.null()]).optional(),
+  target_pages: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zLlamaParsePages = z.object({
+  merge_tables_across_pages_in_markdown: z
+    .union([z.boolean(), z.null()])
+    .optional(),
+});
+
+export const zLlamaParseTables = z.object({
+  compact_markdown_tables: z.union([z.boolean(), z.null()]).optional(),
+  output_tables_as_markdown: z.union([z.boolean(), z.null()]).optional(),
+  markdown_table_multiline_separator: z
+    .union([z.string(), z.null()])
+    .optional(),
+});
+
+export const zLlamaParseMarkdownOptions = z.object({
+  annotate_links: z.union([z.boolean(), z.null()]).optional(),
+  pages: zLlamaParsePages.optional(),
+  tables: zLlamaParseTables.optional(),
+});
+
+export const zLlamaParseSpatialTextOptions = z.object({
+  preserve_layout_alignment_across_pages: z
+    .union([z.boolean(), z.null()])
+    .optional(),
+  preserve_very_small_text: z.union([z.boolean(), z.null()]).optional(),
+  do_not_unroll_columns: z.union([z.boolean(), z.null()]).optional(),
+  pages: z.union([zLlamaParsePages, z.null()]).optional(),
+});
+
+export const zLlamaParseTablesAsSpreadsheetOptions = z.object({
+  enable: z.union([z.boolean(), z.null()]).optional(),
+  guess_sheet_name: z.boolean().optional().default(true),
+});
+
+export const zLlamaParseScreenshotsOptions = z.object({
+  enable: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseOutputOptions = z.object({
+  markdown: zLlamaParseMarkdownOptions.optional(),
+  spatial_text: zLlamaParseSpatialTextOptions.optional(),
+  tables_as_spreadsheet: zLlamaParseTablesAsSpreadsheetOptions.optional(),
+  embedded_images: zLlamaParseEmbeddedImagesOptions.optional(),
+  screenshots: zLlamaParseScreenshotsOptions.optional(),
+  export_pdf: zLlamaParseExportPdfOptions.optional(),
+  extract_printed_page_number: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseTimeouts = z.object({
+  base_in_seconds: z.union([z.number().int().lte(1800), z.null()]).optional(),
+  extra_time_per_page_in_seconds: z
+    .union([z.number().int().lte(300), z.null()])
+    .optional(),
+});
+
+export const zLlamaParseJobFailureConditions = z.object({
+  allowed_page_failure_ratio: z.union([z.number().lte(1), z.null()]).optional(),
+  fail_on_image_extraction_error: z.union([z.boolean(), z.null()]).optional(),
+  fail_on_image_ocr_error: z.union([z.boolean(), z.null()]).optional(),
+  fail_on_markdown_reconstruction_error: z
+    .union([z.boolean(), z.null()])
+    .optional(),
+  fail_on_buggy_font: z.union([z.boolean(), z.null()]).optional(),
+});
+
+export const zLlamaParseProcessingControl = z.object({
+  timeouts: zLlamaParseTimeouts.optional(),
+  job_failure_conditions: zLlamaParseJobFailureConditions.optional(),
+});
+
+export const zLlamaParseFileIdConfiguration = z.object({
+  client_name: z.union([z.string(), z.null()]).optional(),
+  parse_options: zLlamaParseTierOptions,
+  webhook_configurations: z.array(zLlamaParseWebhookConfiguration).optional(),
+  input_options: zLlamaParseInputOptions.optional(),
+  crop_box: zLlamaParseCropBox.optional(),
+  page_ranges: zLlamaParsePageRanges.optional(),
+  disable_cache: z.union([z.boolean(), z.null()]).optional(),
+  output_options: zLlamaParseOutputOptions.optional(),
+  processing_control: zLlamaParseProcessingControl.optional(),
+  file_id: z.string(),
+});
+
+export const zLlamaParseParameters = z.object({
   webhook_configurations: z
     .union([z.array(zWebhookConfiguration), z.null()])
     .optional(),
   priority: z
     .union([z.enum(["low", "medium", "high", "critical"]), z.null()])
     .optional(),
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  resource_info: z.union([z.object({}), z.null()]).optional(),
   languages: z.array(zParserLanguages).min(1).optional(),
   parsing_instruction: z.union([z.string(), z.null()]).optional(),
   disable_ocr: z.union([z.boolean(), z.null()]).optional(),
@@ -2346,6 +2337,7 @@ export const zParseJobConfig = z.object({
   disable_image_extraction: z.union([z.boolean(), z.null()]).optional(),
   invalidate_cache: z.union([z.boolean(), z.null()]).optional(),
   outlined_table_extraction: z.union([z.boolean(), z.null()]).optional(),
+  aggressive_table_extraction: z.union([z.boolean(), z.null()]).optional(),
   merge_tables_across_pages_in_markdown: z
     .union([z.boolean(), z.null()])
     .optional(),
@@ -2373,6 +2365,7 @@ export const zParseJobConfig = z.object({
     .optional(),
   specialized_image_parsing: z.union([z.boolean(), z.null()]).optional(),
   precise_bounding_box: z.union([z.boolean(), z.null()]).optional(),
+  line_level_bounding_box: z.union([z.boolean(), z.null()]).optional(),
   html_remove_navigation_elements: z.union([z.boolean(), z.null()]).optional(),
   html_remove_fixed_elements: z.union([z.boolean(), z.null()]).optional(),
   guess_xlsx_sheet_name: z.union([z.boolean(), z.null()]).optional(),
@@ -2451,6 +2444,10 @@ export const zParseJobConfig = z.object({
   page_header_suffix: z.union([z.string(), z.null()]).optional(),
   page_footer_prefix: z.union([z.string(), z.null()]).optional(),
   page_footer_suffix: z.union([z.string(), z.null()]).optional(),
+  remove_hidden_text: z.union([z.boolean(), z.null()]).optional(),
+  keep_page_separator_when_merging_tables: z
+    .union([z.boolean(), z.null()])
+    .optional(),
   ignore_document_elements_for_layout_detection: z
     .union([z.boolean(), z.null()])
     .optional(),
@@ -2471,274 +2468,12 @@ export const zParseJobConfig = z.object({
   markdown_table_multiline_header_separator: z
     .union([z.string(), z.null()])
     .optional(),
-  type: z.literal("parse").optional().default("parse"),
-  file_name: z.string(),
-  original_file_name: z.string(),
-  file_key: z.string(),
-  lang: z.string(),
-  outputBucket: z.union([z.string(), z.null()]).optional(),
-  file_id: z.union([z.string(), z.null()]).optional(),
-  pipeline_id: z.union([z.string(), z.null()]).optional(),
-});
-
-export const zLegacyParseJobConfig = z.object({
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  resource_info: z.union([z.object({}), z.null()]).optional(),
-  type: z.literal("legacy_parse").optional().default("legacy_parse"),
-  userId: z.string(),
-  fileName: z.string(),
-  originalFileName: z.string(),
-  fileKey: z.string(),
-  inputUrl: z.union([z.string(), z.null()]).optional(),
-  httpProxy: z.union([z.string(), z.null()]).optional(),
-  fastMode: z.union([z.boolean(), z.null()]).optional(),
-  lang: z.string(),
-  template: z.string().optional().default(""),
-  pipelineId: z.union([z.string(), z.null()]).optional(),
-  outputBucket: z.union([z.string(), z.null()]).optional(),
-  fileId: z.union([z.string(), z.null()]).optional(),
-  fullFilePath: z.union([z.string(), z.null()]).optional(),
-  fromLLamaCloud: z.boolean().optional().default(false),
-  skipDiagonalText: z.boolean().optional().default(false),
-  preserveLayoutAlignmentAcrossPages: z.boolean().optional().default(false),
-  preserveVerySmallText: z.boolean().optional().default(false),
-  invalidateCache: z.boolean(),
-  outputPDFOfDocument: z.union([z.boolean(), z.null()]).optional(),
-  outlinedTableExtraction: z.union([z.boolean(), z.null()]).optional(),
-  mergeTablesAcrossPagesInMarkdown: z.union([z.boolean(), z.null()]).optional(),
-  saveImages: z.union([z.boolean(), z.null()]).optional(),
-  gpt4o: z.boolean().optional().default(false),
-  openAIAPIKey: z.string(),
-  doNotUnrollColumns: z.boolean().optional().default(false),
-  spreadSheetExtractSubTables: z.union([z.boolean(), z.null()]).optional(),
-  spreadSheetForceFormulaComputation: z
+  presentation_out_of_bounds_content: z
     .union([z.boolean(), z.null()])
     .optional(),
-  extractLayout: z.union([z.boolean(), z.null()]).optional(),
-  highResOcr: z.union([z.boolean(), z.null()]).optional(),
-  htmlMakeAllElementsVisible: z.union([z.boolean(), z.null()]).optional(),
-  htmlRemoveFixedElements: z.union([z.boolean(), z.null()]).optional(),
-  htmlRemoveNavigationElements: z.union([z.boolean(), z.null()]).optional(),
-  guessXLSXSheetName: z.boolean().optional().default(false),
-  doNotCache: z.boolean().optional().default(false),
-  pageSeparator: z.union([z.string(), z.null()]).optional(),
-  boundingBox: z.union([z.string(), z.null()]).optional(),
-  bboxTop: z.union([z.number(), z.null()]).optional(),
-  bboxRight: z.union([z.number(), z.null()]).optional(),
-  bboxBottom: z.union([z.number(), z.null()]).optional(),
-  bboxLeft: z.union([z.number(), z.null()]).optional(),
-  disableReconstruction: z.union([z.boolean(), z.null()]).optional(),
-  targetPages: z.union([z.string(), z.null()]).optional(),
-  multimodalPipeline: z.union([z.boolean(), z.null()]).optional(),
-  multimodalModel: z.union([z.string(), z.null()]).optional(),
-  model: z.union([z.string(), z.null()]).optional(),
-  vendorAPIKey: z.union([z.string(), z.null()]).optional(),
-  pagePrefix: z.union([z.string(), z.null()]).optional(),
-  pageSuffix: z.union([z.string(), z.null()]).optional(),
-  webhookUrl: z.union([z.string(), z.null()]).optional(),
-  preset: z.union([z.string(), z.null()]).optional(),
-  takeScreenshot: z.boolean().optional().default(false),
-  isFormattingInstruction: z.boolean().optional().default(true),
-  premiumMode: z.boolean().optional().default(false),
-  continuousMode: z.boolean().optional().default(false),
-  disableOcr: z.boolean().optional().default(false),
-  disableImageExtraction: z.boolean().optional().default(false),
-  annotateLinks: z.boolean().optional().default(false),
-  adaptiveLongTable: z.boolean().optional().default(false),
-  compactMarkdownTable: z.boolean().optional().default(false),
-  inputS3Path: z.union([z.string(), z.null()]).optional(),
-  inputS3Region: z.union([z.string(), z.null()]).optional(),
-  outputS3PathPrefix: z.union([z.string(), z.null()]).optional(),
-  outputS3Region: z.union([z.string(), z.null()]).optional(),
-  projectId: z.union([z.string(), z.null()]).optional(),
-  azureOpenAiDeploymentName: z.union([z.string(), z.null()]).optional(),
-  azureOpenAiEndpoint: z.union([z.string(), z.null()]).optional(),
-  azureOpenAiApiVersion: z.union([z.string(), z.null()]).optional(),
-  azureOpenAiKey: z.union([z.string(), z.null()]).optional(),
-  autoMode: z.boolean().optional().default(false),
-  autoModeTriggerOnTableInPage: z.boolean().optional().default(false),
-  autoModeTriggerOnImageInPage: z.boolean().optional().default(false),
-  autoModeTriggerOnRegexpInPage: z.union([z.string(), z.null()]).optional(),
-  autoModeTriggerOnTextInPage: z.union([z.string(), z.null()]).optional(),
-  autoModeConfigurationJSON: z.union([z.string(), z.null()]).optional(),
-  structuredOutput: z.boolean().optional().default(false),
-  structuredOutputJSONSchema: z.union([z.string(), z.null()]).optional(),
-  structuredOutputJSONSchemaName: z.union([z.string(), z.null()]).optional(),
-  maxPages: z.union([z.number().int(), z.null()]).optional(),
-  extractCharts: z.boolean().optional().default(false),
-  formattingInstruction: z.union([z.string(), z.null()]).optional(),
-  complementalFormattingInstruction: z.union([z.string(), z.null()]).optional(),
-  contentGuidelineInstruction: z.union([z.string(), z.null()]).optional(),
-  jobTimeoutInSeconds: z.union([z.number(), z.null()]).optional(),
-  jobTimeoutExtraTimePerPageInSeconds: z
-    .union([z.number(), z.null()])
-    .optional(),
-  strictModeImageExtraction: z.boolean().optional().default(false),
-  strictModeImageOCR: z.boolean().optional().default(false),
-  strictModeReconstruction: z.boolean().optional().default(false),
-  strictModeBuggyFont: z.boolean().optional().default(false),
-  ignoreDocumentElementsForLayoutDetection: z
-    .boolean()
-    .optional()
-    .default(false),
-  outputTablesAsHTML: z.boolean().optional().default(false),
-  parseMode: z.union([z.string(), z.null()]).optional(),
-  systemPrompt: z.union([z.string(), z.null()]).optional(),
-  systemPromptAppend: z.union([z.string(), z.null()]).optional(),
-  userPrompt: z.union([z.string(), z.null()]).optional(),
-  pageHeaderPrefix: z.union([z.string(), z.null()]).optional(),
-  pageHeaderSuffix: z.union([z.string(), z.null()]).optional(),
-  pageFooterPrefix: z.union([z.string(), z.null()]).optional(),
-  pageFooterSuffix: z.union([z.string(), z.null()]).optional(),
-  hideHeaders: z.boolean().optional().default(false),
-  hideFooters: z.boolean().optional().default(false),
-});
-
-export const zLoadFilesJobConfig = z.object({
-  type: z.literal("load_files").optional().default("load_files"),
-  file_ids: z.union([z.array(z.string().uuid()), z.null()]).optional(),
-});
-
-export const zLLamaParseTransformConfig = z.object({
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  resource_info: z.union([z.object({}), z.null()]).optional(),
-  type: z
-    .literal("llama_parse_transform")
-    .optional()
-    .default("llama_parse_transform"),
-  file_output: z.string(),
-});
-
-export const zPipelineManagedIngestionJobParams = z.object({
-  type: z
-    .literal("pipeline_managed_ingestion")
-    .optional()
-    .default("pipeline_managed_ingestion"),
-  should_delete: z.union([z.boolean(), z.null()]).optional(),
-  delete_info: z.union([zDeleteParams, z.null()]).optional(),
-});
-
-export const zPipelineFileUpdateDispatcherConfig = z.object({
-  type: z
-    .literal("pipeline_file_update_dispatcher")
-    .optional()
-    .default("pipeline_file_update_dispatcher"),
-  pipeline_file_ids: z.union([z.array(z.string().uuid()), z.null()]).optional(),
-  should_delete: z.union([z.boolean(), z.null()]).optional(),
-  delete_info: z.union([zDeleteParams, z.null()]).optional(),
-});
-
-export const zPipelineFileUpdaterConfig = z.object({
-  custom_metadata: z.union([z.object({}), z.null()]).optional(),
-  resource_info: z.union([z.object({}), z.null()]).optional(),
-  type: z
-    .literal("pipeline_file_updater")
-    .optional()
-    .default("pipeline_file_updater"),
-  should_delete: z.union([z.boolean(), z.null()]).optional(),
-  should_parse: z.union([z.boolean(), z.null()]).optional(),
-  delete_info: z.union([zDeleteParams, z.null()]).optional(),
-  is_new_file: z.boolean().optional().default(false),
-  data_source_project_file_changed: z.boolean().optional().default(false),
-});
-
-export const zJobRecord = z.object({
-  webhook_configurations: z
-    .union([z.array(zWebhookConfiguration), z.null()])
-    .optional(),
-  job_name: zJobNames,
-  partitions: z.object({}),
-  parameters: z
-    .union([
-      z.union([
-        z
-          .object({
-            type: z.literal("parse"),
-          })
-          .and(zParseJobConfig),
-        z
-          .object({
-            type: z.literal("legacy_parse"),
-          })
-          .and(zLegacyParseJobConfig),
-        z
-          .object({
-            type: z.literal("load_files"),
-          })
-          .and(zLoadFilesJobConfig),
-        z
-          .object({
-            type: z.literal("llama_parse_transform"),
-          })
-          .and(zLLamaParseTransformConfig),
-        z
-          .object({
-            type: z.literal("pipeline_managed_ingestion"),
-          })
-          .and(zPipelineManagedIngestionJobParams),
-        z
-          .object({
-            type: z.literal("data_source_update_dispatcher"),
-          })
-          .and(zDataSourceUpdateDispatcherConfig),
-        z
-          .object({
-            type: z.literal("pipeline_file_update_dispatcher"),
-          })
-          .and(zPipelineFileUpdateDispatcherConfig),
-        z
-          .object({
-            type: z.literal("pipeline_file_updater"),
-          })
-          .and(zPipelineFileUpdaterConfig),
-        z
-          .object({
-            type: z.literal("document_ingestion"),
-          })
-          .and(zDocumentIngestionJobParams),
-      ]),
-      z.null(),
-    ])
-    .optional(),
-  session_id: z.union([z.string().uuid(), z.null()]).optional(),
-  correlation_id: z.union([z.string().uuid(), z.null()]).optional(),
-  parent_job_execution_id: z.union([z.string().uuid(), z.null()]).optional(),
-  user_id: z.union([z.string(), z.null()]).optional(),
-  created_at: z.string().datetime(),
-  project_id: z.union([z.string().uuid(), z.null()]).optional(),
-  id: z.string().uuid().optional(),
-  status: zStatusEnum,
-  error_code: z.union([z.string(), z.null()]).optional(),
-  error_message: z.union([z.string(), z.null()]).optional(),
-  attempts: z.union([z.number().int(), z.null()]).optional(),
-  started_at: z.union([z.string().datetime(), z.null()]).optional(),
-  ended_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.string().datetime().optional(),
-});
-
-export const zUsageMetricResponse = z.object({
-  feature_usage: z.object({}),
-  day: z.string(),
-  source: z.string(),
-  job_id: z.string(),
-});
-
-export const zUserJobRecord = z.object({
-  id: z.string(),
-  name: z.string(),
-});
-
-export const zJobRecordWithUsageMetrics = z.object({
-  job_record: zJobRecord,
-  usage_metrics: z.union([zUsageMetricResponse, z.null()]).optional(),
-  user: zUserJobRecord,
-});
-
-export const zLlmModelData = z.object({
-  name: z.string(),
-  description: z.string(),
-  multi_modal: z.boolean(),
-  model_name: z.string().optional().default("The name of the model."),
+  tier: z.union([z.string(), z.null()]).optional(),
+  version: z.union([z.string(), z.null()]).optional(),
+  extract_printed_page_number: z.union([z.boolean(), z.null()]).optional(),
 });
 
 export const zLlamaParseSupportedFileExtensions = z.enum([
@@ -2819,6 +2554,37 @@ export const zLlamaParseSupportedFileExtensions = z.enum([
   ".tsv",
 ]);
 
+export const zLlamaParseUrlConfiguration = z.object({
+  client_name: z.union([z.string(), z.null()]).optional(),
+  parse_options: zLlamaParseTierOptions,
+  webhook_configurations: z.array(zLlamaParseWebhookConfiguration).optional(),
+  input_options: zLlamaParseInputOptions.optional(),
+  crop_box: zLlamaParseCropBox.optional(),
+  page_ranges: zLlamaParsePageRanges.optional(),
+  disable_cache: z.union([z.boolean(), z.null()]).optional(),
+  output_options: zLlamaParseOutputOptions.optional(),
+  processing_control: zLlamaParseProcessingControl.optional(),
+  source_url: z.string().regex(/^https?:/),
+  http_proxy: z.union([z.string().regex(/^https?:/), z.null()]).optional(),
+});
+
+export const zManagedIngestionStatus = z.enum([
+  "NOT_STARTED",
+  "IN_PROGRESS",
+  "SUCCESS",
+  "ERROR",
+  "PARTIAL_SUCCESS",
+  "CANCELLED",
+]);
+
+export const zManagedIngestionStatusResponse = z.object({
+  job_id: z.union([z.string().uuid(), z.null()]).optional(),
+  deployment_date: z.union([z.string().datetime(), z.null()]).optional(),
+  status: zManagedIngestionStatus,
+  error: z.union([z.array(zIngestionErrorResponse), z.null()]).optional(),
+  effective_at: z.union([z.string().datetime(), z.null()]).optional(),
+});
+
 export const zManagedOpenAiEmbedding = z.object({
   model_name: z
     .literal("openai-text-embedding-3-small")
@@ -2837,11 +2603,15 @@ export const zManagedOpenAiEmbeddingConfig = z.object({
   component: zManagedOpenAiEmbedding.optional(),
 });
 
-export const zMetronomeDashboardResponse = z.object({
-  url: z.string(),
+export const zMarkdownResultPage = z.object({
+  page_number: z.number().int(),
+  markdown: z.string(),
+  success: z.literal(true).optional().default(true),
 });
 
-export const zMetronomeDashboardType = z.enum(["invoices", "usage"]);
+export const zMarkdownResult = z.object({
+  pages: z.array(z.unknown()),
+});
 
 export const zNodeRelationship = z.enum(["1", "2", "3", "4", "5"]);
 
@@ -2854,17 +2624,8 @@ export const zOrganization = z.object({
   created_at: z.union([z.string().datetime(), z.null()]).optional(),
   updated_at: z.union([z.string().datetime(), z.null()]).optional(),
   name: z.string().min(1).max(3000),
-  stripe_customer_id: z.union([z.string(), z.null()]).optional(),
   parse_plan_level: zParsePlanLevel.optional(),
-  feature_flags: z.union([z.object({}), z.null()]).optional(),
-});
-
-export const zOrganizationCreate = z.object({
-  name: z.string().min(1).max(3000),
-});
-
-export const zOrganizationUpdate = z.object({
-  name: z.string().min(1).max(3000),
+  stripe_customer_id: z.union([z.string(), z.null()]).optional(),
   feature_flags: z.union([z.object({}), z.null()]).optional(),
 });
 
@@ -2873,13 +2634,6 @@ export const zPaginatedExtractRunsResponse = z.object({
   total: z.number().int(),
   skip: z.number().int(),
   limit: z.number().int(),
-});
-
-export const zPaginatedJobsHistoryWithMetrics = z.object({
-  jobs: z.array(zJobRecordWithUsageMetrics),
-  total_count: z.number().int(),
-  limit: z.number().int(),
-  offset: z.number().int(),
 });
 
 export const zPaginatedListCloudDocumentsResponse = z.object({
@@ -2941,59 +2695,34 @@ export const zPaginatedResponseClassifyJob = z.object({
   total_size: z.union([z.number().int(), z.null()]).optional(),
 });
 
-export const zQuotaRateLimitConfigurationValue = z.object({
-  numerator: z.number().int(),
-  denominator: z.union([z.number().int(), z.null()]).optional(),
-  denominator_units: z
-    .union([z.enum(["second", "minute", "hour", "day"]), z.null()])
-    .optional(),
-});
-
-export const zQuotaConfiguration = z.object({
-  source_type: z.literal("organization"),
-  source_id: z.string(),
-  configuration_type: z.enum([
-    "rate_limit_parse_concurrent_premium",
-    "rate_limit_parse_concurrent_default",
-    "rate_limit_concurrent_jobs_in_execution_default",
-    "rate_limit_concurrent_jobs_in_execution_doc_ingest",
-    "limit_embedding_character",
-  ]),
-  configuration_value: zQuotaRateLimitConfigurationValue,
-  configuration_metadata: z.union([z.object({}), z.null()]),
-  started_at: z.string().datetime().optional(),
-  ended_at: z.union([z.string().datetime(), z.null()]).optional(),
-  idempotency_key: z.union([z.string(), z.null()]).optional(),
-  status: z.enum(["ACTIVE", "INACTIVE"]),
-  id: z.union([z.string().uuid(), z.null()]).optional(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-});
-
-export const zPaginatedResponseQuotaConfiguration = z.object({
-  total: z.number().int(),
-  page: z.number().int(),
-  size: z.number().int(),
-  pages: z.number().int(),
-  items: z.array(zQuotaConfiguration),
-});
-
 export const zSpreadsheetParsingConfig = z.object({
   sheet_names: z.union([z.array(z.string()), z.null()]).optional(),
+  include_hidden_cells: z.boolean().optional().default(true),
+  extraction_range: z.union([z.string(), z.null()]).optional(),
+  generate_additional_metadata: z.boolean().optional().default(true),
+  use_experimental_processing: z.boolean().optional().default(false),
+});
+
+export const zWorksheetMetadata = z.object({
+  sheet_name: z.string(),
+  title: z.union([z.string(), z.null()]).optional(),
+  description: z.union([z.string(), z.null()]).optional(),
 });
 
 export const zSpreadsheetJob = z.object({
   id: z.string(),
   user_id: z.string(),
   project_id: z.string().uuid(),
-  file_id: z.string().uuid(),
   config: zSpreadsheetParsingConfig,
   status: zStatusEnum,
   created_at: z.string(),
   updated_at: z.string(),
   success: z.union([z.boolean(), z.null()]).optional(),
-  tables: z.array(zExtractedTable).optional(),
+  regions: z.array(zExtractedRegionSummary).optional(),
+  worksheet_metadata: z.array(zWorksheetMetadata).optional(),
   errors: z.array(z.string()).optional(),
+  file_id: z.union([z.string().uuid(), z.null()]),
+  file: z.union([zFile, z.null()]).optional(),
 });
 
 export const zPaginatedResponseSpreadsheetJob = z.object({
@@ -3023,22 +2752,6 @@ export const zParseConfigurationCreate = z.object({
   parameters: zLlamaParseParameters,
 });
 
-export const zParseConfigurationFilter = z.object({
-  name: z.union([z.string(), z.null()]).optional(),
-  source_type: z.union([z.string(), z.null()]).optional(),
-  source_id: z.union([z.string(), z.null()]).optional(),
-  creator: z.union([z.string(), z.null()]).optional(),
-  version: z.union([z.string(), z.null()]).optional(),
-  parse_config_ids: z.union([z.array(z.string()), z.null()]).optional(),
-});
-
-export const zParseConfigurationQueryRequest = z.object({
-  page_size: z.union([z.number().int(), z.null()]).optional(),
-  page_token: z.union([z.string(), z.null()]).optional(),
-  filter: z.union([zParseConfigurationFilter, z.null()]).optional(),
-  order_by: z.union([z.string(), z.null()]).optional(),
-});
-
 export const zParseConfigurationQueryResponse = z.object({
   items: z.array(zParseConfiguration),
   next_page_token: z.union([z.string(), z.null()]).optional(),
@@ -3047,18 +2760,6 @@ export const zParseConfigurationQueryResponse = z.object({
 
 export const zParseConfigurationUpdate = z.object({
   parameters: z.union([zLlamaParseParameters, z.null()]).optional(),
-});
-
-export const zParsingHistoryItem = z.object({
-  user_id: z.string(),
-  day: z.string(),
-  job_id: z.string(),
-  file_name: z.string(),
-  original_file_name: z.string(),
-  expired: z.boolean().optional().default(false),
-  pages: z.union([z.number(), z.null()]).optional(),
-  images: z.union([z.number(), z.null()]).optional(),
-  time: z.union([z.number(), z.null()]).optional(),
 });
 
 export const zParsingJob = z.object({
@@ -3097,15 +2798,6 @@ export const zPartitionNames = z.enum([
   "file_parsing_id_partition",
   "extraction_schema_id_partition",
 ]);
-
-export const zPermission = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  name: z.string().min(1).max(3000),
-  description: z.union([z.string(), z.null()]),
-  access: z.boolean(),
-});
 
 export const zPipelineType = z.enum(["PLAYGROUND", "MANAGED"]);
 
@@ -3185,7 +2877,6 @@ export const zPipeline = z.object({
     .union([zAutoTransformConfig, zAdvancedModeTransformConfig])
     .optional(),
   preset_retrieval_parameters: zPresetRetrievalParams.optional(),
-  eval_parameters: zEvalExecutionParams.optional(),
   llama_parse_parameters: z.union([zLlamaParseParameters, z.null()]).optional(),
   data_sink: z.union([zDataSink, z.null()]).optional(),
   status: z.union([z.enum(["CREATED", "DELETING"]), z.null()]).optional(),
@@ -3243,7 +2934,6 @@ export const zPipelineCreate = z.object({
   embedding_model_config_id: z.union([z.string().uuid(), z.null()]).optional(),
   data_sink: z.union([zDataSinkCreate, z.null()]).optional(),
   preset_retrieval_parameters: zPresetRetrievalParams.optional(),
-  eval_parameters: zEvalExecutionParams.optional(),
   llama_parse_parameters: zLlamaParseParameters.optional(),
   status: z.union([z.string(), z.null()]).optional(),
   metadata_config: z.union([zPipelineMetadataConfig, z.null()]).optional(),
@@ -3297,15 +2987,6 @@ export const zPipelineDataSourceCreate = z.object({
 
 export const zPipelineDataSourceUpdate = z.object({
   sync_interval: z.union([z.number(), z.null()]).optional(),
-});
-
-export const zPipelineDeployment = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  status: zManagedIngestionStatus,
-  started_at: z.union([z.string().datetime(), z.null()]).optional(),
-  ended_at: z.union([z.string().datetime(), z.null()]).optional(),
 });
 
 export const zPipelineFileCreate = z.object({
@@ -3370,7 +3051,6 @@ export const zPipelineUpdate = z.object({
   preset_retrieval_parameters: z
     .union([zPresetRetrievalParams, z.null()])
     .optional(),
-  eval_parameters: z.union([zEvalExecutionParams, z.null()]).optional(),
   llama_parse_parameters: z.union([zLlamaParseParameters, z.null()]).optional(),
   status: z.union([z.string(), z.null()]).optional(),
   metadata_config: z.union([zPipelineMetadataConfig, z.null()]).optional(),
@@ -3407,24 +3087,12 @@ export const zProject = z.object({
   is_default: z.boolean().optional().default(false),
 });
 
-export const zProjectCreate = z.object({
-  name: z.string().min(1).max(3000),
-});
-
-export const zProjectUpdate = z.object({
-  name: z.string().min(1).max(3000),
-});
-
 export const zRelatedNodeInfo = z.object({
   node_id: z.string(),
   node_type: z.union([zObjectType, z.string(), z.null()]).optional(),
   metadata: z.object({}).optional(),
   hash: z.union([z.string(), z.null()]).optional(),
   class_name: z.string().optional().default("RelatedNodeInfo"),
-});
-
-export const zRestrict = z.object({
-  project_id: z.union([z.string().uuid(), z.null()]),
 });
 
 export const zRetrievalParams = z.object({
@@ -3509,14 +3177,6 @@ export const zRetrieverUpdate = z.object({
   pipelines: z.union([z.array(zRetrieverPipeline), z.null()]),
 });
 
-export const zRole = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  name: z.string().min(1).max(3000),
-  permissions: z.array(zPermission),
-});
-
 export const zSearchRequest = z.object({
   page_size: z.union([z.number().int(), z.null()]).optional(),
   page_token: z.union([z.string(), z.null()]).optional(),
@@ -3528,126 +3188,133 @@ export const zSearchRequest = z.object({
   offset: z.union([z.number().int().gte(0).lte(1000), z.null()]).optional(),
 });
 
+export const zSplitCategory = z.object({
+  name: z.string().min(1).max(200),
+  description: z.union([z.string().min(1).max(2000), z.null()]).optional(),
+});
+
+export const zSplitDocumentInput = z.object({
+  type: z.string(),
+  value: z.string(),
+});
+
+export const zSplitStrategy = z.object({
+  allow_uncategorized: z.boolean().optional().default(false),
+});
+
+export const zSplitCreateRequest = z.object({
+  document_input: zSplitDocumentInput,
+  categories: z.array(zSplitCategory).min(1).max(50),
+  splitting_strategy: zSplitStrategy.optional(),
+});
+
+export const zSplitSegmentResponse = z.object({
+  category: z.string(),
+  pages: z.array(z.number().int()),
+  confidence_category: z.string(),
+});
+
+export const zSplitResultResponse = z.object({
+  segments: z.array(zSplitSegmentResponse),
+});
+
+export const zSplitJobResponse = z.object({
+  id: z.string(),
+  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
+  project_id: z.string(),
+  user_id: z.string(),
+  document_input: zSplitDocumentInput,
+  categories: z.array(zSplitCategory),
+  status: z.string(),
+  result: z.union([zSplitResultResponse, z.null()]).optional(),
+  error_message: z.union([z.string(), z.null()]).optional(),
+});
+
+export const zSplitJobQueryResponse = z.object({
+  items: z.array(zSplitJobResponse),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
+});
+
 export const zSpreadsheetJobCreate = z.object({
   file_id: z.string().uuid(),
   config: zSpreadsheetParsingConfig.optional(),
 });
 
-export const zSupportedLlmModel = z.object({
-  name: z.string(),
-  enabled: z.boolean().optional().default(true),
-  details: zLlmModelData,
+export const zSpreadsheetResultType = z.enum([
+  "table",
+  "extra",
+  "cell_metadata",
+]);
+
+export const zTableItem = z.object({
+  type: z.literal("table").optional().default("table"),
+  bBox: z.union([z.unknown(), z.null()]).optional(),
+  rows: z.array(z.array(z.string())),
+  html: z.string(),
+  md: z.string(),
+  csv: z.string(),
 });
 
-export const zUsageResponse = z.object({
-  active_free_credits_usage: z.array(zFreeCreditsUsage).optional().default([]),
-  total_users: z.number().int().optional().default(0),
-  total_indexes: z.number().int().optional().default(0),
-  total_indexed_pages: z.number().int().optional().default(0),
-  active_alerts: z
-    .array(
-      z.enum([
-        "plan_spend_limit_exceeded",
-        "plan_spend_limit_soft_alert",
-        "configured_spend_limit_exceeded",
-        "free_credits_exhausted",
-        "internal_spending_alert",
-        "has_spending_alert",
-      ]),
-    )
-    .optional()
-    .default([]),
-  current_invoice_total_usd_cents: z
-    .union([z.number().int(), z.null()])
-    .optional(),
-  total_extraction_agents: z.number().int().optional().default(0),
+export const zStructuredResultPage = z.object({
+  page_number: z.number().int(),
+  items: z.array(z.unknown()),
+  success: z.literal(true).optional().default(true),
 });
 
-export const zUsageAndPlan = z.object({
-  plan: zBasePlan,
-  usage: zUsageResponse,
+export const zStructuredResult = z.object({
+  pages: z.array(z.unknown()),
 });
 
-export const zUser = z.object({
-  id: z.string(),
-  email: z.string().email(),
-  last_login_provider: z.enum(["oidc", "basic", "no_auth"]).optional(),
-  name: z.union([z.string(), z.null()]).optional(),
-  first_name: z.union([z.string(), z.null()]).optional(),
-  last_name: z.union([z.string(), z.null()]).optional(),
-  claims: zCustomClaims.optional(),
-  restrict: z.union([zRestrict, z.null()]).optional(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
+export const zTextResultPage = z.object({
+  page_number: z.number().int(),
+  text: z.string(),
 });
 
-export const zUserOrganizationRole = z.object({
+export const zTextResult = z.object({
+  pages: z.array(zTextResultPage),
+});
+
+export const zUsageMetric = z.object({
   id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
   user_id: z.string(),
-  organization_id: z.string().uuid(),
-  project_ids: z.union([z.array(z.string().uuid()), z.null()]).optional(),
-  role: zRole,
+  event_type: z.enum([
+    "pages_indexed",
+    "pages_embedded",
+    "pages_parsed",
+    "set_total_pages_indexed",
+    "set_total_indexes",
+    "layout_extracted",
+    "layout_aware_parsing",
+    "layout_aware_chart_extraction",
+    "chart_parsing_agentic",
+    "chart_parsing_plus",
+    "chart_parsing_efficient",
+    "image_classified",
+    "precise_bbox_extraction",
+    "audio_seconds_parsed",
+    "extraction_num_pages",
+    "extraction_num_pages_parsed",
+  ]),
+  project_id: z.string(),
+  organization_id: z.string(),
+  value: z.number().int(),
+  properties: z.object({}).optional(),
+  day: z.string(),
+  event_aggregation_key: z.string(),
+  event_aggregation_type: z.string(),
 });
 
-export const zUserOrganization = z.object({
-  id: z.string().uuid(),
-  created_at: z.union([z.string().datetime(), z.null()]).optional(),
-  updated_at: z.union([z.string().datetime(), z.null()]).optional(),
-  email: z.union([z.string().email(), z.null()]).optional(),
-  user_id: z.union([z.string(), z.null()]).optional(),
-  organization_id: z.string().uuid(),
-  pending: z.boolean().optional().default(true),
-  invited_by_user_id: z.union([z.string(), z.null()]).optional(),
-  invited_by_user_email: z.union([z.string().email(), z.null()]).optional(),
-  roles: z.array(zUserOrganizationRole),
+export const zUsageMetricQueryResponse = z.object({
+  items: z.array(zUsageMetric),
+  next_page_token: z.union([z.string(), z.null()]).optional(),
+  total_size: z.union([z.number().int(), z.null()]).optional(),
 });
-
-export const zUserOrganizationCreate = z.object({
-  user_id: z.union([z.string(), z.null()]).optional(),
-  email: z.union([z.string().email(), z.null()]).optional(),
-  project_ids: z.union([z.array(z.string().uuid()), z.null()]),
-  role_id: z.union([z.string().uuid(), z.null()]).optional(),
-});
-
-export const zUserOrganizationDelete = z.object({
-  user_id: z.union([z.string(), z.null()]).optional(),
-  email: z.union([z.string().email(), z.null()]).optional(),
-  project_id_list: z.union([z.array(z.string().uuid()), z.null()]).optional(),
-});
-
-export const zUserOrganizationRoleCreate = z.object({
-  user_id: z.string(),
-  organization_id: z.string().uuid(),
-  role_id: z.string().uuid(),
-});
-
-export const zListDeploymentsApiV1ProjectsProjectIdAgentsGetResponse =
-  zAgentDeploymentList;
-
-export const zSyncDeploymentsApiV1ProjectsProjectIdAgentsSyncPostResponse =
-  zAgentDeploymentList;
-
-export const zListKeysApiV1ApiKeysGetResponse = z.array(zApiKey);
-
-export const zGenerateKeyApiV1ApiKeysPostResponse = zApiKey;
-
-export const zDeleteApiKeyApiV1ApiKeysApiKeyIdDeleteResponse = z.void();
-
-export const zValidateEmbeddingConnectionApiV1ValidateIntegrationsValidateEmbeddingConnectionPostResponse =
-  zBaseConnectionValidation;
-
-export const zValidateDataSourceConnectionApiV1ValidateIntegrationsValidateDataSourceConnectionPostResponse =
-  zBaseConnectionValidation;
-
-export const zValidateDataSinkConnectionApiV1ValidateIntegrationsValidateDataSinkConnectionPostResponse =
-  zBaseConnectionValidation;
 
 export const zListDataSinksApiV1DataSinksGetResponse = z.array(zDataSink);
 
 export const zCreateDataSinkApiV1DataSinksPostResponse = zDataSink;
-
-export const zUpsertDataSinkApiV1DataSinksPutResponse = zDataSink;
 
 export const zDeleteDataSinkApiV1DataSinksDataSinkIdDeleteResponse = z.void();
 
@@ -3658,8 +3325,6 @@ export const zUpdateDataSinkApiV1DataSinksDataSinkIdPutResponse = zDataSink;
 export const zListDataSourcesApiV1DataSourcesGetResponse = z.array(zDataSource);
 
 export const zCreateDataSourceApiV1DataSourcesPostResponse = zDataSource;
-
-export const zUpsertDataSourceApiV1DataSourcesPutResponse = zDataSource;
 
 export const zDeleteDataSourceApiV1DataSourcesDataSourceIdDeleteResponse =
   z.void();
@@ -3676,9 +3341,6 @@ export const zListEmbeddingModelConfigsApiV1EmbeddingModelConfigsGetResponse =
 export const zCreateEmbeddingModelConfigApiV1EmbeddingModelConfigsPostResponse =
   zEmbeddingModelConfig;
 
-export const zUpsertEmbeddingModelConfigApiV1EmbeddingModelConfigsPutResponse =
-  zEmbeddingModelConfig;
-
 export const zDeleteEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModelConfigIdDeleteResponse =
   z.void();
 
@@ -3688,87 +3350,18 @@ export const zUpdateEmbeddingModelConfigApiV1EmbeddingModelConfigsEmbeddingModel
 export const zListOrganizationsApiV1OrganizationsGetResponse =
   z.array(zOrganization);
 
-export const zCreateOrganizationApiV1OrganizationsPostResponse = zOrganization;
-
-export const zUpsertOrganizationApiV1OrganizationsPutResponse = zOrganization;
-
-export const zGetDefaultOrganizationApiV1OrganizationsDefaultGetResponse =
-  zOrganization;
-
-export const zSetDefaultOrganizationApiV1OrganizationsDefaultPutResponse =
-  zOrganization;
-
-export const zDeleteOrganizationApiV1OrganizationsOrganizationIdDeleteResponse =
-  z.void();
-
 export const zGetOrganizationApiV1OrganizationsOrganizationIdGetResponse =
   zOrganization;
 
-export const zUpdateOrganizationApiV1OrganizationsOrganizationIdPutResponse =
-  zOrganization;
-
-export const zGetOrganizationUsageApiV1OrganizationsOrganizationIdUsageGetResponse =
-  zUsageAndPlan;
-
-export const zListOrganizationUsersApiV1OrganizationsOrganizationIdUsersGetResponse =
-  z.array(zUserOrganization);
-
-export const zAddUsersToOrganizationApiV1OrganizationsOrganizationIdUsersPutResponse =
-  z.array(zUserOrganization);
-
-export const zRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersMemberUserIdDeleteResponse =
-  z.void();
-
-export const zBatchRemoveUsersFromOrganizationApiV1OrganizationsOrganizationIdUsersRemovePutResponse =
-  z.void();
-
-export const zListRolesApiV1OrganizationsOrganizationIdRolesGetResponse =
-  z.array(zRole);
-
-export const zGetUserRoleApiV1OrganizationsOrganizationIdUsersRolesGetResponse =
-  z.union([zUserOrganizationRole, z.null()]);
-
-export const zAssignRoleToUserInOrganizationApiV1OrganizationsOrganizationIdUsersRolesPutResponse =
-  zUserOrganizationRole;
-
-export const zListProjectsByUserApiV1OrganizationsOrganizationIdUsersUserIdProjectsGetResponse =
-  z.array(zProject);
-
 export const zListProjectsApiV1ProjectsGetResponse = z.array(zProject);
-
-export const zCreateProjectApiV1ProjectsPostResponse = zProject;
-
-export const zUpsertProjectApiV1ProjectsPutResponse = zProject;
-
-export const zDeleteProjectApiV1ProjectsProjectIdDeleteResponse = z.void();
 
 export const zGetProjectApiV1ProjectsProjectIdGetResponse = zProject;
 
-export const zUpdateExistingProjectApiV1ProjectsProjectIdPutResponse = zProject;
-
-export const zGetCurrentProjectApiV1ProjectsCurrentGetResponse = zProject;
-
-export const zGetProjectUsageApiV1ProjectsProjectIdUsageGetResponse =
-  zUsageAndPlan;
-
-export const zDeleteFileApiV1FilesIdDeleteResponse = z.void();
-
-export const zGetFileApiV1FilesIdGetResponse = zFile;
-
-export const zListFilesApiV1FilesGetResponse = z.array(zFile);
-
-export const zUploadFileApiV1FilesPostResponse = zFile;
-
-export const zGeneratePresignedUrlApiV1FilesPutResponse = zFileIdPresignedUrl;
-
-export const zSyncFilesApiV1FilesSyncPutResponse = z.array(zFile);
-
-export const zUploadFileFromUrlApiV1FilesUploadFromUrlPutResponse = zFile;
-
-export const zReadFileContentApiV1FilesIdContentGetResponse = zPresignedUrl;
-
 export const zListFilePageScreenshotsApiV1FilesIdPageScreenshotsGetResponse =
   z.array(zPageScreenshotMetadata);
+
+export const zGenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse =
+  zPresignedUrl;
 
 export const zListFilePagesFiguresApiV1FilesIdPageFiguresGetResponse =
   z.array(zPageFigureMetadata);
@@ -3776,11 +3369,20 @@ export const zListFilePagesFiguresApiV1FilesIdPageFiguresGetResponse =
 export const zListFilePageFiguresApiV1FilesIdPageFiguresPageIndexGetResponse =
   z.array(zPageFigureMetadata);
 
-export const zGenerateFilePageScreenshotPresignedUrlApiV1FilesIdPageScreenshotsPageIndexPresignedUrlPostResponse =
-  zPresignedUrl;
-
 export const zGenerateFilePageFigurePresignedUrlApiV1FilesIdPageFiguresPageIndexFigureNamePresignedUrlPostResponse =
   zPresignedUrl;
+
+export const zDeleteFileApiV1FilesIdDeleteResponse = z.void();
+
+export const zGetFileApiV1FilesIdGetResponse = zFile;
+
+export const zUploadFileApiV1FilesPostResponse = zFile;
+
+export const zGeneratePresignedUrlApiV1FilesPutResponse = zFileIdPresignedUrl;
+
+export const zUploadFileFromUrlApiV1FilesUploadFromUrlPutResponse = zFile;
+
+export const zReadFileContentApiV1FilesIdContentGetResponse = zPresignedUrl;
 
 export const zSearchPipelinesApiV1PipelinesGetResponse = z.array(zPipeline);
 
@@ -3808,11 +3410,26 @@ export const zForceDeletePipelineApiV1PipelinesPipelineIdForceDeletePostResponse
 
 export const zCopyPipelineApiV1PipelinesPipelineIdCopyPostResponse = zPipeline;
 
-export const zListPipelineFilesApiV1PipelinesPipelineIdFilesGetResponse =
-  z.array(zPipelineFile);
+export const zRunSearchApiV1PipelinesPipelineIdRetrievePostResponse =
+  zRetrieveResults;
 
-export const zAddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse =
-  z.array(zPipelineFile);
+export const zGetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse =
+  zPlaygroundSession;
+
+export const zListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse =
+  z.array(zPipelineDataSource);
+
+export const zAddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse =
+  z.array(zPipelineDataSource);
+
+export const zUpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse =
+  zPipelineDataSource;
+
+export const zSyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse =
+  zPipeline;
+
+export const zGetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse =
+  zManagedIngestionStatusResponse;
 
 export const zListPipelineFiles2ApiV1PipelinesPipelineIdFiles2GetResponse =
   zPaginatedListPipelineFilesResponse;
@@ -3822,6 +3439,9 @@ export const zGetPipelineFileStatusCountsApiV1PipelinesPipelineIdFilesStatusCoun
 
 export const zGetPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGetResponse =
   zManagedIngestionStatusResponse;
+
+export const zAddFilesToPipelineApiApiV1PipelinesPipelineIdFilesPutResponse =
+  z.array(zPipelineFile);
 
 export const zDeletePipelineFileApiV1PipelinesPipelineIdFilesFileIdDeleteResponse =
   z.void();
@@ -3834,36 +3454,6 @@ export const zDeletePipelineFilesMetadataApiV1PipelinesPipelineIdMetadataDeleteR
 
 export const zImportPipelineMetadataApiV1PipelinesPipelineIdMetadataPutResponse =
   z.object({});
-
-export const zListPipelineDataSourcesApiV1PipelinesPipelineIdDataSourcesGetResponse =
-  z.array(zPipelineDataSource);
-
-export const zAddDataSourcesToPipelineApiV1PipelinesPipelineIdDataSourcesPutResponse =
-  z.array(zPipelineDataSource);
-
-export const zDeletePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdDeleteResponse =
-  z.void();
-
-export const zUpdatePipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdPutResponse =
-  zPipelineDataSource;
-
-export const zSyncPipelineDataSourceApiV1PipelinesPipelineIdDataSourcesDataSourceIdSyncPostResponse =
-  zPipeline;
-
-export const zGetPipelineDataSourceStatusApiV1PipelinesPipelineIdDataSourcesDataSourceIdStatusGetResponse =
-  zManagedIngestionStatusResponse;
-
-export const zRunSearchApiV1PipelinesPipelineIdRetrievePostResponse =
-  zRetrieveResults;
-
-export const zListPipelineJobsApiV1PipelinesPipelineIdJobsGetResponse =
-  z.array(zPipelineDeployment);
-
-export const zGetPipelineJobApiV1PipelinesPipelineIdJobsJobIdGetResponse =
-  zPipelineDeployment;
-
-export const zGetPlaygroundSessionApiV1PipelinesPipelineIdPlaygroundSessionGetResponse =
-  zPlaygroundSession;
 
 export const zListPipelineDocumentsApiV1PipelinesPipelineIdDocumentsGetResponse =
   z.array(zCloudDocument);
@@ -3908,11 +3498,6 @@ export const zRetrieveApiV1RetrieversRetrieverIdRetrievePostResponse =
 export const zDirectRetrieveApiV1RetrieversRetrievePostResponse =
   zCompositeRetrievalResult;
 
-export const zGetJobsApiV1JobsGetResponse = zPaginatedJobsHistoryWithMetrics;
-
-export const zListSupportedModelsApiV1EvalsModelsGetResponse =
-  z.array(zSupportedLlmModel);
-
 export const zGetSupportedFileExtensionsApiV1ParsingSupportedFileExtensionsGetResponse =
   z.array(zLlamaParseSupportedFileExtensions);
 
@@ -3934,19 +3519,8 @@ export const zGetJobResultApiV1ParsingJobJobIdResultMarkdownGetResponse =
 export const zGetJobJsonResultApiV1ParsingJobJobIdResultJsonGetResponse =
   zParsingJobJsonResult;
 
-export const zGetParsingHistoryResultApiV1ParsingHistoryGetResponse =
-  z.array(zParsingHistoryItem);
-
 export const zGeneratePresignedUrlApiV1ParsingJobJobIdReadFilenameGetResponse =
   zPresignedUrl;
-
-export const zGetChatAppsApiV1AppsGetResponse = z.array(zChatAppResponse);
-
-export const zCreateChatAppApiV1AppsPostResponse = zChatApp;
-
-export const zGetChatAppApiV1AppsIdGetResponse = zChatApp;
-
-export const zUpdateChatAppApiV1AppsIdPutResponse = zChatApp;
 
 export const zListClassifyJobsApiV1ClassifierJobsGetResponse =
   zPaginatedResponseClassifyJob;
@@ -3958,19 +3532,6 @@ export const zGetClassifyJobApiV1ClassifierJobsClassifyJobIdGetResponse =
 
 export const zGetClassificationJobResultsApiV1ClassifierJobsClassifyJobIdResultsGetResponse =
   zClassifyJobResults;
-
-export const zReadSelfApiV1AuthMeGetResponse = zUser;
-
-export const zCreateCustomerPortalSessionApiV1BillingCustomerPortalSessionPostResponse =
-  z.string();
-
-export const zDowngradePlanApiV1BillingDowngradePlanPostResponse = z.object({});
-
-export const zCreateIntentAndCustomerSessionApiV1BillingCreateIntentAndCustomerSessionPostResponse =
-  zCreateIntentAndCustomerSessionResponse;
-
-export const zGetMetronomeDashboardApiV1BillingMetronomeDashboardGetResponse =
-  zMetronomeDashboardResponse;
 
 export const zListJobsApiV1ExtractionJobsGetResponse = z.array(zExtractJob);
 
@@ -4023,19 +3584,8 @@ export const zGetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentId
 export const zUpdateExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdPutResponse =
   zExtractAgent;
 
-export const zListApiKeysApiV1BetaApiKeysGetResponse = zApiKeyQueryResponse;
-
-export const zCreateApiKeyApiV1BetaApiKeysPostResponse = zApiKey;
-
-export const zDeleteApiKeyApiV1BetaApiKeysApiKeyIdDeleteResponse = z.void();
-
-export const zGetApiKeyApiV1BetaApiKeysApiKeyIdGetResponse = zApiKey;
-
-export const zListBatchesApiV1BetaBatchesGetResponse = zBatchPaginatedList;
-
-export const zCreateBatchApiV1BetaBatchesPostResponse = zBatch;
-
-export const zGetBatchApiV1BetaBatchesBatchIdGetResponse = zBatchPublicOutput;
+export const zListUsageMetricsApiV1BetaUsageMetricsGetResponse =
+  zUsageMetricQueryResponse;
 
 export const zDeleteAgentDataApiV1BetaAgentDataItemIdDeleteResponse = z.object(
   {},
@@ -4056,9 +3606,6 @@ export const zAggregateAgentDataApiV1BetaAgentDataAggregatePostResponse =
 export const zDeleteAgentDataByQueryApiV1BetaAgentDataDeletePostResponse =
   zDeleteResponse;
 
-export const zListQuotaConfigurationsApiV1BetaQuotaManagementGetResponse =
-  zPaginatedResponseQuotaConfiguration;
-
 export const zCreateFileApiV1BetaFilesPostResponse = zFile;
 
 export const zUpsertFileApiV1BetaFilesPutResponse = zFile;
@@ -4073,9 +3620,6 @@ export const zListParseConfigurationsApiV1BetaParseConfigurationsGetResponse =
 export const zCreateParseConfigurationApiV1BetaParseConfigurationsPostResponse =
   zParseConfiguration;
 
-export const zUpsertParseConfigurationApiV1BetaParseConfigurationsPutResponse =
-  zParseConfiguration;
-
 export const zDeleteParseConfigurationApiV1BetaParseConfigurationsConfigIdDeleteResponse =
   z.void();
 
@@ -4085,49 +3629,95 @@ export const zGetParseConfigurationApiV1BetaParseConfigurationsConfigIdGetRespon
 export const zUpdateParseConfigurationApiV1BetaParseConfigurationsConfigIdPutResponse =
   zParseConfiguration;
 
-export const zQueryParseConfigurationsApiV1BetaParseConfigurationsQueryPostResponse =
-  zParseConfigurationQueryResponse;
-
-export const zGetLatestParseConfigurationApiV1BetaParseConfigurationsLatestGetResponse =
-  z.union([zParseConfiguration, z.null()]);
-
-export const zListSpreadsheetJobsApiV1BetaSpreadsheetJobsGetResponse =
+export const zListSpreadsheetJobsApiV1BetaSheetsJobsGetResponse =
   zPaginatedResponseSpreadsheetJob;
 
-export const zCreateSpreadsheetJobApiV1BetaSpreadsheetJobsPostResponse =
+export const zCreateSpreadsheetJobApiV1BetaSheetsJobsPostResponse =
   zSpreadsheetJob;
 
-export const zGetSpreadsheetJobApiV1BetaSpreadsheetJobsSpreadsheetJobIdGetResponse =
+export const zGetSpreadsheetJobApiV1BetaSheetsJobsSpreadsheetJobIdGetResponse =
   zSpreadsheetJob;
 
-export const zGetTableDownloadPresignedUrlApiV1BetaSpreadsheetJobsSpreadsheetJobIdTablesTableIdResultGetResponse =
+export const zGetResultRegionApiV1BetaSheetsJobsSpreadsheetJobIdRegionsRegionIdResultRegionTypeGetResponse =
   zPresignedUrl;
 
-export const zUploadFileV2ApiV2Alpha1ParseUploadPostResponse = zParsingJob;
+export const zListDirectoriesApiV1BetaDirectoriesGetResponse =
+  zDirectoryQueryResponse;
 
-export const zGetSupportedFileExtensionsApiParsingSupportedFileExtensionsGetResponse =
-  z.array(zLlamaParseSupportedFileExtensions);
+export const zCreateDirectoryApiV1BetaDirectoriesPostResponse =
+  zDirectoryResponse;
 
-export const zScreenshotApiParsingScreenshotPostResponse = zParsingJob;
+export const zDeleteDirectoryApiV1BetaDirectoriesDirectoryIdDeleteResponse =
+  z.void();
 
-export const zUploadFileApiParsingUploadPostResponse = zParsingJob;
+export const zGetDirectoryApiV1BetaDirectoriesDirectoryIdGetResponse =
+  zDirectoryResponse;
 
-export const zGetJobApiParsingJobJobIdGetResponse = zParsingJob;
+export const zUpdateDirectoryApiV1BetaDirectoriesDirectoryIdPatchResponse =
+  zDirectoryResponse;
 
-export const zGetJobTextResultApiParsingJobJobIdResultTextGetResponse =
-  zParsingJobTextResult;
+export const zCreateDirectorySyncJobApiV1BetaDirectorySyncJobsPostResponse =
+  zDirectorySyncJobResponse;
 
-export const zGetJobStructuredResultApiParsingJobJobIdResultStructuredGetResponse =
-  zParsingJobStructuredResult;
+export const zGetDirectorySyncJobApiV1BetaDirectorySyncJobsJobIdGetResponse =
+  zDirectorySyncJobResponse;
 
-export const zGetJobResultApiParsingJobJobIdResultMarkdownGetResponse =
-  zParsingJobMarkdownResult;
+export const zListDirectoryFilesApiV1BetaDirectoriesDirectoryIdFilesGetResponse =
+  zDirectoryFileQueryResponse;
 
-export const zGetJobJsonResultApiParsingJobJobIdResultJsonGetResponse =
-  zParsingJobJsonResult;
+export const zAddDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesPostResponse =
+  zDirectoryFileResponse;
 
-export const zGetParsingHistoryResultApiParsingHistoryGetResponse =
-  z.array(zParsingHistoryItem);
+export const zUploadFileToDirectoryApiV1BetaDirectoriesDirectoryIdFilesUploadPostResponse =
+  zDirectoryFileResponse;
 
-export const zGeneratePresignedUrlApiParsingJobJobIdReadFilenameGetResponse =
-  zPresignedUrl;
+export const zDeleteDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdDeleteResponse =
+  z.void();
+
+export const zGetDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdGetResponse =
+  zDirectoryFileResponse;
+
+export const zUpdateDirectoryFileApiV1BetaDirectoriesDirectoryIdFilesDirectoryFileIdPatchResponse =
+  zDirectoryFileResponse;
+
+export const zListSplitJobsApiV1BetaSplitJobsGetResponse =
+  zSplitJobQueryResponse;
+
+export const zCreateSplitJobApiV1BetaSplitJobsPostResponse = zSplitJobResponse;
+
+export const zGetSplitJobApiV1BetaSplitJobsSplitJobIdGetResponse =
+  zSplitJobResponse;
+
+export const zListBatchJobsApiV1BetaBatchProcessingGetResponse =
+  zBatchJobQueryResponse;
+
+export const zCreateBatchJobApiV1BetaBatchProcessingPostResponse =
+  zBatchJobResponse;
+
+export const zGetBatchJobStatusApiV1BetaBatchProcessingJobIdGetResponse =
+  zBatchJobStatusResponse;
+
+export const zListBatchJobItemsApiV1BetaBatchProcessingJobIdItemsGetResponse =
+  zBatchItemListResponse;
+
+export const zCancelBatchJobApiV1BetaBatchProcessingJobIdCancelPostResponse =
+  zBatchJobCancelResponse;
+
+export const zGetItemProcessingResultsApiV1BetaBatchProcessingItemsItemIdProcessingResultsGetResponse =
+  zItemProcessingResultsResponse;
+
+export const zUploadFileMultipartApiV2Alpha1ParseUploadPostResponse =
+  zParsingJob;
+
+export const zUploadFileByIdApiV2Alpha1ParsePostResponse = zParsingJob;
+
+export const zUploadFileByUrlApiV2Alpha1ParseUrlPostResponse = zParsingJob;
+
+export const zGetMarkdownTemplateApiV2Alpha1ParseJobJobIdResultMarkdownGetResponse =
+  zMarkdownResult;
+
+export const zGetTextTemplateApiV2Alpha1ParseJobJobIdResultTextGetResponse =
+  zTextResult;
+
+export const zGetStructuredTemplateApiV2Alpha1ParseJobJobIdResultStructuredGetResponse =
+  zStructuredResult;
