@@ -1,7 +1,7 @@
 import {
   addFilesToPipelineApiApiV1PipelinesPipelineIdFilesPut,
   getPipelineFileStatusApiV1PipelinesPipelineIdFilesFileIdStatusGet,
-  listPipelineFilesApiV1PipelinesPipelineIdFilesGet,
+  listPipelineFiles2ApiV1PipelinesPipelineIdFiles2Get,
   listProjectsApiV1ProjectsGet,
   readFileContentApiV1FilesIdContentGet,
   searchPipelinesApiV1PipelinesGet,
@@ -97,21 +97,20 @@ export class LLamaCloudFileService {
    */
   public static async getFileUrl(pipelineId: string, filename: string) {
     initService();
-    const { data: allPipelineFiles } =
-      await listPipelineFilesApiV1PipelinesPipelineIdFilesGet({
-        path: {
-          pipeline_id: pipelineId,
-        },
-        throwOnError: true,
-      });
-    const file = allPipelineFiles.find((file) => file.name === filename);
+    const response = await listPipelineFiles2ApiV1PipelinesPipelineIdFiles2Get({
+      path: {
+        pipeline_id: pipelineId,
+      },
+      throwOnError: true,
+    });
+    const file = response.data.files.find((file) => file.name === filename);
     if (!file?.file_id) return null;
     const { data: fileContent } = await readFileContentApiV1FilesIdContentGet({
       path: {
         id: file.file_id,
       },
       query: {
-        project_id: file.project_id,
+        project_id: file.project_id || null,
       },
       throwOnError: true,
     });
