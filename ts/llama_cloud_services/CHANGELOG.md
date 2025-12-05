@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.4.3
+
+### Patch Changes
+
+- 71db318: Add tier and version
+
 ## 0.4.2
 
 ### Patch Changes

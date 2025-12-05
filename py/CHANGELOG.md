@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.88
+
+### Patch Changes
+
+- 71db318: Add tier and version
+
 ## 0.6.87
 
 ### Patch Changes
