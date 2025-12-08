@@ -1,6 +1,6 @@
 import { workflowEvent } from "@llamaindex/workflow-core";
 import { zodEvent } from "@llamaindex/workflow-core/util/zod";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { parseFormSchema } from "./schema";
 
 export const uploadEvent = zodEvent(

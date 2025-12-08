@@ -116,7 +116,7 @@
     "@eslint/js": "^9.32.0",
     "@hey-api/client-fetch": "^0.10.1",
     "@hey-api/openapi-ts": "^0.67.5",
-    "@llamaindex/core": "^0.6.19",
+    "@llamaindex/core": "^0.6.22",
     "@llamaindex/env": "^0.1.30",
     "@llamaindex/workflow-core": "^0.4.1",
     "@types/node": "^20.19.9",
@@ -142,7 +142,7 @@
     "ajv": "^8.17.1",
     "file-type": "^21.0.0",
     "p-retry": "^6.2.1",
-    "zod": "^3.25.76"
+    "zod": "^3.25.76 || ^4.0.0"
   },
   "packageManager": "pnpm@10.8.1"
 }

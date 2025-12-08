@@ -1,6 +1,6 @@
 import { FailPageMode, ParserLanguages, ParsingMode } from "./client";
 
-import { z } from "zod";
+import { z } from "zod/v4";
 
 type Language = ParserLanguages;
 const VALUES: [Language, ...Language[]] = [
@@ -52,9 +52,9 @@ export const parseFormSchema = z.object({
   html_remove_navigation_elements: z.boolean().optional(),
   http_proxy: z
     .string()
-    .url(
-      'Set a valid URL for the HTTP proxy, e.g., "http://proxy.example.com:8080"',
-    )
+    .url({
+      error: 'Set a valid URL for the HTTP proxy, e.g., "http://proxy.example.com:8080"',
+    })
     .refine(
       (url) => {
         try {
@@ -67,7 +67,7 @@ export const parseFormSchema = z.object({
         }
       },
       {
-        message: "Invalid HTTP proxy URL",
+        error: "Invalid HTTP proxy URL",
       },
     )
     .optional(),
@@ -100,7 +100,7 @@ export const parseFormSchema = z.object({
   vendor_multimodal_model_name: z.string().optional(),
   model: z.string().optional(),
   webhook_url: z.string().url().optional(),
-  parse_mode: z.nativeEnum(ParsingMode).nullable().optional(),
+  parse_mode: z.enum(ParsingMode).nullable().optional(),
   system_prompt: z.string().optional(),
   system_prompt_append: z.string().optional(),
   user_prompt: z.string().optional(),
@@ -129,7 +129,7 @@ export const parseFormSchema = z.object({
   compact_markdown_table: z.boolean().optional(),
   markdown_table_multiline_header_separator: z.string().optional(),
   page_error_tolerance: z.number().min(0).max(1).optional(),
-  replace_failed_page_mode: z.nativeEnum(FailPageMode).nullable().optional(),
+  replace_failed_page_mode: z.enum(FailPageMode).nullable().optional(),
   replace_failed_page_with_error_message_prefix: z.string().optional(),
   replace_failed_page_with_error_message_suffix: z.string().optional(),
 });
