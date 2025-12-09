@@ -3,7 +3,7 @@ import { type Client, createClient, createConfig } from "@hey-api/client-fetch";
 import { Document, FileReader } from "@llamaindex/core/schema";
 import { fs, getEnv, path } from "@llamaindex/env";
 import {
-  type BodyUploadFileApiParsingUploadPost,
+  type BodyUploadFileApiV1ParsingUploadPost,
   type FailPageMode,
   type ParserLanguages,
   type ParsingMode,
@@ -188,6 +188,16 @@ export class LlamaParseReader extends FileReader {
   extract_printed_page_number?: boolean | undefined;
   tier?: string | undefined;
   version?: string | undefined;
+  layout_aware?: boolean | undefined;
+  line_level_bounding_box?: boolean | undefined;
+  specialized_image_parsing?: boolean | undefined;
+  aggressive_table_extraction?: boolean | undefined;
+  preserve_very_small_text?: boolean | undefined;
+  spreadsheet_force_formula_computation?: boolean | undefined;
+  inline_images_in_markdown?: boolean | undefined;
+  keep_page_separator_when_merging_tables?: boolean | undefined;
+  remove_hidden_text?: boolean | undefined;
+  presentation_out_of_bounds_content?: boolean | undefined;
 
   constructor(
     params: Partial<Omit<LlamaParseReader, "language" | "apiKey">> & {
@@ -387,11 +397,25 @@ export class LlamaParseReader extends FileReader {
       extract_printed_page_number: this.extract_printed_page_number,
       tier: this.tier,
       version: this.version,
+      layout_aware: this.layout_aware,
+      line_level_bounding_box: this.line_level_bounding_box,
+      specialized_image_parsing: this.specialized_image_parsing,
+      aggressive_table_extraction: this.aggressive_table_extraction,
+      preserve_very_small_text: this.preserve_very_small_text,
+      spreadsheet_force_formula_computation:
+        this.spreadsheet_force_formula_computation,
+      inline_images_in_markdown: this.inline_images_in_markdown,
+      webhook_configurations: undefined,
+      keep_page_separator_when_merging_tables:
+        this.keep_page_separator_when_merging_tables,
+      remove_hidden_text: this.remove_hidden_text,
+      presentation_out_of_bounds_content:
+        this.presentation_out_of_bounds_content,
     } satisfies {
-      [Key in keyof BodyUploadFileApiParsingUploadPost]-?:
-        | BodyUploadFileApiParsingUploadPost[Key]
+      [Key in keyof BodyUploadFileApiV1ParsingUploadPost]-?:
+        | BodyUploadFileApiV1ParsingUploadPost[Key]
         | undefined;
-    } as unknown as BodyUploadFileApiParsingUploadPost;
+    } as unknown as BodyUploadFileApiV1ParsingUploadPost;
 
     const response = await uploadFileApiV1ParsingUploadPost({
       client: this.#client,
@@ -452,7 +476,8 @@ export class LlamaParseReader extends FileReader {
                   ((error.cause as any)?.code &&
                     ((error.cause as any).code === "ECONNRESET" ||
                       (error.cause as any).code === "ETIMEDOUT" ||
-                      (error.cause as any).code === "ECONNREFUSED"))
+                      (error.cause as any).code === "ECONNREFUSED")) ||
+                  (status && status === 404)
                 )
               ) {
                 throw error;
@@ -475,49 +500,126 @@ export class LlamaParseReader extends FileReader {
       const status = (data as Record<string, unknown>)["status"];
 
       if (status === "SUCCESS") {
-        let resultData;
         switch (resultType) {
           case "json": {
-            resultData =
-              await getJobJsonResultApiV1ParsingJobJobIdResultJsonGet({
-                client: this.#client,
-                throwOnError: true,
-                path: { job_id: jobId },
-                query: {
-                  organization_id: this.organization_id ?? null,
+            const resultData = await pRetry(
+              () =>
+                getJobJsonResultApiV1ParsingJobJobIdResultJsonGet({
+                  client: this.#client,
+                  throwOnError: true,
+                  path: { job_id: jobId },
+                  query: {
+                    organization_id: this.organization_id ?? null,
+                  },
+                  signal: AbortSignal.timeout(this.maxTimeout * 1000),
+                }),
+              {
+                retries: this.maxErrorCount,
+                onFailedAttempt: (error) => {
+                  // Retry only on 5XX or socket errors.
+                  const status = (error.cause as any)?.response?.status;
+                  if (
+                    !(
+                      (status && status >= 500 && status < 600) ||
+                      ((error.cause as any)?.code &&
+                        ((error.cause as any).code === "ECONNRESET" ||
+                          (error.cause as any).code === "ETIMEDOUT" ||
+                          (error.cause as any).code === "ECONNREFUSED")) ||
+                      (status && status === 404)
+                    )
+                  ) {
+                    throw error;
+                  }
+                  if (this.verbose) {
+                    console.warn(
+                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
+                    );
+                  }
                 },
-                signal: AbortSignal.timeout(this.maxTimeout * 1000),
-              });
-            break;
+              },
+            );
+            return resultData.data;
           }
           case "markdown": {
-            resultData =
-              await getJobResultApiV1ParsingJobJobIdResultMarkdownGet({
-                client: this.#client,
-                throwOnError: true,
-                path: { job_id: jobId },
-                query: {
-                  organization_id: this.organization_id ?? null,
+            const resultData = await pRetry(
+              () =>
+                getJobResultApiV1ParsingJobJobIdResultMarkdownGet({
+                  client: this.#client,
+                  throwOnError: true,
+                  path: { job_id: jobId },
+                  query: {
+                    organization_id: this.organization_id ?? null,
+                  },
+                  signal: AbortSignal.timeout(this.maxTimeout * 1000),
+                }),
+              {
+                retries: this.maxErrorCount,
+                onFailedAttempt: (error) => {
+                  // Retry only on 5XX or socket errors.
+                  const status = (error.cause as any)?.response?.status;
+                  if (
+                    !(
+                      (status && status >= 500 && status < 600) ||
+                      ((error.cause as any)?.code &&
+                        ((error.cause as any).code === "ECONNRESET" ||
+                          (error.cause as any).code === "ETIMEDOUT" ||
+                          (error.cause as any).code === "ECONNREFUSED")) ||
+                      (status && status === 404)
+                    )
+                  ) {
+                    throw error;
+                  }
+                  if (this.verbose) {
+                    console.warn(
+                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
+                    );
+                  }
                 },
-                signal: AbortSignal.timeout(this.maxTimeout * 1000),
-              });
-            break;
+              },
+            );
+            return resultData.data;
           }
           case "text": {
-            resultData =
-              await getJobTextResultApiV1ParsingJobJobIdResultTextGet({
-                client: this.#client,
-                throwOnError: true,
-                path: { job_id: jobId },
-                query: {
-                  organization_id: this.organization_id ?? null,
+            const resultData = await pRetry(
+              () =>
+                getJobTextResultApiV1ParsingJobJobIdResultTextGet({
+                  client: this.#client,
+                  throwOnError: true,
+                  path: { job_id: jobId },
+                  query: {
+                    organization_id: this.organization_id ?? null,
+                  },
+                  signal: AbortSignal.timeout(this.maxTimeout * 1000),
+                }),
+              {
+                retries: this.maxErrorCount,
+                onFailedAttempt: (error) => {
+                  // Retry only on 5XX or socket errors.
+                  const status = (error.cause as any)?.response?.status;
+                  if (
+                    !(
+                      (status && status >= 500 && status < 600) ||
+                      ((error.cause as any)?.code &&
+                        ((error.cause as any).code === "ECONNRESET" ||
+                          (error.cause as any).code === "ETIMEDOUT" ||
+                          (error.cause as any).code === "ECONNREFUSED")) ||
+                      (status && status === 404)
+                    )
+                  ) {
+                    throw error;
+                  }
+                  if (this.verbose) {
+                    console.warn(
+                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
+                    );
+                  }
                 },
-                signal: AbortSignal.timeout(this.maxTimeout * 1000),
-              });
-            break;
+              },
+            );
+
+            return resultData.data;
           }
         }
-        return resultData.data;
       } else if (status === "PENDING") {
         if (this.verbose && tries % 10 === 0) {
           this.stdout?.write(".");
