@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { type Client, createClient, createConfig } from "@hey-api/client-fetch";
+import { type FailedAttemptError } from "p-retry";
 import { Document, FileReader } from "@llamaindex/core/schema";
 import { fs, getEnv, path } from "@llamaindex/env";
 import {
@@ -31,6 +32,33 @@ type WriteStream = {
 // Do not modify this variable or cause type errors
 // eslint-disable-next-line no-var
 var process: any;
+
+function handleFailedAttempt(
+  error: FailedAttemptError,
+  jobId: string,
+  verbose: boolean,
+) {
+  // Retry only on 5XX or socket errors.
+  const status = (error.cause as any)?.response?.status;
+  if (
+    !(
+      (status && status >= 500 && status < 600) ||
+      ((error.cause as any)?.code &&
+        ((error.cause as any).code === "ECONNRESET" ||
+          (error.cause as any).code === "ETIMEDOUT" ||
+          (error.cause as any).code === "ECONNREFUSED")) ||
+      (status && status === 404)
+    )
+  ) {
+    throw error;
+  }
+
+  if (verbose) {
+    console.warn(
+      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
+    );
+  }
+}
 
 /**
  * Represents a reader for parsing files using the LlamaParse API.
@@ -467,27 +495,8 @@ export class LlamaParseReader extends FileReader {
             }),
           {
             retries: this.maxErrorCount,
-            onFailedAttempt: (error) => {
-              // Retry only on 5XX or socket errors.
-              const status = (error.cause as any)?.response?.status;
-              if (
-                !(
-                  (status && status >= 500 && status < 600) ||
-                  ((error.cause as any)?.code &&
-                    ((error.cause as any).code === "ECONNRESET" ||
-                      (error.cause as any).code === "ETIMEDOUT" ||
-                      (error.cause as any).code === "ECONNREFUSED")) ||
-                  (status && status === 404)
-                )
-              ) {
-                throw error;
-              }
-              if (this.verbose) {
-                console.warn(
-                  `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
-                );
-              }
-            },
+            onFailedAttempt: (error) =>
+              handleFailedAttempt(error, jobId, this.verbose),
           },
         );
       } catch (e: any) {
@@ -515,27 +524,8 @@ export class LlamaParseReader extends FileReader {
                 }),
               {
                 retries: this.maxErrorCount,
-                onFailedAttempt: (error) => {
-                  // Retry only on 5XX or socket errors.
-                  const status = (error.cause as any)?.response?.status;
-                  if (
-                    !(
-                      (status && status >= 500 && status < 600) ||
-                      ((error.cause as any)?.code &&
-                        ((error.cause as any).code === "ECONNRESET" ||
-                          (error.cause as any).code === "ETIMEDOUT" ||
-                          (error.cause as any).code === "ECONNREFUSED")) ||
-                      (status && status === 404)
-                    )
-                  ) {
-                    throw error;
-                  }
-                  if (this.verbose) {
-                    console.warn(
-                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
-                    );
-                  }
-                },
+                onFailedAttempt: (error) =>
+                  handleFailedAttempt(error, jobId, this.verbose),
               },
             );
             return resultData.data;
@@ -554,27 +544,8 @@ export class LlamaParseReader extends FileReader {
                 }),
               {
                 retries: this.maxErrorCount,
-                onFailedAttempt: (error) => {
-                  // Retry only on 5XX or socket errors.
-                  const status = (error.cause as any)?.response?.status;
-                  if (
-                    !(
-                      (status && status >= 500 && status < 600) ||
-                      ((error.cause as any)?.code &&
-                        ((error.cause as any).code === "ECONNRESET" ||
-                          (error.cause as any).code === "ETIMEDOUT" ||
-                          (error.cause as any).code === "ECONNREFUSED")) ||
-                      (status && status === 404)
-                    )
-                  ) {
-                    throw error;
-                  }
-                  if (this.verbose) {
-                    console.warn(
-                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
-                    );
-                  }
-                },
+                onFailedAttempt: (error) =>
+                  handleFailedAttempt(error, jobId, this.verbose),
               },
             );
             return resultData.data;
@@ -593,27 +564,8 @@ export class LlamaParseReader extends FileReader {
                 }),
               {
                 retries: this.maxErrorCount,
-                onFailedAttempt: (error) => {
-                  // Retry only on 5XX or socket errors.
-                  const status = (error.cause as any)?.response?.status;
-                  if (
-                    !(
-                      (status && status >= 500 && status < 600) ||
-                      ((error.cause as any)?.code &&
-                        ((error.cause as any).code === "ECONNRESET" ||
-                          (error.cause as any).code === "ETIMEDOUT" ||
-                          (error.cause as any).code === "ECONNREFUSED")) ||
-                      (status && status === 404)
-                    )
-                  ) {
-                    throw error;
-                  }
-                  if (this.verbose) {
-                    console.warn(
-                      `Attempting to get job ${jobId} result (attempt ${error.attemptNumber}) failed. Retrying...`,
-                    );
-                  }
-                },
+                onFailedAttempt: (error) =>
+                  handleFailedAttempt(error, jobId, this.verbose),
               },
             );
 
