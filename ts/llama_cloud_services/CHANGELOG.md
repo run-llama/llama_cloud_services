@@ -1,5 +1,20 @@
 # llama-cloud-services
 
+## 0.5.0
+
+### Minor Changes
+
+- 576c3d9: feat: support zod v4 & v3
+
+  Adds support for zod v4 while maintaining backward compatibility with v3.
+  - Updated zod peer dependency to accept both v3 and v4: `^3.25.76 || ^4.0.0`
+  - Migrated all import statements to use `zod/v4` import path for compatibility
+
+### Patch Changes
+
+- c8321d2: Improve parse results polling
+- 576c3d9: Support zod v3 an v4
+
 ## 0.4.3
 
 ### Patch Changes
