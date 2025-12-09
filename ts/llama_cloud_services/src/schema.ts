@@ -53,7 +53,8 @@ export const parseFormSchema = z.object({
   http_proxy: z
     .string()
     .url({
-      error: 'Set a valid URL for the HTTP proxy, e.g., "http://proxy.example.com:8080"',
+      error:
+        'Set a valid URL for the HTTP proxy, e.g., "http://proxy.example.com:8080"',
     })
     .refine(
       (url) => {
