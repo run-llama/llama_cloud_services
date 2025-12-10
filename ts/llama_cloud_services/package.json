@@ -6,7 +6,7 @@
   "scripts": {
     "get-openapi": "node ./scripts/get-openapi.js",
     "generate": "./node_modules/.bin/openapi-ts",
-    "build": "pnpm run generate && bunchee",
+    "build": "bunchee",
     "dev": "bunchee --watch",
     "lint": "eslint src/ --ignore-pattern client/*.ts --no-warn-ignored",
     "format": "prettier --write ./src/ tests/",
