@@ -97,7 +97,7 @@ for page in result.pages:
     print(page.structuredData)
 ```
 
-See more details about the result object in the [example notebook](./docs/examples-py/parse/demo_json_tour.ipynb).
+See more details about the result object in the [example notebook](./examples/parse/demo_json_tour.ipynb).
 
 ### Using with file object / bytes
 
@@ -153,10 +153,10 @@ Full documentation for `SimpleDirectoryReader` can be found on the [LlamaIndex D
 
 Several end-to-end indexing examples can be found in the examples folder
 
-- [Getting Started](docs/examples-py/parse/demo_basic.ipynb)
-- [Advanced RAG Example](docs/examples-py/parse/demo_advanced.ipynb)
-- [Raw API Usage](docs/examples-py/parse/demo_api.ipynb)
-- [Result Object Tour](docs/examples-py/parse/demo_json_tour.ipynb)
+- [Getting Started](examples/parse/demo_basic.ipynb)
+- [Advanced RAG Example](examples/parse/demo_advanced.ipynb)
+- [Raw API Usage](examples/parse/demo_api.ipynb)
+- [Result Object Tour](examples/parse/demo_json_tour.ipynb)
 
 ## Documentation
 
