@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.5.1
+
+### Patch Changes
+
+- d5b18a0: Fix publishing
+
 ## 0.5.0
 
 ### Minor Changes
