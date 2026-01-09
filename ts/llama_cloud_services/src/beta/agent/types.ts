@@ -29,6 +29,44 @@ export type ComparisonOperator =
 export type FilterOperation = RawFilterOperation;
 
 /**
+ * Bounding box coordinates for a citation location on a page
+ */
+export interface BoundingBox {
+  /** X coordinate of the bounding box origin */
+  x: number;
+  /** Y coordinate of the bounding box origin */
+  y: number;
+  /** Width of the bounding box */
+  w: number;
+  /** Height of the bounding box */
+  h: number;
+}
+
+/**
+ * Dimensions of a page in the source document
+ */
+export interface PageDimensions {
+  /** Width of the page */
+  width: number;
+  /** Height of the page */
+  height: number;
+}
+
+/**
+ * Citation information for an extracted field
+ */
+export interface FieldCitation {
+  /** The page number that the field occurred on */
+  page?: number;
+  /** The original text this field's value was derived from */
+  matching_text?: string;
+  /** Bounding boxes indicating where the citation appears on the page */
+  bounding_boxes?: BoundingBox[];
+  /** Dimensions of the page containing the citation */
+  page_dimensions?: PageDimensions;
+}
+
+/**
  * Metadata for an extracted field, including confidence and citation information
  */
 export interface ExtractedFieldMetadata {
@@ -38,14 +76,9 @@ export interface ExtractedFieldMetadata {
   confidence?: number;
   /** The confidence score for the field based on the extracted text only */
   extraction_confidence?: number;
+  /** The confidence score for the field based on the parsing/OCR quality */
+  parsing_confidence?: number;
   citation?: FieldCitation[];
-}
-
-export interface FieldCitation {
-  /** The page number that the field occurred on */
-  page?: number;
-  /** The original text this field's value was derived from */
-  matching_text?: string;
 }
 
 /**
