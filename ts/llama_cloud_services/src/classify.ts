@@ -108,21 +108,16 @@ async function pollForJobCompletion({
     }
     const response =
       await getClassifyJobApiV1ClassifierJobsClassifyJobIdGet(jobOptions);
-    if (!response.response.ok) {
-      numIterations++;
-      await sleep(interval * 1000);
-    }
-    if (response.response.ok && typeof response.data != "undefined") {
+    if (typeof response.data != "undefined") {
       status = response.data.status as StatusEnum;
       if (status == StatusEnum.CANCELLED || status == StatusEnum.ERROR) {
-        throw new Error("There was an error during the classification job.");
+        throw new Error("There was an error extracting data from your file.");
       } else if (status == StatusEnum.SUCCESS) {
         return true;
-      } else {
-        numIterations++;
-        await sleep(interval * 1000);
       }
     }
+    numIterations++;
+    await sleep(interval * 1000);
   }
 }
 
