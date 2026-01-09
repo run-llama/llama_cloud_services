@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.89
+
+### Patch Changes
+
+- b9b83c9: Parse bounding boxes from extract jobs results in agent data
+
 ## 0.6.88
 
 ### Patch Changes
