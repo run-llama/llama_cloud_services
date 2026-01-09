@@ -110,8 +110,9 @@ async function pollForJobCompletion({
       await getClassifyJobApiV1ClassifierJobsClassifyJobIdGet(jobOptions);
     if (!response.response.ok) {
       numIterations++;
+      await sleep(interval * 1000);
     }
-    if (typeof response.data != "undefined") {
+    if (response.response.ok && typeof response.data != "undefined") {
       status = response.data.status as StatusEnum;
       if (status == StatusEnum.CANCELLED || status == StatusEnum.ERROR) {
         throw new Error("There was an error during the classification job.");
@@ -169,7 +170,7 @@ async function getJobResult({
       retries++;
       await sleep(retryInterval * 1000);
     }
-    if (typeof response.data != "undefined") {
+    if (response.response.ok && typeof response.data != "undefined") {
       return response.data as ClassifyJobResults;
     } else {
       throw new Error(

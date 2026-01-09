@@ -298,8 +298,9 @@ async function pollForJobCompletion(
     const response = await getJobApiV1ExtractionJobsJobIdGet(jobOptions);
     if (!response.response.ok) {
       numIterations++;
+      await sleep(interval * 1000);
     }
-    if (typeof response.data != "undefined") {
+    if (response.response.ok && typeof response.data != "undefined") {
       status = response.data.status as StatusEnum;
       if (status == StatusEnum.CANCELLED || status == StatusEnum.ERROR) {
         throw new Error("There was an error extracting data from your file.");
@@ -350,7 +351,7 @@ async function getJobResult(
       retries++;
       await sleep(retryInterval * 1000);
     }
-    if (typeof response.data != "undefined") {
+    if (response.response.ok && typeof response.data != "undefined") {
       return {
         data: response.data.data,
         extractionMetadata: response.data.extraction_metadata,
