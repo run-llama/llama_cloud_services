@@ -11,10 +11,12 @@ from llama_cloud.types.aggregate_group import AggregateGroup
 from pydantic import BaseModel, Field, ValidationError
 
 from llama_cloud_services.beta.agent_data.schema import (
+    BoundingBox,
     ExtractedData,
     ExtractedFieldMetadata,
     FieldCitation,
     InvalidExtractionData,
+    PageDimensions,
     TypedAgentData,
     TypedAggregateGroup,
     calculate_overall_confidence,
@@ -663,3 +665,69 @@ def test_field_conflict_in_schema():
     assert isinstance(
         extracted["majority_opinion"]["reasoning"], ExtractedFieldMetadata
     )
+
+
+def test_parse_extracted_field_metadata_with_bounding_boxes():
+    """Test parse_extracted_field_metadata with bounding boxes and page dimensions."""
+    raw_metadata = {
+        "document_type": {
+            "citation": [
+                {
+                    "page": 1,
+                    "matching_text": "FACTURE ORIGINALE",
+                    "bounding_boxes": [{"x": 77.28, "y": 615.12, "w": 70.6, "h": 7.2}],
+                    "page_dimensions": {"width": 222.24, "height": 736.56},
+                }
+            ],
+            "parsing_confidence": 1.0,
+            "extraction_confidence": 0.7252506422636493,
+            "confidence": 0.7252506422636493,
+        },
+        "summary": {
+            "citation": [
+                {
+                    "page": 1,
+                    "matching_text": "FACTURE ORIGINALE",
+                    "bounding_boxes": [{"x": 77.28, "y": 615.12, "w": 70.6, "h": 7.2}],
+                    "page_dimensions": {"width": 222.24, "height": 736.56},
+                },
+                {
+                    "page": 1,
+                    "matching_text": "Café filtre assiette — $1.90",
+                    "bounding_boxes": [
+                        {"x": 10.56, "y": 172.83, "w": 171.85, "h": 497.01}
+                    ],
+                    "page_dimensions": {"width": 222.24, "height": 736.56},
+                },
+            ],
+            "parsing_confidence": 1.0,
+            "extraction_confidence": 0.5700013128334419,
+            "confidence": 0.5700013128334419,
+        },
+    }
+
+    result = parse_extracted_field_metadata(raw_metadata)
+
+    # Verify document_type citation with bounding boxes
+    assert isinstance(result["document_type"], ExtractedFieldMetadata)
+    assert result["document_type"].parsing_confidence == 1.0
+    assert result["document_type"].extraction_confidence == 0.7252506422636493
+    assert result["document_type"].confidence == 0.7252506422636493
+    assert len(result["document_type"].citation) == 1
+
+    citation = result["document_type"].citation[0]
+    assert citation.page == 1
+    assert citation.matching_text == "FACTURE ORIGINALE"
+    assert len(citation.bounding_boxes) == 1
+    assert citation.bounding_boxes[0] == BoundingBox(x=77.28, y=615.12, w=70.6, h=7.2)
+    assert citation.page_dimensions == PageDimensions(width=222.24, height=736.56)
+
+    # Verify summary citation with multiple bounding boxes
+    assert isinstance(result["summary"], ExtractedFieldMetadata)
+    assert len(result["summary"].citation) == 2
+    assert result["summary"].citation[0].bounding_boxes[0].x == 77.28
+    assert result["summary"].citation[1].bounding_boxes[0].x == 10.56
+
+    # Verify round-trip serialization
+    result2 = parse_extracted_field_metadata(result)
+    assert result2 == result

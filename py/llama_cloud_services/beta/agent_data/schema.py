@@ -174,6 +174,22 @@ class TypedAgentDataItems(BaseModel, Generic[AgentDataT]):
     )
 
 
+class BoundingBox(BaseModel):
+    """Bounding box coordinates for a citation location on a page."""
+
+    x: float = Field(description="X coordinate of the bounding box origin")
+    y: float = Field(description="Y coordinate of the bounding box origin")
+    w: float = Field(description="Width of the bounding box")
+    h: float = Field(description="Height of the bounding box")
+
+
+class PageDimensions(BaseModel):
+    """Dimensions of a page in the source document."""
+
+    width: float = Field(description="Width of the page")
+    height: float = Field(description="Height of the page")
+
+
 class FieldCitation(BaseModel):
     page: Optional[int] = Field(
         None, description="The page number that the field occurred on"
@@ -181,6 +197,14 @@ class FieldCitation(BaseModel):
     matching_text: Optional[str] = Field(
         None,
         description="The original text this field's value was derived from",
+    )
+    bounding_boxes: Optional[List[BoundingBox]] = Field(
+        None,
+        description="Bounding boxes indicating where the citation appears on the page",
+    )
+    page_dimensions: Optional[PageDimensions] = Field(
+        None,
+        description="Dimensions of the page containing the citation",
     )
 
 
@@ -200,6 +224,10 @@ class ExtractedFieldMetadata(BaseModel):
     extraction_confidence: Optional[float] = Field(
         None,
         description="The confidence score for the field based on the extracted text only",
+    )
+    parsing_confidence: Optional[float] = Field(
+        None,
+        description="The confidence score for the field based on the parsing/OCR quality",
     )
     citation: Optional[List[FieldCitation]] = Field(
         None,

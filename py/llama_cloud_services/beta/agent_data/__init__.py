@@ -11,6 +11,9 @@ from .schema import (
     InvalidExtractionData,
     ExtractedFieldMetadata,
     ExtractedFieldMetaDataDict,
+    FieldCitation,
+    BoundingBox,
+    PageDimensions,
 )
 from .client import AsyncAgentDataClient
 
@@ -28,4 +31,7 @@ __all__ = [
     "InvalidExtractionData",
     "ExtractedFieldMetadata",
     "ExtractedFieldMetaDataDict",
+    "FieldCitation",
+    "BoundingBox",
+    "PageDimensions",
 ]
