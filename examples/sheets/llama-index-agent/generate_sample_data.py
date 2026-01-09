@@ -1,4 +1,9 @@
 """
+⚠️ DEPRECATION NOTICE:
+This example uses the deprecated llama-cloud-services package, which will be maintained until May 1, 2026.
+Please migrate to: pip install llama-cloud>=1.0 (https://github.com/run-llama/llama-cloud-py)
+"""
+"""
 Generate sample spreadsheets for LlamaSheets + LlamaIndex Agent workflows.
 
 This script creates example Excel files that demonstrate different use cases:

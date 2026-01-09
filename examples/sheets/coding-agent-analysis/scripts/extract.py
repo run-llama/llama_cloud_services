@@ -1,3 +1,8 @@
+"""
+⚠️ DEPRECATION NOTICE:
+This example uses the deprecated llama-cloud-services package, which will be maintained until May 1, 2026.
+Please migrate to: pip install llama-cloud>=1.0 (https://github.com/run-llama/llama-cloud-py)
+"""
 """Helper script to extract spreadsheets using LlamaSheets."""
 
 import asyncio
