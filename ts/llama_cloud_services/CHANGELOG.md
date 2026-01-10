@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.5.2
+
+### Patch Changes
+
+- 997bcc8: Add types for bounding boxes
+
 ## 0.5.1
 
 ### Patch Changes
