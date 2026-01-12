@@ -112,7 +112,10 @@ async function pollForJobCompletion({
       status = response.data.status as StatusEnum;
       if (status == StatusEnum.CANCELLED || status == StatusEnum.ERROR) {
         throw new Error("There was an error extracting data from your file.");
-      } else if (status == StatusEnum.SUCCESS) {
+      } else if (
+        status == StatusEnum.SUCCESS ||
+        status == StatusEnum.PARTIAL_SUCCESS
+      ) {
         return true;
       }
     }
