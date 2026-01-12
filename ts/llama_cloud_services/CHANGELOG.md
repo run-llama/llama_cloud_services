@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.5.3
+
+### Patch Changes
+
+- d7864af: bugfixes in retry logic for LlamaExtract and LlamaClassify
+
 ## 0.5.2
 
 ### Patch Changes
