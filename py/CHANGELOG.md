@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.90
+
+### Patch Changes
+
+- 19cbb25: Remove extension filter
+
 ## 0.6.89
 
 ### Patch Changes

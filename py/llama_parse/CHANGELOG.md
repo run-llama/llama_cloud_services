@@ -1,5 +1,13 @@
 # llama_parse
 
+## 0.6.90
+
+### Patch Changes
+
+- 19cbb25: Remove extension filter
+- Updated dependencies [19cbb25]
+  - llama-cloud-services-py@0.6.90
+
 ## 0.6.89
 
 ### Patch Changes
