@@ -751,11 +751,9 @@ class LlamaParse(BasePydanticReader):
             file_path = str(file_input)
             file_ext = os.path.splitext(file_path)[1].lower()
             if file_ext not in SUPPORTED_FILE_TYPES:
-                raise Exception(
-                    f"Currently, only the following file types are supported: {SUPPORTED_FILE_TYPES}\n"
-                    f"Current file type: {file_ext}"
-                )
-            mime_type = mimetypes.guess_type(file_path)[0]
+                mime_type = "application/octet-stream"
+            else:
+                mime_type = mimetypes.guess_type(file_path)[0]
             # Open the file here for the duration of the async context
             # load data, set the mime type
             fs = fs or get_default_fs()
