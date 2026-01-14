@@ -1,6 +1,6 @@
 ---
-"llama_parse": major
-"llama-cloud-services-py": major
+"llama_parse": patch
+"llama-cloud-services-py": patch
 ---
 
 Remove extension filter
