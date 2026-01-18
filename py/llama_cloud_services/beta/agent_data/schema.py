@@ -475,26 +475,49 @@ class ExtractedData(BaseModel, Generic[ExtractedT]):
                 },
             )
         except ValidationError as e:
+            # Capture the job-level error from the extraction run if available
+            job_error = result.error
+
             invalid_item = ExtractedData[Dict[str, Any]].create(
                 data=result.data or {},
                 status="error",
                 field_metadata=field_metadata,
-                metadata={"extraction_error": str(e), **(metadata or {})},
+                metadata={
+                    "extraction_error": str(e),
+                    **({"job_error": job_error} if job_error else {}),
+                    **(metadata or {}),
+                },
                 file_id=file_id,
                 file_name=file_name,
                 file_hash=file_hash,
             )
-            raise InvalidExtractionData(invalid_item) from e
+            raise InvalidExtractionData(invalid_item, extraction_error=job_error) from e
 
 
 class InvalidExtractionData(Exception):
     """
     Exception raised when the extracted data does not conform to the schema.
+
+    Attributes:
+        invalid_item: The ExtractedData instance containing the invalid data and metadata
+        extraction_error: The error message from the extraction job, if available
     """
 
-    def __init__(self, invalid_item: ExtractedData[Dict[str, Any]]):
+    def __init__(
+        self,
+        invalid_item: ExtractedData[Dict[str, Any]],
+        extraction_error: Optional[str] = None,
+    ):
         self.invalid_item = invalid_item
-        super().__init__("Not able to parse the extracted data, parsed invalid format")
+        self.extraction_error = extraction_error
+
+        # Build an informative error message
+        if extraction_error:
+            message = f"Extraction error: {extraction_error}"
+        else:
+            message = "Not able to parse the extracted data, parsed invalid format"
+
+        super().__init__(message)
 
 
 def calculate_overall_confidence(

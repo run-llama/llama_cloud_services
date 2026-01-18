@@ -423,6 +423,7 @@ def create_extract_run(
     },
     data_schema: Dict[str, Any] = {},
     file: File = create_file(),
+    error: Optional[str] = None,
 ) -> ExtractRun:
     return ExtractRun.parse_obj(
         {
@@ -439,6 +440,7 @@ def create_extract_run(
             "status": "SUCCESS",
             "project_id": str(uuid.uuid4()),
             "from_ui": False,
+            "error": error,
         }
     )
 
@@ -543,6 +545,46 @@ def test_extracted_data_from_extraction_result_invalid_data():
     assert isinstance(invalid_data.field_metadata["name"], ExtractedFieldMetadata)
     assert invalid_data.field_metadata["name"].confidence == 0.9
     assert invalid_data.overall_confidence == 0.9
+
+    # Verify default error message when no job error present
+    assert exc_info.value.extraction_error is None
+    assert "Not able to parse the extracted data" in str(exc_info.value)
+
+
+def test_extracted_data_from_extraction_result_with_job_error():
+    """Test ExtractedData.from_extraction_result with job-level error prominently displayed."""
+    job_error_message = "Failed to process document: unsupported file format"
+
+    # Create ExtractRun with both invalid data AND a job-level error
+    extract_run = create_extract_run(
+        data={
+            "missing_name": "Valid Name",
+            "age": "not_a_number",
+        },  # Invalid age, missing name
+        extraction_metadata={
+            "name": {"confidence": 0.9},
+        },
+        data_schema={},
+        file=create_file(id="error-file", name="bad_data.pdf"),
+        error=job_error_message,
+    )
+
+    # Should raise InvalidExtractionData with the job error prominently displayed
+    with pytest.raises(InvalidExtractionData) as exc_info:
+        ExtractedData.from_extraction_result(
+            extract_run, Person, metadata={"test": "metadata"}
+        )
+
+    # Verify the exception message prominently shows the job error
+    exception = exc_info.value
+    assert exception.extraction_error == job_error_message
+    assert f"Extraction error: {job_error_message}" == str(exception)
+
+    # Verify the invalid_item contains both errors in metadata
+    invalid_data = exception.invalid_item
+    assert invalid_data.metadata.get("job_error") == job_error_message
+    assert "extraction_error" in invalid_data.metadata  # Validation error still present
+    assert "test" in invalid_data.metadata  # Original metadata preserved
 
 
 class Dimensions(BaseModel):
