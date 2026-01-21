@@ -14,6 +14,5 @@ test:	## Run unit tests via pytest
 	uv run pytest -v unit_tests/
 
 .PHONY: e2e
-e2e:	## Run all tests. Extract tests use lower parallelism due to API rate limits
-	uv run pytest -v -n 8 --timeout=300 --session-timeout=1740 tests/extract/
-	uv run pytest -v -n 32 --timeout=300 --session-timeout=1740 tests/ --ignore=tests/extract/
+e2e:	## Run all tests. Run with high parallelism using xdist since tests are bottlenecked bound by the slow backend parsing
+	uv run pytest -v -n 32 --timeout=300 --session-timeout=1740 tests/

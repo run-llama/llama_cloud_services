@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent, SourceText
 from llama_cloud.types import ExtractConfig, ExtractMode, ExtractRun
 from tests.extract.util import load_test_dotenv
-from .conftest import register_agent_for_cleanup
+from .conftest import register_agent_for_cleanup, create_agent_with_retry
 
 load_test_dotenv()
 
@@ -87,7 +87,7 @@ def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
     except Exception as e:
         print(f"Warning: Failed to cleanup existing agent: {e}")
 
-    agent = llama_extract.create_agent(name=name, data_schema=schema)
+    agent = create_agent_with_retry(llama_extract, name=name, data_schema=schema)
 
     # Add agent to cleanup list via conftest helper
     register_agent_for_cleanup(agent.id)

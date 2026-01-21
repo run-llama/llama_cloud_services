@@ -8,7 +8,7 @@ import uuid
 from llama_cloud.types import ExtractConfig, ExtractMode
 from deepdiff import DeepDiff
 from tests.extract.util import json_subset_match_score, load_test_dotenv
-from .conftest import register_agent_for_cleanup
+from .conftest import register_agent_for_cleanup, create_agent_with_retry
 
 load_test_dotenv()
 
@@ -117,8 +117,10 @@ def extraction_agent(test_case: ExtractionTestCase, extractor: LlamaExtract):
     except Exception as e:
         print(f"Warning: Failed to cleanup existing agent: {str(e)}")
 
-    # Create new agent
-    agent = extractor.create_agent(agent_name, schema, config=test_case.config)
+    # Create new agent with retry logic for rate limiting
+    agent = create_agent_with_retry(
+        extractor, name=agent_name, data_schema=schema, config=test_case.config
+    )
 
     # Register agent for cleanup at the end of the test session
     register_agent_for_cleanup(agent.id)
