@@ -8,7 +8,6 @@ from llama_cloud import (
     AutoTransformConfig,
     PipelineCreate,
     PipelineFileCreate,
-    ProjectCreate,
     CompositeRetrievalMode,
     LlamaParseParameters,
     ReRankConfig,
@@ -60,11 +59,15 @@ def local_figures_file() -> str:
 def _setup_index_with_file(
     client: LlamaCloud, index_name: str, remote_file: Tuple[str, str]
 ) -> LlamaCloudIndex:
-    # create project if it doesn't exist
-    project_create = ProjectCreate(name=project_name)
-    project = client.projects.upsert_project(
-        organization_id=organization_id, request=project_create
+    # get project by name
+    projects = client.projects.list_projects(
+        organization_id=organization_id, project_name=project_name
     )
+    if not projects:
+        raise ValueError(
+            f"Project '{project_name}' not found. Please create it first in the LlamaCloud UI."
+        )
+    project = projects[0]
 
     # create pipeline
     pipeline_create = PipelineCreate(

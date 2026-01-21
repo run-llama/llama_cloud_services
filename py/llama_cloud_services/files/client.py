@@ -3,7 +3,7 @@ from typing import BinaryIO
 import os
 from pathlib import Path
 from llama_cloud.client import AsyncLlamaCloud
-from llama_cloud.types import File, FileCreate
+from llama_cloud.types import File
 from typing import Optional
 from llama_cloud_services.utils import SourceText, FileInput
 
@@ -73,11 +73,9 @@ class FileClient:
             presigned_url = await self.client.files.generate_presigned_url(
                 project_id=self.project_id,
                 organization_id=self.organization_id,
-                request=FileCreate(
-                    name=name,
-                    external_file_id=external_file_id,
-                    file_size=file_size,
-                ),
+                name=name,
+                external_file_id=external_file_id,
+                file_size=file_size,
             )
             httpx_client = self.client._client_wrapper.httpx_client
             upload_response = await httpx_client.put(

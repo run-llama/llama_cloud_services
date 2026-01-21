@@ -21,7 +21,6 @@ from llama_cloud import (
     PipelineCreateTransformConfig,
     PipelineFileCreateCustomMetadataValue,
     PipelineType,
-    ProjectCreate,
     ManagedIngestionStatus,
     CloudDocumentCreate,
     CloudDocument,
@@ -507,14 +506,19 @@ class LlamaCloudIndex(BaseManagedIndex):
         client = get_client(api_key, base_url, app_url, timeout)
 
         if project_id is None:
-            # create project if it doesn't exist
-            project = client.projects.upsert_project(
+            # get project by name
+            projects = client.projects.list_projects(
                 organization_id=organization_id,
-                request=ProjectCreate(name=project_name),
+                project_name=project_name,
             )
+            if not projects:
+                raise ValueError(
+                    f"Project '{project_name}' not found. Please create it first in the LlamaCloud UI."
+                )
+            project = projects[0]
             project_id = project.id
             if verbose:
-                print(f"Created project {project_id} with name {project_name}")
+                print(f"Found project {project_id} with name {project_name}")
 
         # create pipeline
         pipeline_create = PipelineCreate(
@@ -563,15 +567,20 @@ class LlamaCloudIndex(BaseManagedIndex):
         app_url = app_url or os.environ.get("LLAMA_CLOUD_APP_URL", DEFAULT_APP_URL)
         aclient = get_aclient(api_key, base_url, app_url, timeout)
 
-        # create project if it doesn't exist
-        project = await aclient.projects.upsert_project(
-            organization_id=organization_id, request=ProjectCreate(name=project_name)
+        # get project by name
+        projects = await aclient.projects.list_projects(
+            organization_id=organization_id, project_name=project_name
         )
+        if not projects:
+            raise ValueError(
+                f"Project '{project_name}' not found. Please create it first in the LlamaCloud UI."
+            )
+        project = projects[0]
         if project.id is None:
-            raise ValueError(f"Failed to create/get project {project_name}")
+            raise ValueError(f"Failed to get project {project_name}")
 
         if verbose:
-            print(f"Created project {project.id} with name {project.name}")
+            print(f"Found project {project.id} with name {project.name}")
 
         # create pipeline
         pipeline_create = PipelineCreate(

@@ -34,9 +34,10 @@ TEST_PIPELINE = Pipeline(
 def mock_client() -> MagicMock:
     """Mock client with sensible defaults."""
     client = MagicMock()
-    client.projects.upsert_project.return_value = Project(
+    default_project = Project(
         id="default-proj", name=DEFAULT_PROJECT_NAME, organization_id="default-org"
     )
+    client.projects.list_projects.return_value = [default_project]
     client.pipelines.upsert_pipeline.return_value = Pipeline(
         id="default-pipe",
         name="default",
@@ -100,8 +101,8 @@ def test_from_documents_uses_provided_project_id(mock_client: MagicMock) -> None
             project_id=provided_project_id,
         )
 
-    # Assert - project upsert not called; pipeline uses provided project_id
-    mock_client.projects.upsert_project.assert_not_called()
+    # Assert - project list not called (project_id provided); pipeline uses provided project_id
+    mock_client.projects.list_projects.assert_not_called()
     assert mock_client.pipelines.upsert_pipeline.call_count == 1
     assert (
         mock_client.pipelines.upsert_pipeline.call_args.kwargs["project_id"]
@@ -110,29 +111,29 @@ def test_from_documents_uses_provided_project_id(mock_client: MagicMock) -> None
     assert index.project.id == provided_project_id
 
 
-def test_from_documents_upserts_project_when_project_id_missing(
+def test_from_documents_lists_project_when_project_id_missing(
     mock_client: MagicMock,
 ) -> None:
     organization_id = "org-xyz"
     index_name = "my_new_index"
 
-    # Project is created when project_id is not provided
-    upserted_project = Project(
+    # Project is found by name when project_id is not provided
+    found_project = Project(
         id="proj-999", name=DEFAULT_PROJECT_NAME, organization_id=organization_id
     )
-    mock_client.projects.upsert_project.return_value = upserted_project
+    mock_client.projects.list_projects.return_value = [found_project]
 
     test_pipeline = Pipeline(
         id="pipe-xyz",
         name=index_name,
-        project_id=upserted_project.id,
+        project_id=found_project.id,
         embedding_config=EMBEDDING_CONFIG,
     )
 
     with patch.object(
         base,
         "resolve_project_and_pipeline",
-        return_value=(upserted_project, test_pipeline),
+        return_value=(found_project, test_pipeline),
     ):
         docs = [Document(text="world")]
         index = LlamaCloudIndex.from_documents(
@@ -141,15 +142,15 @@ def test_from_documents_upserts_project_when_project_id_missing(
             organization_id=organization_id,
         )
 
-    # Assert - project was upserted with org id and default project name
-    mock_client.projects.upsert_project.assert_called_once()
-    kwargs = mock_client.projects.upsert_project.call_args.kwargs
+    # Assert - project was listed with org id and default project name
+    mock_client.projects.list_projects.assert_called_once()
+    kwargs = mock_client.projects.list_projects.call_args.kwargs
     assert kwargs["organization_id"] == organization_id
-    assert kwargs["request"].name == DEFAULT_PROJECT_NAME
+    assert kwargs["project_name"] == DEFAULT_PROJECT_NAME
 
-    # Pipeline created under the upserted project id
+    # Pipeline created under the found project id
     assert (
         mock_client.pipelines.upsert_pipeline.call_args.kwargs["project_id"]
-        == upserted_project.id
+        == found_project.id
     )
-    assert index.project.id == upserted_project.id
+    assert index.project.id == found_project.id
