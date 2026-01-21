@@ -177,10 +177,10 @@ class ImageItem(SafeBaseModel):
     y: Optional[float] = Field(
         default=None, description="The y-coordinate of the image."
     )
-    original_width: Optional[float] = Field(
+    original_width: Optional[int] = Field(
         default=None, description="The original width of the image."
     )
-    original_height: Optional[float] = Field(
+    original_height: Optional[int] = Field(
         default=None, description="The original height of the image."
     )
     type: Optional[str] = Field(default=None, description="The type of the image.")
