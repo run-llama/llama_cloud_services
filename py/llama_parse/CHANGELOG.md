@@ -1,5 +1,14 @@
 # llama_parse
 
+## 0.6.91
+
+### Patch Changes
+
+- 07ec282: Bump up patch versions for python packages
+- Updated dependencies [07ec282]
+- Updated dependencies [3040951]
+  - llama-cloud-services-py@0.6.91
+
 ## 0.6.90
 
 ### Patch Changes

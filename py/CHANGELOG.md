@@ -1,5 +1,12 @@
 # llama-cloud-services-py
 
+## 0.6.91
+
+### Patch Changes
+
+- 07ec282: Bump up patch versions for python packages
+- 3040951: Use error description in ExtractedData invalid extraction error
+
 ## 0.6.90
 
 ### Patch Changes

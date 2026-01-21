@@ -11,13 +11,13 @@ dev = [
 
 [project]
 name = "llama-parse"
-version = "0.6.90"
+version = "0.6.91"
 description = "Parse files into RAG-Optimized formats."
 authors = [{name = "Logan Markewich", email = "logan@llamaindex.ai"}]
 requires-python = ">=3.9,<4.0"
 readme = "README.md"
 license = "MIT"
-dependencies = ["llama-cloud-services>=0.6.90"]
+dependencies = ["llama-cloud-services>=0.6.91"]
 
 [project.scripts]
 llama-parse = "llama_parse.cli.main:parse"
