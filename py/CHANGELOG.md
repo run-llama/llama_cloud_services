@@ -1,5 +1,15 @@
 # llama-cloud-services-py
 
+## 0.7.0
+
+### Minor Changes
+
+- 013b689: Incorporate updates from llama-cloud
+
+### Patch Changes
+
+- 3040951: Use error description in ExtractedData invalid extraction error
+
 ## 0.6.90
 
 ### Patch Changes

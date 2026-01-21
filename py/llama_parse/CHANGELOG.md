@@ -1,5 +1,17 @@
 # llama_parse
 
+## 0.7.0
+
+### Minor Changes
+
+- 013b689: Incorporate updates from llama-cloud
+
+### Patch Changes
+
+- Updated dependencies [013b689]
+- Updated dependencies [3040951]
+  - llama-cloud-services-py@0.7.0
+
 ## 0.6.90
 
 ### Patch Changes
