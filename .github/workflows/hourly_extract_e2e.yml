@@ -49,17 +49,11 @@ jobs:
           echo "notify_slack=${notify_slack}" >> $GITHUB_OUTPUT
 
           if [ "${environment}" = "production" ]; then
-            base_url_secret="${{ secrets.LLAMA_CLOUD_BASE_URL_PRODUCTION }}"
+            echo "LLAMA_CLOUD_BASE_URL=https://api.cloud.llamaindex.ai" >> $GITHUB_ENV
             project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_PRODUCTION }}"
           else
-            base_url_secret="${{ secrets.LLAMA_CLOUD_BASE_URL_STAGING }}"
+            echo "LLAMA_CLOUD_BASE_URL=https://api.staging.llamaindex.ai" >> $GITHUB_ENV
             project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_STAGING }}"
-          fi
-
-          if [ -n "$base_url_secret" ]; then
-            echo "LLAMA_CLOUD_BASE_URL=$base_url_secret" >> $GITHUB_ENV
-          elif [ -n "${{ secrets.LLAMA_CLOUD_BASE_URL }}" ]; then
-            echo "LLAMA_CLOUD_BASE_URL=${{ secrets.LLAMA_CLOUD_BASE_URL }}" >> $GITHUB_ENV
           fi
 
           if [ -n "$project_id_secret" ]; then
