@@ -1,0 +1,162 @@
+name: Hourly Extract E2E Tests
+
+on:
+  schedule:
+    - cron: "0 * * * *" # Runs every hour at the top of the hour
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to run the tests in"
+        required: false
+        default: staging
+        type: choice
+        options:
+          - staging
+          - production
+      notify_slack:
+        description: "Notify Slack"
+        required: false
+        default: false
+        type: boolean
+  workflow_call:
+
+env:
+  UV_VERSION: "0.7.20"
+  PYTHON_VERSION: "3.12"
+  SLACK_CHANNEL_ID: C078PHNTF44 # Extract channel ID
+  API_E2E_LOG_PATH: ${{ github.workspace }}/extract-e2e.log
+  LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
+
+jobs:
+  extract-e2e:
+    name: "Hourly Extract E2E Tests (${{ matrix.environment }})"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ matrix.environment }}
+      cancel-in-progress: true
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: ${{ github.event_name == 'schedule' && fromJson('["staging", "production"]') || fromJson(format('["{0}"]', github.event.inputs.environment || 'staging')) }}
+    steps:
+      - name: Set runtime inputs
+        id: runtime
+        run: |
+          environment=${{ matrix.environment }}
+          notify_slack=${{ github.event.inputs.notify_slack || github.event_name == 'schedule' }}
+          echo "environment=${environment}" >> $GITHUB_OUTPUT
+          echo "notify_slack=${notify_slack}" >> $GITHUB_OUTPUT
+
+          if [ "${environment}" = "production" ]; then
+            base_url_secret="${{ secrets.LLAMA_CLOUD_BASE_URL_PRODUCTION }}"
+            project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_PRODUCTION }}"
+          else
+            base_url_secret="${{ secrets.LLAMA_CLOUD_BASE_URL_STAGING }}"
+            project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_STAGING }}"
+          fi
+
+          if [ -n "$base_url_secret" ]; then
+            echo "LLAMA_CLOUD_BASE_URL=$base_url_secret" >> $GITHUB_ENV
+          elif [ -n "${{ secrets.LLAMA_CLOUD_BASE_URL }}" ]; then
+            echo "LLAMA_CLOUD_BASE_URL=${{ secrets.LLAMA_CLOUD_BASE_URL }}" >> $GITHUB_ENV
+          fi
+
+          if [ -n "$project_id_secret" ]; then
+            echo "LLAMA_CLOUD_PROJECT_ID=$project_id_secret" >> $GITHUB_ENV
+          elif [ -n "${{ secrets.LLAMA_CLOUD_PROJECT_ID }}" ]; then
+            echo "LLAMA_CLOUD_PROJECT_ID=${{ secrets.LLAMA_CLOUD_PROJECT_ID }}" >> $GITHUB_ENV
+          fi
+
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ env.UV_VERSION }}
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }} && uv python pin ${{ env.PYTHON_VERSION }}
+
+      - name: Run Extract E2E tests
+        id: extract-tests
+        continue-on-error: true
+        working-directory: py
+        run: |
+          set -o pipefail
+          rm -f "$API_E2E_LOG_PATH"
+          uv run pytest -v -n 8 --timeout=300 --session-timeout=1740 tests/extract/ 2>&1 | tee "$API_E2E_LOG_PATH"
+
+      - name: Extract pytest failure summary
+        id: failed-tests
+        if: steps.extract-tests.outcome == 'failure' || cancelled()
+        run: |
+          summary="$(python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          log_path = Path(os.environ["API_E2E_LOG_PATH"])
+          if not log_path.exists():
+              print("Test log not found.")
+              raise SystemExit(0)
+
+          lines = log_path.read_text(errors="ignore").splitlines()
+
+          def find_section(keyword):
+              for i, line in enumerate(lines):
+                  if line.startswith("=") and keyword in line:
+                      return i
+              return None
+
+          start = (
+              find_section("FAILURES")
+              or find_section("ERRORS")
+              or find_section("short test summary info")
+          )
+
+          if start is not None:
+              snippet = lines[start : start + 200]
+          else:
+              snippet = lines[-200:]
+
+          print("\n".join(snippet).strip())
+          PY
+          )"
+          if [ -z "$summary" ]; then
+            summary="Failed test summary not available. Review the full run logs."
+          fi
+          {
+            printf 'summary<<EOF\n%s\nEOF\n' "$summary"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Check test results
+        if: always()
+        run: |
+          if [ "${{ steps.extract-tests.outcome }}" == "failure" ]; then
+            echo "Extract E2E tests failed"
+            exit 1
+          fi
+
+      - name: Post to Extract Slack channel
+        id: slack
+        if: (failure() || cancelled()) && steps.runtime.outputs.notify_slack == 'true'
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          channel-id: ${{ env.SLACK_CHANNEL_ID }}
+          slack-message: |
+            ALERT: *Hourly Extract E2E Tests Failure*
+
+            *Environment*: ${{ steps.runtime.outputs.environment }}
+            *Repository*: ${{ github.repository }}
+            *Branch*: ${{ github.ref_name }}
+
+            <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>
+
+            Failed tests:
+            ```
+            ${{ steps.failed-tests.outputs.summary }}
+            ```
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
