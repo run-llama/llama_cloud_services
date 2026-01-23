@@ -25,7 +25,6 @@ env:
   PYTHON_VERSION: "3.12"
   SLACK_CHANNEL_ID: C078PHNTF44 # Extract channel ID
   API_E2E_LOG_PATH: ${{ github.workspace }}/extract-e2e.log
-  LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:
   extract-e2e:
@@ -50,16 +49,20 @@ jobs:
 
           if [ "${environment}" = "production" ]; then
             echo "LLAMA_CLOUD_BASE_URL=https://api.cloud.llamaindex.ai" >> $GITHUB_ENV
-            project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_PRODUCTION }}"
+            api_key_secret="${{ secrets.LLAMA_CLOUD_API_KEY }}"
+            project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID }}"
           else
             echo "LLAMA_CLOUD_BASE_URL=https://api.staging.llamaindex.ai" >> $GITHUB_ENV
+            api_key_secret="${{ secrets.LLAMA_CLOUD_API_KEY_STAGING }}"
             project_id_secret="${{ secrets.LLAMA_CLOUD_PROJECT_ID_STAGING }}"
+          fi
+
+          if [ -n "$api_key_secret" ]; then
+            echo "LLAMA_CLOUD_API_KEY=$api_key_secret" >> $GITHUB_ENV
           fi
 
           if [ -n "$project_id_secret" ]; then
             echo "LLAMA_CLOUD_PROJECT_ID=$project_id_secret" >> $GITHUB_ENV
-          elif [ -n "${{ secrets.LLAMA_CLOUD_PROJECT_ID }}" ]; then
-            echo "LLAMA_CLOUD_PROJECT_ID=${{ secrets.LLAMA_CLOUD_PROJECT_ID }}" >> $GITHUB_ENV
           fi
 
       - uses: actions/checkout@v5
