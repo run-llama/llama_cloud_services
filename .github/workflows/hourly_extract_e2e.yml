@@ -4,6 +4,7 @@ on:
   schedule:
     - cron: "0 * * * *" # Runs every hour at the top of the hour
   workflow_dispatch:
+    # Allows manual triggering
     inputs:
       environment:
         description: "Environment to run the tests in"
