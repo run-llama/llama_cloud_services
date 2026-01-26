@@ -480,7 +480,7 @@ class ExtractionAgent:
 
         @_async_retry()
         async def _delete() -> None:
-            return await self._client.llama_extract.delete_extract_run(
+            return await self._client.llama_extract.delete_extraction_run(
                 extraction_run_id=run_id
             )
 
