@@ -2,7 +2,7 @@ name: Hourly Extract E2E Tests
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "18 * * * *"
   workflow_dispatch:
     # Allows manual triggering
     inputs:
