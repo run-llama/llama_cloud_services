@@ -4,10 +4,11 @@ import os
 import time
 from io import BufferedIOBase, TextIOWrapper
 from pathlib import Path
-from typing import List, Optional, Type, Union, Coroutine, Any, TypeVar
+from typing import Callable, List, Optional, Type, Union, Coroutine, Any, TypeVar
 import warnings
 import httpx
 from pydantic import BaseModel
+from functools import wraps
 from tenacity import (
     retry_if_exception,
     stop_after_attempt,
@@ -54,12 +55,39 @@ DEFAULT_EXTRACT_CONFIG = ExtractConfig(
 def _is_retryable_error(exception: BaseException) -> bool:
     """Check if an exception is retryable."""
     if isinstance(exception, ApiError):
-        return exception.status_code in (502, 503, 504, 425, 408)
+        return exception.status_code in (429, 500, 502, 503, 504, 425, 408)
     elif isinstance(
         exception, (httpx.HTTPStatusError, httpx.RequestError, httpx.TimeoutException)
     ):
         return True
     return False
+
+
+def _async_retry(
+    max_attempts: int = 5,
+    initial_wait: float = 1,
+    max_wait: float = 30,
+    jitter: float = 3,
+) -> Callable:
+    """Decorator for async functions with retry logic for rate limiting and transient errors."""
+
+    def decorator(func: Callable) -> Callable:
+        @wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+            async for attempt in AsyncRetrying(
+                retry=retry_if_exception(_is_retryable_error),
+                stop=stop_after_attempt(max_attempts),
+                wait=wait_exponential_jitter(
+                    initial=initial_wait, max=max_wait, jitter=jitter
+                ),
+                reraise=True,
+            ):
+                with attempt:
+                    return await func(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
 
 
 async def _validate_schema(
@@ -82,50 +110,6 @@ async def _validate_schema(
     return validated_schema.data_schema
 
 
-async def _get_job_with_retry(
-    client: AsyncLlamaCloud,
-    job_id: str,
-    max_attempts: int = 5,
-    initial_wait: float = 1,
-    max_wait: float = 60,
-    jitter: float = 5,
-) -> ExtractJob:
-    """Get extraction job with retry logic."""
-    async for attempt in AsyncRetrying(
-        retry=retry_if_exception(_is_retryable_error),
-        stop=stop_after_attempt(max_attempts),
-        wait=wait_exponential_jitter(initial=initial_wait, max=max_wait, jitter=jitter),
-        reraise=True,
-    ):
-        with attempt:
-            return await client.llama_extract.get_job(job_id=job_id)
-
-
-async def _get_run_with_retry(
-    client: AsyncLlamaCloud,
-    job_id: str,
-    project_id: Optional[str] = None,
-    organization_id: Optional[str] = None,
-    max_attempts: int = 3,
-    initial_wait: float = 1,
-    max_wait: float = 20,
-    jitter: float = 3,
-) -> ExtractRun:
-    """Get extraction run with retry logic."""
-    async for attempt in AsyncRetrying(
-        retry=retry_if_exception(_is_retryable_error),
-        stop=stop_after_attempt(max_attempts),
-        wait=wait_exponential_jitter(initial=initial_wait, max=max_wait, jitter=jitter),
-        reraise=True,
-    ):
-        with attempt:
-            return await client.llama_extract.get_run_by_job_id(
-                job_id=job_id,
-                project_id=project_id,
-                organization_id=organization_id,
-            )
-
-
 async def _wait_for_job_result(
     client: AsyncLlamaCloud,
     job_id: str,
@@ -142,30 +126,33 @@ async def _wait_for_job_result(
     run_jitter: float = 3,
 ) -> Optional[ExtractRun]:
     """Wait for and return the results of an extraction job."""
+
+    @_async_retry(
+        max_attempts=job_retry_attempts, max_wait=job_max_wait, jitter=job_jitter
+    )
+    async def _get_job() -> ExtractJob:
+        return await client.llama_extract.get_job(job_id=job_id)
+
+    @_async_retry(
+        max_attempts=run_retry_attempts, max_wait=run_max_wait, jitter=run_jitter
+    )
+    async def _get_run() -> ExtractRun:
+        return await client.llama_extract.get_run_by_job_id(
+            job_id=job_id,
+            project_id=project_id,
+            organization_id=organization_id,
+        )
+
     start = time.perf_counter()
     poll_count = 0
 
     while True:
         await asyncio.sleep(check_interval)
         poll_count += 1
-        job = await _get_job_with_retry(
-            client,
-            job_id,
-            max_attempts=job_retry_attempts,
-            max_wait=job_max_wait,
-            jitter=job_jitter,
-        )
+        job = await _get_job()
 
         if job.status == StatusEnum.SUCCESS:
-            return await _get_run_with_retry(
-                client,
-                job_id,
-                project_id,
-                organization_id,
-                max_attempts=run_retry_attempts,
-                max_wait=run_max_wait,
-                jitter=run_jitter,
-            )
+            return await _get_run()
         elif job.status == StatusEnum.PENDING:
             end = time.perf_counter()
             if end - start > max_timeout:
@@ -177,15 +164,7 @@ async def _wait_for_job_result(
             warnings.warn(
                 f"Failure in job: {job_id}, status: {job.status}, error: {job.error}"
             )
-            return await _get_run_with_retry(
-                client,
-                job_id,
-                project_id,
-                organization_id,
-                max_attempts=run_retry_attempts,
-                max_wait=run_max_wait,
-                jitter=run_jitter,
-            )
+            return await _get_run()
 
 
 def run_in_thread(
@@ -498,9 +477,14 @@ class ExtractionAgent:
         Args:
             run_id (str): The ID of the extraction run to delete
         """
-        self._run_in_thread(
-            self._client.llama_extract.delete_extraction_run(run_id=run_id)
-        )
+
+        @_async_retry()
+        async def _delete() -> None:
+            return await self._client.llama_extract.delete_extract_run(
+                extraction_run_id=run_id
+            )
+
+        self._run_in_thread(_delete())
 
     def list_extraction_runs(
         self, page: int = 0, limit: int = 100
@@ -510,13 +494,16 @@ class ExtractionAgent:
         Returns:
             PaginatedExtractRunsResponse: Paginated list of extraction runs
         """
-        return self._run_in_thread(
-            self._client.llama_extract.list_extract_runs(
+
+        @_async_retry()
+        async def _list() -> PaginatedExtractRunsResponse:
+            return await self._client.llama_extract.list_extract_runs(
                 extraction_agent_id=self.id,
                 skip=page * limit,
                 limit=limit,
             )
-        )
+
+        return self._run_in_thread(_list())
 
     def __repr__(self) -> str:
         return f"ExtractionAgent(id={self.id}, name={self.name})"
@@ -658,15 +645,17 @@ class LlamaExtract(BaseComponent):
                 "data_schema must be either a dictionary or a Pydantic model"
             )
 
-        agent = self._run_in_thread(
-            self._async_client.llama_extract.create_extraction_agent(
+        @_async_retry()
+        async def _create() -> CloudExtractAgent:
+            return await self._async_client.llama_extract.create_extraction_agent(
                 project_id=self._project_id,
                 organization_id=self._organization_id,
                 name=name,
                 data_schema=data_schema,
                 config=config,
             )
-        )
+
+        agent = self._run_in_thread(_create())
 
         return ExtractionAgent(
             client=self._async_client,
@@ -702,19 +691,27 @@ class LlamaExtract(BaseComponent):
             )
 
         if id:
-            agent = self._run_in_thread(
-                self._async_client.llama_extract.get_extraction_agent(
+
+            @_async_retry()
+            async def _get_by_id() -> CloudExtractAgent:
+                return await self._async_client.llama_extract.get_extraction_agent(
                     extraction_agent_id=id,
                 )
-            )
+
+            agent = self._run_in_thread(_get_by_id())
 
         elif name:
-            agent = self._run_in_thread(
-                self._async_client.llama_extract.get_extraction_agent_by_name(
-                    name=name,
-                    project_id=self._project_id,
+
+            @_async_retry()
+            async def _get_by_name() -> CloudExtractAgent:
+                return (
+                    await self._async_client.llama_extract.get_extraction_agent_by_name(
+                        name=name,
+                        project_id=self._project_id,
+                    )
                 )
-            )
+
+            agent = self._run_in_thread(_get_by_name())
         else:
             raise ValueError("Either name or extraction_agent_id must be provided.")
 
@@ -734,11 +731,14 @@ class LlamaExtract(BaseComponent):
 
     def list_agents(self) -> List[ExtractionAgent]:
         """List all available extraction agents."""
-        agents = self._run_in_thread(
-            self._async_client.llama_extract.list_extraction_agents(
+
+        @_async_retry()
+        async def _list() -> List[CloudExtractAgent]:
+            return await self._async_client.llama_extract.list_extraction_agents(
                 project_id=self._project_id,
             )
-        )
+
+        agents = self._run_in_thread(_list())
 
         return [
             ExtractionAgent(
@@ -763,11 +763,14 @@ class LlamaExtract(BaseComponent):
         Args:
             agent_id (str): ID of the extraction agent to delete
         """
-        self._run_in_thread(
-            self._async_client.llama_extract.delete_extraction_agent(
-                extraction_agent_id=agent_id
+
+        @_async_retry()
+        async def _delete() -> None:
+            return await self._async_client.llama_extract.delete_extraction_agent(
+                extraction_agent_id=agent_id,
             )
-        )
+
+        self._run_in_thread(_delete())
 
     async def _wait_for_job_result(self, job_id: str) -> Optional[ExtractRun]:
         """Wait for and return the results of an extraction job."""
