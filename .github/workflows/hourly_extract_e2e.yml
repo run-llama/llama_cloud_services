@@ -92,6 +92,7 @@ jobs:
         run: |
           summary="$(python3 - <<'PY'
           import os
+          import re
           from pathlib import Path
 
           log_path = Path(os.environ["API_E2E_LOG_PATH"])
@@ -101,24 +102,32 @@ jobs:
 
           lines = log_path.read_text(errors="ignore").splitlines()
 
-          def find_section(keyword):
-              for i, line in enumerate(lines):
-                  if line.startswith("=") and keyword in line:
-                      return i
-              return None
+          # Find the "short test summary info" section
+          start = None
+          for i, line in enumerate(lines):
+              if line.startswith("=") and "short test summary info" in line:
+                  start = i + 1
+                  break
 
-          start = (
-              find_section("FAILURES")
-              or find_section("ERRORS")
-              or find_section("short test summary info")
-          )
+          if start is None:
+              print("No test summary found.")
+              raise SystemExit(0)
 
-          if start is not None:
-              snippet = lines[start : start + 200]
+          # Extract just the FAILED/ERROR lines (test name + short reason)
+          failed_tests = []
+          for line in lines[start:]:
+              if line.startswith("="):
+                  break  # End of section
+              if line.startswith("FAILED ") or line.startswith("ERROR "):
+                  # Extract test name and truncate the error message
+                  match = re.match(r"(FAILED|ERROR) ([\w/:.\[\]_-]+)", line)
+                  if match:
+                      failed_tests.append(f"{match.group(1)}: {match.group(2)}")
+
+          if failed_tests:
+              print("\n".join(failed_tests[:20]))  # Limit to 20 tests max
           else:
-              snippet = lines[-200:]
-
-          print("\n".join(snippet).strip())
+              print("No failed tests found in summary.")
           PY
           )"
           if [ -z "$summary" ]; then
@@ -143,17 +152,10 @@ jobs:
         with:
           channel-id: ${{ env.SLACK_CHANNEL_ID }}
           slack-message: |
-            ALERT: *Hourly Extract E2E Tests Failure*
-
-            *Environment*: ${{ steps.runtime.outputs.environment }}
-            *Repository*: ${{ github.repository }}
-            *Branch*: ${{ github.ref_name }}
-
-            <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>
-
-            Failed tests:
+            :red_circle: *Extract E2E Failed* (${{ steps.runtime.outputs.environment }})
             ```
             ${{ steps.failed-tests.outputs.summary }}
             ```
+            <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
