@@ -87,7 +87,11 @@ def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
     except Exception as e:
         print(f"Warning: Failed to cleanup existing agent: {e}")
 
-    agent = create_agent_with_retry(llama_extract, name=name, data_schema=schema)
+    # Use config with cache invalidation to ensure fresh results in tests
+    config = ExtractConfig(invalidate_cache=True)
+    agent = create_agent_with_retry(
+        llama_extract, name=name, data_schema=schema, config=config
+    )
 
     # Add agent to cleanup list via conftest helper
     register_agent_for_cleanup(agent.id)
@@ -237,7 +241,7 @@ class TestStatelessExtraction:
 
     @pytest.fixture
     def test_config(self):
-        return ExtractConfig(extraction_mode=ExtractMode.FAST)
+        return ExtractConfig(extraction_mode=ExtractMode.FAST, invalidate_cache=True)
 
     @pytest.fixture
     def test_schema_dict(self):

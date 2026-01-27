@@ -56,10 +56,12 @@ def get_test_cases():
             input_files.append(file_path)
 
         settings = [
-            ExtractConfig(extraction_mode=ExtractMode.FAST),
-            ExtractConfig(extraction_mode=ExtractMode.BALANCED),
-            ExtractConfig(extraction_mode=ExtractMode.MULTIMODAL),
-            ExtractConfig(extraction_mode=ExtractMode.PREMIUM),
+            ExtractConfig(extraction_mode=ExtractMode.FAST, invalidate_cache=True),
+            ExtractConfig(extraction_mode=ExtractMode.BALANCED, invalidate_cache=True),
+            ExtractConfig(
+                extraction_mode=ExtractMode.MULTIMODAL, invalidate_cache=True
+            ),
+            ExtractConfig(extraction_mode=ExtractMode.PREMIUM, invalidate_cache=True),
         ]
 
         for input_file in sorted(input_files):
