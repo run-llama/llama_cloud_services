@@ -61,7 +61,11 @@ def get_test_cases():
             ExtractConfig(
                 extraction_mode=ExtractMode.MULTIMODAL, invalidate_cache=True
             ),
-            ExtractConfig(extraction_mode=ExtractMode.PREMIUM, invalidate_cache=True),
+            ExtractConfig(
+                extraction_mode=ExtractMode.PREMIUM,
+                invalidate_cache=True,
+                extract_model="anthropic-sonnet-4.5",
+            ),
         ]
 
         for input_file in sorted(input_files):
