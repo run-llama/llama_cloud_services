@@ -64,7 +64,7 @@ def get_test_cases():
             ExtractConfig(
                 extraction_mode=ExtractMode.PREMIUM,
                 invalidate_cache=True,
-                extract_model="anthropic-sonnet-4.5",
+                parse_model="anthropic-sonnet-4.5",
             ),
         ]
 
