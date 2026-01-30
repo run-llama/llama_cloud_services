@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
 import pytest
 
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent
+from llama_cloud_services.utils import SourceText
 from collections import namedtuple
 import json
 import uuid
@@ -142,7 +144,12 @@ def extraction_agent(test_case: ExtractionTestCase, extractor: LlamaExtract):
 def test_extraction(
     test_case: ExtractionTestCase, extraction_agent: ExtractionAgent
 ) -> None:
-    result = extraction_agent.extract(test_case.input_file).data  # type: ignore
+    # Use a unique external_file_id per upload to avoid cross-test collisions.
+    input_path = Path(test_case.input_file)
+    unique_filename = f"{input_path.stem}-{uuid.uuid4().hex}{input_path.suffix}"
+    result = extraction_agent.extract(
+        SourceText(file=str(input_path), filename=unique_filename)
+    ).data  # type: ignore
     with open(test_case.expected_output, "r") as f:
         expected = json.load(f)
     # TODO: fix the saas_slide test
