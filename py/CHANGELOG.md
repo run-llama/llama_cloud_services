@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.92
+
+### Patch Changes
+
+- 2358df1: add deprecation notices
+
 ## 0.6.91
 
 ### Patch Changes

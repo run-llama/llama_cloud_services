@@ -1,5 +1,11 @@
 # llama-cloud-services
 
+## 0.5.4
+
+### Patch Changes
+
+- 2358df1: add deprecation notices
+
 ## 0.5.3
 
 ### Patch Changes
