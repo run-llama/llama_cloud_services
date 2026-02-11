@@ -1,8 +1,8 @@
-name: Hourly Extract E2E Tests
+name: Extract E2E Tests (every 4 hours)
 
 on:
   schedule:
-    - cron: "18 * * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch:
     # Allows manual triggering
     inputs:
@@ -29,7 +29,7 @@ env:
 
 jobs:
   extract-e2e:
-    name: "Hourly Extract E2E Tests (${{ matrix.environment }})"
+    name: "Extract E2E Tests (${{ matrix.environment }})"
     runs-on: ubuntu-latest
     timeout-minutes: 30
     concurrency:
