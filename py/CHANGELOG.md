@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.93
+
+### Patch Changes
+
+- da1916c: Add more warnings
+
 ## 0.6.92
 
 ### Patch Changes
