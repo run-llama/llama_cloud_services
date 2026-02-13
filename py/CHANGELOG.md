@@ -1,5 +1,11 @@
 # llama-cloud-services-py
 
+## 0.6.94
+
+### Patch Changes
+
+- 232c55b: Include xlsx files in extract input
+
 ## 0.6.93
 
 ### Patch Changes
