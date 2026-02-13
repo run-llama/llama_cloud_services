@@ -806,6 +806,7 @@ class LlamaExtract(BaseComponent):
             # Document files
             ".pdf": "application/pdf",
             ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             # Image files
             ".png": "image/png",
             ".jpg": "image/jpeg",
