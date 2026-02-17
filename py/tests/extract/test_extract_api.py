@@ -1,4 +1,6 @@
 import os
+import shutil
+import uuid
 import pytest
 from pathlib import Path
 from pydantic import BaseModel
@@ -6,7 +8,7 @@ from pydantic import BaseModel
 from llama_cloud_services.extract import LlamaExtract, ExtractionAgent, SourceText
 from llama_cloud.types import ExtractConfig, ExtractMode, ExtractRun
 from tests.extract.util import load_test_dotenv
-from .conftest import register_agent_for_cleanup, create_agent_with_retry
+from .conftest import create_agent_with_retry
 
 load_test_dotenv()
 
@@ -59,17 +61,27 @@ def test_schema_dict():
 
 
 @pytest.fixture
-def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
-    """Creates a test agent and collects it for cleanup at the end of all tests"""
-    test_id = request.node.nodeid
-    test_hash = hex(hash(test_id))[-8:]
-    base_name = test_agent_name
+def unique_test_pdf(tmp_path):
+    """Copy test PDF to a unique path to avoid file deduplication across parallel tests.
 
+    Uses a UUID in the filename so that external_file_id is unique regardless of
+    whether the full path or just the filename is sent to the backend.
+    """
+    unique_name = f"{TEST_PDF.stem}-{uuid.uuid4().hex[:8]}{TEST_PDF.suffix}"
+    unique_pdf = tmp_path / unique_name
+    shutil.copy2(TEST_PDF, unique_pdf)
+    return unique_pdf
+
+
+@pytest.fixture
+def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
+    """Creates a test agent with a unique name and cleans it up after the test."""
+    unique_id = uuid.uuid4().hex[:8]
     base_name = next(
         (marker.args[0] for marker in request.node.iter_markers("agent_name")),
-        base_name,
+        test_agent_name,
     )
-    name = f"{base_name}_{test_hash}"
+    name = f"{base_name}_{unique_id}"
 
     schema = next(
         (
@@ -79,24 +91,19 @@ def test_agent(llama_extract, test_agent_name, test_schema_dict, request):
         test_schema_dict,
     )
 
-    # Cleanup existing agent
-    try:
-        for agent in llama_extract.list_agents():
-            if agent.name == name:
-                llama_extract.delete_agent(agent.id)
-    except Exception as e:
-        print(f"Warning: Failed to cleanup existing agent: {e}")
-
     # Use config with cache invalidation to ensure fresh results in tests
     config = ExtractConfig(invalidate_cache=True)
     agent = create_agent_with_retry(
         llama_extract, name=name, data_schema=schema, config=config
     )
 
-    # Add agent to cleanup list via conftest helper
-    register_agent_for_cleanup(agent.id)
-
     yield agent
+
+    # Inline cleanup -- each worker cleans up its own agents
+    try:
+        llama_extract.delete_agent(agent.id)
+    except Exception as e:
+        print(f"Warning: Failed to cleanup agent {agent.id}: {e}")
 
 
 class TestLlamaExtract:
@@ -138,34 +145,38 @@ class TestLlamaExtract:
 
 class TestExtractionAgent:
     @pytest.mark.asyncio
-    async def test_extract_single_file(self, test_agent):
-        result = await test_agent.aextract(TEST_PDF)
+    async def test_extract_single_file(self, test_agent, unique_test_pdf):
+        result = await test_agent.aextract(unique_test_pdf)
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)
         assert "title" in result.data
         assert "summary" in result.data
 
-    def test_sync_extract_single_file(self, test_agent):
-        result = test_agent.extract(TEST_PDF)
+    def test_sync_extract_single_file(self, test_agent, unique_test_pdf):
+        result = test_agent.extract(unique_test_pdf)
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)
         assert "title" in result.data
         assert "summary" in result.data
 
-    def test_extract_file_from_buffered_io(self, test_agent):
-        result = test_agent.extract(SourceText(file=open(TEST_PDF, "rb")))
+    def test_extract_file_from_buffered_io(self, test_agent, unique_test_pdf):
+        result = test_agent.extract(
+            SourceText(file=open(unique_test_pdf, "rb"), filename=unique_test_pdf.name)
+        )
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)
         assert "title" in result.data
         assert "summary" in result.data
 
-    def test_extract_file_from_bytes(self, test_agent):
-        with open(TEST_PDF, "rb") as f:
+    def test_extract_file_from_bytes(self, test_agent, unique_test_pdf):
+        with open(unique_test_pdf, "rb") as f:
             file_bytes = f.read()
-        result = test_agent.extract(SourceText(file=file_bytes, filename=TEST_PDF.name))
+        result = test_agent.extract(
+            SourceText(file=file_bytes, filename=unique_test_pdf.name)
+        )
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)
@@ -181,7 +192,10 @@ class TestExtractionAgent:
         weight for 8 to 13 km (5–8 miles).[3] The name llama (also historically spelled
         "glama") was adopted by European settlers from native Peruvians.
         """
-        result = test_agent.extract(SourceText(text_content=TEST_TEXT))
+        unique_name = f"text-{uuid.uuid4().hex[:8]}.txt"
+        result = test_agent.extract(
+            SourceText(text_content=TEST_TEXT, filename=unique_name)
+        )
         assert result.status == "SUCCESS"
         assert result.data is not None
         assert isinstance(result.data, dict)
@@ -189,8 +203,8 @@ class TestExtractionAgent:
         assert "summary" in result.data
 
     @pytest.mark.asyncio
-    async def test_extract_multiple_files(self, test_agent):
-        files = [TEST_PDF, TEST_PDF]  # Using same file twice for testing
+    async def test_extract_multiple_files(self, test_agent, unique_test_pdf):
+        files = [unique_test_pdf, unique_test_pdf]  # Using same file twice for testing
         response = await test_agent.aextract(files)
 
         assert len(response) == 2
@@ -219,15 +233,15 @@ class TestExtractionAgent:
         updated_agent = llama_extract.get_agent(name=test_agent.name)
         assert "new_field" in updated_agent.data_schema["properties"]
 
-    def test_list_extraction_runs(self, test_agent: ExtractionAgent):
+    def test_list_extraction_runs(self, test_agent: ExtractionAgent, unique_test_pdf):
         assert test_agent.list_extraction_runs().total == 0
-        test_agent.extract(TEST_PDF)
+        test_agent.extract(unique_test_pdf)
         runs = test_agent.list_extraction_runs()
         assert runs.total > 0
 
-    def test_delete_extraction_run(self, test_agent: ExtractionAgent):
+    def test_delete_extraction_run(self, test_agent: ExtractionAgent, unique_test_pdf):
         assert test_agent.list_extraction_runs().total == 0
-        run: ExtractRun = test_agent.extract(TEST_PDF)
+        run: ExtractRun = test_agent.extract(unique_test_pdf)
         test_agent.delete_extraction_run(run.id)
         runs = test_agent.list_extraction_runs()
         assert runs.total == 0

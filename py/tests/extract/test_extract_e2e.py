@@ -10,7 +10,7 @@ import uuid
 from llama_cloud.types import ExtractConfig, ExtractMode
 from deepdiff import DeepDiff
 from tests.extract.util import json_subset_match_score, load_test_dotenv
-from .conftest import register_agent_for_cleanup, create_agent_with_retry
+from .conftest import create_agent_with_retry
 
 load_test_dotenv()
 
@@ -109,31 +109,23 @@ def extractor():
 @pytest.fixture
 def extraction_agent(test_case: ExtractionTestCase, extractor: LlamaExtract):
     """Fixture to create and cleanup extraction agent for each test."""
-    # Create unique name with random UUID (important for CI to avoid conflicts)
     unique_id = uuid.uuid4().hex[:8]
     agent_name = f"{test_case.name}_{unique_id}"
 
     with open(test_case.schema_path, "r") as f:
         schema = json.load(f)
 
-    # Clean up any existing agents with this name
-    try:
-        agents = extractor.list_agents()
-        for agent in agents:
-            if agent.name == agent_name:
-                extractor.delete_agent(agent.id)
-    except Exception as e:
-        print(f"Warning: Failed to cleanup existing agent: {str(e)}")
-
-    # Create new agent with retry logic for rate limiting
     agent = create_agent_with_retry(
         extractor, name=agent_name, data_schema=schema, config=test_case.config
     )
 
-    # Register agent for cleanup at the end of the test session
-    register_agent_for_cleanup(agent.id)
-
     yield agent
+
+    # Inline cleanup -- each worker cleans up its own agents
+    try:
+        extractor.delete_agent(agent.id)
+    except Exception as e:
+        print(f"Warning: Failed to cleanup agent {agent.id}: {e}")
 
 
 @pytest.mark.skipif(
