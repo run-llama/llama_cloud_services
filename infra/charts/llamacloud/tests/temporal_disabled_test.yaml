@@ -1,0 +1,194 @@
+suite: temporal-search-attributes-job-tests
+templates:
+  - ../templates/llamacloud/deployment.yaml
+  - ../templates/llamacloud/service.yaml
+  - ../templates/llamacloud/job.yaml
+  - ../templates/llamacloud/configmaps/temporal.yaml
+release:
+  name: llamacloud
+  namespace: default
+capabilities:
+  majorVersion: 1
+  minorVersion: 28
+tests:
+  # Test: verify NO temporal search attributes job is created when searchAttributesJob.enabled is false
+  - it: should not create temporal job when searchAttributesJob.enabled is false
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.temporal.searchAttributesJob.enabled: false
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # Test: verify job IS created when searchAttributesJob.enabled is true with external temporal
+  - it: should create temporal search attributes job with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "CustomStringAttr"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.name
+          value: llamacloud-temporal-search-attributes
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TEMPORAL_CLI_ADDRESS
+            value: "temporal.example.com:7233"
+
+  # Test: verify pre-install hook when using external temporal
+  - it: should use pre-install hook with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "CustomStringAttr"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: "pre-install,pre-upgrade"
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "5"
+
+  # Test: verify job uses subchart address when temporal.deploy is true
+  - it: should create temporal search attributes job with subchart temporal
+    set:
+      temporal.deploy: true
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "Project"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - isKind:
+          of: Job
+      - equal:
+          path: metadata.name
+          value: llamacloud-temporal-search-attributes
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: TEMPORAL_CLI_ADDRESS
+            value: "llamacloud-temporal-subchart-frontend:7233"
+
+  # Test: verify NO hooks when deploying temporal subchart (job runs as regular resource)
+  - it: should not use hooks with subchart temporal
+    set:
+      temporal.deploy: true
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "Project"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - isNull:
+          path: metadata.annotations["helm.sh/hook"]
+      - isNull:
+          path: metadata.annotations["helm.sh/hook-weight"]
+      - isNull:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+
+  # Test: verify job has backoffLimit set
+  - it: should have backoffLimit configured
+    set:
+      temporal.deploy: true
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "Project"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - equal:
+          path: spec.backoffLimit
+          value: 6
+
+  # Test: verify NO temporal resources are created when temporal.disabled is true
+  - it: should not create temporal job when temporal.disabled is true
+    set:
+      temporal.disabled: true
+      config.temporal.searchAttributesJob.enabled: true
+      config.temporal.searchAttributesJob.image: "temporalio/admin-tools:latest"
+      config.temporal.searchAttributesJob.attributes:
+        - name: "Project"
+          type: "Keyword"
+    template: ../templates/llamacloud/job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create temporal configmap when temporal.disabled is true
+    set:
+      temporal.disabled: true
+    template: ../templates/llamacloud/configmaps/temporal.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: should not create temporal deployments when temporal.disabled is true
+    set:
+      temporal.disabled: true
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/deployment.yaml
+    asserts:
+      - hasDocuments:
+          count: 5
+
+  - it: should not create temporal services when temporal.disabled is true
+    set:
+      temporal.disabled: true
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/service.yaml
+    asserts:
+      - hasDocuments:
+          count: 5
+
+  # Verify that standard deployments are still created with temporal configured
+  - it: should create standard deployments with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/deployment.yaml
+    asserts:
+      - hasDocuments:
+          count: 8
+
+  - it: should create standard services with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/service.yaml
+    asserts:
+      - hasDocuments:
+          count: 8

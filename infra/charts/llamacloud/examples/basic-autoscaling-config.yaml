@@ -1,0 +1,160 @@
+# This example shows how to configure autoscaling for the LlamaCloud platform.
+# It is used in the `values.yaml` file for each component.
+
+# Autoscaling is enabled by default for llamaParse and llamaParseOcr given the nature of their workloads.
+# To disable autoscaling for a component, set the horizontalPodAutoscalerSpec to an empty object {}.
+
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  llms:
+    openAi:
+      apiKey: "<REPLACE-WITH-OPENAI-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "https://login.microsoftonline.com/<your-tenant-id>/v2.0/.well-known/openid-configuration"
+      clientId: "your-client-id"
+      clientSecret: "your-client-secret"
+      # secret: "oidc-secret"
+
+backend:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 1
+    maxReplicas: 8
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+jobsService:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 1
+    maxReplicas: 4
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+jobsWorker:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 1
+    maxReplicas: 4
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+llamaParse:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 2
+    maxReplicas: 10
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+llamaParseOcr:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 2
+    maxReplicas: 10
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+usage:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 1
+    maxReplicas: 4
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80

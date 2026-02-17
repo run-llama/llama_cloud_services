@@ -1,0 +1,34 @@
+apiVersion: v2
+name: llamacloud
+description: A Helm chart to deploy LlamaCloud and all of its necessary services.
+
+home: https://github.com/run-llama/helm-charts
+
+sources:
+- https://github.com/run-llama/helm-charts
+
+maintainers:
+- name: Jerry Liu
+  email: jerry@runllama.ai
+  url: https://github.com/jerryjliu
+- name: Simon Suo
+  email: simon@runllama.ai
+  url: https://github.com/Disiok
+- name: Jonathan Whitaker
+  email: jonathan@runllama.ai
+  url: https://github.com/jonathan-whitaker
+
+keywords:
+- llamaindex
+- llamacloud
+- rag
+
+version: 0.7.1
+appVersion: "0.7.1"
+
+dependencies:
+  - name: temporal
+    version: ~0.73.0
+    repository: https://go.temporal.io/helm-charts
+    condition: temporal.deploy
+    alias: temporal-subchart

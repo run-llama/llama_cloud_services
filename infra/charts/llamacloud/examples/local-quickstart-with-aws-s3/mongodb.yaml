@@ -1,0 +1,19 @@
+image:
+  registry: ghcr.io
+  repository: xavidop/mongodb
+  tag: '7.0'
+
+# MongoDB Auth
+auth:
+  ## @param mongodb.auth.enabled Enable MongoDB Auth
+  ## @param mongodb.auth.rootUser Root user name
+  enabled: true
+
+  rootUser: root
+  rootPassword: password
+
+global:
+  security:
+    allowInsecureImages: true
+
+resourcesPreset: micro

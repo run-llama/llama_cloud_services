@@ -1,0 +1,1912 @@
+{
+    "title": "Chart Values",
+    "type": "object",
+    "properties": {
+        "license": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": "License key for all components",
+                    "default": "<input-license-key-here>"
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the k8s secret to use for the license key",
+                    "default": ""
+                }
+            }
+        },
+        "postgresql": {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "description": "PostgreSQL host",
+                    "default": ""
+                },
+                "port": {
+                    "type": "string",
+                    "description": "PostgreSQL port",
+                    "default": "5432"
+                },
+                "database": {
+                    "type": "string",
+                    "description": "PostgreSQL database",
+                    "default": ""
+                },
+                "username": {
+                    "type": "string",
+                    "description": "PostgreSQL user",
+                    "default": ""
+                },
+                "password": {
+                    "type": "string",
+                    "description": "PostgreSQL password",
+                    "default": ""
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the existing secret to use for PostgreSQL credentials",
+                    "default": ""
+                }
+            }
+        },
+        "mongodb": {
+            "type": "object",
+            "properties": {
+                "scheme": {
+                    "type": "string",
+                    "description": "MongoDB connection scheme (i.e. mongodb, mongodb+srv)",
+                    "default": "mongodb"
+                },
+                "host": {
+                    "type": "string",
+                    "description": "MongoDB host",
+                    "default": ""
+                },
+                "port": {
+                    "type": "string",
+                    "description": "MongoDB port",
+                    "default": "27017"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "MongoDB user",
+                    "default": ""
+                },
+                "password": {
+                    "type": "string",
+                    "description": "MongoDB password",
+                    "default": ""
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the existing secret to use for MongoDB credentials",
+                    "default": ""
+                }
+            }
+        },
+        "rabbitmq": {
+            "type": "object",
+            "properties": {
+                "scheme": {
+                    "type": "string",
+                    "description": "RabbitMQ scheme",
+                    "default": "amqp"
+                },
+                "host": {
+                    "type": "string",
+                    "description": "RabbitMQ host",
+                    "default": ""
+                },
+                "port": {
+                    "type": "string",
+                    "description": "RabbitMQ port",
+                    "default": "5672"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "RabbitMQ user",
+                    "default": ""
+                },
+                "password": {
+                    "type": "string",
+                    "description": "RabbitMQ password",
+                    "default": ""
+                },
+                "connectionString": {
+                    "type": "string",
+                    "description": "Connection string for the AMQP queue (e.g., for Azure Service Bus)",
+                    "default": ""
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the existing secret to use for RabbitMQ credentials",
+                    "default": ""
+                }
+            }
+        },
+        "redis": {
+            "type": "object",
+            "properties": {
+                "host": {
+                    "type": "string",
+                    "description": "Redis host",
+                    "default": ""
+                },
+                "port": {
+                    "type": "string",
+                    "description": "Redis port",
+                    "default": "6379"
+                },
+                "scheme": {
+                    "type": "string",
+                    "description": "Redis connection scheme (redis or rediss for SSL)",
+                    "default": "redis"
+                },
+                "username": {
+                    "type": "string",
+                    "description": "Redis username (required for Redis 6.0+)",
+                    "default": ""
+                },
+                "password": {
+                    "type": "string",
+                    "description": "Redis password",
+                    "default": ""
+                },
+                "db": {
+                    "type": "number",
+                    "description": "Redis database",
+                    "default": 0
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the existing secret to use for Redis credentials",
+                    "default": ""
+                }
+            }
+        },
+        "qdrant": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable QDRANT Data-Sink for backend",
+                    "default": false
+                },
+                "url": {
+                    "type": "string",
+                    "description": "QDRANT Data-Sink host",
+                    "default": ""
+                },
+                "apiKey": {
+                    "type": "string",
+                    "description": "QDRANT Data-Sink API key",
+                    "default": ""
+                },
+                "secret": {
+                    "type": "string",
+                    "description": "Name of the existing secret to use for the QDRANT Data-Sink",
+                    "default": ""
+                }
+            }
+        },
+        "temporal": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Enable Temporal for backend",
+                    "default": false
+                },
+                "host": {
+                    "type": "string",
+                    "description": "Temporal host",
+                    "default": ""
+                },
+                "port": {
+                    "type": "number",
+                    "description": "Temporal port",
+                    "default": 7233
+                }
+            }
+        },
+        "ingress": {
+            "type": "object",
+            "properties": {
+                "enabled": {
+                    "type": "boolean",
+                    "description": "Whether to enable the ingress",
+                    "default": false
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the ingress",
+                    "default": {}
+                },
+                "host": {
+                    "type": "string",
+                    "description": "Hostname to use for the ingress",
+                    "default": ""
+                },
+                "tlsSecretName": {
+                    "type": "string",
+                    "description": "TLS secret name to use for the ingress",
+                    "default": ""
+                },
+                "ingressClassName": {
+                    "type": "string",
+                    "description": "Ingress class name to use for the ingress",
+                    "default": ""
+                }
+            }
+        },
+        "config": {
+            "type": "object",
+            "properties": {
+                "logLevel": {
+                    "type": "string",
+                    "description": "Log level for the application (DEBUG, INFO, WARNING, ERROR, CRITICAL)",
+                    "default": "INFO"
+                },
+                "llms": {
+                    "type": "object",
+                    "properties": {
+                        "openAi": {
+                            "type": "object",
+                            "properties": {
+                                "apiKey": {
+                                    "type": "string",
+                                    "description": "OpenAI API key",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the OpenAI API key",
+                                    "default": ""
+                                }
+                            }
+                        },
+                        "anthropic": {
+                            "type": "object",
+                            "properties": {
+                                "apiKey": {
+                                    "type": "string",
+                                    "description": "Anthropic API key",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the Anthropic API key",
+                                    "default": ""
+                                }
+                            }
+                        },
+                        "gemini": {
+                            "type": "object",
+                            "properties": {
+                                "apiKey": {
+                                    "type": "string",
+                                    "description": "Google Gemini API key",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the Google Gemini API key",
+                                    "default": ""
+                                }
+                            }
+                        },
+                        "azureOpenAi": {
+                            "type": "object",
+                            "properties": {
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the Azure OpenAI API key",
+                                    "default": ""
+                                },
+                                "deployments": {
+                                    "type": "array",
+                                    "description": "Azure OpenAI deployments",
+                                    "default": [],
+                                    "items": {}
+                                }
+                            }
+                        },
+                        "awsBedrock": {
+                            "type": "object",
+                            "properties": {
+                                "region": {
+                                    "type": "string",
+                                    "description": "AWS Bedrock region",
+                                    "default": ""
+                                },
+                                "accessKeyId": {
+                                    "type": "string",
+                                    "description": "AWS Bedrock access key ID",
+                                    "default": ""
+                                },
+                                "secretAccessKey": {
+                                    "type": "string",
+                                    "description": "AWS Bedrock secret access key",
+                                    "default": ""
+                                },
+                                "sonnet3_5ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Sonnet 3.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-3-5-sonnet-20240620-v1:0"
+                                },
+                                "sonnet3_7ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Sonnet 3.7 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-3-7-sonnet-20250219-v1:0"
+                                },
+                                "sonnet4_0ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Sonnet 4.0 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-sonnet-4-20250514-v1:0"
+                                },
+                                "sonnet4_5ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Sonnet 4.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-sonnet-4-5-20250929-v1:0"
+                                },
+                                "haiku3_5ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Haiku 3.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-3-5-haiku-20241022-v1:0"
+                                },
+                                "haiku4_5ModelVersionName": {
+                                    "type": "string",
+                                    "description": "Haiku 4.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.",
+                                    "default": "anthropic.claude-haiku-4-5-20251001-v1:0"
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the AWS Bedrock API key",
+                                    "default": ""
+                                }
+                            }
+                        },
+                        "googleVertexAi": {
+                            "type": "object",
+                            "properties": {
+                                "projectId": {
+                                    "type": "string",
+                                    "description": "Google Vertex AI project id",
+                                    "default": ""
+                                },
+                                "location": {
+                                    "type": "string",
+                                    "description": "Google Vertex AI location",
+                                    "default": ""
+                                },
+                                "credentialsJson": {
+                                    "type": "string",
+                                    "description": "Google Vertex AI credentials JSON",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the Google Vertex AI API key",
+                                    "default": ""
+                                }
+                            }
+                        }
+                    }
+                },
+                "authentication": {
+                    "type": "object",
+                    "properties": {
+                        "basicAuth": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "description": "Enable Basic Auth for the backend",
+                                    "default": false
+                                },
+                                "validEmailDomain": {
+                                    "type": "string",
+                                    "description": "Valid email domain for the application",
+                                    "default": ""
+                                },
+                                "jwtSecret": {
+                                    "type": "string",
+                                    "description": "JWT secret for the backend",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for the JWT secret",
+                                    "default": ""
+                                }
+                            }
+                        },
+                        "oidc": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "description": "Enable OIDC for the backend",
+                                    "default": false
+                                },
+                                "discoveryUrl": {
+                                    "type": "string",
+                                    "description": "OIDC discovery URL",
+                                    "default": ""
+                                },
+                                "clientId": {
+                                    "type": "string",
+                                    "description": "OIDC client ID",
+                                    "default": ""
+                                },
+                                "clientSecret": {
+                                    "type": "string",
+                                    "description": "OIDC client secret",
+                                    "default": ""
+                                },
+                                "secret": {
+                                    "type": "string",
+                                    "description": "Name of the existing secret to use for OIDC configuration",
+                                    "default": ""
+                                }
+                            }
+                        }
+                    }
+                },
+                "storageBuckets": {
+                    "type": "object",
+                    "properties": {
+                        "provider": {
+                            "type": "string",
+                            "description": "Cloud storage provider",
+                            "default": "aws"
+                        },
+                        "extraEnvVariables": {
+                            "type": "object",
+                            "description": "Extra environment variables to add to the pods for storage buckets",
+                            "default": {}
+                        },
+                        "parsedDocuments": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-parsed-documents"
+                        },
+                        "parsedEtl": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-etl"
+                        },
+                        "parsedExternalComponents": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-external-components"
+                        },
+                        "parsedFileParsing": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-file-parsing"
+                        },
+                        "parsedRawFile": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-raw-files"
+                        },
+                        "parseOutput": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-cloud-parse-output"
+                        },
+                        "parsedFileScreenshot": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-file-screenshots"
+                        },
+                        "extractOutput": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-extract-output"
+                        },
+                        "parseFileUpload": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-file-parsing"
+                        },
+                        "parseFileOutput": {
+                            "type": "string",
+                            "description": "Cloud storage bucket name",
+                            "default": "llama-platform-file-parsing"
+                        },
+                        "s3proxy": {
+                            "type": "object",
+                            "properties": {
+                                "image": {
+                                    "type": "string",
+                                    "description": "S3Proxy image",
+                                    "default": "docker.io/andrewgaul/s3proxy:sha-82e50ee"
+                                },
+                                "imagePullPolicy": {
+                                    "type": "string",
+                                    "description": "S3Proxy image pull policy",
+                                    "default": "IfNotPresent"
+                                },
+                                "securityContext": {
+                                    "type": "object",
+                                    "description": "Security context for the S3Proxy container",
+                                    "default": {}
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "description": "Set container requests and limits for different resources like CPU or memory",
+                                    "default": {}
+                                },
+                                "config": {
+                                    "type": "object",
+                                    "description": "S3Proxy configuration ENV variables",
+                                    "default": {}
+                                }
+                            }
+                        }
+                    }
+                },
+                "frontend": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Enable Frontend service",
+                            "default": true
+                        }
+                    }
+                },
+                "extraction": {
+                    "type": "object",
+                    "properties": {
+                        "multimodalModel": {
+                            "type": "string",
+                            "description": "LlamaExtract multimodal model (gemini-2.0-flash, gemini-2.5-pro, openai-gpt-4-1)",
+                            "default": "openai-gpt-4-1"
+                        },
+                        "schemaGenerationModel": {
+                            "type": "string",
+                            "description": "LlamaExtract schema generation model (gemini-2.0-flash, openai-gpt-4-1-mini)",
+                            "default": "openai-gpt-4-1-mini"
+                        },
+                        "maxPages": {
+                            "type": "number",
+                            "description": "LlamaExtract max pages allowed",
+                            "default": 500
+                        },
+                        "maxFileSizeMb": {
+                            "type": "number",
+                            "description": "LlamaExtract max file size (MB) allowed",
+                            "default": 100
+                        },
+                        "maxFileSizeUiMb": {
+                            "type": "number",
+                            "description": "LlamaExtract max file size (MB) allowed for UI",
+                            "default": 30
+                        }
+                    }
+                },
+                "jobs": {
+                    "type": "object",
+                    "properties": {
+                        "maxJobsInExecutionPerJobType": {
+                            "type": "number",
+                            "description": "Maximum number of jobs in execution per job type",
+                            "default": 10
+                        },
+                        "maxIndexJobsInExecution": {
+                            "type": "number",
+                            "description": "Maximum number of index jobs in execution",
+                            "default": 0
+                        },
+                        "maxDocumentIngestionJobsInExecution": {
+                            "type": "number",
+                            "description": "Maximum number of document ingestion jobs in execution",
+                            "default": 1
+                        },
+                        "includeJobErrorDetails": {
+                            "type": "boolean",
+                            "description": "Whether to always include job error details in API and the UI",
+                            "default": true
+                        },
+                        "defaultTransformDocumentTimeoutSeconds": {
+                            "type": "string",
+                            "description": "Default timeout in seconds for document transformation jobs",
+                            "default": "240"
+                        },
+                        "transformEmbeddingCharLimit": {
+                            "type": "string",
+                            "description": "Character limit for transform embedding operations",
+                            "default": "11520000"
+                        }
+                    }
+                },
+                "parse": {
+                    "type": "object",
+                    "properties": {
+                        "debugMode": {
+                            "type": "boolean",
+                            "description": "Enable debug mode for LlamaParse",
+                            "default": false
+                        },
+                        "maxQueueConcurrency": {
+                            "type": "number",
+                            "description": "Max number of jobs the worker can process at the same time",
+                            "default": 3
+                        },
+                        "preferedPremiumModel": {
+                            "type": "string",
+                            "description": "Prefered premium LLM model to use for the application",
+                            "default": ""
+                        },
+                        "concurrency": {
+                            "type": "object",
+                            "properties": {
+                                "accurateModeLLMConcurrency": {
+                                    "type": "string",
+                                    "description": "concurrency setting",
+                                    "default": ""
+                                },
+                                "multimodalModelConcurrency": {
+                                    "type": "string",
+                                    "description": "concurrency setting",
+                                    "default": ""
+                                },
+                                "premiumModeModelConcurrency": {
+                                    "type": "string",
+                                    "description": "concurrency setting",
+                                    "default": ""
+                                },
+                                "ocrConcurrency": {
+                                    "type": "string",
+                                    "description": "ocr concurrency setting",
+                                    "default": ""
+                                },
+                                "layoutExtractionConcurrency": {
+                                    "type": "string",
+                                    "description": "layout extraction concurrency setting",
+                                    "default": ""
+                                },
+                                "layoutExtractionV2Concurrency": {
+                                    "type": "string",
+                                    "description": "layout extraction v2 concurrency setting",
+                                    "default": ""
+                                },
+                                "layoutModeBlockParseConcurrency": {
+                                    "type": "string",
+                                    "description": "layout mode block parse concurrency setting",
+                                    "default": ""
+                                },
+                                "layoutModePageConcurrency": {
+                                    "type": "string",
+                                    "description": "layout mode page concurrency setting",
+                                    "default": ""
+                                },
+                                "layoutModeReadingOrderDetectionConcurrency": {
+                                    "type": "string",
+                                    "description": "layout mode reading order detection concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini25Flash": {
+                                    "type": "string",
+                                    "description": "gemini25Flash concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini25Pro": {
+                                    "type": "string",
+                                    "description": "gemini25Pro concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini20Flash": {
+                                    "type": "string",
+                                    "description": "gemini20Flash concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini20FlashLite": {
+                                    "type": "string",
+                                    "description": "gemini20FlashLite concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini15Flash": {
+                                    "type": "string",
+                                    "description": "gemini15Flash concurrency setting",
+                                    "default": ""
+                                },
+                                "gemini15Pro": {
+                                    "type": "string",
+                                    "description": "gemini15Pro concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt4oMini": {
+                                    "type": "string",
+                                    "description": "openaiGpt4oMini concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt4o": {
+                                    "type": "string",
+                                    "description": "openaiGpt4o concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt41": {
+                                    "type": "string",
+                                    "description": "openaiGpt41 concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt41Mini": {
+                                    "type": "string",
+                                    "description": "openaiGpt41Mini concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt41Nano": {
+                                    "type": "string",
+                                    "description": "openaiGpt41Nano concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt5": {
+                                    "type": "string",
+                                    "description": "openaiGpt5 concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt5Mini": {
+                                    "type": "string",
+                                    "description": "openaiGpt5Mini concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiGpt5Nano": {
+                                    "type": "string",
+                                    "description": "openaiGpt5Nano concurrency setting",
+                                    "default": ""
+                                },
+                                "openaiWhisper1": {
+                                    "type": "string",
+                                    "description": "openaiWhisper1 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicSonnet37": {
+                                    "type": "string",
+                                    "description": "anthropicSonnet37 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicSonnet35": {
+                                    "type": "string",
+                                    "description": "anthropicSonnet35 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicSonnet40": {
+                                    "type": "string",
+                                    "description": "anthropicSonnet40 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicSonnet45": {
+                                    "type": "string",
+                                    "description": "anthropicSonnet45 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicHaiku35": {
+                                    "type": "string",
+                                    "description": "anthropicHaiku35 concurrency setting",
+                                    "default": ""
+                                },
+                                "anthropicHaiku45": {
+                                    "type": "string",
+                                    "description": "anthropicHaiku45 concurrency setting",
+                                    "default": ""
+                                }
+                            }
+                        }
+                    }
+                },
+                "parseOcr": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Enable LlamaParseOcr",
+                            "default": true
+                        },
+                        "gpu": {
+                            "type": "boolean",
+                            "description": "Enable GPU acceleration for OCR processing (if false, uses CPU backend)",
+                            "default": false
+                        }
+                    }
+                },
+                "parseLayoutDetection": {
+                    "type": "object",
+                    "properties": {
+                        "enabled": {
+                            "type": "boolean",
+                            "description": "Enable LlamaParse Layout Detection",
+                            "default": true
+                        },
+                        "gpu": {
+                            "type": "boolean",
+                            "description": "Enable GPU acceleration for Layout processing (if false, uses CPU backend)",
+                            "default": false
+                        }
+                    }
+                },
+                "temporal": {
+                    "type": "object",
+                    "properties": {
+                        "workerRegistryProfile": {
+                            "type": "string",
+                            "description": "Temporal worker registry profile (default or consolidated)",
+                            "default": "consolidated"
+                        },
+                        "namespace": {
+                            "type": "string",
+                            "description": "Temporal registered namespace",
+                            "default": ""
+                        },
+                        "searchAttributesJob": {
+                            "type": "object",
+                            "properties": {
+                                "enabled": {
+                                    "type": "boolean",
+                                    "description": "Enable the search attributes job",
+                                    "default": true
+                                },
+                                "image": {
+                                    "type": "string",
+                                    "description": "Image for temporal admin tools",
+                                    "default": "docker.io/temporalio/admin-tools:1.29"
+                                },
+                                "attributes": {
+                                    "type": "array",
+                                    "description": "Name of the first search attribute",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string",
+                                                "description": "Name of the second search attribute"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "description": "Type of the second search attribute (Text, Keyword, Int, Double, Bool, Datetime, KeywordList)"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "commonLabels": {
+            "type": "object",
+            "description": "Labels to add to all deployed objects",
+            "default": {}
+        },
+        "commonAnnotations": {
+            "type": "object",
+            "description": "Annotations to add to all deployed objects",
+            "default": {}
+        },
+        "imagePullSecrets": {
+            "type": "array",
+            "description": "Image pull secrets to use for the images string list",
+            "default": [],
+            "items": {}
+        },
+        "extraObjects": {
+            "type": "array",
+            "description": "",
+            "default": [],
+            "items": {}
+        },
+        "frontend": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the Frontend Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "Frontend image",
+                    "default": "docker.io/llamaindex/llamacloud-frontend:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "Frontend image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for frontend pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to Frontend pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "backend": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the Backend Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "Backend image",
+                    "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "Backend image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for backend pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to Backend pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "jobsService": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the JobsService Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "JobsService image",
+                    "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "JobsService image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for JobsService pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to JobsService pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "jobsWorker": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the JobsWorker Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "JobsWorker image",
+                    "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "JobsWorker image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for JobsWorker pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to JobsWorker pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "llamaParse": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the LlamaParse Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "LlamaParse image",
+                    "default": "docker.io/llamaindex/llamacloud-llamaparse:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "LlamaParse image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for LlamaParse pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to LlamaParse pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "llamaParseOcr": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the LlamaParseOcr Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "LlamaParseOcr image",
+                    "default": "docker.io/llamaindex/llamacloud-llamaparse-ocr:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "LlamaParseOcr image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for LlamaParseOcr pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to LlamaParseOcr pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "llamaParseLayoutDetectionApi": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the LlamaParseLayoutDetectionApi Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "LlamaParseLayoutDetectionApi image",
+                    "default": "docker.io/llamaindex/llamacloud-layout-detection-api:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "LlamaParseLayoutDetectionApi image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for LlamaParseLayoutDetectionApi pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to LlamaParseLayoutDetectionApi pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "usage": {
+            "type": "object",
+            "properties": {
+                "horizontalPodAutoscalerSpec": {
+                    "type": "object",
+                    "description": "HorizontalPodAutoScaler configuration",
+                    "default": {}
+                },
+                "annotations": {
+                    "type": "object",
+                    "description": "Annotations added to the LlamaParseLayoutDetectionApi Deployment.",
+                    "default": {}
+                },
+                "image": {
+                    "type": "string",
+                    "description": "LlamaParseLayoutDetectionApi image",
+                    "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                },
+                "imagePullPolicy": {
+                    "type": "string",
+                    "description": "LlamaParseLayoutDetectionApi image pull policy",
+                    "default": "IfNotPresent"
+                },
+                "securityContext": {
+                    "type": "object",
+                    "description": "Security context for the container",
+                    "default": {}
+                },
+                "serviceAccountAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the service account",
+                    "default": {}
+                },
+                "nodeSelector": {
+                    "type": "object",
+                    "description": "Node labels for pod assignment",
+                    "default": {}
+                },
+                "tolerations": {
+                    "type": "array",
+                    "description": "Taints to tolerate on node assignment:",
+                    "default": [],
+                    "items": {}
+                },
+                "affinity": {
+                    "type": "object",
+                    "description": "Pod scheduling constraints",
+                    "default": {}
+                },
+                "topologySpreadConstraints": {
+                    "type": "array",
+                    "description": "Topology Spread Constraints for usage pods",
+                    "default": [],
+                    "items": {}
+                },
+                "podAnnotations": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "podSecurityContext": {
+                    "type": "object",
+                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                    "default": {}
+                },
+                "resources": {
+                    "type": "object",
+                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                    "default": {}
+                },
+                "extraEnvVariables": {
+                    "type": "array",
+                    "description": "Extra environment variables to add to LlamaParseLayoutDetectionApi pods",
+                    "default": [],
+                    "items": {}
+                },
+                "volumeMounts": {
+                    "type": "array",
+                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                },
+                "volumes": {
+                    "type": "array",
+                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                    "default": [],
+                    "items": {}
+                }
+            }
+        },
+        "temporalWorkloads": {
+            "type": "object",
+            "properties": {
+                "llamaParse": {
+                    "type": "object",
+                    "properties": {
+                        "horizontalPodAutoscalerSpec": {
+                            "type": "object",
+                            "description": "HorizontalPodAutoScaler configuration",
+                            "default": {}
+                        },
+                        "annotations": {
+                            "type": "object",
+                            "description": "Annotations added to the temporal llamaparse Deployment.",
+                            "default": {}
+                        },
+                        "image": {
+                            "type": "string",
+                            "description": "temporal llamaparse image",
+                            "default": "docker.io/llamaindex/llamacloud-llamaparse:0.5.11"
+                        },
+                        "imagePullPolicy": {
+                            "type": "string",
+                            "description": "temporal llamaparse image pull policy",
+                            "default": "IfNotPresent"
+                        },
+                        "securityContext": {
+                            "type": "object",
+                            "description": "Security context for the container",
+                            "default": {}
+                        },
+                        "serviceAccountAnnotations": {
+                            "type": "object",
+                            "description": "Annotations to add to the service account",
+                            "default": {}
+                        },
+                        "nodeSelector": {
+                            "type": "object",
+                            "description": "Node labels for pod assignment",
+                            "default": {}
+                        },
+                        "tolerations": {
+                            "type": "array",
+                            "description": "Taints to tolerate on node assignment:",
+                            "default": [],
+                            "items": {}
+                        },
+                        "affinity": {
+                            "type": "object",
+                            "description": "Pod scheduling constraints",
+                            "default": {}
+                        },
+                        "topologySpreadConstraints": {
+                            "type": "array",
+                            "description": "Topology Spread Constraints for temporal llamaparse pods",
+                            "default": [],
+                            "items": {}
+                        },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Annotations to add to the resulting Pods of the Deployment.",
+                            "default": {}
+                        },
+                        "podSecurityContext": {
+                            "type": "object",
+                            "description": "Annotations to add to the resulting Pods of the Deployment.",
+                            "default": {}
+                        },
+                        "resources": {
+                            "type": "object",
+                            "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                            "default": {}
+                        },
+                        "extraEnvVariables": {
+                            "type": "array",
+                            "description": "Extra environment variables to add to temporal llamaparse pods",
+                            "default": [],
+                            "items": {}
+                        },
+                        "volumeMounts": {
+                            "type": "array",
+                            "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                            "default": [],
+                            "items": {}
+                        },
+                        "volumes": {
+                            "type": "array",
+                            "description": "List of volumes that can be mounted by containers belonging to the pod",
+                            "default": [],
+                            "items": {}
+                        }
+                    }
+                },
+                "jobsService": {
+                    "type": "object",
+                    "properties": {
+                        "horizontalPodAutoscalerSpec": {
+                            "type": "object",
+                            "description": "HorizontalPodAutoScaler configuration",
+                            "default": {}
+                        },
+                        "annotations": {
+                            "type": "object",
+                            "description": "Annotations added to the temporal jobsService Deployment.",
+                            "default": {}
+                        },
+                        "image": {
+                            "type": "string",
+                            "description": "temporal jobsService image",
+                            "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                        },
+                        "imagePullPolicy": {
+                            "type": "string",
+                            "description": "temporal jobsService image pull policy",
+                            "default": "IfNotPresent"
+                        },
+                        "securityContext": {
+                            "type": "object",
+                            "description": "Security context for the container",
+                            "default": {}
+                        },
+                        "serviceAccountAnnotations": {
+                            "type": "object",
+                            "description": "Annotations to add to the service account",
+                            "default": {}
+                        },
+                        "nodeSelector": {
+                            "type": "object",
+                            "description": "Node labels for pod assignment",
+                            "default": {}
+                        },
+                        "tolerations": {
+                            "type": "array",
+                            "description": "Taints to tolerate on node assignment:",
+                            "default": [],
+                            "items": {}
+                        },
+                        "affinity": {
+                            "type": "object",
+                            "description": "Pod scheduling constraints",
+                            "default": {}
+                        },
+                        "topologySpreadConstraints": {
+                            "type": "array",
+                            "description": "Topology Spread Constraints for temporal jobsService pods",
+                            "default": [],
+                            "items": {}
+                        },
+                        "podAnnotations": {
+                            "type": "object",
+                            "description": "Annotations to add to the resulting Pods of the Deployment.",
+                            "default": {}
+                        },
+                        "podSecurityContext": {
+                            "type": "object",
+                            "description": "Annotations to add to the resulting Pods of the Deployment.",
+                            "default": {}
+                        },
+                        "resources": {
+                            "type": "object",
+                            "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                            "default": {}
+                        },
+                        "extraEnvVariables": {
+                            "type": "array",
+                            "description": "Extra environment variables to add to temporal jobsService pods",
+                            "default": [],
+                            "items": {}
+                        },
+                        "volumeMounts": {
+                            "type": "array",
+                            "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                            "default": [],
+                            "items": {}
+                        },
+                        "volumes": {
+                            "type": "array",
+                            "description": "List of volumes that can be mounted by containers belonging to the pod",
+                            "default": [],
+                            "items": {}
+                        }
+                    }
+                },
+                "workers": {
+                    "type": "object",
+                    "properties": {
+                        "temporal-jobs-worker": {
+                            "type": "object",
+                            "properties": {
+                                "horizontalPodAutoscalerSpec": {
+                                    "type": "object",
+                                    "description": "HorizontalPodAutoScaler configuration",
+                                    "default": {}
+                                },
+                                "annotations": {
+                                    "type": "object",
+                                    "description": "Annotations added to the temporal-jobs-worker Deployment.",
+                                    "default": {}
+                                },
+                                "image": {
+                                    "type": "string",
+                                    "description": "Frontend image",
+                                    "default": "docker.io/llamaindex/llamacloud-backend:0.5.11"
+                                },
+                                "imagePullPolicy": {
+                                    "type": "string",
+                                    "description": "Frontend image pull policy",
+                                    "default": "IfNotPresent"
+                                },
+                                "command": {
+                                    "type": "array",
+                                    "description": "Command to run in the container",
+                                    "default": [],
+                                    "items": {}
+                                },
+                                "securityContext": {
+                                    "type": "object",
+                                    "description": "Security context for the container",
+                                    "default": {}
+                                },
+                                "serviceAccountAnnotations": {
+                                    "type": "object",
+                                    "description": "Annotations to add to the service account",
+                                    "default": {}
+                                },
+                                "nodeSelector": {
+                                    "type": "object",
+                                    "description": "Node labels for pod assignment",
+                                    "default": {}
+                                },
+                                "tolerations": {
+                                    "type": "array",
+                                    "description": "Taints to tolerate on node assignment:",
+                                    "default": [],
+                                    "items": {}
+                                },
+                                "affinity": {
+                                    "type": "object",
+                                    "description": "Pod scheduling constraints",
+                                    "default": {}
+                                },
+                                "topologySpreadConstraints": {
+                                    "type": "array",
+                                    "description": "Topology Spread Constraints for temporal-jobs-worker pods",
+                                    "default": [],
+                                    "items": {}
+                                },
+                                "podAnnotations": {
+                                    "type": "object",
+                                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                                    "default": {}
+                                },
+                                "podSecurityContext": {
+                                    "type": "object",
+                                    "description": "Annotations to add to the resulting Pods of the Deployment.",
+                                    "default": {}
+                                },
+                                "resources": {
+                                    "type": "object",
+                                    "description": "Set container requests and limits for different resources like CPU or memory (essential for production workloads)",
+                                    "default": {}
+                                },
+                                "extraEnvVariables": {
+                                    "type": "array",
+                                    "description": "Extra environment variables to add to temporal-jobs-worker pods",
+                                    "default": [],
+                                    "items": {}
+                                },
+                                "volumeMounts": {
+                                    "type": "array",
+                                    "description": "List of volumeMounts that can be mounted by containers belonging to the pod",
+                                    "default": [],
+                                    "items": {}
+                                },
+                                "volumes": {
+                                    "type": "array",
+                                    "description": "List of volumes that can be mounted by containers belonging to the pod",
+                                    "default": [],
+                                    "items": {}
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

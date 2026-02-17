@@ -1,0 +1,16 @@
+image:
+  ## @param redis.image.registry Redis Image registry
+  ## @param redis.image.repository Redis Image repository
+  registry: docker.io
+  repository: bitnamilegacy/redis
+
+auth:
+  password: "password"
+
+architecture: standalone
+
+global:
+  security:
+    allowInsecureImages: true
+
+resourcesPreset: micro

@@ -1,0 +1,259 @@
+suite: llamaparse-layout-detection-api-tests
+
+templates:
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/pdb.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+tests:
+- it: should be a Deployment
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: true
+    llamaParseLayoutDetectionApi:
+      image: docker.io/llamaindex/llamacloud-layout-detection-api:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: metadata.name
+        value: llamacloud-layout
+    - equal:
+        path: spec.selector.matchLabels["app.kubernetes.io/name"]
+        value: llamacloud-layout
+    - equal:
+        path: spec.template.spec.containers[0].name
+        value: llamacloud-layout
+    - notEqual:
+        path: .spec.template.spec.containers[0].envFrom
+        value: []
+
+- it: should create a deployment if config.parseLayoutDetection.enabled is true
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: true
+    llamaParseLayoutDetectionApi:
+      image: docker.io/llamaindex/llamacloud-layout-detection-api:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "LOG_LEVEL")].value
+        value: INFO
+    - equal:
+        path: .spec.template.spec.serviceAccountName
+        value: llamacloud-layout
+
+- it: should not create a deployment if config.parseLayoutDetection.enabled is false
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    temporal:
+      deploy: false
+      host: test-temporal
+      port: 7233
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - matchRegex:
+        path: metadata.name
+        pattern: ^(llamacloud|llamacloud-operator|llamacloud-worker|llamacloud-parse|llamacloud-telemetry|llamacloud-temporal-operator|llamacloud-temporal-parse|temporal-jobs-worker)$
+
+- it: should create a service if config.parseLayoutDetection.enabled is true
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: true
+    llamaParseLayoutDetectionApi:
+      image: docker.io/llamaindex/llamacloud-layout-detection-api:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/service.yaml
+  documentIndex: 4
+  asserts:
+    - equal:
+        path: metadata.name
+        value: llamacloud-layout
+
+- it: should not create a HPA if horizontalPodAutoccalerSpec is not set
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: true
+    llamaParseLayoutDetectionApi:
+      image: docker.io/llamaindex/llamacloud-layout-detection-api:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+- it: should create a HPA if horizontalPodAutoccalerSpec is set
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: true
+    llamaParseLayoutDetectionApi:
+      image: docker.io/llamaindex/llamacloud-layout-detection-api:latest
+      horizontalPodAutoscalerSpec:
+        minReplicas: 2
+        maxReplicas: 10
+        metrics:
+          - type: Resource
+            resource:
+              name: cpu
+              target:
+                type: Utilization
+                averageUtilization: 80
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 1
+    - equal:
+        path: metadata.name
+        value: llamacloud-layout
+    - equal:
+        path: spec.minReplicas
+        value: 2
+    - equal:
+        path: spec.maxReplicas
+        value: 10

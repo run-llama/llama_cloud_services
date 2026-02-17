@@ -1,0 +1,32 @@
+{{- if and .Values.temporal.disabled .Values.temporal.deploy }}
+{{- fail "temporal.deploy must be false when temporal.disabled is true" }}
+{{- end }}
+{{- if not .Values.temporal.disabled }}
+{{- $temporalHost := "" }}
+{{- $temporalPort := "" }}
+{{- if .Values.temporal.deploy }}
+{{- /* When deploying subchart, auto-configure to point to the subchart's frontend service */}}
+{{- $temporalHost = printf "%s-temporal-subchart-frontend" .Release.Name }}
+{{- $temporalPort = "7233" }}
+{{- else }}
+{{- /* Using external Temporal, require host and port to be set */}}
+{{- if not (and .Values.temporal.host .Values.temporal.port) }}
+{{- fail "temporal.host and temporal.port are required when temporal.deploy is false" }}
+{{- end }}
+{{- $temporalHost = .Values.temporal.host }}
+{{- $temporalPort = .Values.temporal.port | toString }}
+{{- end }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: temporal-connection-config
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "root" $) | indent 4 }}
+data:
+  TEMPORAL_HOST: {{ $temporalHost | quote }}
+  TEMPORAL_PORT: {{ $temporalPort | quote }}
+  TEMPORAL_NAMESPACE: {{ ((.Values.config).temporal).namespace | default $.Release.Namespace | quote }}
+  TEMPORAL_WORKER_REGISTRY_PROFILE: {{ (.Values.config).workerRegistryProfile | default "consolidated" | quote }}
+  TEMPORAL_JOB_SERVICE_URL: {{ printf "http://%s:%d" (include "llamacloud.component.temporal.jobsService" $ | fromYaml).name ( "80" | int) | quote }}
+{{- end }}

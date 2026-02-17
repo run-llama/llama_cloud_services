@@ -1,0 +1,68 @@
+# This example shows a full configuration for the LlamaCloud platform on Azure.
+# It shows how to configure the platform to use Azure OpenAI and Azure Blob Storage (using s3proxy).
+# We currently do not have native support for non-S3 filestores in LlamaCloud at the moment.
+
+license:
+  key: "<contact-support-for-key>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "fill-out"
+      clientId: "fill-out"
+      clientSecret: "fill-out"
+
+  llms:
+    azureOpenAi:
+      deployments:
+        - model: "gpt-4o"
+          apiKey: "fill-out"
+          baseUrl: "fill-out"
+          deploymentName: "fill-out"
+          apiVersion: "fill-out"
+
+  storageBuckets:
+    provider: "azure"
+
+    s3proxy:
+      config:
+        S3PROXY_ENDPOINT: "http://0.0.0.0:80"
+        S3PROXY_AUTHORIZATION: "none"
+        S3PROXY_IGNORE_UNKNOWN_HEADERS: "true"
+        S3PROXY_CORS_ALLOW_ORIGINS: "*"
+        JCLOUDS_PROVIDER: "azureblob"
+        JCLOUD_REGION: "eastus"
+        JCLOUDS_AZUREBLOB_AUTH: "azureKey"
+        JCLOUDS_IDENTITY: "fill-out"
+        JCLOUDS_CREDENTIAL: "fill-out"
+        JCLOUDS_ENDPOINT: "fill-out"

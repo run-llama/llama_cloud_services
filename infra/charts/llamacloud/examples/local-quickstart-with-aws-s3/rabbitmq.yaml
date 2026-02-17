@@ -1,0 +1,17 @@
+image:
+  ## @param rabbitmq.image.registry RabbitMQ Image registry
+  ## @param rabbitmq.image.repository RabbitMQ Image repository
+  registry: docker.io
+  repository: bitnamilegacy/rabbitmq
+  digest: sha256:8a36cf44a55be2ae25cafa0376b89041412c50bbcab9fa0109713d60b2ec06fb
+
+global:
+  security:
+    allowInsecureImages: true
+
+auth:
+  username: admin
+  password: password
+  erlangCookie: secretcookie
+
+resourcesPreset: micro

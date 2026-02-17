@@ -1,0 +1,363 @@
+suite: backend-tests
+
+templates:
+- ../templates/llamacloud/configmaps/common.yaml
+- ../templates/llamacloud/configmaps/buckets.yaml
+- ../templates/llamacloud/configmaps/extract.yaml
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/pdb.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/secrets/auth.oidc.yaml
+- ../templates/llamacloud/secrets/data.qdrant.yaml
+- ../templates/llamacloud/secrets/llm.azure.yaml
+- ../templates/llamacloud/secrets/llm.openai.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+    - monitoring.coreos.com/v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should be a Deployment
+  documentIndex: 0
+  set:
+    backend.image: docker.io/llamaindex/llamacloud-backend:latest
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .spec.template.spec.containers[0].image
+        value: docker.io/llamaindex/llamacloud-backend:latest
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "UVICORN_PORT")].value
+        value: "8000"
+
+- it: should use an external secret name for the license key if it is set
+  documentIndex: 0
+  set:
+    license.secret: existing-license-key
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "existing-license-key")].secretRef.name
+        value: existing-license-key
+
+- it: basic auth secret should be loaded via envFrom if basic auth is enabled
+  documentIndex: 0
+  set:
+    config.authentication.basicAuth.enabled: true
+    config.authentication.basicAuth.validEmailDomain: llamaindex.ai
+    config.authentication.basicAuth.jwtSecret: test-jwt-secret
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "basic-auth-secret")].secretRef.name
+        value: basic-auth-secret
+
+- it: should use existing basic auth secret via envFrom if secret is provided
+  documentIndex: 0
+  set:
+    config.authentication.basicAuth.enabled: true
+    config.authentication.basicAuth.secret: existing-basic-auth-secret
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "existing-basic-auth-secret")].secretRef.name
+        value: existing-basic-auth-secret
+
+- it: urls-config configmap should be loaded via envFrom and contain ingress URL
+  documentIndex: 0
+  set:
+    ingress.enabled: true
+    ingress.host: test-ingress-host
+    ingress.tlsSecretName: test-tls-secret
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.configMapRef.name == "urls-config")].configMapRef.name
+        value: urls-config
+
+- it: should use the component name as service account
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.serviceAccountName
+        value: llamacloud
+
+- it: should use an external secret name for the OpenAI API key if it is set
+  documentIndex: 0
+  set:
+    config.llms.openAi.secret: existing-openai-api-key
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "existing-openai-api-key")].secretRef.name
+        value: existing-openai-api-key
+
+- it: postgresql secret should be loaded via envFrom
+  documentIndex: 0
+  set:
+    postgresql.host: test-release-postgresql
+    postgresql.port: "5432"
+    postgresql.database: llamacloud
+    postgresql.username: llamacloud
+    postgresql.password: test-password
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "postgresql-secret")].secretRef.name
+        value: postgresql-secret
+
+- it: should use external postgresql secret if provided
+  documentIndex: 0
+  set:
+    postgresql.secret: external-postgresql-secret
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "external-postgresql-secret")].secretRef.name
+        value: external-postgresql-secret
+
+- it: mongodb secret should be loaded via envFrom
+  documentIndex: 0
+  set:
+    mongodb.scheme: mongodb+srv
+    mongodb.host: test-mongo-host
+    mongodb.port: "27017"
+    mongodb.username: test-mongo-user
+    mongodb.password: test-mongo-password
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "mongodb-secret")].secretRef.name
+        value: mongodb-secret
+
+- it: should create common-config ConfigMap with correct values
+  set:
+    config.storageBuckets.parsedDocuments: test-cloud-bucket-name
+  templates:
+    - ../templates/llamacloud/configmaps/common.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .metadata.name
+        value: common-config
+    - equal:
+        path: .data.IS_DEPLOYED
+        value: "true"
+    - equal:
+        path: .data.ALLOWED_INDEX
+        value: "true"
+    - equal:
+        path: .data.PARSE_PREMIUM
+        value: "true"
+
+- it: should create bucket-config ConfigMap with correct bucket names
+  set:
+    config.storageBuckets.parsedDocuments: test-cloud-bucket-name
+  templates:
+    - ../templates/llamacloud/configmaps/buckets.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .metadata.name
+        value: bucket-config
+    - equal:
+        path: .data.S3_DOCUMENT_BUCKET_NAME
+        value: test-cloud-bucket-name
+    - equal:
+        path: .data.S3_ETL_BUCKET_NAME
+        value: llama-platform-etl
+    - equal:
+        path: .data.S3_EXTERNAL_COMPONENTS_BUCKET_NAME
+        value: llama-platform-external-components
+    - equal:
+        path: .data.S3_FILE_PARSING_BUCKET_NAME
+        value: llama-platform-file-parsing
+    - equal:
+        path: .data.S3_RAW_FILE_BUCKET_NAME
+        value: llama-platform-raw-files
+    - equal:
+        path: .data.S3_LLAMA_CLOUD_PARSE_OUTPUT_BUCKET_NAME
+        value: llama-cloud-parse-output
+    - equal:
+        path: .data.S3_FILE_SCREENSHOT_BUCKET_NAME
+        value: llama-platform-file-screenshots
+    - equal:
+        path: .data.S3_LLAMA_EXTRACT_OUTPUT_BUCKET_NAME
+        value: llama-platform-extract-output
+
+- it: should create extract-config ConfigMap with default LLAMA_EXTRACT settings
+  templates:
+    - ../templates/llamacloud/configmaps/extract.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .metadata.name
+        value: extract-config
+    - equal:
+        path: .data.LLAMA_EXTRACT_MULTIMODAL_MODEL
+        value: "openai-gpt-4-1"
+    - equal:
+        path: .data.LLAMA_EXTRACT_SCHEMA_GENERATION_MODEL
+        value: "openai-gpt-4-1-mini"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_PAGES
+        value: "500"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_FILE_SIZE_MB
+        value: "100"
+
+- it: should set custom LLAMA_EXTRACT settings when specified
+  set:
+    config.extraction.multimodalModel: "openai-gpt-4-1"
+    config.extraction.schemaGenerationModel: "openai-gpt-4-1-mini"
+    config.extraction.maxPages: 1000
+    config.extraction.maxFileSizeMb: 200
+  templates:
+    - ../templates/llamacloud/configmaps/extract.yaml
+  asserts:
+    - equal:
+        path: .data.LLAMA_EXTRACT_MULTIMODAL_MODEL
+        value: "openai-gpt-4-1"
+    - equal:
+        path: .data.LLAMA_EXTRACT_SCHEMA_GENERATION_MODEL
+        value: "openai-gpt-4-1-mini"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_PAGES
+        value: "1000"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_FILE_SIZE_MB
+        value: "200"
+
+- it: backend deployment should have LOG_LEVEL env var set correctly
+  documentIndex: 0
+  set:
+    config.logLevel: debug
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "LOG_LEVEL")].value
+        value: debug
+
+- it: should correctly set OIDC configs in the secret
+  template: ../templates/llamacloud/secrets/auth.oidc.yaml
+  set:
+    config.authentication.oidc.enabled: true
+    config.authentication.oidc.clientId: test-client-id
+    config.authentication.oidc.clientSecret: test-client-secret
+    config.authentication.oidc.discoveryUrl: test-discovery-url
+  asserts:
+    - equal:
+        path: .data.OIDC_CLIENT_ID
+        value: dGVzdC1jbGllbnQtaWQ=
+    - equal:
+        path: .data.OIDC_CLIENT_SECRET
+        value: dGVzdC1jbGllbnQtc2VjcmV0
+    - equal:
+        path: .data.OIDC_DISCOVERY_URL
+        value: dGVzdC1kaXNjb3ZlcnktdXJs
+
+- it: should correctly set managed qdrant config in the secret
+  template: ../templates/llamacloud/secrets/data.qdrant.yaml
+  set:
+    qdrant.enabled: true
+    qdrant.url: test-qdrant-url
+    qdrant.apiKey: test-qdrant-api-key
+  asserts:
+    - equal:
+        path: .data.QDRANT_URL
+        value: dGVzdC1xZHJhbnQtdXJs
+    - equal:
+        path: .data.QDRANT_API_KEY
+        value: dGVzdC1xZHJhbnQtYXBpLWtleQ==
+    - equal:
+        path: .data.BYOC_HAS_MANAGED_QDRANT
+        value: dHJ1ZQ==
+
+- it: should include the Azure OpenAI API key in the environment variables
+  template: ../templates/llamacloud/secrets/llm.azure.yaml
+  set:
+    config.llms.azureOpenAi.deployments:
+      - model: "gpt-4o"
+        deploymentName: "test-deployment-name"
+        apiKey: "test-key"
+        baseUrl: "test-endpoint"
+        apiVersion: "test-api-version"
+  asserts:
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_API_KEY
+        value: dGVzdC1rZXk=
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_BASE_URL
+        value: dGVzdC1lbmRwb2ludA==
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_DEPLOYMENT_NAME
+        value: dGVzdC1kZXBsb3ltZW50LW5hbWU=
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_API_VERSION
+        value: dGVzdC1hcGktdmVyc2lvbg==
+
+- it: should use an external secret name for the Azure OpenAI API key if it is set
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  set:
+    config.llms.azureOpenAi.secret: existing-azure-openai-api-key
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].envFrom[?(@.secretRef.name == "existing-azure-openai-api-key")].secretRef.name
+        value: existing-azure-openai-api-key
+
+- it: should include the LLM models in the environment variables
+  template: ../templates/llamacloud/secrets/llm.openai.yaml
+  set:
+    config.llms.openAi.apiKey: test-openai-api-key
+  asserts:
+    - equal:
+        path: .data.OPENAI_API_KEY
+        value: dGVzdC1vcGVuYWktYXBpLWtleQ==
+
+- it: backend should create a HorizontalPodAutoscaler if autoscaling is enabled
+  set:
+    backend.horizontalPodAutoscalerSpec:
+      minReplicas: 2
+      maxReplicas: 10
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+  templates:
+    - ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 1
+    - isKind:
+        of: HorizontalPodAutoscaler
+
+- it: should not create backend HorizontalPodAutoscaler if autoscaling is disabled
+  set:
+    backend.horizontalPodAutoscalerSpec: null
+  templates:
+    - ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 0

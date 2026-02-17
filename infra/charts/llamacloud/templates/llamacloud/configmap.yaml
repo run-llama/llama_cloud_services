@@ -1,0 +1,15 @@
+{{- range $name, $component := ((include "llamacloud.components" .) | fromYaml ) }}
+{{- $componentPrefix := $component.prefix }}
+{{- $params := dict "component" $component "root" $ }}
+{{- if (include (printf "%s.configMap" $componentPrefix) $params) }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ print $component.name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" $params | indent 4 }}
+data: {{ include (printf "%s.configMap" $componentPrefix) $params | indent 2 }}
+{{- end }}
+{{- end }}

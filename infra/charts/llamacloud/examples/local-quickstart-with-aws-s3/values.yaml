@@ -1,0 +1,316 @@
+license:
+  key: "<REPLACE>"
+
+postgresql:
+  host: "postgresql"
+  port: "5432"
+  database: "llamacloud"
+  username: "llamacloud"
+  password: "llamacloud"
+
+mongodb:
+  scheme: "mongodb"
+  host: "mongodb"
+  port: "27017"
+  username: "root"
+  password: "password"
+
+rabbitmq:
+  scheme: "amqp"
+  host: "rabbitmq"
+  port: "5672"
+  username: "admin"
+  password: "password"
+
+redis:
+  host: "redis-master"
+  port: "6379"
+  scheme: "redis"
+  username: ""
+  password: "password"
+  db: 0
+
+qdrant:
+  enabled: false
+  url: ""
+  apiKey: ""
+
+temporal:
+  enabled: true
+  host: "temporal-frontend"
+  port: 7233
+
+ingress:
+  enabled: true
+  annotations: {}
+  host: "localhost"
+  tlsSecretName: ""
+  ingressClassName: "nginx"
+
+config:
+  logLevel: INFO
+
+  llms:
+    openAi:
+      apiKey: "<REPLACE_OR_REMOVE>"
+
+    anthropic:
+      apiKey: "<REPLACE_OR_REMOVE>"
+
+    gemini:
+      apiKey: "<REPLACE_OR_REMOVE>"
+
+    azureOpenAi:
+      deployments:
+      - model: "gpt-4.1"
+        deploymentName: "gpt-4.1"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "gpt-4.1-mini"
+        deploymentName: "gpt-4.1-mini"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "gpt-4.1-nano"
+        deploymentName: "gpt-4.1-nano"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "gpt-4o"
+        deploymentName: "gpt-4o"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "gpt-4o-mini"
+        deploymentName: "gpt-4o-mini"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "whisper-1"
+        deploymentName: "whisper-1"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-06-01"
+      - model: "gpt-5"
+        deploymentName: "gpt-5"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2024-12-01-preview"
+      - model: "gpt-5-mini"
+        deploymentName: "gpt-5-mini"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2025-04-01-preview"
+      - model: "gpt-5-nano"
+        deploymentName: "gpt-5-nano"
+        apiKey: "<REPLACE_OR_REMOVE>"
+        baseUrl: "<REPLACE_OR_REMOVE>"
+        apiVersion: "2025-04-01-preview"
+
+    awsBedrock:
+      region: "<REPLACE_OR_REMOVE>"
+      accessKeyId: "<REPLACE_OR_REMOVE>"
+      secretAccessKey: "<REPLACE_OR_REMOVE>"
+      sonnet3_5ModelVersionName: "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      sonnet3_7ModelVersionName: "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+      sonnet4_0ModelVersionName: "us.anthropic.claude-sonnet-4-20250514-v1:0"
+      sonnet4_5ModelVersionName: "us.anthropic.claude-sonnet-4-5-20250929-v1:0"
+      haiku3_5ModelVersionName: "us.anthropic.claude-3-5-haiku-20241022-v1:0"
+      haiku4_5ModelVersionName: "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+
+    googleVertexAi:
+      projectId: "<REPLACE_OR_REMOVE>"
+      location: "<REPLACE_OR_REMOVE>"
+      credentialsJson: '<REPLACE_OR_REMOVE>'
+
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "<REPLACE>"
+      clientId: "<REPLACE>"
+      clientSecret: "<REPLACE>"
+
+  storageBuckets:
+    provider: "aws" # Options: aws, gcp, azure
+
+    parsedDocuments: "<REPLACE>"
+    parsedEtl: "<REPLACE>"
+    parsedExternalComponents: "<REPLACE>"
+    parsedFileParsing: "<REPLACE>"
+    parsedRawFile: "<REPLACE>"
+    parseOutput: "<REPLACE>"
+    parsedFileScreenshot: "<REPLACE>"
+    extractOutput: "<REPLACE>"
+    parseFileUpload:  "<REPLACE>"
+    parseFileOutput: "<REPLACE>"
+
+  temporal:
+    workerRegistryProfile: "consolidated"
+    
+    searchAttributesJob:
+      enabled: true
+
+      image: "docker.io/temporalio/admin-tools:1.29"
+      attributes:
+      - name: Project
+        type: Keyword
+      - name: Organization
+        type: Keyword
+
+  frontend:
+    enabled: true
+
+  extraction:
+    multimodalModel: "openai-gpt-4-1"
+    schemaGenerationModel: "openai-gpt-4-1-mini"
+    maxPages: 500
+    maxFileSizeMb: 100
+    maxFileSizeUiMb: 30
+
+  jobs:
+    maxJobsInExecutionPerJobType: 10
+    maxIndexJobsInExecution: 0
+    maxDocumentIngestionJobsInExecution: 1
+    includeJobErrorDetails: true
+    defaultTransformDocumentTimeoutSeconds: "240"
+    transformEmbeddingCharLimit: "11520000"
+
+  parse:
+    debugMode: false
+    maxQueueConcurrency: 3
+    preferedPremiumModel: ""
+
+  parseOcr:
+    enabled: false
+    gpu: false
+
+  parseLayoutDetection:
+    enabled: true
+
+frontend:
+  image: docker.io/llamaindex/llamacloud-frontend:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+backend:
+  image: docker.io/llamaindex/llamacloud-backend:0.5.11
+  resources: 
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+jobsService:
+  image: docker.io/llamaindex/llamacloud-backend:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+jobsWorker:
+  image: docker.io/llamaindex/llamacloud-backend:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+## @section LlamaParse Configuration
+llamaParse:
+  image: docker.io/llamaindex/llamacloud-llamaparse:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+llamaParseOcr:
+  image: docker.io/llamaindex/llamacloud-llamaparse-ocr:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+llamaParseLayoutDetectionApi:
+  image: docker.io/llamaindex/llamacloud-layout-detection-api:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+  extraEnvVariables:
+  - name: AWS_ACCESS_KEY_ID
+    value: "<REPLACE>"
+  - name: AWS_SECRET_ACCESS_KEY
+    value: "<REPLACE>"
+
+usage:
+  image: docker.io/llamaindex/llamacloud-backend:0.5.11
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "256Mi"
+
+temporalWorkloads:
+  llamaParse:
+    image: docker.io/llamaindex/llamacloud-llamaparse:0.5.11
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "256Mi"
+    extraEnvVariables:
+    - name: AWS_ACCESS_KEY_ID
+      value: "<REPLACE>"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "<REPLACE>"
+
+  jobsService:
+    image: docker.io/llamaindex/llamacloud-backend:0.5.11
+    resources:
+      requests:
+        cpu: "250m"
+        memory: "256Mi"
+    extraEnvVariables:
+    - name: AWS_ACCESS_KEY_ID
+      value: "<REPLACE>"
+    - name: AWS_SECRET_ACCESS_KEY
+      value: "<REPLACE>"
+
+  workers:
+    temporal-jobs-worker:
+      image: docker.io/llamaindex/llamacloud-backend:0.5.11
+      imagePullPolicy: IfNotPresent
+      resources:
+        requests:
+          cpu: "250m"
+          memory: "256Mi"
+      extraEnvVariables:
+      - name: AWS_ACCESS_KEY_ID
+        value: "<REPLACE>"
+      - name: AWS_SECRET_ACCESS_KEY
+        value: "<REPLACE>"

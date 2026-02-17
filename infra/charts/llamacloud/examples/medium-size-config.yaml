@@ -1,0 +1,185 @@
+# This is an example of a medium-size configuration for the LlamaCloud platform.
+# It is designed to be a good starting point for a production environment.
+# Our platform was designed to be horizontally scalable, so you can adjust the number of replicas for each component to fit your needs.
+# For larger workloads (both large files and large number of files/jobs), you may need to increase the number of replicas and resources for each component.
+# We also recommend using managed services for PostgreSQL, MongoDB, RabbitMQ, and Redis for production workloads, instead of self-hosted deployments.
+
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+# Connection details for required services
+# For production, use external managed services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  llms:
+    openAi:
+      apiKey: "<REPLACE-WITH-OPENAI-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "https://login.microsoftonline.com/<your-tenant-id>/v2.0/.well-known/openid-configuration"
+      clientId: "your-client-id"
+      clientSecret: "your-client-secret"
+      # secret: "oidc-secret"
+
+backend:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 4
+    maxReplicas: 8
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+
+jobsService:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 4
+    maxReplicas: 8
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+  resources:
+    requests:
+      cpu: 1
+      memory: 500Mi
+    limits:
+      cpu: 2
+      memory: 2Gi
+
+jobsWorker:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 4
+    maxReplicas: 8
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: 2
+      memory: 4Gi
+
+llamaParse:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 5
+    maxReplicas: 20
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+llamaParseOcr:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 5
+    maxReplicas: 20
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80
+
+usage:
+  horizontalPodAutoscalerSpec:
+    minReplicas: 2
+    maxReplicas: 8
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: Utilization
+            averageUtilization: 80
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: Utilization
+            averageUtilization: 80

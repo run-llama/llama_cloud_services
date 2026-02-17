@@ -1,0 +1,54 @@
+# This example shows how to configure the LlamaCloud platform to use Azure OpenAI and Azure Blob Storage (using s3proxy).
+# We currently do not have native support for non-S3 filestores in LlamaCloud at the moment.
+
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+# For more information on S3Proxy configuration, see:
+# https://github.com/gaul/s3proxy
+
+config:
+  storageBuckets:
+    # Set the provider to 'azure' or 'gcp' to enable s3proxy sidecar
+    provider: "azure"  # or "gcp"
+
+    s3proxy:
+      config:
+        # Fillout with your own values
+        # https://github.com/gaul/s3proxy/wiki/Storage-backend-examples
+        # S3PROXY_ENDPOINT: "http://0.0.0.0:80"
+        # S3PROXY_AUTHORIZATION: "none"
+        # JCLOUDS_PROVIDER: "azureblob"
+        # JCLOUDS_AZUREBLOB_AUTH: "azureKey"
+        # JCLOUDS_IDENTITY: "<azure-storage-account-name>"
+        # JCLOUDS_CREDENTIAL: "<azure-storage-account-key>"
+        # JCLOUDS_ENDPOINT: "<azure-storage-account-endpoint>"

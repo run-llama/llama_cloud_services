@@ -1,0 +1,19 @@
+{{- range $name, $component := ((include "llamacloud.components" .) | fromYaml ) }}
+{{- $componentPrefix := $component.prefix }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ print $component.name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "component" $component "root" $) | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: {{ $component.port }}
+    protocol: TCP
+  selector: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+{{- end }}

@@ -1,0 +1,37 @@
+suite: temporal-workers-tests
+templates:
+  - ../templates/llamacloud/deployment.yaml
+  - ../templates/llamacloud/service.yaml
+release:
+  name: llamacloud
+  namespace: default
+capabilities:
+  majorVersion: 1
+  minorVersion: 28
+tests:
+  # Test deployments with external temporal
+  - it: should create deployments with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/deployment.yaml
+    asserts:
+      - hasDocuments:
+          count: 8
+
+  - it: should create services with external temporal
+    set:
+      temporal.deploy: false
+      temporal.host: "temporal.example.com"
+      temporal.port: 7233
+      config.frontend.enabled: false
+      config.parseOcr.enabled: false
+      config.parseLayoutDetection.enabled: false
+    template: ../templates/llamacloud/service.yaml
+    asserts:
+      - hasDocuments:
+          count: 8

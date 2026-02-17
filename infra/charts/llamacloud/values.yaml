@@ -1,0 +1,1307 @@
+## For more information, please refer to the README of this chart or the official LlamaCloud Documentation.
+## Ref: https://docs.cloud.llamaindex.ai/
+
+## @section License Configuration
+license:
+  ## @param license.key License key for all components
+  key: "<input-license-key-here>"
+  ## @param license.secret Name of the k8s secret to use for the license key
+  secret: ""
+
+## @section Postgresql Configuration
+postgresql:
+  ## @param postgresql.host PostgreSQL host
+  host: ""
+  ## @param postgresql.port PostgreSQL port
+  port: "5432"
+  ## @param postgresql.database PostgreSQL database
+  database: ""
+  ## @param postgresql.username PostgreSQL user
+  username: ""
+  ## @param postgresql.password PostgreSQL password
+  password: ""
+  ## @param postgresql.secret Name of the existing secret to use for PostgreSQL credentials
+  secret: ""
+
+## @section MongoDB Configuration
+mongodb:
+  ## @param mongodb.scheme MongoDB connection scheme (i.e. mongodb, mongodb+srv)
+  scheme: "mongodb"
+  ## @param mongodb.host MongoDB host
+  host: ""
+  ## @param mongodb.port MongoDB port
+  port: "27017"
+  ## @param mongodb.username MongoDB user
+  username: ""
+  ## @param mongodb.password MongoDB password
+  password: ""
+  ## @param mongodb.mongodb_url Full MongoDB connection URL
+  mongodb_url: ""
+  ## @param mongodb.secret Name of the existing secret to use for MongoDB credentials
+  secret: ""
+
+## @section RabbitMQ Configuration
+rabbitmq:
+  ## @param rabbitmq.scheme RabbitMQ scheme
+  scheme: "amqp"
+  ## @param rabbitmq.host RabbitMQ host
+  host: ""
+  ## @param rabbitmq.port RabbitMQ port
+  port: "5672"
+  ## @param rabbitmq.username RabbitMQ user
+  username: ""
+  ## @param rabbitmq.password RabbitMQ password
+  password: ""
+  ## @param rabbitmq.connectionString Connection string for the AMQP queue (e.g., for Azure Service Bus)
+  connectionString: ""
+  ## @param rabbitmq.secret Name of the existing secret to use for RabbitMQ credentials
+  secret: ""
+
+## @section Redis Configuration
+redis:
+  ## @param redis.host Redis host
+  host: ""
+  ## @param redis.port Redis port
+  port: "6379"
+  ## @param redis.scheme Redis connection scheme (redis or rediss for SSL)
+  scheme: "redis"
+  ## @param redis.username Redis username (required for Redis 6.0+)
+  username: ""
+  ## @param redis.password Redis password
+  password: ""
+  ## @param redis.db Redis database
+  db: 0
+  ## @param redis.secret Name of the existing secret to use for Redis credentials
+  secret: ""
+
+## @section Optional QDRANT Data-Sink configuration
+qdrant:
+  ## @param qdrant.enabled Enable QDRANT Data-Sink for backend
+  enabled: false
+  ## @param qdrant.url QDRANT Data-Sink host
+  url: ""
+  ## @param qdrant.apiKey QDRANT Data-Sink API key
+  apiKey: ""
+  ## @param qdrant.secret Name of the existing secret to use for the QDRANT Data-Sink
+  secret: ""
+
+## @section Temporal configuration (required) - either deploy Temporal as a subchart or connect to an external Temporal instance
+temporal:
+  ## @param temporal.disabled Completely disable Temporal and all Temporal workloads (configmaps, jobs, workers). temporal.deploy must be false when this is true.
+  disabled: false
+  ## @param temporal.deploy Deploy Temporal as a subchart (if false, use external Temporal)
+  deploy: false
+  ## @param temporal.host Temporal host (ignored when deploy is true, auto-configured to subchart)
+  host: ""
+  ## @param temporal.port Temporal port (ignored when deploy is true, auto-configured to subchart)
+  port: 7233
+
+## @section Temporal Subchart Configuration
+## Configuration for the Temporal subchart (only used when temporal.deploy is true)
+## Temporal reuses the main postgresql configuration - just set postgresql.* values above
+## and temporal will use the same host/port/username/password with separate databases.
+## See https://github.com/temporalio/helm-charts for all available options
+temporal-subchart:
+  serviceAccount:
+    ## @param temporal-subchart.serviceAccount.create Create a service account for Temporal
+    create: true
+    ## @param temporal-subchart.serviceAccount.name Name of the service account for Temporal
+    name: temporal-server
+  web:
+    ## @param temporal-subchart.web.enabled Enable Temporal Web UI
+    enabled: true
+    service:
+      ## @param temporal-subchart.web.service.port Port for Temporal Web UI service
+      port: 80
+  server:
+    config:
+      persistence:
+        default:
+          ## @param temporal-subchart.server.config.persistence.default.driver Persistence driver for default store
+          driver: sql
+          sql:
+            ## @param temporal-subchart.server.config.persistence.default.sql.driver SQL driver for default store
+            driver: postgres12
+            ## @param temporal-subchart.server.config.persistence.default.sql.host PostgreSQL host (use same as postgresql.host)
+            host: ""
+            ## @param temporal-subchart.server.config.persistence.default.sql.port PostgreSQL port (use same as postgresql.port)
+            port: 5432
+            ## @param temporal-subchart.server.config.persistence.default.sql.database Database name for temporal (created automatically)
+            database: temporal
+            ## @param temporal-subchart.server.config.persistence.default.sql.user PostgreSQL user (use same as postgresql.username)
+            user: ""
+            ## @param temporal-subchart.server.config.persistence.default.sql.existingSecret Use existing secret for password (auto-created from postgresql.password)
+            existingSecret: temporal-postgresql-secret
+            ## @param temporal-subchart.server.config.persistence.default.sql.maxConns Maximum number of connections for default store
+            maxConns: 20
+            ## @param temporal-subchart.server.config.persistence.default.sql.maxIdleConns Maximum number of idle connections for default store
+            maxIdleConns: 20
+            ## @param temporal-subchart.server.config.persistence.default.sql.maxConnLifetime Maximum connection lifetime for default store
+            maxConnLifetime: "1h"
+        visibility:
+          ## @param temporal-subchart.server.config.persistence.visibility.driver Persistence driver for visibility store
+          driver: sql
+          sql:
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.driver SQL driver for visibility store
+            driver: postgres12
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.host PostgreSQL host (use same as postgresql.host)
+            host: ""
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.port PostgreSQL port (use same as postgresql.port)
+            port: 5432
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.database Database name for temporal visibility (created automatically)
+            database: temporal_visibility
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.user PostgreSQL user (use same as postgresql.username)
+            user: ""
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.existingSecret Use existing secret for password (auto-created from postgresql.password)
+            existingSecret: temporal-postgresql-secret
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.maxConns Maximum number of connections for visibility store
+            maxConns: 20
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.maxIdleConns Maximum number of idle connections for visibility store
+            maxIdleConns: 20
+            ## @param temporal-subchart.server.config.persistence.visibility.sql.maxConnLifetime Maximum connection lifetime for visibility store
+            maxConnLifetime: "1h"
+  schema:
+    createDatabase:
+      ## @param temporal-subchart.schema.createDatabase.enabled Enable automatic database creation for Temporal
+      enabled: true
+    setup:
+      ## @param temporal-subchart.schema.setup.enabled Enable schema setup for Temporal
+      enabled: true
+    update:
+      ## @param temporal-subchart.schema.update.enabled Enable schema updates for Temporal
+      enabled: true
+  ## @param temporal-subchart.prometheus.enabled Enable Prometheus for Temporal (disabled, use main monitoring)
+  prometheus:
+    enabled: false
+  ## @param temporal-subchart.grafana.enabled Enable Grafana for Temporal (disabled, use main monitoring)
+  grafana:
+    enabled: false
+  ## @param temporal-subchart.elasticsearch.enabled Enable Elasticsearch for Temporal
+  elasticsearch:
+    enabled: false
+  ## @param temporal-subchart.cassandra.enabled Enable Cassandra for Temporal
+  cassandra:
+    enabled: false
+  ## @param temporal-subchart.mysql.enabled Enable MySQL for Temporal
+  mysql:
+    enabled: false
+  ## @param temporal-subchart.postgresql.enabled Enable bundled PostgreSQL for Temporal (disabled, use external)
+  postgresql:
+    enabled: false
+
+## @section Ingress Configuration
+ingress:
+  ## @param ingress.enabled Whether to enable the ingress
+  enabled: false
+  ## @param ingress.annotations Annotations to add to the ingress
+  annotations: {}
+  ## @param ingress.host Hostname to use for the ingress
+  host: ""
+  ## @param ingress.tlsSecretName TLS secret name to use for the ingress
+  tlsSecretName: ""
+  ## @param ingress.ingressClassName Ingress class name to use for the ingress
+  ingressClassName: ""
+
+## @section Application Configuration
+config:
+  ## @param config.logLevel Log level for the application (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+  logLevel: INFO
+
+  ## @section LLMs Configuration
+  llms:
+    ## @section OpenAI Configuration
+    openAi:
+      ## @param config.llms.openAi.apiKey OpenAI API key
+      apiKey: ""
+      ## @param config.llms.openAi.secret Name of the existing secret to use for the OpenAI API key
+      secret: ""
+      ## @param config.llms.openAi.baseUrl OpenAI base URL
+      baseUrl: ""
+
+    ## @section Anthropic Configuration
+    anthropic:
+      ## @param config.llms.anthropic.apiKey Anthropic API key
+      apiKey: ""
+      ## @param config.llms.anthropic.secret Name of the existing secret to use for the Anthropic API key
+      secret: ""
+
+    ## @section Google Gemini Configuration
+    gemini:
+      ## @param config.llms.gemini.apiKey Google Gemini API key
+      apiKey: ""
+      ## @param config.llms.gemini.secret Name of the existing secret to use for the Google Gemini API key
+      secret: ""
+
+    ## @section Azure OpenAI Configuration
+    azureOpenAi:
+      ## @param config.llms.azureOpenAi.secret Name of the existing secret to use for the Azure OpenAI API key
+      secret: ""
+      ## @param config.llms.azureOpenAi.deployments Azure OpenAI deployments
+      deployments: []
+      # - model: "gpt-4o-mini"
+      #   deploymentName: "gpt-4o-mini"
+      #   apiKey: ""
+      #   baseUrl: "https://api.openai.com/v1"
+      #   apiVersion: "2024-08-06"
+
+    ## @section AWS Bedrock Configuration
+    awsBedrock:
+      ## @param config.llms.awsBedrock.region AWS Bedrock region
+      region: ""
+      ## @param config.llms.awsBedrock.accessKeyId AWS Bedrock access key ID
+      accessKeyId: ""
+      ## @param config.llms.awsBedrock.secretAccessKey AWS Bedrock secret access key
+      secretAccessKey: ""
+      ## @param config.llms.awsBedrock.sonnet3_5ModelVersionName Sonnet 3.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      sonnet3_5ModelVersionName: "anthropic.claude-3-5-sonnet-20240620-v1:0"
+      ## @param config.llms.awsBedrock.sonnet3_7ModelVersionName Sonnet 3.7 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      sonnet3_7ModelVersionName: "anthropic.claude-3-7-sonnet-20250219-v1:0"
+      ## @param config.llms.awsBedrock.sonnet4_0ModelVersionName Sonnet 4.0 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      sonnet4_0ModelVersionName: "anthropic.claude-sonnet-4-20250514-v1:0"
+      ## @param config.llms.awsBedrock.sonnet4_5ModelVersionName Sonnet 4.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      sonnet4_5ModelVersionName: "anthropic.claude-sonnet-4-5-20250929-v1:0"
+      ## @param config.llms.awsBedrock.haiku3_5ModelVersionName Haiku 3.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      haiku3_5ModelVersionName: "anthropic.claude-3-5-haiku-20241022-v1:0"
+      ## @param config.llms.awsBedrock.haiku4_5ModelVersionName Haiku 4.5 model version name example. Usually needs a 'us.', 'global.', or 'eu.' prefix.
+      haiku4_5ModelVersionName: "anthropic.claude-haiku-4-5-20251001-v1:0"
+      ## @param config.llms.awsBedrock.secret Name of the existing secret to use for the AWS Bedrock API key
+      secret: ""
+
+    ## @section Google Vertex AI Configuration
+    googleVertexAi:
+      ## @param config.llms.googleVertexAi.projectId Google Vertex AI project id
+      projectId: ""
+      ## @param config.llms.googleVertexAi.location Google Vertex AI location
+      location: ""
+      ## @param config.llms.googleVertexAi.credentialsJson Google Vertex AI credentials JSON
+      credentialsJson: ""
+      ## @param config.llms.googleVertexAi.secret Name of the existing secret to use for the Google Vertex AI API key
+      secret: ""
+
+  ## @section authentication Configuration
+  ## Choose either Basic Auth or OIDC for backend authentication
+  authentication:
+    ## @section Basic Auth configuration
+    basicAuth:
+      ## @param config.authentication.basicAuth.enabled Enable Basic Auth for the backend
+      enabled: false
+      ## @param config.authentication.basicAuth.validEmailDomain Valid email domain for the application
+      validEmailDomain: ""
+      ## @param config.authentication.basicAuth.jwtSecret JWT secret for the backend
+      jwtSecret: ""
+      ## @param config.authentication.basicAuth.secret Name of the existing secret to use for the JWT secret
+      secret: ""
+
+    ## @section OpenID Connect configuration
+    oidc:
+      ## @param config.authentication.oidc.enabled Enable OIDC for the backend
+      enabled: false
+      ## @param config.authentication.oidc.discoveryUrl OIDC discovery URL
+      discoveryUrl: ""
+      ## @param config.authentication.oidc.clientId OIDC client ID
+      clientId: ""
+      ## @param config.authentication.oidc.clientSecret OIDC client secret
+      clientSecret: ""
+      ## @param config.authentication.oidc.secret Name of the existing secret to use for OIDC configuration
+      secret: ""
+
+  ## @section Storage Buckets Configuration
+  storageBuckets:
+    ## @param config.storageBuckets.provider Cloud storage provider
+    ## Options: aws, gcp, azure
+    provider: "aws"
+
+    ## @param config.storageBuckets.extraEnvVariables Extra environment variables to add to the pods for storage buckets
+    ## can be used to set cloud provider credentials if not using IAM roles or workload identity these are stored as a secret
+    ##
+    ##  Example:
+    ##  extraEnvVariables:
+    ##    AWS_REGION: us-east-1
+    ##    AWS_DEFAULT_REGION: us-east-1
+    ##    AWS_ACCESS_KEY_ID: <your-access-key-id>
+    ##    AWS_SECRET_ACCESS_KEY: <your-secret-access-key>
+    ##
+    extraEnvVariables: {}
+
+    ## @param config.storageBuckets.parsedDocuments Cloud storage bucket name
+    parsedDocuments: "llama-platform-parsed-documents"
+    ## @param config.storageBuckets.parsedEtl Cloud storage bucket name
+    parsedEtl: "llama-platform-etl"
+    ## @param config.storageBuckets.parsedExternalComponents Cloud storage bucket name
+    parsedExternalComponents: "llama-platform-external-components"
+    ## @param config.storageBuckets.parsedFileParsing Cloud storage bucket name
+    parsedFileParsing: "llama-platform-file-parsing"
+    ## @param config.storageBuckets.parsedRawFile Cloud storage bucket name
+    parsedRawFile: "llama-platform-raw-files"
+    ## @param config.storageBuckets.parseOutput Cloud storage bucket name
+    parseOutput: "llama-cloud-parse-output"
+    ## @param config.storageBuckets.parsedFileScreenshot Cloud storage bucket name
+    parsedFileScreenshot: "llama-platform-file-screenshots"
+    ## @param config.storageBuckets.extractOutput Cloud storage bucket name
+    extractOutput: "llama-platform-extract-output"
+    ## @param config.storageBuckets.parseFileUpload Cloud storage bucket name
+    parseFileUpload: "llama-platform-file-parsing"
+    ## @param config.storageBuckets.parseFileOutput Cloud storage bucket name
+    parseFileOutput: "llama-platform-file-parsing"
+
+    ## @section S3Proxy Configuration (only used when provider is set to gcp or azure, ignored for aws)
+    s3proxy:
+      ## @param config.storageBuckets.s3proxy.enabled S3Proxy image
+      enabled: false
+      ## @param config.storageBuckets.s3proxy.image S3Proxy image
+      image: "docker.io/andrewgaul/s3proxy:sha-82e50ee"
+      ## @param config.storageBuckets.s3proxy.imagePullPolicy S3Proxy image pull policy
+      imagePullPolicy: "IfNotPresent"
+      ## @param config.storageBuckets.s3proxy.containerPort S3Proxy container port
+      containerPort: 8080
+      ## @param config.storageBuckets.s3proxy.securityContext Security context for the S3Proxy container
+      securityContext: {}
+      ## @param config.storageBuckets.s3proxy.resources Set container requests and limits for different resources like CPU or memory
+      resources: {}
+
+      ## @param config.storageBuckets.s3proxy.config S3Proxy configuration ENV variables
+      ## For reference for configuration examples, please visit the following page:
+      ## - https://github.com/gaul/s3proxy/wiki/Storage-backend-examples
+      ## For reference for available configuration options, see the s3proxy Dockerfile here:
+      ## - https://github.com/gaul/s3proxy/blob/master/Dockerfile
+      config: {}
+        # Example configuration for azure blob storage:
+        # S3PROXY_ENDPOINT: "http://0.0.0.0:8080"
+        # S3PROXY_AUTHORIZATION: "none"
+        # JCLOUDS_PROVIDER: "azureblob"
+        # JCLOUDS_AZUREBLOB_AUTH: "azureKey"
+        # JCLOUDS_IDENTITY: "<azure-storage-account-name>"
+        # JCLOUDS_CREDENTIAL: "<azure-storage-account-key>"
+        # JCLOUDS_ENDPOINT: "<azure-storage-account-endpoint>"
+
+  ## @section Frontend Configuration
+  frontend:
+    ## @param config.frontend.enabled Enable Frontend service
+    enabled: true
+
+  ## @section LlamaExtract Configuration
+  extraction:
+    ## @param config.extraction.multimodalModel LlamaExtract multimodal model (gemini-2.0-flash, gemini-2.5-pro, openai-gpt-4-1)
+    multimodalModel: "openai-gpt-4-1"
+    ## @param config.extraction.schemaGenerationModel LlamaExtract schema generation model (gemini-2.0-flash, openai-gpt-4-1-mini)
+    schemaGenerationModel: "openai-gpt-4-1-mini"
+    ## @param config.extraction.maxPages LlamaExtract max pages allowed
+    maxPages: 500
+    ## @param config.extraction.maxFileSizeMb LlamaExtract max file size (MB) allowed
+    maxFileSizeMb: 100
+
+  ## @section Jobs Configuration
+  jobs:
+    ## @param config.jobs.maxJobsInExecutionPerJobType Maximum number of jobs in execution per job type
+    maxJobsInExecutionPerJobType: 10
+    ## @param config.jobs.maxIndexJobsInExecution Maximum number of index jobs in execution
+    maxIndexJobsInExecution: 0
+    ## @param config.jobs.maxDocumentIngestionJobsInExecution Maximum number of document ingestion jobs in execution
+    maxDocumentIngestionJobsInExecution: 1
+    ## @param config.jobs.includeJobErrorDetails Whether to always include job error details in API and the UI
+    includeJobErrorDetails: true
+    ## @param config.jobs.defaultTransformDocumentTimeoutSeconds Default timeout in seconds for document transformation jobs
+    defaultTransformDocumentTimeoutSeconds: "240"
+    ## @param config.jobs.transformEmbeddingCharLimit Character limit for transform embedding operations
+    transformEmbeddingCharLimit: "11520000"
+
+  ## @section LlamaParse Configuration
+  parse:
+    ## @param config.parse.debugMode Enable debug mode for LlamaParse
+    debugMode: false
+    ## @param config.parse.maxQueueConcurrency Max number of jobs the worker can process at the same time
+    maxQueueConcurrency: 3
+    ## @param config.parse.preferedPremiumModel Prefered premium LLM model to use for the application
+    preferedPremiumModel: ""
+
+    concurrency:
+      ## @param config.parse.concurrency.accurateModeLLMConcurrency concurrency setting
+      accurateModeLLMConcurrency: ""
+      ## @param config.parse.concurrency.multimodalModelConcurrency concurrency setting
+      multimodalModelConcurrency: ""
+      ## @param config.parse.concurrency.premiumModeModelConcurrency concurrency setting
+      premiumModeModelConcurrency: ""
+      ## @param config.parse.concurrency.ocrConcurrency ocr concurrency setting
+      ocrConcurrency: ""
+      ## @param config.parse.concurrency.layoutExtractionConcurrency layout extraction concurrency setting
+      layoutExtractionConcurrency: ""
+      ## @param config.parse.concurrency.layoutExtractionV2Concurrency layout extraction v2 concurrency setting
+      layoutExtractionV2Concurrency: ""
+      ## @param config.parse.concurrency.layoutModeBlockParseConcurrency layout mode block parse concurrency setting
+      layoutModeBlockParseConcurrency: ""
+      ## @param config.parse.concurrency.layoutModePageConcurrency layout mode page concurrency setting
+      layoutModePageConcurrency: ""
+      ## @param config.parse.concurrency.layoutModeReadingOrderDetectionConcurrency layout mode reading order detection concurrency setting
+      layoutModeReadingOrderDetectionConcurrency: ""
+
+      # Google Gemini Models
+      ## @param config.parse.concurrency.gemini25Flash gemini25Flash concurrency setting
+      gemini25Flash: ""
+      ## @param config.parse.concurrency.gemini25Pro gemini25Pro concurrency setting
+      gemini25Pro: ""
+      ## @param config.parse.concurrency.gemini20Flash gemini20Flash concurrency setting
+      gemini20Flash: ""
+      ## @param config.parse.concurrency.gemini20FlashLite gemini20FlashLite concurrency setting
+      gemini20FlashLite: ""
+      ## @param config.parse.concurrency.gemini15Flash gemini15Flash concurrency setting
+      gemini15Flash: ""
+      ## @param config.parse.concurrency.gemini15Pro gemini15Pro concurrency setting
+      gemini15Pro: ""
+
+      # OpenAI Models
+      ## @param config.parse.concurrency.openaiGpt4oMini openaiGpt4oMini concurrency setting
+      openaiGpt4oMini: ""
+      ## @param config.parse.concurrency.openaiGpt4o openaiGpt4o concurrency setting
+      openaiGpt4o: ""
+      ## @param config.parse.concurrency.openaiGpt41 openaiGpt41 concurrency setting
+      openaiGpt41: ""
+      ## @param config.parse.concurrency.openaiGpt41Mini openaiGpt41Mini concurrency setting
+      openaiGpt41Mini: ""
+      ## @param config.parse.concurrency.openaiGpt41Nano openaiGpt41Nano concurrency setting
+      openaiGpt41Nano: ""
+      ## @param config.parse.concurrency.openaiGpt5 openaiGpt5 concurrency setting
+      openaiGpt5: ""
+      ## @param config.parse.concurrency.openaiGpt5Mini  openaiGpt5Mini concurrency setting
+      openaiGpt5Mini: ""
+      ## @param config.parse.concurrency.openaiGpt5Nano openaiGpt5Nano concurrency setting
+      openaiGpt5Nano: ""
+      ## @param config.parse.concurrency.openaiWhisper1 openaiWhisper1 concurrency setting
+      openaiWhisper1: ""
+
+      # Anthropic Claude Models
+      ## @param config.parse.concurrency.anthropicSonnet37 anthropicSonnet37 concurrency setting
+      anthropicSonnet37: ""
+      ## @param config.parse.concurrency.anthropicSonnet35 anthropicSonnet35 concurrency setting
+      anthropicSonnet35: ""
+      ## @param config.parse.concurrency.anthropicSonnet40 anthropicSonnet40 concurrency setting
+      anthropicSonnet40: ""
+      ## @param config.parse.concurrency.anthropicSonnet45 anthropicSonnet45 concurrency setting
+      anthropicSonnet45: ""
+      ## @param config.parse.concurrency.anthropicHaiku35 anthropicHaiku35 concurrency setting
+      anthropicHaiku35: ""
+      ## @param config.parse.concurrency.anthropicHaiku45 anthropicHaiku45 concurrency setting
+      anthropicHaiku45: ""
+
+  ## @section LlamaParse-OCR Configuration
+  parseOcr:
+    ## @param config.parseOcr.enabled Enable LlamaParseOcr
+    enabled: true
+    ## @param config.parseOcr.gpu Enable GPU acceleration for OCR processing (if false, uses CPU backend)
+    ## GPU configuration for OCR processing
+    gpu: false
+
+  parseLayoutDetection:
+    ## @param config.parseLayoutDetection.enabled Enable LlamaParse Layout Detection
+    enabled: true
+    ## @param config.parseLayoutDetection.gpu Enable GPU acceleration for Layout processing (if false, uses CPU backend)
+    ## GPU configuration for Layout processing
+    gpu: false
+
+  ## @section Layout Detection V3 (BYOC Self-Hosted) Configuration
+  parseLayoutDetectionV3:
+    ## @param config.parseLayoutDetectionV3.enabled Enable Layout V3 Detection (self-hosted RT-DETRv2 model)
+    ## Note: This is for BYOC deployments that cannot access HuggingFace inference endpoints
+    enabled: false
+    ## @param config.parseLayoutDetectionV3.gpu Enable GPU acceleration for Layout V3 processing
+    gpu: false
+
+  ## @section Temporal Configuration
+  temporal:
+    ## @param config.temporal.workerRegistryProfile Temporal worker registry profile (default or consolidated)
+    workerRegistryProfile: "consolidated"
+
+    ## @param config.temporal.namespace Temporal registered namespace
+    ## defaults to the release namespace if not set
+    ## See https://github.com/temporalio/helm-charts?tab=readme-ov-file#running-temporal-cli-from-the-admin-tools-container
+    namespace: ""
+
+    ## Search Attributes Job
+    searchAttributesJob:
+      ## @param config.temporal.searchAttributesJob.enabled Enable the search attributes job
+      enabled: true
+
+      ## @param config.temporal.searchAttributesJob.image Image for temporal admin tools
+      image: "docker.io/temporalio/admin-tools:1.29"
+
+      ## config.temporal.searchAttributesJob.attributes: Search attributes to be created in Temporal
+      ## Each attribute should have a name and type (Text, Keyword, Int, Double, Bool, Datetime, KeywordList)
+      ## @param config.temporal.searchAttributesJob.attributes[0].name Name of the first search attribute
+      ## @param config.temporal.searchAttributesJob.attributes[0].type Type of the first search attribute (Text, Keyword, Int, Double, Bool, Datetime, KeywordList)
+      ## @param config.temporal.searchAttributesJob.attributes[1].name Name of the second search attribute
+      ## @param config.temporal.searchAttributesJob.attributes[1].type Type of the second search attribute (Text, Keyword, Int, Double, Bool, Datetime, KeywordList)
+      attributes:
+      - name: Project
+        type: Keyword
+      - name: Organization
+        type: Keyword
+
+## @section Common Configuration
+
+## @param commonLabels Labels to add to all deployed objects
+commonLabels: {}
+
+## @param commonAnnotations Annotations to add to all deployed objects
+commonAnnotations: {}
+
+## @param imagePullSecrets Image pull secrets to use for the images string list
+imagePullSecrets: []
+
+## @param extraObjects
+## -- Extra kubernetes objects to deploy (value evaluated as a template)
+##
+## In some cases, it can avoid the need for additional, extended or adhoc deployments.
+extraObjects: []
+
+## @section Frontend Configuration
+frontend:
+  ## @param frontend.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param frontend.annotations Annotations added to the Frontend Deployment.
+  annotations: {}
+
+  ## @param frontend.image Frontend image
+  image: docker.io/llamaindex/llamacloud-frontend:0.7.0
+
+  ## @param frontend.imagePullPolicy Frontend image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param frontend.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param frontend.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param frontend.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param frontend.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param frontend.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param frontend.topologySpreadConstraints Topology Spread Constraints for frontend pods
+  topologySpreadConstraints: []
+
+  ## @param frontend.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param frontend.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param frontend.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param frontend.extraEnvVariables Extra environment variables to add to Frontend pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param frontend.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param frontend.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section Backend Configuration
+backend:
+  ## @param backend.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param backend.annotations Annotations added to the Backend Deployment.
+  annotations: {}
+
+  ## @param backend.image Backend image
+  image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+  ## @param backend.imagePullPolicy Backend image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param backend.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param backend.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param backend.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param backend.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param backend.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param backend.topologySpreadConstraints Topology Spread Constraints for backend pods
+  topologySpreadConstraints: []
+
+  ## @param backend.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param backend.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param backend.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param backend.extraEnvVariables Extra environment variables to add to Backend pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param backend.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param backend.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section JobsService Configuration
+jobsService:
+  ## @param jobsService.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param jobsService.annotations Annotations added to the JobsService Deployment.
+  annotations: {}
+
+  ## @param jobsService.image JobsService image
+  image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+  ## @param jobsService.imagePullPolicy JobsService image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param jobsService.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param jobsService.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param jobsService.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param jobsService.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param jobsService.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param jobsService.topologySpreadConstraints Topology Spread Constraints for JobsService pods
+  topologySpreadConstraints: []
+
+  ## @param jobsService.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param jobsService.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param jobsService.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param jobsService.extraEnvVariables Extra environment variables to add to JobsService pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param jobsService.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param jobsService.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section JobsWorker Configuration
+jobsWorker:
+  ## @param jobsWorker.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param jobsWorker.annotations Annotations added to the JobsWorker Deployment.
+  annotations: {}
+
+  ## @param jobsWorker.image JobsWorker image
+  image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+  ## @param jobsWorker.imagePullPolicy JobsWorker image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param jobsWorker.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param jobsWorker.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param jobsWorker.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param jobsWorker.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param jobsWorker.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param jobsWorker.topologySpreadConstraints Topology Spread Constraints for JobsWorker pods
+  topologySpreadConstraints: []
+
+  ## @param jobsWorker.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param jobsWorker.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param jobsWorker.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param jobsWorker.extraEnvVariables Extra environment variables to add to JobsWorker pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param jobsWorker.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param jobsWorker.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section LlamaParse Configuration
+llamaParse:
+  ## @param llamaParse.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param llamaParse.annotations Annotations added to the LlamaParse Deployment.
+  annotations: {}
+
+  ## @param llamaParse.image LlamaParse image
+  image: docker.io/llamaindex/llamacloud-llamaparse:0.7.0
+
+  ## @param llamaParse.imagePullPolicy LlamaParse image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param llamaParse.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param llamaParse.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param llamaParse.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param llamaParse.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param llamaParse.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param llamaParse.topologySpreadConstraints Topology Spread Constraints for LlamaParse pods
+  topologySpreadConstraints: []
+
+  ## @param llamaParse.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param llamaParse.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param llamaParse.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param llamaParse.extraEnvVariables Extra environment variables to add to LlamaParse pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param llamaParse.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param llamaParse.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section LlamaParseOcr Configuration
+llamaParseOcr:
+  ## @param llamaParseOcr.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param llamaParseOcr.annotations Annotations added to the LlamaParseOcr Deployment.
+  annotations: {}
+
+  ## @param llamaParseOcr.image LlamaParseOcr image
+  image: docker.io/llamaindex/llamacloud-llamaparse-ocr:0.7.0
+
+  ## @param llamaParseOcr.imagePullPolicy LlamaParseOcr image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param llamaParseOcr.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param llamaParseOcr.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param llamaParseOcr.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param llamaParseOcr.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param llamaParseOcr.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param llamaParseOcr.topologySpreadConstraints Topology Spread Constraints for LlamaParseOcr pods
+  topologySpreadConstraints: []
+
+  ## @param llamaParseOcr.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param llamaParseOcr.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param llamaParseOcr.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param llamaParseOcr.extraEnvVariables Extra environment variables to add to LlamaParseOcr pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param llamaParseOcr.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param llamaParseOcr.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section LlamaParse Layout Detection API Configuration
+llamaParseLayoutDetectionApi:
+  ## @param llamaParseLayoutDetectionApi.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param llamaParseLayoutDetectionApi.annotations Annotations added to the LlamaParseLayoutDetectionApi Deployment.
+  annotations: {}
+
+  ## @param llamaParseLayoutDetectionApi.image LlamaParseLayoutDetectionApi image
+  image: docker.io/llamaindex/llamacloud-layout-detection-api:0.7.0
+
+  ## @param llamaParseLayoutDetectionApi.imagePullPolicy LlamaParseLayoutDetectionApi image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param llamaParseLayoutDetectionApi.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param llamaParseLayoutDetectionApi.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param llamaParseLayoutDetectionApi.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param llamaParseLayoutDetectionApi.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param llamaParseLayoutDetectionApi.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param llamaParseLayoutDetectionApi.topologySpreadConstraints Topology Spread Constraints for LlamaParseLayoutDetectionApi pods
+  topologySpreadConstraints: []
+
+  ## @param llamaParseLayoutDetectionApi.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param llamaParseLayoutDetectionApi.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param llamaParseLayoutDetectionApi.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param llamaParseLayoutDetectionApi.extraEnvVariables Extra environment variables to add to LlamaParseLayoutDetectionApi pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param llamaParseLayoutDetectionApi.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param llamaParseLayoutDetectionApi.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section LlamaParse Layout Detection API V3 Configuration (BYOC)
+llamaParseLayoutDetectionApiV3:
+  ## @param llamaParseLayoutDetectionApiV3.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.annotations Annotations added to the LlamaParseLayoutDetectionApiV3 Deployment.
+  annotations: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.image LlamaParseLayoutDetectionApiV3 image (RT-DETRv2 + figure classifier)
+  ## Leave empty to use default: docker.io/llamaindex/llamacloud-layout-detection-api-v3:<chart-version>
+  image: ""
+
+  ## @param llamaParseLayoutDetectionApiV3.imagePullPolicy LlamaParseLayoutDetectionApiV3 image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param llamaParseLayoutDetectionApiV3.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param llamaParseLayoutDetectionApiV3.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.topologySpreadConstraints Topology Spread Constraints for LlamaParseLayoutDetectionApiV3 pods
+  topologySpreadConstraints: []
+
+  ## @param llamaParseLayoutDetectionApiV3.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param llamaParseLayoutDetectionApiV3.extraEnvVariables Extra environment variables to add to LlamaParseLayoutDetectionApiV3 pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param llamaParseLayoutDetectionApiV3.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param llamaParseLayoutDetectionApiV3.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section Usage Configuration
+usage:
+  ## @param usage.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+  ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+  horizontalPodAutoscalerSpec: {}
+
+  ## @param usage.annotations Annotations added to the LlamaParseLayoutDetectionApi Deployment.
+  annotations: {}
+
+  ## @param usage.image LlamaParseLayoutDetectionApi image
+  image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+  ## @param usage.imagePullPolicy LlamaParseLayoutDetectionApi image pull policy
+  imagePullPolicy: IfNotPresent
+
+  ## @param usage.securityContext Security context for the container
+  securityContext: {}
+
+  ## @param usage.serviceAccountAnnotations Annotations to add to the service account
+  serviceAccountAnnotations: {}
+
+  ## @param usage.nodeSelector Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+  nodeSelector: {}
+
+  ## @param usage.tolerations Taints to tolerate on node assignment:
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  tolerations: []
+
+  ## @param usage.affinity Pod scheduling constraints
+  ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+  affinity: {}
+
+  ## @param usage.topologySpreadConstraints Topology Spread Constraints for usage pods
+  topologySpreadConstraints: []
+
+  ## @param usage.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+  podAnnotations: {}
+
+  ## @param usage.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+  podSecurityContext: {}
+
+  ## @param usage.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+  resources: {}
+
+  ## @param usage.extraEnvVariables Extra environment variables to add to LlamaParseLayoutDetectionApi pods
+  ## Example:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: BAR
+  ##
+  extraEnvVariables: []
+
+  ## @param usage.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumeMounts: []
+
+  ## @param usage.volumes List of volumes that can be mounted by containers belonging to the pod
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+  volumes: []
+
+## @section Temporal Workloads Configuration
+## Temporal workloads configuration only used when Temporal is enabled
+temporalWorkloads:
+  llamaParse:
+    ## @param temporalWorkloads.llamaParse.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+    ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+    horizontalPodAutoscalerSpec: {}
+
+    ## @param temporalWorkloads.llamaParse.annotations Annotations added to the temporal llamaparse Deployment.
+    annotations: {}
+
+    ## @param temporalWorkloads.llamaParse.image temporal llamaparse image
+    image: docker.io/llamaindex/llamacloud-llamaparse:0.7.0
+
+    ## @param temporalWorkloads.llamaParse.imagePullPolicy temporal llamaparse image pull policy
+    imagePullPolicy: IfNotPresent
+
+    ## @param temporalWorkloads.llamaParse.securityContext Security context for the container
+    securityContext: {}
+
+    ## @param temporalWorkloads.llamaParse.serviceAccountAnnotations Annotations to add to the service account
+    serviceAccountAnnotations: {}
+
+    ## @param temporalWorkloads.llamaParse.nodeSelector Node labels for pod assignment
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    nodeSelector: {}
+
+    ## @param temporalWorkloads.llamaParse.tolerations Taints to tolerate on node assignment:
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+
+    ## @param temporalWorkloads.llamaParse.affinity Pod scheduling constraints
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+
+    ## @param temporalWorkloads.llamaParse.topologySpreadConstraints Topology Spread Constraints for temporal llamaparse pods
+    topologySpreadConstraints: []
+
+    ## @param temporalWorkloads.llamaParse.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+    podAnnotations: {}
+
+    ## @param temporalWorkloads.llamaParse.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+    podSecurityContext: {}
+
+    ## @param temporalWorkloads.llamaParse.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
+    ## @param temporalWorkloads.llamaParse.extraEnvVariables Extra environment variables to add to temporal llamaparse pods
+    ## Example:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: BAR
+    ##
+    extraEnvVariables: []
+
+    ## @param temporalWorkloads.llamaParse.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+    volumeMounts: []
+
+    ## @param temporalWorkloads.llamaParse.volumes List of volumes that can be mounted by containers belonging to the pod
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+    volumes: []
+
+  jobsService:
+    ## @param temporalWorkloads.jobsService.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+    ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+    horizontalPodAutoscalerSpec: {}
+
+    ## @param temporalWorkloads.jobsService.annotations Annotations added to the temporal jobsService Deployment.
+    annotations: {}
+
+    ## @param temporalWorkloads.jobsService.image temporal jobsService image
+    image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+    ## @param temporalWorkloads.jobsService.imagePullPolicy temporal jobsService image pull policy
+    imagePullPolicy: IfNotPresent
+
+    ## @param temporalWorkloads.jobsService.securityContext Security context for the container
+    securityContext: {}
+
+    ## @param temporalWorkloads.jobsService.serviceAccountAnnotations Annotations to add to the service account
+    serviceAccountAnnotations: {}
+
+    ## @param temporalWorkloads.jobsService.nodeSelector Node labels for pod assignment
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    nodeSelector: {}
+
+    ## @param temporalWorkloads.jobsService.tolerations Taints to tolerate on node assignment:
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    tolerations: []
+
+    ## @param temporalWorkloads.jobsService.affinity Pod scheduling constraints
+    ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+    affinity: {}
+
+    ## @param temporalWorkloads.jobsService.topologySpreadConstraints Topology Spread Constraints for temporal jobsService pods
+    topologySpreadConstraints: []
+
+    ## @param temporalWorkloads.jobsService.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+    podAnnotations: {}
+
+    ## @param temporalWorkloads.jobsService.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+    podSecurityContext: {}
+
+    ## @param temporalWorkloads.jobsService.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+    ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+    resources: {}
+
+    ## @param temporalWorkloads.jobsService.extraEnvVariables Extra environment variables to add to temporal jobsService pods
+    ## Example:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: BAR
+    ##
+    extraEnvVariables: []
+
+    ## @param temporalWorkloads.jobsService.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+    volumeMounts: []
+
+    ## @param temporalWorkloads.jobsService.volumes List of volumes that can be mounted by containers belonging to the pod
+    ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+    volumes: []
+
+
+  ## @section Temporal Workers Configuration
+  ## Consolidated temporal workers using the dynamic worker CLI
+  ## This is a map of worker names to their configurations
+  ## the configuration is the same as above exept for the additional command field
+  workers:
+    temporal-jobs-worker:
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.horizontalPodAutoscalerSpec HorizontalPodAutoScaler configuration
+      ## Ref: https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale-walkthrough/
+      horizontalPodAutoscalerSpec: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.annotations Annotations added to the temporal-jobs-worker Deployment.
+      annotations: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.image Frontend image
+      image: docker.io/llamaindex/llamacloud-backend:0.7.0
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.imagePullPolicy Frontend image pull policy
+      imagePullPolicy: IfNotPresent
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.command Command to run in the container
+      command: []
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.securityContext Security context for the container
+      securityContext: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.serviceAccountAnnotations Annotations to add to the service account
+      serviceAccountAnnotations: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.nodeSelector Node labels for pod assignment
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+      nodeSelector: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.tolerations Taints to tolerate on node assignment:
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+      tolerations: []
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.affinity Pod scheduling constraints
+      ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity
+      affinity: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.topologySpreadConstraints Topology Spread Constraints for temporal-jobs-worker pods
+      topologySpreadConstraints: []
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.podAnnotations Annotations to add to the resulting Pods of the Deployment.
+      podAnnotations: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.podSecurityContext Annotations to add to the resulting Pods of the Deployment.
+      podSecurityContext: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+      ## Ref: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+      resources: {}
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.extraEnvVariables Extra environment variables to add to temporal-jobs-worker pods
+      ## Example:
+      ## extraEnvVars:
+      ##   - name: FOO
+      ##     value: BAR
+      ##
+      extraEnvVariables: []
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.volumeMounts List of volumeMounts that can be mounted by containers belonging to the pod
+      ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+      volumeMounts: []
+
+      ## @param temporalWorkloads.workers.temporal-jobs-worker.volumes List of volumes that can be mounted by containers belonging to the pod
+      ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-volume-storage/
+      volumes: []

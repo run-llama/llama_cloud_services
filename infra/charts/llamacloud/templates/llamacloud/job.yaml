@@ -1,0 +1,101 @@
+{{- if and (((.Values.config).temporal).searchAttributesJob).enabled (not .Values.temporal.disabled) }}
+{{- /* Determine temporal host and port based on deploy mode */}}
+{{- $temporalHost := "" }}
+{{- $temporalPort := "" }}
+{{- $isTemporalDeployed := .Values.temporal.deploy }}
+{{- if $isTemporalDeployed }}
+{{- $temporalHost = printf "%s-temporal-subchart-frontend" .Release.Name }}
+{{- $temporalPort = "7233" }}
+{{- else }}
+{{- $temporalHost = .Values.temporal.host }}
+{{- $temporalPort = .Values.temporal.port | toString }}
+{{- end }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-temporal-search-attributes
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+    {{- if not $isTemporalDeployed }}
+    {{- /* Only use hooks when connecting to external Temporal server */}}
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+    {{- end }}
+spec:
+  backoffLimit: 6
+  template:
+    metadata:
+      labels: {{ include "llamacloud.labels" (dict "root" $) | indent 8 }}
+        app.kubernetes.io/component: temporal-search-attributes-job
+    spec:
+      restartPolicy: OnFailure
+      imagePullSecrets: {{ .Values.imagePullSecrets | toYaml | nindent 8 }}
+      containers:
+      - name: create-search-attributes
+        image: {{ (((.Values.config).temporal).searchAttributesJob).image | quote }}
+        imagePullPolicy: IfNotPresent
+        command:
+          - /bin/bash
+          - -c
+          - |
+            set -e
+            TEMPORAL_NAMESPACE={{ (($.Values.config).temporal).namespace | default $.Release.Namespace | quote }}
+            MAX_RETRIES=30
+            RETRY_INTERVAL=10
+
+            echo "Waiting for Temporal server to be ready..."
+            for i in $(seq 1 $MAX_RETRIES); do
+              if temporal operator cluster health 2>/dev/null | grep -q SERVING; then
+                echo "Temporal server is ready"
+                break
+              fi
+              if [ $i -eq $MAX_RETRIES ]; then
+                echo "ERROR: Temporal server not ready after $MAX_RETRIES attempts"
+                exit 1
+              fi
+              echo "Waiting for Temporal server... (attempt $i/$MAX_RETRIES)"
+              sleep $RETRY_INTERVAL
+            done
+
+            echo "Ensuring Temporal Namespace exists: $TEMPORAL_NAMESPACE"
+            for i in $(seq 1 $MAX_RETRIES); do
+              # Check if namespace already exists
+              if temporal operator namespace describe --namespace "$TEMPORAL_NAMESPACE" >/dev/null 2>&1; then
+                echo "Namespace $TEMPORAL_NAMESPACE already exists"
+                break
+              fi
+              # Try to create the namespace
+              if temporal operator namespace create --namespace "$TEMPORAL_NAMESPACE" --retention 7d 2>&1; then
+                echo "Namespace $TEMPORAL_NAMESPACE created successfully"
+                break
+              fi
+              if [ $i -eq $MAX_RETRIES ]; then
+                echo "ERROR: Failed to create namespace after $MAX_RETRIES attempts"
+                exit 1
+              fi
+              echo "Retrying namespace creation... (attempt $i/$MAX_RETRIES)"
+              sleep $RETRY_INTERVAL
+            done
+
+            echo "Ensuring search attributes exist..."
+            {{- range (((.Values.config).temporal).searchAttributesJob).attributes }}
+            echo "Ensuring search attribute exists: {{ .name }} ({{ .type }})"
+            # Check if attribute already exists
+            if temporal operator search-attribute list --namespace "$TEMPORAL_NAMESPACE" 2>/dev/null | grep -q "{{ .name }}"; then
+              echo "Search attribute {{ .name }} already exists"
+            else
+              if temporal operator search-attribute create --namespace "$TEMPORAL_NAMESPACE" --name {{ .name }} --type {{ .type }} 2>&1; then
+                echo "Search attribute {{ .name }} created successfully"
+              else
+                echo "Warning: Failed to create search attribute {{ .name }}, it may already exist"
+              fi
+            fi
+            {{- end }}
+            echo "Search attributes setup completed"
+        env:
+        - name: TEMPORAL_CLI_ADDRESS
+          value: {{ printf "%s:%s" $temporalHost $temporalPort | quote }}
+        - name: TEMPORAL_ADDRESS
+          value: {{ printf "%s:%s" $temporalHost $temporalPort | quote }}
+{{- end }}

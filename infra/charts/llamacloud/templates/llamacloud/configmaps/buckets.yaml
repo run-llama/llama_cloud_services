@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bucket-config
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "root" $) | indent 4 }}
+data:
+  CLOUD_PROVIDER: {{ ((.Values.config).storageBuckets).provider | default "aws" | quote }}
+
+  S3_DOCUMENT_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedDocuments is required" ((.Values.config).storageBuckets).parsedDocuments }}
+  S3_ETL_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedEtl is required" ((.Values.config).storageBuckets).parsedEtl }}
+  S3_EXTERNAL_COMPONENTS_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedExternalComponents is required" ((.Values.config).storageBuckets).parsedExternalComponents }}
+  S3_FILE_PARSING_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedFileParsing is required" ((.Values.config).storageBuckets).parsedFileParsing }}
+  S3_RAW_FILE_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedRawFile is required" ((.Values.config).storageBuckets).parsedRawFile }}
+  S3_LLAMA_CLOUD_PARSE_OUTPUT_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parseOutput is required" ((.Values.config).storageBuckets).parseOutput }}
+  S3_FILE_SCREENSHOT_BUCKET_NAME: {{ required ".Values.config.storageBuckets.parsedFileScreenshot is required" ((.Values.config).storageBuckets).parsedFileScreenshot }}
+  S3_LLAMA_EXTRACT_OUTPUT_BUCKET_NAME: {{ required ".Values.config.storageBuckets.extractOutput is required" ((.Values.config).storageBuckets).extractOutput }}
+
+  S3_UPLOAD_BUCKET: {{ required ".Values.config.storageBuckets.parseFileUpload is required" ((.Values.config).storageBuckets).parseFileUpload }}
+  S3_OUTPUT_BUCKET: {{ required ".Values.config.storageBuckets.parseFileOutput is required" ((.Values.config).storageBuckets).parseFileOutput }}
