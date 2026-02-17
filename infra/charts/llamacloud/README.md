@@ -119,12 +119,12 @@ For more information about using this chart, visit the [Official LlamaCloud Docu
 
 ### Temporal configuration (required) - either deploy Temporal as a subchart or connect to an external Temporal instance
 
-| Name                | Description                                                                        | Value   |
-| ------------------- | ---------------------------------------------------------------------------------- | ------- |
-| `temporal.disabled` | Completely disable Temporal and all Temporal workloads (configmaps, jobs, workers) | `false` |
-| `temporal.deploy`   | Deploy Temporal as a subchart (if false, use external Temporal)                    | `false` |
-| `temporal.host`     | Temporal host (ignored when deploy is true, auto-configured to subchart)           | `""`    |
-| `temporal.port`     | Temporal port (ignored when deploy is true, auto-configured to subchart)           | `7233`  |
+| Name                | Description                                                                                                                          | Value   |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ------- |
+| `temporal.disabled` | Completely disable Temporal and all Temporal workloads (configmaps, jobs, workers). temporal.deploy must be false when this is true. | `false` |
+| `temporal.deploy`   | Deploy Temporal as a subchart (if false, use external Temporal)                                                                      | `false` |
+| `temporal.host`     | Temporal host (ignored when deploy is true, auto-configured to subchart)                                                             | `""`    |
+| `temporal.port`     | Temporal port (ignored when deploy is true, auto-configured to subchart)                                                             | `7233`  |
 
 ### Temporal Subchart Configuration
 
