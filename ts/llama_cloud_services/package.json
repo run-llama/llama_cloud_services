@@ -25,7 +25,8 @@
     "./parse",
     "./beta/agent",
     "./extract",
-    "./classify"
+    "./classify",
+    "./temporal"
   ],
   "exports": {
     "./openapi.json": "./openapi.json",
@@ -94,6 +95,17 @@
         "default": "./classify/dist/index.js"
       },
       "default": "./classify/dist/index.js"
+    },
+    "./temporal": {
+      "require": {
+        "types": "./temporal/dist/index.d.cts",
+        "default": "./temporal/dist/index.cjs"
+      },
+      "import": {
+        "types": "./temporal/dist/index.d.ts",
+        "default": "./temporal/dist/index.js"
+      },
+      "default": "./temporal/dist/index.js"
     },
     ".": {
       "require": {

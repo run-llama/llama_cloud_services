@@ -24,3 +24,8 @@ export type {
   ClassifyJobResults,
   ClassifyParsingConfiguration,
 } from "./classify.js";
+export {
+  isHeartbeatTimeoutError,
+  retryOnHeartbeatTimeout,
+  type RetryOnHeartbeatTimeoutOptions,
+} from "./temporal.js";
