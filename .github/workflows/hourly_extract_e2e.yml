@@ -149,7 +149,7 @@ jobs:
       - name: Post to Extract Slack channel
         id: slack
         if: (failure() || cancelled()) && steps.runtime.outputs.notify_slack == 'true'
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@v3.0.1
         with:
           channel-id: ${{ env.SLACK_CHANNEL_ID }}
           slack-message: |
