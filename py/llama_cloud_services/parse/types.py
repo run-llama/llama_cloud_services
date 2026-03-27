@@ -787,6 +787,105 @@ class JobResult(SafeBaseModel):
         """
         return [image.name for page in self.pages for image in page.images]
 
+    def has_images(self) -> bool:
+        """
+        Check if any images were extracted from the document.
+
+        Returns:
+            True if at least one image was extracted, False otherwise
+        """
+        return any(page.images for page in self.pages)
+
+    def get_image_extraction_summary(self) -> Dict[str, Any]:
+        """
+        Get a summary of image extraction results for the job.
+
+        Returns:
+            A dictionary containing:
+            - total_images: total number of images extracted
+            - total_pages: total number of pages
+            - pages_with_images: list of page numbers that contain images
+            - pages_without_images: list of page numbers without images
+            - image_details: per-page list of image metadata
+        """
+        pages_with_images = []
+        pages_without_images = []
+        total_images = 0
+        image_details = []
+
+        for page in self.pages:
+            if page.images:
+                pages_with_images.append(page.page)
+                total_images += len(page.images)
+                for img in page.images:
+                    image_details.append({
+                        "page": page.page,
+                        "name": img.name,
+                        "width": img.original_width,
+                        "height": img.original_height,
+                        "type": img.type,
+                    })
+            else:
+                pages_without_images.append(page.page)
+
+        return {
+            "total_images": total_images,
+            "total_pages": len(self.pages),
+            "pages_with_images": pages_with_images,
+            "pages_without_images": pages_without_images,
+            "image_details": image_details,
+        }
+
+    def get_image_extraction_troubleshooting(self) -> List[str]:
+        """
+        Get troubleshooting suggestions when no images were extracted.
+
+        Returns:
+            A list of suggestion strings, or an empty list if images exist.
+        """
+        if self.has_images():
+            return []
+
+        return [
+            "No images were extracted. Possible causes and solutions:",
+            "1. Use premium_mode=True or parse_mode='parse_page_with_agent' for better image detection.",
+            "2. For embedded vector graphics, try specialized_image_parsing=True.",
+            "3. Use take_screenshot=True to capture page screenshots as a fallback.",
+            "4. For non-English documents, set the language parameter (e.g., language='ch_sim' for Simplified Chinese).",
+            "5. Use inline_images_in_markdown=True to include image references in markdown output.",
+            "6. For scanned documents, try high_res_ocr=True for better image detection.",
+            "7. Ensure fast_mode and disable_image_extraction are both False (the defaults).",
+        ]
+
+    def print_image_extraction_report(self) -> None:
+        """
+        Print a diagnostic report about image extraction for this job.
+        Useful for debugging when images are missing from the output.
+        """
+        summary = self.get_image_extraction_summary()
+
+        print(f"\n=== Image Extraction Report ===")
+        print(f"Job ID: {self.job_id}")
+        print(f"File: {self.file_name}")
+        print(f"Total pages: {summary['total_pages']}")
+        print(f"Total images extracted: {summary['total_images']}")
+        print(f"Pages with images: {len(summary['pages_with_images'])}")
+        print(f"Pages without images: {len(summary['pages_without_images'])}")
+
+        if summary['total_images'] > 0:
+            print(f"\nPages containing images: {summary['pages_with_images'][:20]}"
+                  f"{'...' if len(summary['pages_with_images']) > 20 else ''}")
+            print(f"\nTo retrieve extracted images:")
+            print(f"  image_docs = result.get_image_documents()")
+            print(f"  # or save to disk:")
+            print(f"  result.save_all_images('./output_images/')")
+        else:
+            print("\nNo images were extracted!")
+            for suggestion in self.get_image_extraction_troubleshooting():
+                print(f"  {suggestion}")
+
+        print(f"================================\n")
+
     async def asave_all_images(self, output_dir: str) -> List[str]:
         """
         Save all images to files.
