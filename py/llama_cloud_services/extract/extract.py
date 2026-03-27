@@ -121,11 +121,19 @@ async def _wait_for_job_result(
     job_retry_attempts: int = 5,
     job_max_wait: float = 60,
     job_jitter: float = 5,
-    run_retry_attempts: int = 3,
-    run_max_wait: float = 20,
+    run_retry_attempts: int = 5,
+    run_max_wait: float = 30,
     run_jitter: float = 3,
+    data_availability_retries: int = 3,
+    data_availability_initial_delay: float = 2.0,
 ) -> Optional[ExtractRun]:
-    """Wait for and return the results of an extraction job."""
+    """Wait for and return the results of an extraction job.
+
+    Includes resilience against a known S3 race condition on the backend where
+    the database may be updated with a SUCCESS status before the S3 data write
+    fully propagates. This can cause transient 500 errors or runs with null data.
+    The retry parameters and data availability checks mitigate this.
+    """
 
     @_async_retry(
         max_attempts=job_retry_attempts, max_wait=job_max_wait, jitter=job_jitter
@@ -143,6 +151,28 @@ async def _wait_for_job_result(
             organization_id=organization_id,
         )
 
+    async def _get_run_with_data_check() -> ExtractRun:
+        """Fetch the extraction run, retrying if data is missing due to S3 race condition.
+
+        When the backend has status SUCCESS but the S3 data write hasn't propagated,
+        the run may come back with data=None or the API may return a 500 error.
+        The 500 case is handled by the @_async_retry on _get_run(). This wrapper
+        handles the data=None case by retrying with exponential backoff.
+        """
+        for attempt in range(data_availability_retries):
+            run = await _get_run()
+            if run.data is not None or run.status != StatusEnum.SUCCESS:
+                return run
+            delay = data_availability_initial_delay * (2**attempt)
+            warnings.warn(
+                f"Extraction run for job {job_id} has status SUCCESS but data is "
+                f"not yet available (possible S3 race condition). "
+                f"Retrying in {delay:.1f}s "
+                f"(attempt {attempt + 1}/{data_availability_retries})..."
+            )
+            await asyncio.sleep(delay)
+        return await _get_run()
+
     start = time.perf_counter()
     poll_count = 0
 
@@ -152,7 +182,7 @@ async def _wait_for_job_result(
         job = await _get_job()
 
         if job.status == StatusEnum.SUCCESS:
-            return await _get_run()
+            return await _get_run_with_data_check()
         elif job.status == StatusEnum.PENDING:
             end = time.perf_counter()
             if end - start > max_timeout:
@@ -323,8 +353,8 @@ class ExtractionAgent:
             job_retry_attempts=5,
             job_max_wait=60,
             job_jitter=5,
-            run_retry_attempts=3,
-            run_max_wait=20,
+            run_retry_attempts=5,
+            run_max_wait=30,
             run_jitter=3,
         )
 
@@ -783,8 +813,8 @@ class LlamaExtract(BaseComponent):
             job_retry_attempts=3,
             job_max_wait=4,
             job_jitter=5,
-            run_retry_attempts=3,
-            run_max_wait=4,
+            run_retry_attempts=5,
+            run_max_wait=30,
             run_jitter=3,
         )
 
