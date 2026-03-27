@@ -1,0 +1,261 @@
+suite: llamaparse-ocr-tests
+
+templates:
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/pdb.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+
+tests:
+- it: should be a Deployment
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: true
+      parseLayoutDetection:
+        enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: metadata.name
+        value: llamacloud-ocr
+    - equal:
+        path: spec.selector.matchLabels["app.kubernetes.io/name"]
+        value: llamacloud-ocr
+    - equal:
+        path: spec.template.spec.containers[0].name
+        value: llamacloud-ocr
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: llamacloud-license-key
+
+- it: should not create a deployment if llamaParseOcr.enabled is false
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    temporal:
+      deploy: false
+      host: test-temporal
+      port: 7233
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - hasDocuments:
+        count: 8
+
+- it: should not create a service if llamaParseOcr.enabled is false
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    temporal:
+      deploy: false
+      host: test-temporal
+      port: 7233
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/service.yaml
+  asserts:
+    - hasDocuments:
+        count: 8
+
+- it: should not create a HPA if llamaParseOcr has no horizontalPodAutoscalerSpec
+  set:
+    config.parseOcr.enabled: true
+    llamaParseOcr.horizontalPodAutoscalerSpec: null
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+- it: should not create a PDB if llamaParseOcr has no podDisruptionBudgetSpec
+  set:
+    config.parseOcr.enabled: true
+    llamaParseOcr.podDisruptionBudgetSpec: null
+  template: ../templates/llamacloud/pdb.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+- it: should use CPU image by default (gpu not set)
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: true
+      parseLayoutDetection:
+        enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - matchRegex:
+        path: spec.template.spec.containers[0].image
+        pattern: docker\.io/llamaindex/llamacloud-llamaparse-ocr:.+-cpu$
+
+- it: should use CPU image when config.parseOcr.gpu is false
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: true
+        gpu: false
+      parseLayoutDetection:
+        enabled: false
+    llamaParseOcr.image: ""
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - matchRegex:
+        path: spec.template.spec.containers[0].image
+        pattern: docker\.io/llamaindex/llamacloud-llamaparse-ocr:.+-cpu$
+
+- it: should use GPU image when config.parseOcr.gpu is true
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: true
+        gpu: true
+      parseLayoutDetection:
+        enabled: false
+    llamaParseOcr.image: ""
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 4
+  asserts:
+    - matchRegex:
+        path: spec.template.spec.containers[0].image
+        pattern: docker\.io/llamaindex/llamacloud-llamaparse-ocr:[^-]+$

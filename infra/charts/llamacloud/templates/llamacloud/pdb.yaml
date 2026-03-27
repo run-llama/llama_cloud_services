@@ -1,0 +1,18 @@
+{{- range $name, $component := ((include "llamacloud.components" .) | fromYaml ) }}
+{{- $componentPrefix := $component.prefix }}
+{{- if $component.horizontalPodAutoscalerSpec }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ print $component.name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "component" $component "root" $) | indent 4 }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 6 }}
+{{- end }}
+{{- end }}
+  

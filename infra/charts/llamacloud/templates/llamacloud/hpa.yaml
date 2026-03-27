@@ -1,0 +1,14 @@
+{{- range $name, $component := ((include "llamacloud.components" .) | fromYaml ) }}
+{{- $componentPrefix := $component.prefix }}
+{{- if $component.horizontalPodAutoscalerSpec }}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ print $component.name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "component" $component "root" $) | indent 4 }}
+spec: {{ $component.horizontalPodAutoscalerSpec | toYaml | nindent 2 }}
+{{- end }}
+{{- end }}

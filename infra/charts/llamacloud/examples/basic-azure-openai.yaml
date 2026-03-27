@@ -1,0 +1,51 @@
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  llms:
+    azureOpenAi:
+      deployments:
+        - model: "gpt-4o"
+          apiKey: "<REPLACE-WITH-AZURE-OPENAI-API-KEY>"
+          baseUrl: "<REPLACE-WITH-AZURE-OPENAI-ENDPOINT>"
+          deploymentName: "<REPLACE-WITH-AZURE-OPENAI-DEPLOYMENT-NAME>"
+          apiVersion: "<REPLACE-WITH-AZURE-OPENAI-API-VERSION>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "https://login.microsoftonline.com/your-tenant-id/oauth2/v2.0/token"
+      clientId: "your-client-id"
+      clientSecret: "your-client-secret"
+      # secret: "oidc-secret"

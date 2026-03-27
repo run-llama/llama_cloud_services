@@ -1,0 +1,366 @@
+suite: jobs-service-tests
+
+templates:
+- ../templates/llamacloud/configmaps/common.yaml
+- ../templates/llamacloud/configmaps/buckets.yaml
+- ../templates/llamacloud/configmaps/extract.yaml
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/secret.yaml
+- ../templates/llamacloud/secrets/llm.openai.yaml
+- ../templates/llamacloud/secrets/llm.anthropic.yaml
+- ../templates/llamacloud/secrets/llm.gemini.yaml
+- ../templates/llamacloud/secrets/llm.azure.yaml
+- ../templates/llamacloud/secrets/llm.aws.yaml
+- ../templates/llamacloud/secrets/llm.gcp.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+    - monitoring.coreos.com/v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should be a Deployment
+  set:
+    jobsService.image: docker.io/llamaindex/llamacloud-jobs-service:latest
+    redis.host: test-redis-host
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 1
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .spec.template.spec.containers[0].image
+        value: docker.io/llamaindex/llamacloud-jobs-service:latest
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "UVICORN_PORT")].value
+        value: "8002"
+
+- it: should create a Deployment with correct llm environment variables
+  set:
+    config.llms.openAi.secret: existing-openai-api-key
+    config.llms.anthropic.secret: existing-anthropic-api-key
+    config.llms.gemini.secret: existing-gemini-api-key
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 1
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-anthropic-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-openai-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-gemini-api-key
+
+- it: should add llm configs from new llm config section with existing secrets
+  set:
+    config.llms.openAi.secret: existing-openai-api-key
+    config.llms.anthropic.secret: existing-anthropic-api-key
+    config.llms.gemini.secret: existing-gemini-api-key
+    config.llms.azureOpenAi.secret: existing-azure-openai-api-key
+    config.llms.awsBedrock.secret: existing-aws-bedrock-api-key
+    config.llms.googleVertexAi.secret: existing-google-vertex-ai-api-key
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 1
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-anthropic-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-openai-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-gemini-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-azure-openai-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-aws-bedrock-api-key
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: existing-google-vertex-ai-api-key
+
+- it: should create OpenAI secret with API key
+  set:
+    config.llms.openAi.apiKey: "test-api-key"
+  template: ../templates/llamacloud/secrets/llm.openai.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: openai-api-key-secret
+    - equal:
+        path: .data.OPENAI_API_KEY
+        value: dGVzdC1hcGkta2V5
+    - equal:
+        path: .data.LC_OPENAI_API_KEY
+        value: dGVzdC1hcGkta2V5
+
+- it: should create Anthropic secret with API key
+  set:
+    config.llms.anthropic.apiKey: "test-api-key"
+  template: ../templates/llamacloud/secrets/llm.anthropic.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: anthropic-api-key-secret
+    - equal:
+        path: .data.ANTHROPIC_API_KEY
+        value: dGVzdC1hcGkta2V5
+
+- it: should create Gemini secret with API key
+  set:
+    config.llms.gemini.apiKey: "test-api-key"
+  template: ../templates/llamacloud/secrets/llm.gemini.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: gemini-api-key-secret
+    - equal:
+        path: .data.GOOGLE_GEMINI_API_KEY
+        value: dGVzdC1hcGkta2V5
+
+- it: should create Azure OpenAI secret with deployments
+  set:
+    config.llms.azureOpenAi.deployments:
+      - model: "gpt-4o"
+        apiKey: "test-api-key"
+        baseUrl: "https://api.openai.com/v1"
+        apiVersion: "2024-08-06"
+        deploymentName: "gpt-4o"
+      - model: "gpt-4o-mini"
+        apiKey: "test-api-key"
+        baseUrl: "https://api.openai.com/v1"
+        apiVersion: "2024-08-06"
+        deploymentName: "gpt-4o-mini"
+  template: ../templates/llamacloud/secrets/llm.azure.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: azure-open-ai-api-key-secret
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_API_KEY
+        value: dGVzdC1hcGkta2V5
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_BASE_URL
+        value: aHR0cHM6Ly9hcGkub3BlbmFpLmNvbS92MQ==
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_DEPLOYMENT_NAME
+        value: Z3B0LTRv
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_API_VERSION
+        value: MjAyNC0wOC0wNg==
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_MINI_API_KEY
+        value: dGVzdC1hcGkta2V5
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_MINI_BASE_URL
+        value: aHR0cHM6Ly9hcGkub3BlbmFpLmNvbS92MQ==
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_MINI_DEPLOYMENT_NAME
+        value: Z3B0LTRvLW1pbmk=
+    - equal:
+        path: .data.AZURE_OPENAI_GPT_4O_MINI_API_VERSION
+        value: MjAyNC0wOC0wNg==
+
+- it: should create AWS Bedrock secret with credentials
+  set:
+    config.llms.awsBedrock.region: "us-east-1"
+    config.llms.awsBedrock.accessKeyId: "test-api-key"
+    config.llms.awsBedrock.secretAccessKey: "test-api-key"
+    config.llms.awsBedrock.sonnet3_5ModelVersionName: "anthropic.claude-3-5-sonnet-20240620-v1:0"
+    config.llms.awsBedrock.sonnet3_7ModelVersionName: "anthropic.claude-3-7-sonnet-20250219-v1:0"
+    config.llms.awsBedrock.sonnet4_0ModelVersionName: "anthropic.claude-sonnet-4-20250514-v1:0"
+    config.llms.awsBedrock.haiku3_5ModelVersionName: "anthropic.claude-3-5-haiku-20241022-v1:0"
+    config.llms.awsBedrock.haiku4_5ModelVersionName: "anthropic.claude-haiku-4-5-20251001-v1:0"
+  template: ../templates/llamacloud/secrets/llm.aws.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: aws-bedrock-api-key-secret
+    - equal:
+        path: .data.AWS_BEDROCK_ENABLED
+        value: dHJ1ZQ==
+    - equal:
+        path: .data.AWS_BEDROCK_REGION
+        value: dXMtZWFzdC0x
+    - equal:
+        path: .data.AWS_BEDROCK_ACCESS_KEY_ID
+        value: dGVzdC1hcGkta2V5
+    - equal:
+        path: .data.AWS_BEDROCK_SECRET_ACCESS_KEY
+        value: dGVzdC1hcGkta2V5
+    - equal:
+        path: .data.AWS_BEDROCK_SONNET_3_5_MODEL_VERSION_NAME
+        value: YW50aHJvcGljLmNsYXVkZS0zLTUtc29ubmV0LTIwMjQwNjIwLXYxOjA=
+    - equal:
+        path: .data.AWS_BEDROCK_SONNET_3_7_MODEL_VERSION_NAME
+        value: YW50aHJvcGljLmNsYXVkZS0zLTctc29ubmV0LTIwMjUwMjE5LXYxOjA=
+    - equal:
+        path: .data.AWS_BEDROCK_SONNET_4_0_MODEL_VERSION_NAME
+        value: YW50aHJvcGljLmNsYXVkZS1zb25uZXQtNC0yMDI1MDUxNC12MTow
+    - equal:
+        path: .data.AWS_BEDROCK_HAIKU_3_5_MODEL_VERSION_NAME
+        value: YW50aHJvcGljLmNsYXVkZS0zLTUtaGFpa3UtMjAyNDEwMjItdjE6MA==
+    - equal:
+        path: .data.AWS_BEDROCK_HAIKU_4_5_MODEL_VERSION_NAME
+        value: YW50aHJvcGljLmNsYXVkZS1oYWlrdS00LTUtMjAyNTEwMDEtdjE6MA==
+
+- it: should create Google Vertex AI secret with credentials
+  set:
+    config.llms.googleVertexAi.projectId: "test-project-id"
+    config.llms.googleVertexAi.location: "us-east-1"
+    config.llms.googleVertexAi.credentialsJson: "test-credentials-json"
+  template: ../templates/llamacloud/secrets/llm.gcp.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: google-vertex-ai-api-key-secret
+    - equal:
+        path: .data.GOOGLE_VERTEX_AI_ENABLED
+        value: dHJ1ZQ==
+    - equal:
+        path: .data.GOOGLE_VERTEX_AI_PROJECT_ID
+        value: dGVzdC1wcm9qZWN0LWlk
+    - equal:
+        path: .data.GOOGLE_VERTEX_AI_LOCATION
+        value: dXMtZWFzdC0x
+    - equal:
+        path: .data.GOOGLE_VERTEX_AI_CREDENTIALS_JSON
+        value: dGVzdC1jcmVkZW50aWFscy1qc29u
+
+- it: should create common-config ConfigMap with IS_DEPLOYED
+  templates:
+    - ../templates/llamacloud/configmaps/common.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.IS_DEPLOYED
+        value: "true"
+
+- it: should create bucket-config ConfigMap with correct bucket names
+  set:
+    config.storageBuckets.parsedDocuments: test-cloud-bucket-name
+    redis.host: test-redis-host
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  templates:
+    - ../templates/llamacloud/configmaps/buckets.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.S3_DOCUMENT_BUCKET_NAME
+        value: test-cloud-bucket-name
+    - equal:
+        path: .data.S3_ETL_BUCKET_NAME
+        value: llama-platform-etl
+    - equal:
+        path: .data.S3_EXTERNAL_COMPONENTS_BUCKET_NAME
+        value: llama-platform-external-components
+    - equal:
+        path: .data.S3_FILE_PARSING_BUCKET_NAME
+        value: llama-platform-file-parsing
+    - equal:
+        path: .data.S3_RAW_FILE_BUCKET_NAME
+        value: llama-platform-raw-files
+    - equal:
+        path: .data.S3_LLAMA_CLOUD_PARSE_OUTPUT_BUCKET_NAME
+        value: llama-cloud-parse-output
+    - equal:
+        path: .data.S3_FILE_SCREENSHOT_BUCKET_NAME
+        value: llama-platform-file-screenshots
+    - equal:
+        path: .data.S3_LLAMA_EXTRACT_OUTPUT_BUCKET_NAME
+        value: llama-platform-extract-output
+
+- it: should create extract-config ConfigMap with LLAMA_EXTRACT settings
+  templates:
+    - ../templates/llamacloud/configmaps/extract.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.LLAMA_EXTRACT_MULTIMODAL_MODEL
+        value: "openai-gpt-4-1"
+
+- it: jobs-service deployment should have LOG_LEVEL env var
+  set:
+    config.logLevel: info
+    redis.host: test-redis-host
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 1
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "LOG_LEVEL")].value
+        value: info
+
+
+- it: should create a Service
+  set:
+    redis.host: test-redis-host
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  template: ../templates/llamacloud/service.yaml
+  documentIndex: 1
+  asserts:
+    - isKind:
+        of: Service

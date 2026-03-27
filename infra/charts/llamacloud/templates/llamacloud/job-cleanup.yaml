@@ -1,0 +1,92 @@
+{{- if and (((.Values.config).temporal).searchAttributesJob).enabled .Values.temporal.deploy (not .Values.temporal.disabled) }}
+{{- /*
+  Migration hook: Delete old temporal-search-attributes job if it exists with hook annotations.
+  This is needed because the job was previously created as a helm hook, but is now a regular resource
+  when temporal.deploy=true. Helm cannot adopt the old job, so we delete it first.
+*/}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-temporal-job-cleanup
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  ttlSecondsAfterFinished: 60
+  backoffLimit: 1
+  template:
+    metadata:
+      labels: {{ include "llamacloud.labels" (dict "root" $) | indent 8 }}
+        app.kubernetes.io/component: temporal-job-cleanup
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Release.Name }}-job-cleanup
+      containers:
+      - name: cleanup
+        image: bitnami/kubectl:latest
+        command:
+          - /bin/sh
+          - -c
+          - |
+            JOB_NAME="{{ .Release.Name }}-temporal-search-attributes"
+            NAMESPACE="{{ .Release.Namespace }}"
+
+            echo "Checking for old temporal-search-attributes job..."
+            if kubectl get job "$JOB_NAME" -n "$NAMESPACE" 2>/dev/null; then
+              # Check if it has the old hook annotations
+              HOOK_ANNOTATION=$(kubectl get job "$JOB_NAME" -n "$NAMESPACE" -o jsonpath='{.metadata.annotations.helm\.sh/hook}' 2>/dev/null || echo "")
+              if [ -n "$HOOK_ANNOTATION" ]; then
+                echo "Found old job with hook annotations, deleting..."
+                kubectl delete job "$JOB_NAME" -n "$NAMESPACE" --ignore-not-found=true
+                echo "Old job deleted successfully"
+              else
+                echo "Job exists but doesn't have hook annotations, skipping"
+              fi
+            else
+              echo "No old job found, nothing to clean up"
+            fi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-job-cleanup
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Release.Name }}-job-cleanup
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+- apiGroups: ["batch"]
+  resources: ["jobs"]
+  verbs: ["get", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Release.Name }}-job-cleanup
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-job-cleanup
+subjects:
+- kind: ServiceAccount
+  name: {{ .Release.Name }}-job-cleanup
+  namespace: {{ .Release.Namespace }}
+{{- end }}

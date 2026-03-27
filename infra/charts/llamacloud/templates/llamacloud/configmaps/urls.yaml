@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: urls-config
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "root" $) | indent 4 }}
+data:
+  JOB_API_SERVICE_PORT: "80"
+  JOB_SERVICE_URL: {{ printf "http://%s:%d" (include "llamacloud.component.jobsService" $ | fromYaml).name ( "80" | int) | quote }}
+  TRACKING_SERVICE_URL: {{ printf "http://%s:%d" (include "llamacloud.component.usage" $ | fromYaml).name ( "80" | int) | quote }}
+  {{- if ( not (eq (.Values.ingress).host "localhost") )}}
+  BACKEND_URL: {{ print (include "llamacloud.ingress.scheme" .) "://" (.Values.ingress).host | quote }}
+  {{- else }}
+  BACKEND_URL: {{ printf "http://%s:%d" (include "llamacloud.component.backend" $ | fromYaml).name ( "80" | int) | quote }}
+  {{- end }}
+  {{- if ($.Values.ingress).host }}
+  LLAMACLOUD_INGRESS_URL: {{ print (include "llamacloud.ingress.scheme" .) "://" (.Values.ingress).host | quote }}
+  {{- end }}
+  {{- if (((.Values.config).storageBuckets).s3proxy.enabled | default false) }}
+  S3_ENDPOINT_URL: {{ printf "http://localhost:%d" (int ((($.Values.config).storageBuckets).s3proxy.containerPort | default 80)) | quote }}
+  {{- end }}
+  {{- if .Values.config.parseOcr.enabled }}
+  OCR_SERVER_URL: {{ printf "http://%s:%d/ocr" (include "llamacloud.component.llamaParseOcr" $ | fromYaml).name ( "80" | int) | quote }}
+  {{- end }}
+  {{- if .Values.config.parseLayoutDetection.enabled }}
+  LAYOUT_EXTRACTION_ENDPOINT: {{ printf "http://%s:%d" (include "llamacloud.component.llamaParseLayoutDetectionApi" $ | fromYaml).name ( "80" | int) | quote }}
+  LAYOUT_EXTRACTION_V2_ENDPOINT: {{ printf "http://%s:%d" (include "llamacloud.component.llamaParseLayoutDetectionApi" $ | fromYaml).name ( "80" | int) | quote }}
+  {{- end }}
+  {{- if .Values.config.parseLayoutDetectionV3.enabled }}
+  LAYOUT_EXTRACTION_V3_ENDPOINT: {{ printf "http://%s:%d" (include "llamacloud.component.llamaParseLayoutDetectionApiV3" $ | fromYaml).name ( "80" | int) | quote }}
+  {{- end }}

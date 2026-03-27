@@ -1,0 +1,111 @@
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "https://login.microsoftonline.com/<your-tenant-id>/v2.0/.well-known/openid-configuration"
+      clientId: "your-client-id"
+      clientSecret: "your-client-secret"
+      # secret: "oidc-secret"
+
+  llms:
+    openAi:
+      apiKey: "<REPLACE-WITH-OPENAI-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+    anthropic:
+      apiKey: "<REPLACE-WITH-ANTHROPIC-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+    gemini:
+      apiKey: "<REPLACE-WITH-GEMINI-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+    azureOpenAi:
+      deployments:
+        - model: "gpt-4o"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-4o"
+        - model: "gpt-4o-mini"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-4o-mini"
+        - model: "gpt-4.1"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-4.1"
+        - model: "gpt-4.1-mini"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-4.1-mini"
+        - model: "gpt-4.1-nano"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-4.1-nano"
+        - model: "gpt-5"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-5"
+        - model: "gpt-5-mini"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-5-mini"
+        - model: "gpt-5-nano"
+          apiKey: "test-api-key"
+          baseUrl: "https://api.openai.com/v1"
+          apiVersion: "2024-08-06"
+          deploymentName: "gpt-5-nano"
+
+    googleVertexAi:
+      projectId: "<REPLACE-WITH-GOOGLE-VERTEX-AI-PROJECT-ID>"
+      location: "<REPLACE-WITH-GOOGLE-VERTEX-AI-LOCATION>"
+      credentialsJson: "<REPLACE-WITH-GOOGLE-VERTEX-AI-CREDENTIALS-JSON>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+    awsBedrock:
+      region: "<REPLACE-WITH-AWS-BEDROCK-REGION>"
+      accessKeyId: "<REPLACE-WITH-AWS-BEDROCK-ACCESS-KEY-ID>"
+      secretAccessKey: "<REPLACE-WITH-AWS-BEDROCK-SECRET-ACCESS-KEY>"
+      sonnet3_5ModelVersionName: "<REPLACE-WITH-AWS-BEDROCK-SONNET-3-5-MODEL-VERSION-NAME>"
+      sonnet3_7ModelVersionName: "<REPLACE-WITH-AWS-BEDROCK-SONNET-3-7-MODEL-VERSION-NAME>"
+      sonnet4_0ModelVersionName: "<REPLACE-WITH-AWS-BEDROCK-SONNET-4-0-MODEL-VERSION-NAME>"
+      haiku3_5_ModelVersionName: "<REPLACE-WITH-AWS-BEDROCK-HAIKU-3-5-MODEL-VERSION-NAME>"

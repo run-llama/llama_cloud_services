@@ -1,0 +1,60 @@
+suite: ingress-tests
+
+templates:
+- ../templates/ingress.yaml
+- ../templates/llamacloud/configmaps/urls.yaml
+
+tests:
+- it: should be an Ingress
+  set:
+    ingress.enabled: true
+    ingress.host: "llamacloud.example.com"
+    ingress.tlsSecretName: "llamacloud-example-tls-secret"
+    ingress.ingressClassName: "default-ingress-class"
+  template: ../templates/ingress.yaml
+  asserts:
+    - isKind:
+        of: Ingress
+    - equal:
+        path: .spec.rules[0].host
+        value: "llamacloud.example.com"
+    - equal:
+        path: .spec.tls[0].hosts[0]
+        value: "llamacloud.example.com"
+    - equal:
+        path: .spec.tls[0].secretName
+        value: "llamacloud-example-tls-secret"
+    - equal:
+        path: .spec.ingressClassName
+        value: "default-ingress-class"
+
+- it: should set BACKEND_URL to use https when tlsSecretName is provided
+  set:
+    ingress.enabled: true
+    ingress.ingressClassName: "default-ingress-class"
+    ingress.host: "llamacloud.example.com"
+    ingress.tlsSecretName: "llamacloud-example-tls-secret"
+  template: ../templates/llamacloud/configmaps/urls.yaml
+  asserts:
+    - equal:
+        path: .data.BACKEND_URL
+        value: "https://llamacloud.example.com"
+
+- it: should set BACKEND_URL to use http when tlsSecretName is not provided
+  set:
+    ingress.enabled: true
+    ingress.ingressClassName: "default-ingress-class"
+    ingress.host: "llamacloud.example.com"
+  template: ../templates/llamacloud/configmaps/urls.yaml
+  asserts:
+    - equal:
+        path: .data.BACKEND_URL
+        value: "http://llamacloud.example.com"
+
+- it: should not create an ingress if ingress.enabled is false
+  set:
+    ingress.enabled: false
+  template: ../templates/ingress.yaml
+  asserts:
+    - hasDocuments:
+        count: 0

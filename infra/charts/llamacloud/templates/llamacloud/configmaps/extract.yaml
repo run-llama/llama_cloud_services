@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: extract-config
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "root" $) | indent 4 }}
+data:
+  LLAMA_EXTRACT_MULTIMODAL_MODEL: {{ (($.Values.config).extraction).multimodalModel | default "gemini-2.0-flash" | quote }}
+  LLAMA_EXTRACT_SCHEMA_GENERATION_MODEL: {{ (($.Values.config).extraction).schemaGenerationModel | default "gemini-2.0-flash" | quote }}
+  LLAMA_EXTRACT_MAX_PAGES: {{ (($.Values.config).extraction).maxPages | default "500" | quote }}
+  LLAMA_EXTRACT_MAX_FILE_SIZE_MB: {{ (($.Values.config).extraction).maxFileSizeMb | default "100" | quote }}

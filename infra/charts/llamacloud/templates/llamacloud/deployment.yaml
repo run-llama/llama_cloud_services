@@ -1,0 +1,70 @@
+{{- range $name, $component := ((include "llamacloud.components" .) | fromYaml ) }}
+{{- $componentPrefix := $component.prefix }}
+{{- $params := dict "component" $component "root" $ }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ print $component.name | quote }}
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" $params | indent 4 }}
+spec:
+  replicas: {{ $component.replicas }}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0
+    type: RollingUpdate
+  selector:
+    matchLabels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 6 }}
+  template:
+    metadata:
+      labels: {{ include "llamacloud.labels" (dict "name" $component.name "root" $) | indent 8 }}
+      annotations: {{ include "llamacloud.podAnnotations" $params | indent 8 }}
+    spec:
+      imagePullSecrets: {{ $.Values.imagePullSecrets | toYaml | nindent 8 }}
+      serviceAccountName: {{ $component.name | quote }}
+      securityContext: {{ include "llamacloud.podSecurityContext" $params | indent 8 }}
+      containers:
+      - name: {{ $component.name | quote }}
+        securityContext: {{ include "llamacloud.securityContext" $params | indent 10 }}
+        image: {{ print $component.image | quote }}
+        imagePullPolicy: {{ $component.imagePullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ $component.port }}
+          protocol: TCP
+        {{- if $component.command }}
+        command: {{ $component.command | toYaml | nindent 10 }}
+        {{- end }}
+        livenessProbe: {{ include (printf "%s.livenessProbe" $componentPrefix) $ | indent 10 }}
+        readinessProbe: {{ include (printf "%s.readinessProbe" $componentPrefix) $ | indent 10 }}
+        startupProbe: {{ include (printf "%s.startupProbe" $componentPrefix) $ | indent 10 }}
+        resources: {{ include (printf "%s.resources" $componentPrefix) $params | indent 10 }}
+        env: {{ include (printf "%s.env" $componentPrefix) $params | indent 8 }}
+        - name: LOG_LEVEL
+          value: {{ ($.Values.config).logLevel | default "info" }}
+        - name: PORT
+          value: {{ $component.port | quote }}
+        - name: UVICORN_PORT
+          value: {{ $component.port | quote }}
+        envFrom: {{ include (printf "%s.envFrom" $componentPrefix) $params | indent 8 }}
+        volumeMounts: {{- include (printf "%s.volumeMounts" $componentPrefix) $params | indent 8 -}}
+        {{- if $component.usesS3 }}
+        {{- include "llamacloud.s3proxy.container" $ | indent 6 }}
+        {{- end }}
+      volumes: {{ include (printf "%s.volumes" $componentPrefix) $params  | indent 6 }}
+      {{- if $component.nodeSelector }}
+      nodeSelector: {{ toYaml $component.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if $component.affinity }}
+      affinity: {{ toYaml $component.affinity | nindent 8 }}
+      {{- end }}
+      {{- if $component.tolerations }}
+      tolerations: {{ toYaml $component.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if $component.topologySpreadConstraints }}
+      topologySpreadConstraints: {{ toYaml $component.topologySpreadConstraints | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 30
+{{- end }}

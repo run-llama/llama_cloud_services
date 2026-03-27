@@ -1,0 +1,130 @@
+suite: jobs-worker-tests
+
+templates:
+- ../templates/llamacloud/configmaps/common.yaml
+- ../templates/llamacloud/configmaps/buckets.yaml
+- ../templates/llamacloud/configmaps/extract.yaml
+- ../templates/llamacloud/configmap.yaml
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/secret.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+    - monitoring.coreos.com/v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should be a Deployment
+  set:
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+    jobsWorker.image: "docker.io/llamaindex/llamacloud-jobs-worker:latest"
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 2
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .spec.template.spec.containers[0].image
+        value: docker.io/llamaindex/llamacloud-jobs-worker:latest
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "UVICORN_PORT")].value
+        value: "8001"
+
+- it: should create common-config ConfigMap with IS_DEPLOYED
+  templates:
+    - ../templates/llamacloud/configmaps/common.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.IS_DEPLOYED
+        value: "true"
+
+- it: should create bucket-config ConfigMap with correct bucket names
+  set:
+    config.storageBuckets.parsedDocuments: test-cloud-bucket-name
+  templates:
+    - ../templates/llamacloud/configmaps/buckets.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.S3_DOCUMENT_BUCKET_NAME
+        value: test-cloud-bucket-name
+    - equal:
+        path: .data.S3_ETL_BUCKET_NAME
+        value: llama-platform-etl
+    - equal:
+        path: .data.S3_EXTERNAL_COMPONENTS_BUCKET_NAME
+        value: llama-platform-external-components
+    - equal:
+        path: .data.S3_FILE_PARSING_BUCKET_NAME
+        value: llama-platform-file-parsing
+    - equal:
+        path: .data.S3_RAW_FILE_BUCKET_NAME
+        value: llama-platform-raw-files
+    - equal:
+        path: .data.S3_LLAMA_CLOUD_PARSE_OUTPUT_BUCKET_NAME
+        value: llama-cloud-parse-output
+    - equal:
+        path: .data.S3_FILE_SCREENSHOT_BUCKET_NAME
+        value: llama-platform-file-screenshots
+    - equal:
+        path: .data.S3_LLAMA_EXTRACT_OUTPUT_BUCKET_NAME
+        value: llama-platform-extract-output
+
+- it: should create extract-config ConfigMap with default LLAMA_EXTRACT settings
+  templates:
+    - ../templates/llamacloud/configmaps/extract.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.LLAMA_EXTRACT_MULTIMODAL_MODEL
+        value: "openai-gpt-4-1"
+    - equal:
+        path: .data.LLAMA_EXTRACT_SCHEMA_GENERATION_MODEL
+        value: "openai-gpt-4-1-mini"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_PAGES
+        value: "500"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_FILE_SIZE_MB
+        value: "100"
+
+- it: should set custom LLAMA_EXTRACT settings when specified
+  set:
+    config.extraction.multimodalModel: "openai-gpt-4-1"
+    config.extraction.schemaGenerationModel: "openai-gpt-4-1-mini"
+    config.extraction.maxPages: 1000
+    config.extraction.maxFileSizeMb: 200
+  templates:
+    - ../templates/llamacloud/configmaps/extract.yaml
+  asserts:
+    - equal:
+        path: .data.LLAMA_EXTRACT_MULTIMODAL_MODEL
+        value: "openai-gpt-4-1"
+    - equal:
+        path: .data.LLAMA_EXTRACT_SCHEMA_GENERATION_MODEL
+        value: "openai-gpt-4-1-mini"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_PAGES
+        value: "1000"
+    - equal:
+        path: .data.LLAMA_EXTRACT_MAX_FILE_SIZE_MB
+        value: "200"
+

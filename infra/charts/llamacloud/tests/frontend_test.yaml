@@ -1,0 +1,284 @@
+suite: frontend-tests
+
+templates:
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+    - autoscaling/v2
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should be a Deployment
+  set:
+    config:
+      frontend:
+        enabled: true
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    frontend:
+      image: docker.io/llamaindex/llamacloud-frontend:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .spec.template.spec.containers[0].image
+        value: docker.io/llamaindex/llamacloud-frontend:latest
+
+- it: should set the correct BACKEND_URL via configmap when ingress is enabled
+  set:
+    config.frontend.enabled: true
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+    ingress.enabled: true
+    ingress.tlsSecretName: tls-secret
+    ingress.host: llamacloud.example.com
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          configMapRef:
+            name: urls-config
+
+- it: should set the correct BACKEND_URL via configmap when ingress is disabled
+  set:
+    config.frontend.enabled: true
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+    ingress.enabled: false
+    backend.name: backend
+    backend.service.port: 8000
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          configMapRef:
+            name: urls-config
+
+- it: should create a HorizontalPodAutoscaler if autoscaling is enabled
+  set:
+    config.frontend.enabled: true
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+    frontend.horizontalPodAutoscalerSpec:
+      minReplicas: 2
+      maxReplicas: 10
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 1
+    - isKind:
+        of: HorizontalPodAutoscaler
+    - equal:
+        path: .spec.minReplicas
+        value: 2
+    - equal:
+        path: .spec.maxReplicas
+        value: 10
+    - equal:
+        path: .spec.metrics[0].resource.target.averageUtilization
+        value: 80
+
+- it: should not create a HorizontalPodAutoscaler if autoscaling is disabled
+  set:
+    config:
+      frontend:
+        enabled: true
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    frontend:
+      image: docker.io/llamaindex/llamacloud-frontend:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+- it: should create HPA with both CPU and memory metrics when both are specified
+  set:
+    config.frontend.enabled: true
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+    frontend.horizontalPodAutoscalerSpec:
+      minReplicas: 1
+      maxReplicas: 5
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 70
+        - type: Resource
+          resource:
+            name: memory
+            target:
+              type: Utilization
+              averageUtilization: 80
+  template: ../templates/llamacloud/hpa.yaml
+  asserts:
+    - hasDocuments:
+        count: 1
+    - equal:
+        path: .spec.metrics[0].resource.name
+        value: cpu
+    - equal:
+        path: .spec.metrics[0].resource.target.averageUtilization
+        value: 70
+    - equal:
+        path: .spec.metrics[1].resource.name
+        value: memory
+    - equal:
+        path: .spec.metrics[1].resource.target.averageUtilization
+        value: 80
+
+- it: should apply custom labels and annotations to all resources
+  set:
+    config.frontend.enabled: true
+    frontend.annotations:
+      custom-annotation: frontend-annotation
+    frontend.serviceAccountAnnotations:
+      sa-annotation: sa-annotation
+    frontend.podAnnotations:
+      pod-annotation: pod-annotation
+  documentIndex: 1
+  templates:
+    - ../templates/llamacloud/deployment.yaml
+    - ../templates/llamacloud/service.yaml
+    - ../templates/llamacloud/serviceaccount.yaml
+  asserts:
+    - template: ../templates/llamacloud/deployment.yaml
+      equal:
+        path: .metadata.annotations.custom-annotation
+        value: frontend-annotation
+    - template: ../templates/llamacloud/deployment.yaml
+      equal:
+        path: .spec.template.metadata.annotations.pod-annotation
+        value: pod-annotation
+    - template: ../templates/llamacloud/serviceaccount.yaml
+      equal:
+        path: .metadata.annotations.sa-annotation
+        value: sa-annotation
+
+- it: should include extra environment variables when specified
+  set:
+    config.frontend.enabled: true
+    frontend.extraEnvVariables:
+      - name: CUSTOM_ENV_VAR
+        value: custom-value
+      - name: ANOTHER_VAR
+        valueFrom:
+          secretKeyRef:
+            name: my-secret
+            key: my-key
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "CUSTOM_ENV_VAR")].value
+        value: custom-value
+    - equal:
+        path: .spec.template.spec.containers[0].env[?(@.name == "ANOTHER_VAR")].valueFrom.secretKeyRef.name
+        value: my-secret
+
+- it: should set rolling update strategy with correct parameters
+  set:
+    config.frontend.enabled: true
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.strategy.type
+        value: RollingUpdate
+    - equal:
+        path: .spec.strategy.rollingUpdate.maxUnavailable
+        value: 0
+
+- it: should set correct security contexts
+  set:
+    config.frontend.enabled: true
+    frontend.podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+    frontend.securityContext:
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.securityContext.runAsNonRoot
+        value: true
+    - equal:
+        path: .spec.template.spec.securityContext.runAsUser
+        value: 1000
+    - equal:
+        path: .spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+        value: false
+    - equal:
+        path: .spec.template.spec.containers[0].securityContext.readOnlyRootFilesystem
+        value: true

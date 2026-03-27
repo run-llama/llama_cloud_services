@@ -1,0 +1,52 @@
+license:
+  key: "<REPLACE-WITH-LLAMACLOUD-LICENSE-KEY>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+ingress:
+  enabled: true
+  host: "llamacloud.example.com"
+  tlsSecretName: "llamacloud-example-tls-secret"
+  ingressClassName: "default-ingress-class"
+
+config:
+  llms:
+    openAi:
+      apiKey: "<REPLACE-WITH-OPENAI-API-KEY>"
+      # secret: "<uncomment-if-using-existing-secret>"
+
+  authentication:
+    oidc:
+      enabled: true
+      discoveryUrl: "https://login.microsoftonline.com/<your-tenant-id>/v2.0/.well-known/openid-configuration"
+      clientId: "your-client-id"
+      clientSecret: "your-client-secret"
+      # secret: "oidc-secret"

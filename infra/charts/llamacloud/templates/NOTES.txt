@@ -1,0 +1,17 @@
+{{- $frontendValues := include "llamacloud.component.frontend" $ | fromYaml }}
+Welcome to LlamaCloud!
+
+View your deployment with the following:
+
+  kubectl --namespace {{ .Release.Namespace }} get pods
+
+To view LlamaCloud UI in your browser:
+
+  {{- if and (.Values.ingress).enabled }}
+  {{ print "Please visit: " (include "llamacloud.ingress.scheme" .) "://" (.Values.ingress).host }}
+  {{- else }}
+  Run the following command:
+
+  kubectl --namespace {{ .Release.Namespace }} port-forward svc/{{ $frontendValues.name }} 3000:80
+  {{- end }}
+

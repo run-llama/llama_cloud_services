@@ -1,0 +1,88 @@
+suite: llamaparse-tests
+
+templates:
+- ../templates/llamacloud/configmaps/buckets.yaml
+- ../templates/llamacloud/deployment.yaml
+- ../templates/llamacloud/secret.yaml
+- ../templates/llamacloud/hpa.yaml
+- ../templates/llamacloud/pdb.yaml
+- ../templates/llamacloud/service.yaml
+- ../templates/llamacloud/serviceaccount.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should create a Deployment
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+    llamaParse:
+      image: docker.io/llamaindex/llamacloud-llamaparse:latest
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  template: ../templates/llamacloud/deployment.yaml
+  documentIndex: 3
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: metadata.name
+        value: llamacloud-parse
+    - equal:
+        path: spec.selector.matchLabels["app.kubernetes.io/name"]
+        value: llamacloud-parse
+    - equal:
+        path: spec.template.spec.containers[0].name
+        value: llamacloud-parse
+
+- it: should create bucket-config ConfigMap with parse buckets
+  set:
+    config.storageBuckets.parseFileUpload: test-s3-upload-bucket
+    config.storageBuckets.parseFileOutput: test-s3-output-bucket
+    rabbitmq.enabled: false
+  templates:
+    - ../templates/llamacloud/configmaps/buckets.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.CLOUD_PROVIDER
+        value: aws
+    - equal:
+        path: .data.S3_UPLOAD_BUCKET
+        value: test-s3-upload-bucket
+    - equal:
+        path: .data.S3_OUTPUT_BUCKET
+        value: test-s3-output-bucket

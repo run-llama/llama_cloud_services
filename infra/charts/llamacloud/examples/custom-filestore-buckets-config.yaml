@@ -1,0 +1,42 @@
+license:
+  key: "<input-license-key-here>"
+  # secret: ""
+
+# Connection details for required services
+postgresql:
+  host: "<REPLACE-WITH-POSTGRESQL-HOST>"
+  port: "5432"
+  database: "<REPLACE-WITH-DATABASE-NAME>"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+mongodb:
+  host: "<REPLACE-WITH-MONGODB-HOST>"
+  port: "27017"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+rabbitmq:
+  host: "<REPLACE-WITH-RABBITMQ-HOST>"
+  port: "5672"
+  username: "<REPLACE-WITH-USERNAME>"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+redis:
+  host: "<REPLACE-WITH-REDIS-HOST>"
+  port: "6379"
+  password: "<REPLACE-WITH-PASSWORD>"
+  # secret: "<uncomment-if-using-existing-secret>"
+
+config:
+  storageBuckets:
+    parsedDocuments: "<your-bucket-name>"
+    parsedEtl: "<your-bucket-name>"
+    parsedExternalComponents: "<your-bucket-name>"
+    parsedFileParsing: "<your-bucket-name>"
+    parsedRawFile: "<your-bucket-name>"
+    parseOutput: "<your-bucket-name>"
+    parsedFileScreenshot: "<your-bucket-name>"

@@ -1,0 +1,71 @@
+web:
+  additionalEnv:
+    - name: TEMPORAL_CSRF_COOKIE_INSECURE
+      value: "true"
+  service:
+    port: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+server:
+  frontend:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  history:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+  matching:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+  worker:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+  config:
+    persistence:
+      default:
+        sql:
+          host: "postgresql"
+          user: "llamacloud"
+          password: "llamacloud"
+      visibility:
+        sql:
+          host: "postgresql"
+          user: "llamacloud"
+          password: "llamacloud"
+prometheus:
+  enabled: false
+grafana:
+  enabled: false
+elasticsearch:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  initResources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+  # Permit co-located instances for solitary minikube virtual machines.
+  antiAffinity: "soft"
+
+  # Shrink default JVM heap.
+  esJavaOpts: "-Xmx128m -Xms128m"
+
+  # Request smaller persistent volumes.
+  volumeClaimTemplate:
+    accessModes: [ "ReadWriteOnce" ]
+    storageClassName: "hostpath"
+    resources:
+      requests:
+        storage: 100M

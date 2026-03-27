@@ -1,0 +1,35 @@
+image:
+  ## @param postgresql.image.registry PostgreSQL Image registry
+  ## @param postgresql.image.repository PostgreSQL Image repository
+  registry: docker.io
+  repository: bitnamilegacy/postgresql
+
+# Postgres Auth
+auth:
+  ## @param postgresql.auth.enabled Enable PostgreSQL Auth
+  ## @param postgresql.auth.database Database name
+  ## @param postgresql.auth.username Username
+  enabled: true
+  database: llamacloud
+  username: llamacloud
+  password: llamacloud
+
+## Ref: https://github.com/bitnami/charts/blob/main/bitnami/postgresql/values.yaml#L481
+primary:
+  ## @param postgresql.primary.resources.requests.cpu CPU requests
+  ## @param postgresql.primary.resources.requests.memory Memory requests
+  ## @param postgresql.primary.resources.limits.cpu CPU limits
+  ## @param postgresql.primary.resources.limits.memory Memory limits
+  resources:
+    requests:
+      cpu: 250m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+global:
+  security:
+    allowInsecureImages: true
+
+resourcesPreset: micro

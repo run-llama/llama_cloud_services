@@ -1,0 +1,745 @@
+suite: s3-proxy-tests
+
+templates:
+- ../templates/llamacloud/configmaps/s3proxy.yaml
+- ../templates/llamacloud/configmaps/urls.yaml
+- ../templates/llamacloud/secrets/s3proxy.yaml
+- ../templates/llamacloud/deployment.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+    - v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+# ConfigMap Tests
+- it: should create s3proxy configmap when provider is gcp
+  set:
+    config.storageBuckets.provider: gcp
+    config.storageBuckets.s3proxy.enabled: true
+  template: ../templates/llamacloud/configmaps/s3proxy.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .metadata.name
+        value: s3proxy-config
+    - equal:
+        path: .data.S3PROXY_AUTHORIZATION
+        value: "none"
+    - equal:
+        path: .data.S3PROXY_CORS_ALLOW_ORIGINS
+        value: "*"
+    - equal:
+        path: .data.S3PROXY_ENDPOINT
+        value: "http://0.0.0.0:8080"
+    - equal:
+        path: .data.S3PROXY_IGNORE_UNKNOWN_HEADERS
+        value: "true"
+
+- it: should create s3proxy configmap when provider is azure
+  set:
+    config.storageBuckets.provider: azure
+    config.storageBuckets.s3proxy.enabled: true
+  template: ../templates/llamacloud/configmaps/s3proxy.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .metadata.name
+        value: s3proxy-config
+
+- it: should not create s3proxy configmap when s3proxy is disabled
+  set:
+    config.storageBuckets.provider: aws
+    config.storageBuckets.s3proxy.enabled: false
+  template: ../templates/llamacloud/configmaps/s3proxy.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+# Secret Tests
+- it: should create s3proxy secret when provider is gcp
+  set:
+    config.storageBuckets.provider: gcp
+    config.storageBuckets.s3proxy.enabled: true
+    config.storageBuckets.s3proxy.config:
+      JCLOUDS_PROVIDER: google-cloud-storage
+      JCLOUDS_IDENTITY: test-identity
+      JCLOUDS_CREDENTIAL: test-credential
+  template: ../templates/llamacloud/secrets/s3proxy.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: s3proxy-secret
+
+- it: should create s3proxy secret when provider is azure
+  set:
+    config.storageBuckets.provider: azure
+    config.storageBuckets.s3proxy.enabled: true
+    config.storageBuckets.s3proxy.config:
+      JCLOUDS_PROVIDER: azureblob
+      JCLOUDS_IDENTITY: test-identity
+      JCLOUDS_CREDENTIAL: test-credential
+  template: ../templates/llamacloud/secrets/s3proxy.yaml
+  asserts:
+    - isKind:
+        of: Secret
+    - equal:
+        path: .metadata.name
+        value: s3proxy-secret
+
+- it: should not create s3proxy secret when s3proxy is disabled
+  set:
+    config.storageBuckets.provider: aws
+    config.storageBuckets.s3proxy.enabled: false
+  template: ../templates/llamacloud/secrets/s3proxy.yaml
+  asserts:
+    - hasDocuments:
+        count: 0
+
+# Sidecar Injection Tests - Backend Component
+- it: should inject s3proxy sidecar into backend when provider is gcp
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud
+    - equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+    - equal:
+        path: .spec.template.spec.containers[1].image
+        value: docker.io/andrewgaul/s3proxy:sha-82e50ee
+    - equal:
+        path: .spec.template.spec.containers[1].ports[0].containerPort
+        value: 8080
+    - contains:
+        path: .spec.template.spec.containers[1].envFrom
+        content:
+          configMapRef:
+            name: s3proxy-config
+    - contains:
+        path: .spec.template.spec.containers[1].envFrom
+        content:
+          secretRef:
+            name: s3proxy-secret
+    - equal:
+        path: .spec.template.spec.containers[1].volumeMounts[0].name
+        value: s3proxy-tmp
+    - equal:
+        path: .spec.template.spec.containers[1].volumeMounts[0].mountPath
+        value: /tmp
+    - equal:
+        path: .spec.template.spec.containers[1].volumeMounts[0].subPath
+        value: tmp-dir
+
+- it: should inject s3proxy sidecar into backend when provider is azure
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: azure
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud
+    - equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+
+- it: should not inject s3proxy sidecar into backend when s3proxy is disabled
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: aws
+        s3proxy:
+          enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud
+    # Should only have 1 container (the main backend container)
+    - lengthEqual:
+        path: .spec.template.spec.containers
+        count: 1
+    - equal:
+        path: .spec.template.spec.containers[0].name
+        value: llamacloud
+
+- it: should create s3proxy-tmp volume when provider is gcp
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.volumes
+        content:
+          name: s3proxy-tmp
+          emptyDir: {}
+
+- it: should not create s3proxy-tmp volume when s3proxy is disabled
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: aws
+        s3proxy:
+          enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - notContains:
+        path: .spec.template.spec.volumes
+        content:
+          name: s3proxy-tmp
+          emptyDir: {}
+
+# Sidecar Injection Tests - Jobs Worker Component
+- it: should inject s3proxy sidecar into jobs-worker when provider is gcp
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 2
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud-worker
+    - equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+    - equal:
+        path: .spec.template.spec.containers[1].image
+        value: docker.io/andrewgaul/s3proxy:sha-82e50ee
+
+- it: should not inject s3proxy sidecar into jobs-worker when s3proxy is disabled
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: aws
+        s3proxy:
+          enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 2
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud-worker
+    # Should only have 1 container (the main jobs-worker container)
+    - lengthEqual:
+        path: .spec.template.spec.containers
+        count: 1
+    - equal:
+        path: .spec.template.spec.containers[0].name
+        value: llamacloud-worker
+
+# Sidecar Injection Tests - LlamaParse Component
+- it: should inject s3proxy sidecar into llamaparse when provider is gcp
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 3
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud-parse
+    - equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+
+- it: should not inject s3proxy sidecar into llamaparse when s3proxy is disabled
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: aws
+        s3proxy:
+          enabled: false
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 3
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - isKind:
+        of: Deployment
+    - equal:
+        path: .metadata.name
+        value: llamacloud-parse
+    # Should only have 1 container (the main llamaparse container)
+    - lengthEqual:
+        path: .spec.template.spec.containers
+        count: 1
+
+# Sidecar Resource Configuration Tests
+- it: should use custom s3proxy image when specified
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+          image: custom-registry/s3proxy:custom-tag
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[1].image
+        value: custom-registry/s3proxy:custom-tag
+
+- it: should use custom s3proxy resources when specified
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "2"
+              memory: 2Gi
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[1].resources.requests.cpu
+        value: 250m
+    - equal:
+        path: .spec.template.spec.containers[1].resources.requests.memory
+        value: 256Mi
+    - equal:
+        path: .spec.template.spec.containers[1].resources.limits.cpu
+        value: 2
+    - equal:
+        path: .spec.template.spec.containers[1].resources.limits.memory
+        value: 2Gi
+
+- it: should use default s3proxy resources when not specified
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - equal:
+        path: .spec.template.spec.containers[1].resources.requests.cpu
+        value: 500m
+    - equal:
+        path: .spec.template.spec.containers[1].resources.requests.memory
+        value: 512Mi
+    - equal:
+        path: .spec.template.spec.containers[1].resources.limits.cpu
+        value: 1
+    - equal:
+        path: .spec.template.spec.containers[1].resources.limits.memory
+        value: 1Gi
+
+# S3 Endpoint URL Configuration Test
+- it: should set S3_ENDPOINT_URL in urls-config configmap when s3proxy is enabled
+  set:
+    config.storageBuckets.provider: gcp
+    config.storageBuckets.s3proxy.enabled: true
+  template: ../templates/llamacloud/configmaps/urls.yaml
+  asserts:
+    - isKind:
+        of: ConfigMap
+    - equal:
+        path: .data.S3_ENDPOINT_URL
+        value: "http://localhost:8080"
+
+# Multiple Components Test
+- it: should inject s3proxy sidecar into all components that use S3 when s3proxy is enabled
+  set:
+    config:
+      frontend:
+        enabled: false
+      parseOcr:
+        enabled: false
+      parseLayoutDetection:
+        enabled: false
+      storageBuckets:
+        provider: gcp
+        s3proxy:
+          enabled: true
+    redis:
+      host: test-redis
+      port: "6379"
+      password: test-pass
+    postgresql:
+      host: test-pg
+      port: "5432"
+      username: test-user
+      password: test-pass
+      database: test-db
+    mongodb:
+      host: mongodb
+      username: test-mongo-user
+      password: test-mongo-pass
+    rabbitmq:
+      host: test-rabbit
+      username: test-user
+      password: test-pass
+  templates:
+    - ../templates/llamacloud/deployment.yaml
+  asserts:
+    # Backend (index 0)
+    - template: ../templates/llamacloud/deployment.yaml
+      documentIndex: 0
+      equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+    # Jobs Service (index 1)
+    - template: ../templates/llamacloud/deployment.yaml
+      documentIndex: 1
+      equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+    # Jobs Worker (index 2)
+    - template: ../templates/llamacloud/deployment.yaml
+      documentIndex: 2
+      equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy
+    # LlamaParse (index 3)
+    - template: ../templates/llamacloud/deployment.yaml
+      documentIndex: 3
+      equal:
+        path: .spec.template.spec.containers[1].name
+        value: s3proxy

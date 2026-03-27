@@ -1,0 +1,128 @@
+suite: redis-config-tests
+
+templates:
+- ../templates/llamacloud/deployment.yaml
+
+release:
+  name: test-release
+  namespace: test-namespace
+
+capabilities:
+  majorVersion: 1
+  minorVersion: 31
+  apiVersions:
+    - apps/v1
+
+chart:
+  appVersion: 0.0.0
+
+tests:
+- it: should reference redis-secret in envFrom for backend
+  set:
+    redis.host: test-redis-host
+    redis.port: "6379"
+    redis.scheme: rediss
+    redis.db: 0
+    redis.password: test-password
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: redis-secret
+
+- it: should reference redis-secret in envFrom when Redis credentials are provided
+  set:
+    redis.host: test-redis-host
+    redis.port: "6379"
+    redis.scheme: redis
+    redis.username: test-redis-user
+    redis.password: test-redis-password
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: redis-secret
+
+- it: should use custom redis secret name when provided
+  set:
+    redis.secret: custom-redis-secret
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 0
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: custom-redis-secret
+
+- it: should reference redis-secret in jobs-service deployment
+  set:
+    redis.host: test-redis-host
+    redis.port: "6380"
+    redis.scheme: rediss
+    redis.username: jobs-redis-user
+    redis.password: jobs-redis-password
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 1
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: redis-secret
+
+- it: should reference redis-secret in jobs-worker deployment
+  set:
+    redis.host: worker-redis-host
+    redis.port: "6379"
+    redis.scheme: redis
+    redis.username: worker-redis-user
+    redis.password: worker-redis-password
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 2
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: redis-secret
+
+- it: should reference redis-secret in usage deployment
+  set:
+    redis.host: usage-redis-host
+    redis.port: "6380"
+    redis.scheme: rediss
+    redis.username: usage-redis-user
+    redis.password: usage-redis-password
+    config.frontend.enabled: false
+    config.parseOcr.enabled: false
+    config.parseLayoutDetection.enabled: false
+  documentIndex: 4
+  template: ../templates/llamacloud/deployment.yaml
+  asserts:
+    - contains:
+        path: .spec.template.spec.containers[0].envFrom
+        content:
+          secretRef:
+            name: redis-secret

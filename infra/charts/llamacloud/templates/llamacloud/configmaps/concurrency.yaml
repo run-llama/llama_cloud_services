@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: concurrency-config
+  namespace: {{ $.Release.Namespace | quote }}
+  labels: {{ include "llamacloud.labels" (dict "root" $) | indent 4 }}
+  annotations: {{ include "llamacloud.annotations" (dict "root" $) | indent 4 }}
+data:
+  {{- if ((($.Values.config).parse).concurrency).accurateModeLLMConcurrency }}
+  ACCURATE_MODE_LLM_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).accurateModeLLMConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).multimodalModelConcurrency }}
+  MULTIMODAL_MODEL_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).multimodalModelConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).premiumModeModelConcurrency }}
+  PREMIUM_MODE_MODEL_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).premiumModeModelConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).ocrConcurrency }}
+  OCR_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).ocrConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).layoutExtractionConcurrency }}
+  LAYOUT_EXTRACTION_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).layoutExtractionConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).layoutExtractionV2Concurrency }}
+  LAYOUT_EXTRACTION_V2_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).layoutExtractionV2Concurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).layoutModeBlockParseConcurrency }}
+  LAYOUT_MODE_BLOCK_PARSE_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).layoutModeBlockParseConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).layoutModePageConcurrency }}
+  LAYOUT_MODE_PAGE_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).layoutModePageConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).layoutModeReadingOrderDetectionConcurrency }}
+  LAYOUT_MODE_READING_ORDER_DETECTION_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).layoutModeReadingOrderDetectionConcurrency | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini25Flash }}
+  GEMINI_2_5_FLASH_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini25Flash | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini25Pro }}
+  GEMINI_2_5_PRO_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini25Pro | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini20Flash }}
+  GEMINI_2_0_FLASH_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini20Flash | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini20FlashLite }}
+  GEMINI_2_0_FLASH_LITE_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini20FlashLite | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini15Flash }}
+  GEMINI_1_5_FLASH_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini15Flash | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).gemini15Pro }}
+  GEMINI_1_5_PRO_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).gemini15Pro | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt4oMini }}
+  OPENAI_GPT_4O_MINI_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt4oMini | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt4o }}
+  OPENAI_GPT_4O_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt4o | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt41 }}
+  OPENAI_GPT_4_1_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt41 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt41Mini }}
+  OPENAI_GPT_4_1_MINI_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt41Mini | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt41Nano }}
+  OPENAI_GPT_4_1_NANO_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt41Nano | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt5 }}
+  OPENAI_GPT_5_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt5 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt5Mini }}
+  OPENAI_GPT_5_MINI_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt5Mini | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiGpt5Nano }}
+  OPENAI_GPT_5_NANO_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiGpt5Nano | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).openaiWhisper1 }}
+  OPENAI_WHISPER_1_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).openaiWhisper1 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicSonnet37 }}
+  ANTHROPIC_SONNET_3_7_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicSonnet37 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicSonnet35 }}
+  ANTHROPIC_SONNET_3_5_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicSonnet35 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicSonnet40 }}
+  ANTHROPIC_SONNET_4_0_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicSonnet40 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicSonnet45 }}
+  ANTHROPIC_SONNET_4_5_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicSonnet45 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicHaiku35 }}
+  ANTHROPIC_HAIKU_3_5_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicHaiku35 | quote }}
+  {{- end }}
+  {{- if ((($.Values.config).parse).concurrency).anthropicHaiku45 }}
+  ANTHROPIC_HAIKU_4_5_CONCURRENCY: {{ ((($.Values.config).parse).concurrency).anthropicHaiku45 | quote }}
+  {{- end }}
