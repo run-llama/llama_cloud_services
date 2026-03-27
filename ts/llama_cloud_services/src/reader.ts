@@ -602,6 +602,17 @@ export class LlamaParseReader extends FileReader {
     }
   }
 
+  /**
+   * Loads data from a file and returns an array of Document objects.
+   *
+   * Note: This method returns only text/markdown documents. For documents
+   * containing images (e.g., PDF manuals, presentations), use
+   * `loadDataWithImages` to get both text and image data, or use
+   * `parse` + `getImages` for full control over image extraction.
+   *
+   * @param filePath - Optional file path (or URL / S3 path).
+   * @returns A Promise resolving to an array of Document objects.
+   */
   override async loadData(filePath?: string): Promise<Document[]> {
     if (!filePath) {
       if (this.input_url) {
@@ -620,6 +631,60 @@ export class LlamaParseReader extends FileReader {
           : await fs.readFile(filePath);
       return this.loadDataAsContent(data, filePath);
     }
+  }
+
+  /**
+   * Loads data from a file including extracted images.
+   *
+   * Returns both text/markdown Document objects and image metadata.
+   * This is useful for documents that contain embedded images, diagrams,
+   * or charts (e.g., product manuals, presentations, technical documents).
+   *
+   * For Chinese or non-English documents with images, ensure the
+   * `language` parameter is set appropriately (e.g., `["ch_sim"]` for
+   * Simplified Chinese).
+   *
+   * @param filePath - The file path (or URL / S3 path).
+   * @param downloadPath - The directory to save extracted images.
+   * @returns An object containing `documents` (text Document[]) and
+   *          `images` (image metadata with saved file paths).
+   */
+  async loadDataWithImages(
+    filePath: string,
+    downloadPath: string,
+  ): Promise<{
+    documents: Document[];
+    images: Record<string, any>[];
+  }> {
+    const jsonResults = await this.loadJson(filePath);
+    const documents: Document[] = [];
+    const separator = this.pageSeparator ?? "\n---\n";
+
+    for (const result of jsonResults) {
+      for (const page of result.pages) {
+        const text =
+          this.resultType === "markdown"
+            ? page.md ?? ""
+            : page.text ?? "";
+        if (this.splitByPage) {
+          documents.push(new Document({ text }));
+        } else {
+          // Accumulate – will be joined below
+          documents.push(new Document({ text }));
+        }
+      }
+    }
+
+    // If not splitting by page, join all pages into one Document
+    if (!this.splitByPage && documents.length > 0) {
+      const joined = documents.map((d) => d.text).join(separator);
+      documents.length = 0;
+      documents.push(new Document({ text: joined }));
+    }
+
+    const images = await this.getImages(jsonResults, downloadPath);
+
+    return { documents, images };
   }
 
   /**

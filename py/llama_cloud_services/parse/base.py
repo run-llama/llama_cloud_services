@@ -282,7 +282,7 @@ class LlamaParse(BasePydanticReader):
     )
     fast_mode: Optional[bool] = Field(
         default=False,
-        description="Note: Non compatible with gpt-4o. If set to true, the parser will use a faster mode to extract text from documents. This mode will skip OCR of images, and table/heading reconstruction.",
+        description="Note: Non compatible with gpt-4o. If set to true, the parser will use a faster mode to extract text from documents. This mode will skip OCR of images, and table/heading reconstruction. WARNING: Fast mode will NOT extract images from the document.",
     )
 
     guess_xlsx_sheet_name: Optional[bool] = Field(
@@ -1422,6 +1422,92 @@ class LlamaParse(BasePydanticReader):
             else:
                 raise e
 
+    async def _aload_data_with_images(
+        self,
+        file_path: FileInput,
+        extra_info: Optional[dict] = None,
+        fs: Optional[AbstractFileSystem] = None,
+        verbose: bool = False,
+        num_workers: Optional[int] = None,
+        image_download_dir: Optional[str] = None,
+    ) -> List[Document]:
+        """Load data with images from the input path.
+
+        Parses the file and returns both text/markdown documents and image
+        documents. Images are extracted from the parsed result and returned
+        as ImageDocument objects alongside the text content.
+
+        Args:
+            file_path: Path to the file or bytes/buffer.
+            extra_info: Additional metadata.
+            fs: Optional filesystem.
+            verbose: Print progress.
+            num_workers: Number of workers for partitioned parsing.
+            image_download_dir: Directory to save images. If None, images
+                are loaded into memory as bytes.
+        """
+        try:
+            if isinstance(file_path, (bytes, BufferedIOBase)):
+                if not extra_info or "file_name" not in extra_info:
+                    raise ValueError(
+                        "file_name must be provided in extra_info when passing bytes"
+                    )
+                file_name = extra_info["file_name"]
+            else:
+                file_name = str(file_path)
+
+            job_results = await self._parse_one(
+                file_path,
+                extra_info,
+                fs=fs,
+                result_type=ResultType.JSON.value,
+                num_workers=num_workers,
+            )
+
+            all_docs: List[Document] = []
+            separator = self.page_separator or _DEFAULT_SEPARATOR
+
+            for job_id, job_result in job_results:
+                # Create a JobResult to access image methods
+                jr = JobResult(
+                    job_id=job_id,
+                    file_name=file_name,
+                    job_result=job_result,
+                    api_key=self.api_key,
+                    base_url=self.base_url,
+                    client=self.aclient,
+                    page_separator=separator,
+                )
+
+                # Get text/markdown documents
+                if self.result_type == ResultType.MD:
+                    text_docs = jr.get_markdown_documents(
+                        split_by_page=self.split_by_page
+                    )
+                else:
+                    text_docs = jr.get_text_documents(
+                        split_by_page=self.split_by_page
+                    )
+                all_docs.extend(text_docs)
+
+                # Get image documents
+                image_docs = await jr.aget_image_documents(
+                    include_screenshot_images=True,
+                    include_object_images=True,
+                    image_download_dir=image_download_dir,
+                )
+                all_docs.extend(image_docs)
+
+            return all_docs
+
+        except Exception as e:
+            file_repr = file_path if isinstance(file_path, str) else "<bytes/buffer>"
+            print(f"Error while parsing the file '{file_repr}':", e)
+            if self.ignore_errors:
+                return []
+            else:
+                raise e
+
     async def aload_data(
         self,
         file_path: Union[List[FileInput], FileInput],
@@ -1432,6 +1518,12 @@ class LlamaParse(BasePydanticReader):
 
         File(s) which were partitioned before parsing will be loaded as a single
         re-assembled Document.
+
+        Note:
+            This method returns only text/markdown documents. For documents
+            containing images (e.g., PDF manuals, presentations), use
+            ``aload_data_with_images`` to get both text and image documents,
+            or use ``aparse`` for full control over image extraction.
         """
         if isinstance(file_path, (str, PurePosixPath, Path, bytes, BufferedIOBase)):
             return await self._aload_data(
@@ -1474,9 +1566,116 @@ class LlamaParse(BasePydanticReader):
         extra_info: Optional[dict] = None,
         fs: Optional[AbstractFileSystem] = None,
     ) -> List[Document]:
-        """Load data from the input path."""
+        """Load data from the input path.
+
+        Note:
+            This method returns only text/markdown documents. For documents
+            containing images (e.g., PDF manuals, presentations), use
+            ``load_data_with_images`` to get both text and image documents,
+            or use ``parse`` for full control over image extraction.
+        """
         try:
             return asyncio_run(self.aload_data(file_path, extra_info, fs=fs))
+        except RuntimeError as e:
+            if nest_asyncio_err in str(e):
+                raise RuntimeError(nest_asyncio_msg)
+            else:
+                raise e
+
+    async def aload_data_with_images(
+        self,
+        file_path: Union[List[FileInput], FileInput],
+        extra_info: Optional[dict] = None,
+        fs: Optional[AbstractFileSystem] = None,
+        image_download_dir: Optional[str] = None,
+    ) -> List[Document]:
+        """Load data from the input path, including extracted images.
+
+        Returns both text/markdown documents and ImageDocument objects for
+        any images found in the parsed file(s). This is useful for documents
+        that contain embedded images, diagrams, or charts (e.g., product
+        manuals, presentations, technical documents).
+
+        For Chinese or non-English documents with images, ensure the
+        ``language`` parameter is set appropriately (e.g., ``language='ch_sim'``
+        for Simplified Chinese).
+
+        Args:
+            file_path: Path to the file to parse. Can be a string, path, bytes,
+                file-like object, or a list of these.
+            extra_info: Additional metadata to include in the result.
+            fs: Optional filesystem to use for reading files.
+            image_download_dir: Optional directory to save extracted images.
+                If None, images are loaded into memory as bytes.
+
+        Returns:
+            A list of Document and ImageDocument objects.
+        """
+        if isinstance(file_path, (str, PurePosixPath, Path, bytes, BufferedIOBase)):
+            return await self._aload_data_with_images(
+                file_path,
+                extra_info=extra_info,
+                fs=fs,
+                verbose=self.verbose,
+                image_download_dir=image_download_dir,
+            )
+        elif isinstance(file_path, list):
+            jobs = [
+                self._aload_data_with_images(
+                    f,
+                    extra_info=extra_info,
+                    fs=fs,
+                    verbose=self.verbose and not self.show_progress,
+                    num_workers=1,
+                    image_download_dir=image_download_dir,
+                )
+                for f in file_path
+            ]
+            try:
+                results = await run_jobs(
+                    jobs,
+                    workers=self.num_workers,
+                    desc="Parsing files",
+                    show_progress=self.show_progress,
+                )
+                return [item for sublist in results for item in sublist]
+            except RuntimeError as e:
+                if nest_asyncio_err in str(e):
+                    raise RuntimeError(nest_asyncio_msg)
+                else:
+                    raise e
+        else:
+            raise ValueError(
+                "The input file_path must be a string or a list of strings."
+            )
+
+    def load_data_with_images(
+        self,
+        file_path: Union[List[FileInput], FileInput],
+        extra_info: Optional[dict] = None,
+        fs: Optional[AbstractFileSystem] = None,
+        image_download_dir: Optional[str] = None,
+    ) -> List[Document]:
+        """Load data from the input path, including extracted images.
+
+        Synchronous version of ``aload_data_with_images``.
+        Returns both text/markdown documents and ImageDocument objects.
+
+        Args:
+            file_path: Path to the file to parse.
+            extra_info: Additional metadata.
+            fs: Optional filesystem.
+            image_download_dir: Optional directory to save extracted images.
+
+        Returns:
+            A list of Document and ImageDocument objects.
+        """
+        try:
+            return asyncio_run(
+                self.aload_data_with_images(
+                    file_path, extra_info, fs=fs, image_download_dir=image_download_dir
+                )
+            )
         except RuntimeError as e:
             if nest_asyncio_err in str(e):
                 raise RuntimeError(nest_asyncio_msg)
@@ -1498,7 +1697,7 @@ class LlamaParse(BasePydanticReader):
             result_type=ResultType.JSON.value,
             num_workers=num_workers,
         )
-        return [
+        results = [
             JobResult(
                 job_id=job_id,
                 file_name=file_name,
@@ -1510,6 +1709,22 @@ class LlamaParse(BasePydanticReader):
             )
             for job_id, job_result in job_results
         ]
+
+        # Warn when no images are found and image extraction is expected
+        if self.verbose and not self.fast_mode and not self.disable_image_extraction:
+            for result in results:
+                if not result.has_images():
+                    print(
+                        f"\nWarning: No images extracted from '{file_name}'. "
+                        "If this document contains images, consider:\n"
+                        "  - Setting language appropriately (e.g., language='ch_sim' for Chinese)\n"
+                        "  - Using premium_mode=True or parse_mode='parse_page_with_agent'\n"
+                        "  - Using take_screenshot=True for page screenshots\n"
+                        "  - Using specialized_image_parsing=True for embedded diagrams\n"
+                        "Call result.print_image_extraction_report() for details."
+                    )
+
+        return results
 
     async def aparse(
         self,
