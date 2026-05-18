@@ -485,20 +485,25 @@ class ExtractionAgent:
         self._run_in_thread(_delete())
 
     def list_extraction_runs(
-        self, page: int = 0, limit: int = 100
+        self, page: int = 0, page_size: int = 1000
     ) -> PaginatedExtractRunsResponse:
         """List extraction runs for the extraction agent.
+
+        Args:
+            page: The page number (0-indexed)
+            page_size: Number of results per page (default 1000, max 1000)
 
         Returns:
             PaginatedExtractRunsResponse: Paginated list of extraction runs
         """
+        page_size = min(page_size, 1000)
 
         @_async_retry()
         async def _list() -> PaginatedExtractRunsResponse:
             return await self._client.llama_extract.list_extract_runs(
                 extraction_agent_id=self.id,
-                skip=page * limit,
-                limit=limit,
+                skip=page * page_size,
+                limit=page_size,
             )
 
         return self._run_in_thread(_list())

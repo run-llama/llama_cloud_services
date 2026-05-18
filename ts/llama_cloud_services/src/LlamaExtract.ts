@@ -1,7 +1,7 @@
 import { createClient, createConfig, type Client } from "@hey-api/client-fetch";
 import { File } from "buffer";
 import * as extract from "./extract";
-import type { ExtractAgent, ExtractConfig } from "./extract";
+import type { ExtractAgent, ExtractConfig, PaginatedExtractRunsResponse } from "./extract";
 import { getEnv } from "@llamaindex/env";
 import type { ExtractResult } from "./type";
 import { getUrl } from "./utils";
@@ -59,6 +59,22 @@ export class LlamaExtractAgent {
       fromUi,
       pollingInterval,
       maxPollingIterations,
+      maxRetriesOnError,
+      retryInterval,
+    );
+  }
+
+  async listExtractionRuns(
+    page: number = 0,
+    pageSize: number = 1000,
+    maxRetriesOnError: number = 10,
+    retryInterval: number = 0.5,
+  ): Promise<PaginatedExtractRunsResponse | undefined> {
+    return await extract.listExtractionRuns(
+      this.agent.id,
+      page,
+      pageSize,
+      this.client,
       maxRetriesOnError,
       retryInterval,
     );

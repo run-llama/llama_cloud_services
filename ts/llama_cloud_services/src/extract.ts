@@ -8,12 +8,14 @@ import {
   type ExtractJobCreate,
   type ExtractAgent,
   type ExtractJob,
+  type PaginatedExtractRunsResponse,
   type CreateExtractionAgentApiV1ExtractionExtractionAgentsPostData,
   type GetExtractionAgentByNameApiV1ExtractionExtractionAgentsByNameNameGetData,
   type GetExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdGetData,
   type RunJobApiV1ExtractionJobsPostData,
   type GetJobApiV1ExtractionJobsJobIdGetData,
   type GetJobResultApiV1ExtractionJobsJobIdResultGetData,
+  type ListExtractRunsApiV1ExtractionRunsGetData,
   StatusEnum,
   type StatelessExtractionRequest,
   type ExtractStatelessApiV1ExtractionRunPostData,
@@ -26,6 +28,7 @@ import {
   getJobResultApiV1ExtractionJobsJobIdResultGet,
   extractStatelessApiV1ExtractionRunPost,
   deleteExtractionAgentApiV1ExtractionExtractionAgentsExtractionAgentIdDelete,
+  listExtractRunsApiV1ExtractionRunsGet,
 } from "./api";
 import type { Client } from "@hey-api/client-fetch";
 import { sleep } from "./utils";
@@ -545,4 +548,51 @@ export async function deleteAgent(
   }
 }
 
-export { type ExtractAgent, type ExtractConfig };
+const MAX_PAGE_SIZE = 1000;
+const DEFAULT_PAGE_SIZE = 1000;
+
+export async function listExtractionRuns(
+  extractionAgentId: string,
+  page: number = 0,
+  pageSize: number = DEFAULT_PAGE_SIZE,
+  client: Client | undefined = undefined,
+  maxRetriesOnError: number = 10,
+  retryInterval: number = 0.5,
+): Promise<PaginatedExtractRunsResponse | undefined> {
+  const effectivePageSize = Math.min(pageSize, MAX_PAGE_SIZE);
+  const data = {
+    query: {
+      extraction_agent_id: extractionAgentId,
+      skip: page * effectivePageSize,
+      limit: effectivePageSize,
+    },
+  } as ListExtractRunsApiV1ExtractionRunsGetData;
+  const options = data as Options<ListExtractRunsApiV1ExtractionRunsGetData>;
+  if (typeof client != "undefined") {
+    options.client = client;
+  }
+  let retries: number = 0;
+  while (true) {
+    if (retries > maxRetriesOnError) {
+      throw new Error(
+        "Error while listing extraction runs: Exceeded maximum number of retries, the API keeps returning errors.",
+      );
+    }
+    const response = await listExtractRunsApiV1ExtractionRunsGet(options);
+    if (!response.response.ok) {
+      if ("error" in response) {
+        console.log(
+          `An error occurred while listing extraction runs.\nDetails:\n\n${JSON.stringify(
+            response.error,
+          )}\n\nRetrying...`,
+        );
+      }
+      retries++;
+      await sleep(retryInterval * 1000);
+    } else {
+      return response.data as PaginatedExtractRunsResponse;
+    }
+  }
+}
+
+export { type ExtractAgent, type ExtractConfig, type PaginatedExtractRunsResponse };

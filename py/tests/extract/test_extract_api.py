@@ -239,6 +239,14 @@ class TestExtractionAgent:
         runs = test_agent.list_extraction_runs()
         assert runs.total > 0
 
+    def test_list_extraction_runs_with_page_size(
+        self, test_agent: ExtractionAgent, unique_test_pdf
+    ):
+        test_agent.extract(unique_test_pdf)
+        runs = test_agent.list_extraction_runs(page=0, page_size=500)
+        assert runs.total > 0
+        assert runs.limit <= 500
+
     def test_delete_extraction_run(self, test_agent: ExtractionAgent, unique_test_pdf):
         assert test_agent.list_extraction_runs().total == 0
         run: ExtractRun = test_agent.extract(unique_test_pdf)
