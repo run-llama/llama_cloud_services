@@ -27,3 +27,6 @@ include = ["llama_parse"]
 
 [tool.hatch.build.targets.wheel]
 include = ["llama_parse"]
+
+[tool.uv]
+exclude-newer = "3 days"
