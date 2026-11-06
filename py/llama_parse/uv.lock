@@ -11,6 +11,9 @@ resolution-markers = [
 exclude-newer = "0001-01-01T00:00:00Z" # This has no effect and is included for backwards compatibility when using relative exclude-newer values.
 exclude-newer-span = "P3D"
 
+[manifest]
+constraints = [{ name = "banks", marker = "python_full_version < '3.10'", specifier = "<2.4.4" }]
+
 [[package]]
 name = "aiohappyeyeballs"
 version = "2.6.1"
@@ -439,11 +442,35 @@ wheels = [
 
 [[package]]
 name = "banks"
-version = "2.5.1"
+version = "2.4.3"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
 dependencies = [
     { name = "deprecated" },
-    { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
+    { name = "eval-type-backport" },
+    { name = "filetype" },
+    { name = "griffe" },
+    { name = "jinja2" },
+    { name = "platformdirs" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/04/3a/99a41a17cd3bfafa4cf1e479e678e4a7f4357546b7e2f0ec10be591ce07a/banks-2.4.3.tar.gz", hash = "sha256:07ae40dd08577857830428ba77ead477fe62fbb13e26d567635b880c88f50e81", size = 189081, upload-time = "2026-06-18T14:41:36.416Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3e/21/01c8b9f30a4502a19b39395668f857f9cda694fdc3b18e8dde41a10a72eb/banks-2.4.3-py3-none-any.whl", hash = "sha256:b79830628db08550d8b9c2d9ad0ffd9437cee1105040dcb8fe0241cc50ac55f4", size = 35283, upload-time = "2026-06-18T14:41:34.999Z" },
+]
+
+[[package]]
+name = "banks"
+version = "2.5.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.11'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "deprecated" },
     { name = "filetype" },
     { name = "griffe" },
     { name = "jinja2" },
@@ -1260,7 +1287,7 @@ resolution-markers = [
 dependencies = [
     { name = "aiohttp", version = "3.13.5", source = { registry = "https://pypi.org/simple" } },
     { name = "aiosqlite" },
-    { name = "banks" },
+    { name = "banks", version = "2.4.3", source = { registry = "https://pypi.org/simple" } },
     { name = "dataclasses-json" },
     { name = "deprecated" },
     { name = "dirtyjson" },
@@ -1304,7 +1331,7 @@ resolution-markers = [
 dependencies = [
     { name = "aiohttp", version = "3.14.5", source = { registry = "https://pypi.org/simple" } },
     { name = "aiosqlite" },
-    { name = "banks" },
+    { name = "banks", version = "2.5.1", source = { registry = "https://pypi.org/simple" } },
     { name = "dataclasses-json" },
     { name = "deprecated" },
     { name = "dirtyjson" },

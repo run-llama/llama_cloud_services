@@ -11,7 +11,7 @@ on:
       - "py/**"
 
 env:
-  UV_VERSION: "0.7.20"
+  UV_VERSION: "0.12.24"
 
 jobs:
   test:

@@ -6,7 +6,7 @@ on:
       - "py/**"
 
 env:
-  UV_VERSION: "0.7.20"
+  UV_VERSION: "0.12.24"
   LLAMA_CLOUD_API_KEY: ${{ secrets.LLAMA_CLOUD_API_KEY }}
 
 jobs:

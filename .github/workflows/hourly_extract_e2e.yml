@@ -22,7 +22,7 @@ on:
   workflow_call:
 
 env:
-  UV_VERSION: "0.7.20"
+  UV_VERSION: "0.12.24"
   PYTHON_VERSION: "3.12"
   SLACK_CHANNEL_ID: C078PHNTF44 # Extract channel ID
   API_E2E_LOG_PATH: ${{ github.workspace }}/extract-e2e.log
