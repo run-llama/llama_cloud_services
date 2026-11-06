@@ -14,7 +14,7 @@ name = "llama-parse"
 version = "0.6.94"
 description = "Parse files into RAG-Optimized formats."
 authors = [{name = "Logan Markewich", email = "logan@llamaindex.ai"}]
-requires-python = ">=3.9,<4.0"
+requires-python = ">=3.11,<4.0"
 readme = "README.md"
 license = "MIT"
 dependencies = ["llama-cloud-services>=0.6.94"]
@@ -29,6 +29,4 @@ include = ["llama_parse"]
 include = ["llama_parse"]
 
 [tool.uv]
-# banks >=2.4.4 uses PEP 604 `X | None` at class level and fails to import on 3.9.
-constraint-dependencies = ["banks<2.4.4 ; python_full_version < '3.10'"]
 exclude-newer = "3 days"
