@@ -30,6 +30,5 @@
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4"
-  },
-  "overrides": {}
+  }
 }
