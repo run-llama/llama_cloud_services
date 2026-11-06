@@ -16,7 +16,7 @@ jobs:
       # You can use PyPy versions in python-version.
       # For example, pypy-2.7 and pypy-3.8
       matrix:
-        python-version: ["3.9"]
+        python-version: ["3.11"]
     steps:
       - uses: actions/checkout@v5
         with:
@@ -27,7 +27,7 @@ jobs:
           version: ${{ env.UV_VERSION }}
 
       - name: Set up Python
-        run: uv python install ${{ matrix.python-version }}
+        run: uv python install ${{ matrix.python-version }} && uv python pin ${{ matrix.python-version }}
 
       - uses: pnpm/action-setup@v4
       - name: Setup Node.js
