@@ -44,5 +44,23 @@
     "figlet": "^1.8.2",
     "llama-cloud-services": "link:../../ts/llama_cloud_services",
     "picocolors": "^1.1.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "ai@<5.0.52": "^5.0.52",
+      "@ai-sdk/provider-utils@<3.0.28": "^3.0.28",
+      "@humanfs/node@<0.16.8": "^0.16.8",
+      "ajv@<6.14.0": "^6.14.0",
+      "brace-expansion@<1.1.21": "^1.1.21",
+      "brace-expansion@>=2.0.0 <2.1.4": "^2.1.4",
+      "flatted@<3.4.2": "^3.4.2",
+      "js-yaml@>=4.0.0 <4.3.2": "^4.3.2",
+      "jsondiffpatch@<0.7.6": "^0.7.6",
+      "minimatch@<3.1.4": "^3.1.4",
+      "minimatch@>=9.0.0 <9.0.7": "^9.0.7",
+      "nanoid@<3.3.18": "^3.3.18",
+      "picomatch@<2.3.2": "^2.3.2",
+      "zod@<4.6.6": "^4.6.6"
+    }
   }
 }

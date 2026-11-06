@@ -16,7 +16,7 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^2.6.0",
-    "zod": "^3.24.2"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.15",
@@ -30,5 +30,6 @@
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vite-tsconfig-paths": "^5.1.4"
-  }
+  },
+  "overrides": {}
 }
