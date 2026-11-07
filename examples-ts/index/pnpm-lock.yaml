@@ -4,22 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  ai@<5.0.52: ^5.0.52
-  '@ai-sdk/provider-utils@<3.0.28': ^3.0.28
-  '@humanfs/node@<0.16.8': ^0.16.8
-  ajv@<6.14.0: ^6.14.0
-  brace-expansion@<1.1.21: ^1.1.21
-  brace-expansion@>=2.0.0 <2.1.4: ^2.1.4
-  flatted@<3.4.2: ^3.4.2
-  js-yaml@>=4.0.0 <4.3.2: ^4.3.2
-  jsondiffpatch@<0.7.6: ^0.7.6
-  minimatch@<3.1.4: ^3.1.4
-  minimatch@>=9.0.0 <9.0.7: ^9.0.7
-  nanoid@<3.3.18: ^3.3.18
-  picomatch@<2.3.2: ^2.3.2
-  zod@<4.6.6: ^4.6.6
-
 importers:
 
   .:
@@ -89,19 +73,19 @@ packages:
     resolution: {integrity: sha512-e2qfIXpz3THdSpBXSKz+IVVap9mNFPWYkCUQR54UIo9SyVcVZAgMdDQ79rTu8DndzJ/0TtoWSRirPQQU/+n94g==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.6.6
+      zod: ^3.25.76 || ^4.1.8
 
   '@ai-sdk/openai@2.0.140':
     resolution: {integrity: sha512-eh2yIvyk/a7Au9VVlFavy9xMPaeU6mQhO8f073D9lsQSzj1xDapKekp6hfVhNhLosoCFEtSlA+/zPd9UC4w00w==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.6.6
+      zod: ^3.25.76 || ^4.1.8
 
   '@ai-sdk/provider-utils@3.0.44':
     resolution: {integrity: sha512-RmZLXkcoUgSyjp7gBF1Dvg+fYrnLjmIVPU2LXHEsU34RBf0ZA2GyBiUynFsqFXMJoUxhLAVTCVkNfDoT9db5fA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.6.6
+      zod: ^3.25.76 || ^4.1.8
 
   '@ai-sdk/provider@2.0.5':
     resolution: {integrity: sha512-cmG40u10QFEUrYXWYom6Lo6DLR+pND3wWABTTT9Nf7zg9F7BD46KNj+STekndp9Kg5ZAIPA0WxmTI0IwRvKvvQ==}
@@ -275,7 +259,7 @@ packages:
     resolution: {integrity: sha512-EIGrylg9lX9IjQw60TWMLVFdrkGTRiXg+yYN8fyq8RKtm84Blgt7OUVO6v+IkJWnfC6iPaq4HGkozMNpJD+VHA==}
     engines: {node: '>=18'}
     peerDependencies:
-      zod: ^4.6.6
+      zod: ^3.25.76 || ^4.1.8
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
