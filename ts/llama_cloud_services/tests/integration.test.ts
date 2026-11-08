@@ -223,7 +223,7 @@ describe("Integration Tests", () => {
           console.warn("URL parsing test failed:", error.message);
         }
       },
-      { timeout: 60000 },
+      60000,
     );
 
     it.skipIf(skipIfNoApiKey)(
