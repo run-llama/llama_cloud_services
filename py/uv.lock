@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.9, <4.0"
 resolution-markers = [
     "python_full_version >= '3.14'",
@@ -200,7 +200,7 @@ resolution-markers = [
     "python_full_version >= '3.14'",
 ]
 dependencies = [
-    { name = "cffi", marker = "python_full_version >= '3.14'" },
+    { name = "cffi" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/e9/184b8ccce6683b0aa2fbb7ba5683ea4b9c5763f1356347f1312c32e3c66e/argon2-cffi-bindings-21.2.0.tar.gz", hash = "sha256:bb89ceffa6c791807d1305ceb77dbfacc5aa499891d2c55661c6459651fc39e3", size = 1779911, upload-time = "2021-12-01T08:52:55.68Z" }
 wheels = [
@@ -227,7 +227,7 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "cffi", marker = "python_full_version < '3.14'" },
+    { name = "cffi" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/5c/2d/db8af0df73c1cf454f71b2bbe5e356b8c1f8041c979f505b3d3186e520a9/argon2_cffi_bindings-25.1.0.tar.gz", hash = "sha256:b957f3e6ea4d55d820e40ff76f450952807013d361a65d7f28acc0acbf29229d", size = 1783441, upload-time = "2025-07-30T10:02:05.147Z" }
 wheels = [
@@ -346,19 +346,21 @@ wheels = [
 
 [[package]]
 name = "banks"
-version = "2.2.0"
+version = "2.5.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "deprecated" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
+    { name = "filetype" },
     { name = "griffe" },
     { name = "jinja2" },
     { name = "platformdirs" },
     { name = "pydantic" },
+    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/7d/f8/25ef24814f77f3fd7f0fd3bd1ef3749e38a9dbd23502fbb53034de49900c/banks-2.2.0.tar.gz", hash = "sha256:d1446280ce6e00301e3e952dd754fd8cee23ff277d29ed160994a84d0d7ffe62", size = 179052, upload-time = "2025-07-18T16:28:26.892Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/f0/92/0449c32e718c10e4af40a3e040c830a77cdaeec6e9066622ee60e4c93e6e/banks-2.5.1.tar.gz", hash = "sha256:a7ca5c250b605ae90cfd6e4ca5dd6ce2ee377d5d59021b6feba44e345910026d", size = 196398, upload-time = "2026-09-10T10:15:34.569Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/b4/d6/f9168956276934162ec8d48232f9920f2985ee45aa7602e3c6b4bc203613/banks-2.2.0-py3-none-any.whl", hash = "sha256:963cd5c85a587b122abde4f4064078def35c50c688c1b9d36f43c92503854e7d", size = 29244, upload-time = "2025-07-18T16:28:27.835Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/6f/06c0824ee2611de47a0fc731fa57f6042d3f573025d9f504adfd65e50d51/banks-2.5.1-py3-none-any.whl", hash = "sha256:b7c91365626bab4b46197d24ce04cd69540730ed669a50a399f240318ba3dcfb", size = 39462, upload-time = "2026-09-10T10:15:35.606Z" },
 ]
 
 [[package]]
@@ -578,7 +580,7 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b9/2e/0090cbf739cee7d23781ad4b89a9894a41538e4fcf4c31dcdd705b78eb8b/click-8.1.8.tar.gz", hash = "sha256:ed53c9d8990d83c2a27deae68e4ee337473f6330c040a31d4225c9574d16096a", size = 226593, upload-time = "2024-12-21T18:38:44.339Z" }
 wheels = [
@@ -596,7 +598,7 @@ resolution-markers = [
     "python_full_version == '3.10.*'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version >= '3.10' and sys_platform == 'win32'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/60/6c/8ca2efa64cf75a977a0d7fac081354553ebe483345c734fb6b6515d96bbc/click-8.2.1.tar.gz", hash = "sha256:27c491cc05d968d271d5a1db13e3b5a184636d9d930f148c50b038f0d0646202", size = 286342, upload-time = "2025-05-20T23:19:49.832Z" }
 wheels = [
@@ -746,7 +748,7 @@ name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "typing-extensions", marker = "python_full_version < '3.11'" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/0b/9f/a65090624ecf468cdca03533906e7c69ed7588582240cfe7cc9e770b50eb/exceptiongroup-1.3.0.tar.gz", hash = "sha256:b241f5885f560bc56a59ee63ca4c6a8bfa46ae4ad651af316d4e81817bb9fd88", size = 29749, upload-time = "2025-05-10T17:42:51.123Z" }
 wheels = [
@@ -1060,7 +1062,7 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.10'" },
+    { name = "zipp" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
@@ -1109,17 +1111,17 @@ resolution-markers = [
     "python_full_version < '3.10'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version < '3.10' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version < '3.10'" },
-    { name = "exceptiongroup", marker = "python_full_version < '3.10'" },
-    { name = "jedi", marker = "python_full_version < '3.10'" },
-    { name = "matplotlib-inline", marker = "python_full_version < '3.10'" },
-    { name = "pexpect", marker = "python_full_version < '3.10' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version < '3.10'" },
-    { name = "pygments", marker = "python_full_version < '3.10'" },
-    { name = "stack-data", marker = "python_full_version < '3.10'" },
-    { name = "traitlets", marker = "python_full_version < '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version < '3.10'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "exceptiongroup" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
+    { name = "typing-extensions" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/b1/b9/3ba6c45a6df813c09a48bac313c22ff83efa26cbb55011218d925a46e2ad/ipython-8.18.1.tar.gz", hash = "sha256:ca6f079bb33457c66e233e4580ebfc4128855b4cf6370dddd73842a9563e8a27", size = 5486330, upload-time = "2023-11-27T09:58:34.596Z" }
 wheels = [
@@ -1137,17 +1139,17 @@ resolution-markers = [
     "python_full_version == '3.10.*'",
 ]
 dependencies = [
-    { name = "colorama", marker = "python_full_version >= '3.10' and sys_platform == 'win32'" },
-    { name = "decorator", marker = "python_full_version >= '3.10'" },
-    { name = "exceptiongroup", marker = "python_full_version == '3.10.*'" },
-    { name = "jedi", marker = "python_full_version >= '3.10'" },
-    { name = "matplotlib-inline", marker = "python_full_version >= '3.10'" },
-    { name = "pexpect", marker = "python_full_version >= '3.10' and sys_platform != 'emscripten' and sys_platform != 'win32'" },
-    { name = "prompt-toolkit", marker = "python_full_version >= '3.10'" },
-    { name = "pygments", marker = "python_full_version >= '3.10'" },
-    { name = "stack-data", marker = "python_full_version >= '3.10'" },
-    { name = "traitlets", marker = "python_full_version >= '3.10'" },
-    { name = "typing-extensions", marker = "python_full_version >= '3.10' and python_full_version < '3.12'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "decorator" },
+    { name = "exceptiongroup", marker = "python_full_version < '3.11'" },
+    { name = "jedi" },
+    { name = "matplotlib-inline" },
+    { name = "pexpect", marker = "sys_platform != 'emscripten' and sys_platform != 'win32'" },
+    { name = "prompt-toolkit" },
+    { name = "pygments" },
+    { name = "stack-data" },
+    { name = "traitlets" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/85/31/10ac88f3357fc276dc8a64e8880c82e80e7459326ae1d0a211b40abf6665/ipython-8.37.0.tar.gz", hash = "sha256:ca815841e1a41a1e6b73a0b08f3038af9b2252564d01fc405356d34033012216", size = 5606088, upload-time = "2025-05-31T16:39:09.613Z" }
 wheels = [
@@ -1609,14 +1611,15 @@ wheels = [
 
 [[package]]
 name = "llama-cloud-services"
-version = "0.6.90"
+version = "0.6.94"
 source = { editable = "." }
 dependencies = [
     { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
     { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
     { name = "llama-cloud" },
-    { name = "llama-index-core" },
+    { name = "llama-index-core", version = "0.14.16", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "llama-index-core", version = "0.14.25", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "packaging" },
     { name = "platformdirs" },
     { name = "pydantic" },
@@ -1679,8 +1682,11 @@ dev = [
 
 [[package]]
 name = "llama-index-core"
-version = "0.12.52.post1"
+version = "0.14.16"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
 dependencies = [
     { name = "aiohttp" },
     { name = "aiosqlite" },
@@ -1688,18 +1694,61 @@ dependencies = [
     { name = "dataclasses-json" },
     { name = "deprecated" },
     { name = "dirtyjson" },
-    { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
+    { name = "eval-type-backport" },
     { name = "filetype" },
     { name = "fsspec" },
     { name = "httpx" },
-    { name = "llama-index-workflows" },
+    { name = "llama-index-workflows", version = "2.16.1", source = { registry = "https://pypi.org/simple" } },
     { name = "nest-asyncio" },
-    { name = "networkx", version = "3.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "networkx", version = "3.2.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "nltk", version = "3.9.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" } },
+    { name = "pillow" },
+    { name = "platformdirs" },
+    { name = "pydantic" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "setuptools" },
+    { name = "sqlalchemy", extra = ["asyncio"] },
+    { name = "tenacity" },
+    { name = "tiktoken" },
+    { name = "tinytag" },
+    { name = "tqdm" },
+    { name = "typing-extensions" },
+    { name = "typing-inspect" },
+    { name = "wrapt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/13/cb/1d7383f9f4520bb1d921c34f18c147b4b270007135212cedfa240edcd4c3/llama_index_core-0.14.16.tar.gz", hash = "sha256:cf2b7e4b798cb5ebad19c935174c200595c7ecff84a83793540cc27b03636a52", size = 11599715, upload-time = "2026-03-10T19:19:52.476Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b4/f5/a33839bae0bd07e4030969bdba1ac90665e359ae88c56c296991ae16b8a8/llama_index_core-0.14.16-py3-none-any.whl", hash = "sha256:0cc273ebc44d51ad636217661a25f9cd02fb2d0440641430f105da3ae9f43a6b", size = 11944927, upload-time = "2026-03-10T19:19:48.043Z" },
+]
+
+[[package]]
+name = "llama-index-core"
+version = "0.14.25"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "aiohttp" },
+    { name = "aiosqlite" },
+    { name = "banks" },
+    { name = "dataclasses-json" },
+    { name = "deprecated" },
+    { name = "dirtyjson" },
+    { name = "filetype" },
+    { name = "fsspec" },
+    { name = "httpx" },
+    { name = "llama-index-workflows", version = "2.26.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "nest-asyncio" },
+    { name = "networkx", version = "3.4.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "networkx", version = "3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "nltk" },
-    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "nltk", version = "3.10.4", source = { registry = "https://pypi.org/simple" } },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "pillow" },
     { name = "platformdirs" },
@@ -1710,41 +1759,88 @@ dependencies = [
     { name = "sqlalchemy", extra = ["asyncio"] },
     { name = "tenacity" },
     { name = "tiktoken" },
+    { name = "tinytag" },
     { name = "tqdm" },
     { name = "typing-extensions" },
     { name = "typing-inspect" },
     { name = "wrapt" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9e/3b/3937a1756a02e549a776272371dd6ec3a4541833b2dbb8ef58e61167f9c9/llama_index_core-0.12.52.post1.tar.gz", hash = "sha256:ac6f447271e5ac4c12e1901373ec4b5ac7814ea33bd1ad3c3c8e9ac9771834ab", size = 7279221, upload-time = "2025-07-23T17:32:33.961Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d8/70/fe1f0a92459c3692075875c1e09fc51494602daaeb71734045e1d9d815d3/llama_index_core-0.14.25.tar.gz", hash = "sha256:4ebfdc5317f0382501fa80262d7a7382715f80741cf41a7b11a52d4335e6f696", size = 11591384, upload-time = "2026-09-21T16:21:51.975Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/51/48/8f6ea9f2a2f5a080166f0a45a252609df32cc1ad626836aaad2424e2c7ec/llama_index_core-0.12.52.post1-py3-none-any.whl", hash = "sha256:3e28d65d238bad8ec5ce372659ae0a3878851c6ba9c9447d6ddb4de138694b1f", size = 7649855, upload-time = "2025-07-23T17:32:28.271Z" },
+    { url = "https://files.pythonhosted.org/packages/8c/20/60be179aaba858981edbe18eab106ff485967a9d3b198f8c58496cad9e32/llama_index_core-0.14.25-py3-none-any.whl", hash = "sha256:caa7d9c5ac9b13dc33400cf8d5e92e689b6d1e4497eb9bfa50d6f52ca2eb22a1", size = 11928254, upload-time = "2026-09-21T16:21:48.626Z" },
 ]
 
 [[package]]
 name = "llama-index-instrumentation"
-version = "0.3.1"
+version = "0.4.3"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
 dependencies = [
     { name = "deprecated" },
     { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/08/82/3f8dbca9f69348db4b342952c792f9ef2f822cc8354af2e68b600ac4cf21/llama_index_instrumentation-0.3.1.tar.gz", hash = "sha256:d7c1a9d5e4c2bf9603fc0d3609f939d88c8d61eb803f2c463d61cb62b0dcd0c6", size = 44962, upload-time = "2025-07-30T14:11:15.405Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/45/293b89d330a989e444ade307252c190b497142761f1a6a8f20b300fefeb2/llama_index_instrumentation-0.4.3.tar.gz", hash = "sha256:6a8bd34b0c2fb9485971f952f3e5d63341eb87f8c55c82f2819a37e174494eb9", size = 48458, upload-time = "2026-03-03T19:01:27.146Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/49/e6/5eeaf98146e26af28cae36b1eaba7c405246697dfe208f249a4b9f113f0a/llama_index_instrumentation-0.3.1-py3-none-any.whl", hash = "sha256:68527a926ac1db84fe7c4426048c4a7c25fdb71626d465b963d80f05f526124a", size = 14947, upload-time = "2025-07-30T14:11:14.269Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/0f/5fe062395c8d444235fc228bb2577588be4e9db6fb5f4d1b662e9ac98aee/llama_index_instrumentation-0.4.3-py3-none-any.whl", hash = "sha256:4669d5f6da4b478784a196489d4b58072cb2e6928c3781d2bddd34f36da9cac1", size = 16446, upload-time = "2026-03-03T19:01:28.807Z" },
+]
+
+[[package]]
+name = "llama-index-instrumentation"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "deprecated" },
+    { name = "pydantic" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/70/ac/ffc116bac024cb0a54b4d28ca9b421e9a08f408c1fcc0039a36de2c0c97b/llama_index_instrumentation-0.6.0.tar.gz", hash = "sha256:b185c4e28a7f32899c27649cc2e2d7d54267fa2ff0cd43cbe2b5212bae98fe3a", size = 56517, upload-time = "2026-08-29T15:33:16.861Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/b5/332eb32835360125fa1c90a4b81c58831c48dded5b8426d44e9acd4bf328/llama_index_instrumentation-0.6.0-py3-none-any.whl", hash = "sha256:9588618b271e6c74e58dc81542ea022547c427f036e7cacb655865c4982610bb", size = 16445, upload-time = "2026-08-29T15:33:15.766Z" },
 ]
 
 [[package]]
 name = "llama-index-workflows"
-version = "1.2.0"
+version = "2.16.1"
 source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "eval-type-backport", marker = "python_full_version < '3.10'" },
-    { name = "llama-index-instrumentation" },
-    { name = "pydantic" },
+resolution-markers = [
+    "python_full_version < '3.10'",
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/26/9d/9dc7adc10d9976582bf50b074883986cb36b46f2fe45cf60550767300a29/llama_index_workflows-1.2.0.tar.gz", hash = "sha256:f6b19f01a340a1afb1d2fd2285c9dce346e304a3aae519e6103059f5afb2609f", size = 1019113, upload-time = "2025-07-23T18:32:47.86Z" }
+dependencies = [
+    { name = "eval-type-backport" },
+    { name = "llama-index-instrumentation", version = "0.4.3", source = { registry = "https://pypi.org/simple" } },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3b/9a/2fae9bfb0e5fd12d323cb2c37450435c8e593f3b51cae297c55623eb1105/llama_index_workflows-2.16.1.tar.gz", hash = "sha256:2f6be223af407084eef064bcbec8f60ae4dd011d9a04631887ce986258fac58a", size = 83897, upload-time = "2026-03-12T15:16:20.579Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/36/c1/5190f102a042d36a6a495de27510c2d6e3aca98f892895bfacdcf9109c1d/llama_index_workflows-1.2.0-py3-none-any.whl", hash = "sha256:5722a7ce137e00361025768789e7e77720cd66f855791050183a3c540b6e5b8c", size = 37463, upload-time = "2025-07-23T18:32:46.294Z" },
+    { url = "https://files.pythonhosted.org/packages/22/ef/143ae98980144c95a647b04f6f914687f6b1ebc1743f741aec28b9ff42c4/llama_index_workflows-2.16.1-py3-none-any.whl", hash = "sha256:d58c74f59df3ae37765b7c214928639b8dc2596a68f03adb80b4981329dc4914", size = 107036, upload-time = "2026-03-12T15:16:18.088Z" },
+]
+
+[[package]]
+name = "llama-index-workflows"
+version = "2.26.1"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "llama-index-instrumentation", version = "0.6.0", source = { registry = "https://pypi.org/simple" } },
+    { name = "pydantic" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/56/bc/186391e029c11d8288a3f365736813044dbff8123c9df9b8dd9eea5f8f3e/llama_index_workflows-2.26.1.tar.gz", hash = "sha256:bd2abd7c3730c17922fff7ba4f6302727d1874718870fbf615705bf3d7361b87", size = 160003, upload-time = "2026-10-21T20:47:11.217Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3f/27/34d80bf9cc330711767c02d95494b39c12abe40591a7415aa785d5ab650f/llama_index_workflows-2.26.1-py3-none-any.whl", hash = "sha256:b4a01ec72f2c297f85042cf34b10dd307770b93f49e2acc760e6b983ecbec0c1", size = 184547, upload-time = "2026-10-21T20:47:10.103Z" },
 ]
 
 [[package]]
@@ -2132,9 +2228,11 @@ wheels = [
 name = "nltk"
 version = "3.9.1"
 source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.10'",
+]
 dependencies = [
-    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
+    { name = "click", version = "8.1.8", source = { registry = "https://pypi.org/simple" } },
     { name = "joblib" },
     { name = "regex" },
     { name = "tqdm" },
@@ -2142,6 +2240,28 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/3c/87/db8be88ad32c2d042420b6fd9ffd4a149f9a0d7f0e86b3f543be2eeeedd2/nltk-3.9.1.tar.gz", hash = "sha256:87d127bd3de4bd89a4f81265e5fa59cb1b199b27440175370f7417d2bc7ae868", size = 2904691, upload-time = "2024-08-18T19:48:37.769Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl", hash = "sha256:4fa26829c5b00715afe3061398a8989dc643b92ce7dd93fb4585a70930d168a1", size = 1505442, upload-time = "2024-08-18T19:48:21.909Z" },
+]
+
+[[package]]
+name = "nltk"
+version = "3.10.4"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14'",
+    "python_full_version >= '3.12' and python_full_version < '3.14'",
+    "python_full_version == '3.11.*'",
+    "python_full_version == '3.10.*'",
+]
+dependencies = [
+    { name = "click", version = "8.2.1", source = { registry = "https://pypi.org/simple" } },
+    { name = "defusedxml" },
+    { name = "joblib" },
+    { name = "regex" },
+    { name = "tqdm" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/3a/cb/bbaa9be58e95d21729c6b9194376610230e0755f6de0bf38b6acc0dce079/nltk-3.10.4.tar.gz", hash = "sha256:44679f4e9220abfd496d2c8cdb22f8425ccbe557604f9aa5cacb1c44003dabc1", size = 4300570, upload-time = "2026-10-21T11:34:35.851Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a2/04/e7816813e409ca874ba2fcc35455db0e4130b79eb277e1f9edd270ca3c69/nltk-3.10.4-py3-none-any.whl", hash = "sha256:769ba5413f265b7d3e87cd163cc28efa01e29eeef8bb6080bc907949d9fcfb51", size = 1722994, upload-time = "2026-10-21T11:34:27.975Z" },
 ]
 
 [[package]]
@@ -3979,6 +4099,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/7a/fd/7a5ee21fd08ff70d3d33a5781c255cbe779659bd03278feb98b19ee550f4/tinycss2-1.4.0.tar.gz", hash = "sha256:10c0972f6fc0fbee87c3edb76549357415e94548c1ae10ebccdea16fb404a9b7", size = 87085, upload-time = "2024-10-24T14:58:29.895Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e6/34/ebdc18bae6aa14fbee1a08b63c015c72b64868ff7dae68808ab500c492e2/tinycss2-1.4.0-py3-none-any.whl", hash = "sha256:3a49cf47b7675da0b15d0c6e1df8df4ebd96e9394bb905a5775adb0d884c5289", size = 26610, upload-time = "2024-10-24T14:58:28.029Z" },
+]
+
+[[package]]
+name = "tinytag"
+version = "2.3.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/38/0f/fae085b7f19fe0c67b68e6d70098ac6cd046cc498f253f5ee56a3dd03bbc/tinytag-2.3.2.tar.gz", hash = "sha256:021d711cdbdbf840d3b67b976cb34dadc58d2fcfd490eb74ef9602b37b991414", size = 47353, upload-time = "2026-09-07T17:46:08.886Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/54/d378858d14e5c5c7b921cb9ffccf27be3d34f3d6d010c57404ddd634685d/tinytag-2.3.2-py3-none-any.whl", hash = "sha256:ebaf957915266b9c20414a10f8c5170a345aa039a794650d39d66e7d6b96199f", size = 37171, upload-time = "2026-09-07T17:46:07.434Z" },
 ]
 
 [[package]]
