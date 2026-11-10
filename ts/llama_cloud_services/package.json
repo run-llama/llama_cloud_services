@@ -145,5 +145,5 @@
     "file-type": "^21.0.0",
     "p-retry": "^6.2.1"
   },
-  "packageManager": "pnpm@10.8.1"
+  "packageManager": "pnpm@10.34.5"
 }
