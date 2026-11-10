@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^1.3.23",
-    "ai": "^4.3.19",
+    "ai": "^5.0.0",
     "consola": "^3.4.2",
     "figlet": "^1.8.2",
     "llama-cloud-services": "link:../../ts/llama_cloud_services",
